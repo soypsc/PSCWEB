@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Código Y+ — Calculadora de Compras (Mejorada)</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+  <style>
+    /* ======================
+       Código Y+ - CSS unificado
+       ====================== */
+    :root{
+      --blue-1:#2325d4;
+      --blue-2:#1a1cb3;
+      --accent:#ffec00;
+      --bg:#fff;
+      --muted:#777;
+      --card-border:#e6e6ee;
+      --shadow: 0 6px 30px rgba(0,0,0,0.06);
+      --radius:12px;
+      --max-width:1200px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Poppins',sans-serif;
+      background:var(--bg);
+      color:#111;
+      line-height:1.5;
+      padding:18px;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Header */
+    header {
+    background: linear-gradient(135deg, var(--blue-1), var(--blue-2));
+    color: #fff;
+    position: relative;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    padding: 0 20px;
+    border-radius: 0;
+    width: 100vw; /* ocupa todo el ancho de la ventana */
+    margin: 0;    /* elimina posibles márgenes */
+}
+    .header-inner{
+      max-width:var(--max-width);
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      height:140px;
+    }
+    .logo img{max-height:180px; object-fit:contain}
+    nav{display:flex;gap:18px;align-items:center}
+    nav a{color:#fff;text-decoration:none;font-weight:500;font-size:14px;position:relative}
+    nav a:hover{color:var(--accent)}
+    nav a::after{content:"";position:absolute;left:0;bottom:-4px;width:0;height:2px;background:var(--accent);transition:0.22s}
+    nav a:hover::after{width:100%}
+    .header-buttons{display:flex;gap:10px}
+    .btn-header{background:var(--accent);color:var(--blue-1);padding:8px 14px;border-radius:8px;font-weight:600;text-decoration:none}
+    .onda{position:absolute;bottom:-20px;left:0;width:100%;height:40px;background:url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;background-size:cover}
+
+    /* Card wrapper */
+    main.wrapper{max-width:var(--max-width);margin:40px auto 18px; padding:0 12px}
+
+    /* Card */
+    .card{
+      background: #fff;
+      padding:1.6rem;
+      border-radius:1rem;
+      border:1px solid var(--card-border);
+      box-shadow:var(--shadow);
+    }
+
+    h2{color:var(--blue-1);margin-bottom:12px}
+
+    /* Inputs & buttons */
+    input[type="text"], input[type="url"], input[type="number"], button, select, textarea {
+      width:100%;
+      font-size:1rem;
+      padding:0.85rem 1rem;
+      border-radius:.75rem;
+      margin-bottom:1rem;
+      border:1px solid #d1d1d6;
+    }
+    button{background:#000;color:#fff;cursor:pointer;font-weight:600}
+    button.secondary{background:#f5f5f5;color:#111;border:1px solid #ddd}
+    .row{display:flex;gap:10px}
+    .row > *{flex:1}
+
+    /* Resultados / producto */
+    .result-box{margin-top:12px}
+    .producto{display:flex;gap:12px;align-items:center}
+    .producto img{max-width:160px;border-radius:10px;border:1px solid #eee;object-fit:contain}
+    .producto h3{font-size:1.05rem;margin-bottom:6px}
+    .producto .precio{font-weight:700;font-size:1.1rem}
+
+    /* Option blocks */
+    .option-block{border:1px solid #ececec;border-radius:.6rem;padding:12px;background:#fbfbfb;margin-bottom:12px}
+    .option-header{display:flex;justify-content:space-between;font-weight:700;margin-bottom:8px}
+    .field{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0}
+    .field:last-child{border-bottom:none}
+    .subtle{font-size:.85rem;color:var(--muted)}
+
+    .spinner{display:inline-block;width:20px;height:20px;border:3px solid #ccc;border-top-color:#000;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* Footer */
+    footer{background:#fff;padding:26px 16px;margin-top:28px}
+    .footer-container{max-width:var(--max-width);margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+    .footer-col h3{color:var(--blue-1);margin-bottom:8px}
+    .footer-bottom{text-align:center;margin-top:12px;color:#555;border-top:1px solid rgba(0,0,0,0.08);padding-top:8px}
+
+    /* WhatsApp float */
+    .whatsapp-float{position:fixed;right:18px;bottom:18px;width:60px;height:60px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;box-shadow:0 6px 18px rgba(0,0,0,0.12);z-index:999}
+    .whatsapp-float:active{transform:scale(.98)}
+
+    /* Responsive tweaks */
+    @media (max-width:900px){
+      .header-inner{flex-direction:column;gap:8px;height:auto;padding:10px 0}
+      nav{flex-wrap:wrap;justify-content:center}
+      .card{padding:1.1rem}
+    }
+
+    /* ===== Impresión: forzar a una sola página y estilo corporativo ===== */
+    @media print {
+      @page { size: A4; margin: 10mm; }
+      html, body {
+        height: 297mm;
+        width: 210mm;
+      }
+      /* Reduce un poco el zoom para que quepa en una sola página; ajusta si hace falta */
+      body { zoom: 0.85; -webkit-print-color-adjust: exact; }
+      .no-print { display: none !important; }
+      .print-hero {
+        background: linear-gradient(135deg,var(--blue-1),var(--blue-2));
+        color: #fff;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+      }
+      .print-logo { max-width: 140px; display:inline-block; vertical-align: middle; margin-right:12px; }
+      .print-meta { display:inline-block; vertical-align: middle; font-size:12px; color:#fff }
+      .option-block { page-break-inside: avoid; }
+    }
+  
+/* Dropdown */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #2325d4;
+  min-width: 200px;
+  box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: white;
+  padding: 10px 16px;
+  display: block;
+  font-size: 14px;
+}
+
+.dropdown-content a:hover {
+  background-color: #1a1cb3;
+  color: #ffec00;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+</style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="no-print">
+    <div class="header-inner">
+      <div class="logo">
+        <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo PSC">
+      </div>
+
+      <nav>
+        <a href="file:///C:/Users/soyps/Desktop/web%20psc%20inicio.html">Inicio</a>
+        <a href="file:///C:/Users/soyps/Desktop/pag%20rastredor.html">Rastreador de Paquetes</a>
+        <a href="file:///C:/Users/soyps/Desktop/cotizar%20compra.html">Cotiza tus Compras</a>
+        <a href="file:///C:/Users/soyps/Desktop/solicitar%20ML.html">Solicitar ML</a> <!-- ← AÑADIDO -->
+        
+  <!-- Menú desplegable -->
+  <div class="dropdown">
+    <a href="#">Más ▾</a>
+    <div class="dropdown-content">
+      <a href="file:///C:/Users/soyps/Desktop/Mercancia%20Peligrosa.html">Mercancía Peligrosa</a>
+      <a href="file:///C:/Users/soyps/Desktop/Terminos&condiciones.html">Términos y Condiciones</a>
+    </div>
+  </div>
+
+      </nav>
+      <div class="header-buttons">
+        <a href="https://psc.e-rmez.com/zonacliente/" class="btn-header">Zona de Clientes</a>
+        <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-header">Regístrate</a>
+      </div>
+    </div>
+
+    <div class="onda" aria-hidden="true"></div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="wrapper">
+    <section class="card" aria-labelledby="titulo-card">
+      <h2 id="titulo-card">Buscador y Calculadora de Compras</h2>
+
+      <!-- BUSCADOR -->
+      <div id="buscador">
+        <label for="linkBuscar">Buscar Producto (Amazon)</label>
+        <input id="linkBuscar" type="text" placeholder="🔗 Pega el link del producto (ej. amazon.com)" autocomplete="off" />
+        <div class="row">
+          <button id="btnBuscar" type="button">Buscar</button>
+          <button id="btnSaltar" class="secondary" type="button">Saltar</button>
+        </div>
+
+        <div id="resultadoSearch" class="result-box" aria-live="polite"></div>
+
+        <!-- Info auxiliar (oculto, usado por impresión y guardado) -->
+        <div id="info-producto" style="display:none; margin-top:12px;">
+          <img id="imagen-producto" src="" alt="" style="display:none" />
+          <h3 id="titulo-producto" style="display:none"></h3>
+          <span id="precio-producto" style="display:none"></span>
+        </div>
+      </div>
+
+      <!-- CALCULADORA -->
+      <div id="calculadora" style="display:none; margin-top:18px;">
+        <hr style="margin:18px 0" />
+        <h2>Calculadora</h2>
+
+        <label for="link">Link del producto</label>
+        <input id="link" type="url" placeholder="https://..." />
+
+        <label for="costo">Costo del producto ($)</label>
+        <input id="costo" type="number" step="0.01" min="0" />
+
+        <label for="abono">Abono ($) (opcional)</label>
+        <input id="abono" type="number" step="0.01" min="0" />
+
+        <label for="peso">Peso aproximado (libras)</label>
+        <input id="peso" type="number" step="0.01" min="0" />
+
+        <div class="row">
+          <button id="btnCalcular" type="button">Calcular</button>
+          <button id="btnLimpiar" class="secondary" type="button">Limpiar</button>
+        </div>
+
+        <div id="resultadoCalc" class="result-box" style="display:none"></div>
+
+        <div id="accionesCalc" style="display:none; margin-top:12px;">
+          <div class="row">
+            <button id="btnLimpiar2" class="secondary" type="button">Limpiar</button>
+            <button id="btnImprimir" type="button">Imprimir</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;background:#f9f9f9;border:1px solid #e6e6e6;padding:12px;border-radius:10px;color:#333">
+        <strong>IMPORTANTE</strong><br>
+        EL PESO DEL PRODUCTO Y EL SALDO SE CANCELAN AL MOMENTO DE RETIRAR. ABONOS MENORES A EL 80% DEL VALOR DEL PRODUCTO TIENEN UN COSTO DE FINANCIAMIENTO DEL SALDO PENDIENTE.
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="no-print">
+    <div class="footer-container">
+      <div class="footer-col">
+        <h3>Contacto</h3>
+        <p>Asistencia personalizada</p>
+        <div class="social-icons">
+          <a href="#">📸 Instagram</a><br>
+          <a href="tel:+50767906781">📞 +507 67906781</a><br>
+          <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a><br>
+          <a href="#">💬 WhatsApp</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h3>Enlaces Rápidos</h3>
+        <a href="#">Términos y Condiciones</a><br>
+        <a href="#">Mercancía Restringida</a>
+      </div>
+      <div class="footer-col">
+        <h3>Sobre Nosotros</h3>
+        <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2023 Panama Shipping Co. Todos los derechos reservados.</div>
+  </footer>
+
+  <!-- WHATSAPP -->
+<a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" 
+   class="whatsapp-float" target="_blank" rel="noopener">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" />
+</a>
+
+<style>
+.whatsapp-float img {
+  width: 45px;   /* tamaño reducido */
+  height: 45px;
+  border-radius: 50%; /* opcional para redondear */
+}
+
+/* Dropdown */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #2325d4;
+  min-width: 200px;
+  box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: white;
+  padding: 10px 16px;
+  display: block;
+  font-size: 14px;
+}
+
+.dropdown-content a:hover {
+  background-color: #1a1cb3;
+  color: #ffec00;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+</style>
+
+  <script>
+  /* ============================================================
+     Código Y+ - JavaScript optimizado y modular (todas las funciones)
+     - Soporta búsqueda en Amazon (ScraperAPI) y MercadoLibre
+     - Calculadora de costo/abono/peso
+     - Funciones de imprimir y limpiar
+     - Impresión: incluye imagen, header azul, fecha/hora, y fuerza a una sola página
+     ============================================================ */
+  (function(){
+    // -----------------------
+    // Config / Helpers
+    // -----------------------
+    const apiKey = "fcee4890ff2a9fd58e410400103b094d"; // tu ScraperAPI si quieres usar amazon
+    const el = id => document.getElementById(id);
+    const escapeHtml = t => t ? String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : "";
+
+    // Estado del producto actual
+    let productoEstado = { titulo: "", precio: null, imagen: "", link: "" };
+
+    // -----------------------
+    // Utils: extracción ID MercadoLibre
+    // -----------------------
+    function extraerIdMercadoLibre(url){
+      if(!url) return null;
+      let m = url.match(/\/items\/(MLA[-]?\d+)/i);
+      if(m) return m[1].replace(/-/g,"");
+      m = url.match(/(MLA[-]?\d+)/i);
+      if(m) return m[1].replace(/-/g,"");
+      m = url.match(/\/(\d+)(?:[/?]|$)/);
+      if(m) return m[1];
+      return null;
+    }
+
+    // Mostrar calculadora (resetea resultados)
+    function mostrarCalculadora(){
+      el("calculadora").style.display = "block";
+      el("resultadoCalc").style.display = "none";
+      el("accionesCalc").style.display = "none";
+      el("resultadoCalc").innerHTML = "";
+    }
+
+    // -----------------------
+    // BÚSQUEDA: Amazon (ScraperAPI) y MercadoLibre
+    // -----------------------
+    async function buscarProducto(){
+      const boton = el("btnBuscar");
+      const link = el("linkBuscar").value.trim();
+      const cont = el("resultadoSearch");
+      cont.innerHTML = "";
+
+      if(!link){
+        cont.innerHTML = `<p style="color:#c33">⚠️ Ingresa un link para buscar.</p>`;
+        return;
+      }
+
+      boton.disabled = true;
+      boton.textContent = "Buscando...";
+
+      // AMAZON
+      if(link.includes("amazon.")){
+        cont.innerHTML = `<p><span class="spinner"></span>Buscando producto en Amazon...</p>`;
+        try{
+          const scrapeUrl = `https://api.scraperapi.com?api_key=${apiKey}&url=${encodeURIComponent(link)}`;
+          const res = await fetch(scrapeUrl);
+          const html = await res.text();
+          const doc = new DOMParser().parseFromString(html, "text/html");
+
+          const titulo = doc.querySelector("#productTitle")?.textContent?.trim() || doc.querySelector("span.a-size-large")?.textContent?.trim() || "Sin título";
+          const precioRaw = doc.querySelector("#priceblock_ourprice")?.textContent || doc.querySelector("#priceblock_dealprice")?.textContent || doc.querySelector(".a-price .a-offscreen")?.textContent || null;
+          const precio = precioRaw ? parseFloat(precioRaw.replace(/[^0-9.,]/g,"").replace(",", ".")) : null;
+          const img = doc.querySelector("#landingImage")?.src || doc.querySelector("#imgTagWrapperId img")?.src || doc.querySelector(".imgTagWrapper img")?.src || null;
+
+          productoEstado = { titulo, precio, imagen: img || "", link };
+
+          if(precio){
+            const imgHtml = img ? `<img src="${img}" alt="Producto">` : "";
+            cont.innerHTML = `<div class="producto">${imgHtml}<div><h3>${escapeHtml(titulo)}</h3><div class="precio">$${precio.toFixed(2)}</div></div></div>`;
+            el("link").value = link;
+            el("costo").value = precio.toFixed(2);
+            mostrarCalculadora();
+            // llenar info oculto para impresión
+            el("imagen-producto").src = img || "";
+            el("imagen-producto").style.display = img ? "block" : "none";
+            el("titulo-producto").textContent = titulo;
+            el("precio-producto").textContent = precio ? `$${precio.toFixed(2)}` : "";
+          } else {
+            cont.innerHTML = `<p>⚠️ No se encontró el precio automáticamente. Puedes ingresarlo manualmente.</p>`;
+            el("link").value = link;
+            mostrarCalculadora();
+          }
+        } catch(err){
+          console.error("Amazon search error:", err);
+          cont.innerHTML = `<p>❌ Error al buscar en Amazon. Ingresa el dato manualmente abajo.</p>`;
+          el("link").value = link;
+          mostrarCalculadora();
+        } finally {
+          boton.disabled = false;
+          boton.textContent = "Buscar";
+        }
+        return;
+      }
+
+      // MERCADOLIBRE
+      if(link.includes("mercadolibre") || link.match(/\/items\/|MLA/i) ){
+        cont.innerHTML = `<p><span class="spinner"></span>Buscando producto en MercadoLibre...</p>`;
+        const id = extraerIdMercadoLibre(link);
+        if(!id){
+          cont.innerHTML = `<p>⚠️ No se pudo extraer el ID de MercadoLibre. Ingresa el precio manualmente.</p>`;
+          el("link").value = link;
+          mostrarCalculadora();
+          boton.disabled = false;
+          boton.textContent = "Buscar";
+          return;
+        }
+        try{
+          const res = await fetch(`https://api.mercadolibre.com/items/${id}`);
+          const data = await res.json();
+          if(data && !data.error){
+            const titulo = data.title || "Sin título";
+            const precio = data.price || null;
+            const img = data.thumbnail || (data.pictures && data.pictures[0]?.secure_url) || null;
+
+            productoEstado = { titulo, precio, imagen: img || "", link };
+
+            const imgHtml = img ? `<img src="${img}" alt="Producto">` : "";
+            cont.innerHTML = `<div class="producto">${imgHtml}<div><h3>${escapeHtml(titulo)}</h3><div class="precio">${precio ? "$"+parseFloat(precio).toFixed(2) : "—"}</div></div></div>`;
+            if(precio) el("costo").value = parseFloat(precio).toFixed(2);
+            el("link").value = link;
+            mostrarCalculadora();
+
+            // llenar info oculto para impresión
+            el("imagen-producto").src = img || "";
+            el("imagen-producto").style.display = img ? "block" : "none";
+            el("titulo-producto").textContent = titulo;
+            el("precio-producto").textContent = precio ? `$${parseFloat(precio).toFixed(2)}` : "";
+          } else {
+            cont.innerHTML = `<p>⚠️ Producto no encontrado en MercadoLibre. Ingresa el precio manualmente.</p>`;
+            el("link").value = link;
+            mostrarCalculadora();
+          }
+        } catch(err){
+          console.error("MercadoLibre error:", err);
+          cont.innerHTML = `<p>❌ Error al consultar MercadoLibre. Ingresa el precio manualmente.</p>`;
+          el("link").value = link;
+          mostrarCalculadora();
+        } finally {
+          boton.disabled = false;
+          boton.textContent = "Buscar";
+        }
+        return;
+      }
+
+      // OTROS
+      cont.innerHTML = `<p>⚠️ Solo se hace scrapping automático de Amazon y búsqueda directa de MercadoLibre. Puedes ingresar datos manualmente abajo.</p>`;
+      el("link").value = link;
+      mostrarCalculadora();
+      boton.disabled = false;
+      boton.textContent = "Buscar";
+    }
+
+    // -----------------------
+    // CALCULADORA
+    // -----------------------
+    function calcular(){
+      const costo = parseFloat(el("costo").value);
+      const abonoRaw = el("abono").value;
+      const abono = abonoRaw ? parseFloat(abonoRaw) : null;
+      const peso = parseFloat(el("peso").value) || 0;
+
+      if(isNaN(costo) || costo <= 0){
+        alert("Por favor ingresa un costo válido.");
+        return;
+      }
+
+      const cont = el("resultadoCalc");
+      cont.style.display = "block";
+      cont.innerHTML = "";
+
+      const pesoLb = Math.ceil(peso);
+      const costoPeso = pesoLb * 2.95;
+      const comision = costo < 20 ? 5 : costo * 0.2;
+      const tarifa = 2.75;
+      const totalBase = costo + comision + tarifa;
+      const porc80 = costo * 0.8;
+
+      function calcularSaldo(abonoVal){
+        let saldo, totalFinal;
+        if(abonoVal >= totalBase){
+          saldo = 0;
+          totalFinal = abonoVal;
+        } else {
+          saldo = totalBase - abonoVal;
+          totalFinal = abonoVal + (abonoVal > porc80 ? saldo : saldo * 1.3);
+        }
+        return { totalFinal, abono: abonoVal, saldo };
+      }
+
+      if(!abono){
+        const opciones = [{label:"Opción 1",pct:1.0},{label:"Opción 2",pct:0.6},{label:"Opción 3",pct:0.25}];
+        opciones.forEach(op=>{
+          const abonoVal = costo * op.pct;
+          const datos = calcularSaldo(abonoVal);
+          cont.innerHTML += `
+            <div class="option-block">
+              <div class="option-header"><div>${op.label}</div><div class="subtle">${Math.round(op.pct*100)}% del costo</div></div>
+              <div class="field"><div>Total de la compra:</div><div>$${datos.totalFinal.toFixed(2)}</div></div>
+              <div class="field"><div>Abono:</div><div>$${datos.abono.toFixed(2)}</div></div>
+              <div class="field"><div>Saldo a cancelar:</div><div>$${datos.saldo.toFixed(2)}</div></div>
+            </div>
+          `;
+        });
+      } else {
+        const datos = calcularSaldo(abono);
+        cont.innerHTML += `
+          <div class="option-block">
+            <div class="option-header"><div>Cotización personalizada</div><div class="subtle">Abono ingresado</div></div>
+            <div class="field"><div>Total de la compra:</div><div>$${datos.totalFinal.toFixed(2)}</div></div>
+            <div class="field"><div>Abono:</div><div>$${datos.abono.toFixed(2)}</div></div>
+            <div class="field"><div>Saldo a cancelar:</div><div>$${datos.saldo.toFixed(2)}</div></div>
+          </div>
+        `;
+      }
+
+      if(peso > 0){
+        cont.innerHTML += `
+          <div class="option-block">
+            <div class="option-header"><div>Peso estimado</div></div>
+            <div class="field"><div>Peso:</div><div>${pesoLb} lb</div></div>
+            <div class="field"><div>Costo estimado del peso:</div><div>$${costoPeso.toFixed(2)}</div></div>
+          </div>
+        `;
+      }
+
+      el("accionesCalc").style.display = "block";
+      // show imprimir button
+      el("btnImprimir").style.display = "inline-block";
+    }
+
+    // -----------------------
+    // IMPRESION: incluir imagen, header azul, fecha/hora y forzar 1 página
+    // -----------------------
+    function imprimirCotizacion(){
+      const link = el("link").value || el("linkBuscar").value || "—";
+      const costo = el("costo").value || "—";
+      const abono = el("abono").value || "—";
+      const peso = el("peso").value || "—";
+      const contenido = el("resultadoCalc").innerHTML || "";
+      const imagenSrc = el("imagen-producto").src || productoEstado.imagen || "";
+      const titulo = el("titulo-producto").textContent || productoEstado.titulo || "";
+      const now = new Date();
+      const fecha = now.toLocaleDateString();
+      const hora = now.toLocaleTimeString();
+
+      const printHTML = `
+        <!doctype html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Cotización</title>
+          <style>
+            @page { size: A4; margin: 10mm; }
+            html,body{font-family:Arial,Helvetica,sans-serif;color:#111;margin:0;padding:0}
+            .header{background:linear-gradient(135deg, ${escapeHtml('#2325d4')}, ${escapeHtml('#1a1cb3')});color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px}
+            .logo { max-width:140px; }
+            .meta { font-size:13px; opacity:0.95 }
+            .container{padding:14px}
+            .producto{display:flex;gap:12px;align-items:center;margin-top:12px}
+            .producto img{max-width:160px;border-radius:8px;border:1px solid #eee}
+            h2{margin:0 0 6px 0}
+            .field{margin-bottom:8px}
+            .option-block{border:1px solid #eee;padding:8px;border-radius:8px;background:#fafafa;margin-bottom:8px}
+            /* evitar saltos de página en bloques importantes */
+            .option-block, .producto, .field { page-break-inside: avoid; }
+            /* ajustar escala si queda justo */
+            @media print {
+              html,body{zoom:0.95}
+            }
+          
+/* Dropdown */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #2325d4;
+  min-width: 200px;
+  box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: white;
+  padding: 10px 16px;
+  display: block;
+  font-size: 14px;
+}
+
+.dropdown-content a:hover {
+  background-color: #1a1cb3;
+  color: #ffec00;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+</style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="logo"><img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" style="max-width:140px"></div>
+            <div class="meta">
+              <div style="font-weight:700;font-size:16px">Panama Shipping Co. — Cotización</div>
+              <div style="margin-top:6px">Fecha: ${escapeHtml(fecha)} &nbsp;&nbsp; Hora: ${escapeHtml(hora)}</div>
+            </div>
+          </div>
+          <div class="container">
+            <h2>${escapeHtml(titulo || 'Cotización del Producto')}</h2>
+            <div class="producto">
+              ${imagenSrc ? `<img src="${escapeHtml(imagenSrc)}" alt="Producto">` : ''}
+              <div>
+                <div class="field"><strong>Link:</strong> ${escapeHtml(link)}</div>
+                <div class="field"><strong>Costo:</strong> $${escapeHtml(costo)}</div>
+                <div class="field"><strong>Abono:</strong> $${escapeHtml(abono)}</div>
+                <div class="field"><strong>Peso:</strong> ${escapeHtml(peso)}</div>
+              </div>
+            </div>
+
+            <hr style="margin:12px 0">
+
+            ${contenido}
+
+            <p style="margin-top:12px;font-size:12px;color:#555">* Esta cotización es referencial y sujeta a cambios. Fecha y hora mostradas corresponden al momento de la generación del documento.</p>
+          </div>
+        </body>
+        </html>
+      `;
+
+      const w = window.open("","_blank","height=900,width=800");
+      w.document.write(printHTML);
+      w.document.close();
+      w.focus();
+      // Esperamos un poco a que las imágenes carguen, luego imprimimos
+      const tryPrint = () => {
+        try {
+          w.print();
+        } catch (e) {
+          console.warn("Print error, retrying...", e);
+          setTimeout(()=>{ tryPrint(); }, 500);
+        }
+      };
+      // esperar 700ms para asegurar recursos (ajustable)
+      setTimeout(()=>{ tryPrint(); }, 700);
+    }
+
+    // -----------------------
+    // LIMPIEZA
+    // -----------------------
+    function limpiarTodo(){
+      el("linkBuscar").value = "";
+      el("link").value = "";
+      el("costo").value = "";
+      el("abono").value = "";
+      el("peso").value = "";
+      el("resultadoSearch").innerHTML = "";
+      el("resultadoCalc").innerHTML = "";
+      el("resultadoCalc").style.display = "none";
+      el("calculadora").style.display = "none";
+      el("accionesCalc").style.display = "none";
+      productoEstado = { titulo:"", precio:null, imagen:"", link:"" };
+      el("linkBuscar").focus();
+    }
+
+    // Mostrar calculadora directo
+    function mostrarCalculadoraDirecto(){
+      mostrarCalculadora();
+      el("calculadora").style.display = "block";
+      el("accionesCalc").style.display = "none";
+      el("resultadoSearch").innerHTML = "";
+      el("imagen-producto").style.display = "none";
+      el("titulo-producto").style.display = "none";
+      el("precio-producto").style.display = "none";
+      el("btnImprimir").style.display = "none";
+    }
+
+    // -----------------------
+    // INIT & EVENTS
+    // -----------------------
+    function initEvents(){
+      el("btnBuscar").addEventListener("click", buscarProducto);
+      el("btnSaltar").addEventListener("click", mostrarCalculadoraDirecto);
+      el("btnCalcular").addEventListener("click", calcular);
+      el("btnImprimir").addEventListener("click", imprimirCotizacion);
+      el("btnLimpiar").addEventListener("click", limpiarTodo);
+      el("btnLimpiar2").addEventListener("click", limpiarTodo);
+
+      el("linkBuscar").addEventListener("keydown", function(e){ if(e.key === "Enter") buscarProducto(); });
+
+      el("linkBuscar").focus();
+    }
+
+    // Ejecutar init
+    initEvents();
+
+    // Export para debugging
+    window._codigoYplus = { buscarProducto, calcular, imprimirCotizacion, limpiarTodo, mostrarCalculadoraDirecto };
+
+  })();
+  </script>
+</body>
+</html>
