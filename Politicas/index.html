@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>PSC — Términos y Condiciones</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+  <style>
+    :root{ --blue1:#2325d4; --blue2:#1a1cb3; --accent:#ffec00; --mw:1200px; }
+    *{box-sizing:border-box} html,body{margin:0;padding:0;font-family:Poppins,sans-serif}
+    header{background:linear-gradient(135deg,var(--blue1),var(--blue2));color:#fff;position:relative;padding:0 20px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+    .header-inner{max-width:var(--mw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:120px;position:relative;z-index:2}
+    .logo img{max-height:180px;display:block}
+    nav{display:flex;gap:20px;align-items:center}
+    nav a{color:#fff;text-decoration:none;font-weight:600;font-size:15px;position:relative}
+    nav a:hover{color:var(--accent)}
+    .header-buttons{display:flex;gap:12px}
+    .btn{background:var(--accent);color:#1c1fb9;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:800}
+    .onda{position:absolute;left:0;right:0;bottom:-12px;height:28px;background:url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1440 60\"><path fill=\"%23ffffff\" d=\"M0 30 Q360 50 720 30 T1440 30 V60 H0 Z\"/></svg>') no-repeat bottom center/cover;z-index:1;pointer-events:none}
+    .menu-toggle{display:none;color:#fff;font-size:26px;cursor:pointer;position:relative;z-index:10001}
+    .dropdown{position:relative}
+    .dropdown-content{display:none;position:absolute;top:100%;left:0;background:#2a2adf;min-width:240px;border-radius:8px;box-shadow:0 12px 24px rgba(0,0,0,.18);z-index:9999;overflow:hidden}
+    .dropdown-content a{display:block;color:#fff;padding:12px 16px;font-weight:500}
+    .dropdown:hover .dropdown-content{display:block}
+    @media (max-width:900px){
+      nav{display:none;position:absolute;top:100%;right:20px;background:#1d1fbd;flex-direction:column;gap:8px;padding:14px;border-radius:12px;box-shadow:0 12px 24px rgba(0,0,0,.25);z-index:10000;min-width:220px}
+      nav.show{display:flex}
+      .menu-toggle{display:block}
+      .header-buttons{display:none}
+      .dropdown:hover .dropdown-content{display:none}
+      .dropdown .dropdown-content{position:relative;top:auto;left:auto;background:#1d1fbd;box-shadow:none}
+    }
+    main{max-width:var(--mw);margin:40px auto;padding:0 16px}
+    h1{color:#2325d4;margin-bottom:8px}
+    h2{color:#2325d4;margin-top:24px}
+    section{background:#fff;border:1px solid #ececec;border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,.06);padding:18px}
+    footer{background:#fff;padding:26px 16px;margin-top:28px}
+    .foot{max-width:var(--mw);margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+    .foot h3{color:#2325d4;margin-bottom:8px}
+    .foot-bottom{text-align:center;margin-top:12px;color:#555;border-top:1px solid rgba(0,0,0,0.08);padding-top:8px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <a class="logo" href="../index.html"><img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="PSC"></a>
+      <div class="menu-toggle" aria-label="Abrir menú" aria-expanded="false" role="button" tabindex="0">☰</div>
+      <nav>
+        <a href="../index.html">Inicio</a>
+        <a href="../Rastreo/">Rastreador de Paquetes</a>
+        <a href="../Cotizador/">Cotiza tus Compras</a>
+        <a href="../ML/">Solicitar ML</a>
+        <div class="dropdown">
+          <a href="#" onclick="return false;">Más ▾</a>
+          <div class="dropdown-content">
+            <a href="../DG/">Mercancía Peligrosa</a>
+            <a href="../Politicas/">Términos y Condiciones</a>
+          </div>
+        </div>
+      </nav>
+      <div class="header-buttons">
+        <a class="btn" href="https://psc.e-rmez.com/zonacliente/">Zona de Clientes</a>
+        <a class="btn" href="https://psc.e-rmez.com/casillero_register.php">Regístrate</a>
+      </div>
+    </div>
+    <div class="onda"></div>
+  </header>
+
+  <main>
+    <section>
+      <h1>Términos y Condiciones</h1>
+      <p>Este es un <strong>placeholder</strong> para tus términos y condiciones. Pega aquí tu contenido oficial y el estilo se mantendrá igual en web y móvil.</p>
+      <h2>1. Uso del servicio</h2>
+      <p>...</p>
+      <h2>2. Envíos y responsabilidad</h2>
+      <p>...</p>
+      <h2>3. Pagos</h2>
+      <p>...</p>
+      <h2>4. Contacto</h2>
+      <p>info@soypsc.com</p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="foot">
+      <div>
+        <h3>Contacto</h3>
+        <p>Asistencia personalizada</p>
+        <p>📸 Instagram<br>📞 +507 67906781<br>✉️ info@soypsc.com</p>
+      </div>
+      <div>
+        <h3>Enlaces Rápidos</h3>
+        <p><a href="../Politicas/">Términos y Condiciones</a><br><a href="../DG/">Mercancía Restringida</a></p>
+      </div>
+      <div>
+        <h3>Sobre Nosotros</h3>
+        <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p>
+      </div>
+    </div>
+    <div class="foot-bottom">© 2023 Panama Shipping Co. Todos los derechos reservados.</div>
+  </footer>
+
+  <script>
+  (function(){
+    var header = document.querySelector('header');
+    var toggle = header.querySelector('.menu-toggle');
+    var nav = header.querySelector('nav');
+    function openNav(open){ if(open){ nav.classList.add('show'); toggle.setAttribute('aria-expanded','true'); } else { nav.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); } }
+    toggle.addEventListener('click', function(e){ e.stopPropagation(); openNav(!nav.classList.contains('show')); });
+    toggle.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openNav(!nav.classList.contains('show')); }});
+    document.addEventListener('click', function(e){ if(!header.contains(e.target)){ openNav(false); } });
+    window.addEventListener('resize', function(){ if(window.innerWidth>900){ openNav(false); } });
+  })();
+  </script>
+</body>
+</html>

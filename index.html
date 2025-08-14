@@ -337,6 +337,35 @@
 
 </style>
 
+
+<style id="psc_inicio_nav_fix">
+header { position: relative; }
+.header-inner { position: relative; z-index: 2; }
+.onda { z-index: 1; pointer-events: none; }
+.dropdown-content { z-index: 10000; }
+
+@media (max-width: 900px){
+  header { height: auto; }
+  .header-buttons{ display:none; }
+  .menu-toggle{ display:block; position:relative; z-index:10001; color:#fff; font-size:26px; cursor:pointer; user-select:none; }
+  header nav{
+    display:none; position:absolute; top:100%; right:20px;
+    background:#2325d4; flex-direction:column; gap:8px; padding:14px;
+    border-radius:12px; box-shadow:0 12px 24px rgba(0,0,0,.25);
+    z-index:10000; width:max-content; min-width:220px;
+  }
+  header nav.show{ display:flex; }
+  /* Dropdown inside mobile panel */
+  header .dropdown:hover .dropdown-content{ display:none; }
+  header .dropdown .dropdown-content{ position:relative; top:auto; left:auto; background:#1a1cb3; box-shadow:none; min-width:220px; }
+}
+@media (min-width: 901px){
+  .menu-toggle{ display:none; }
+  header nav{ display:flex !important; position:static; box-shadow:none; padding:0; }
+}
+</style>
+
+<style id='psc_global_edgefix'>html,body{margin:0;padding:0;overflow-x:hidden;}</style>
 </head>
 <body>
 
@@ -348,17 +377,17 @@
       </div>
       <div class="menu-toggle" onclick="document.querySelector('nav').classList.toggle('show')">☰</div>
       <nav>
-        <a href="file:///C:/Users/soyps/Desktop/web%20psc%20inicio.html">Inicio</a>
-        <a href="file:///C:/Users/soyps/Desktop/pag%20rastredor.html">Rastreador de Paquetes</a>
-        <a href="file:///C:/Users/soyps/Desktop/cotizar%20compra.html">Cotiza tus Compras</a>
-        <a href="file:///C:/Users/soyps/Desktop/solicitar%20ML.html">Solicitar ML</a> <!-- ← AÑADIDO -->
+        <a href="./">Inicio</a>
+        <a href="Rastreo/">Rastreador de Paquetes</a>
+        <a href="Cotizador/">Cotiza tus Compras</a>
+        <a href="ML/">Solicitar ML</a> <!-- ← AÑADIDO -->
         
   <!-- Menú desplegable -->
   <div class="dropdown">
     <a href="#">Más ▾</a>
     <div class="dropdown-content">
-      <a href="file:///C:/Users/soyps/Desktop/Mercancia%20Peligrosa.html">Mercancía Peligrosa</a>
-      <a href="file:///C:/Users/soyps/Desktop/Terminos&condiciones.html">Términos y Condiciones</a>
+      <a href="DG/">Mercancía Peligrosa</a>
+      <a href="Politicas/">Términos y Condiciones</a>
     </div>
   </div>
 
@@ -473,7 +502,7 @@
 <style>
 .whatsapp-float img {
   width: 45px;   /* tamaño reducido */
-  height: 45px;
+  
   border-radius: 50%; /* opcional para redondear */
 }
 
@@ -617,8 +646,27 @@
     })();
   </script>
 
+
+<script id="psc_inicio_nav_js">
+(function(){
+  var header = document.querySelector('header');
+  if(!header) return;
+  var nav = header.querySelector('nav');
+  var toggle = header.querySelector('.menu-toggle');
+  if(!nav || !toggle) return;
+  document.addEventListener('click', function(e){
+    if(!header.contains(e.target)){ nav.classList.remove('show'); }
+  });
+  window.addEventListener('resize', function(){
+    if(window.innerWidth > 900){ nav.classList.remove('show'); }
+  });
+})();
+</script>
+
 </body>
 </html>
 
 
 
+
+<style id='whatsapp-size-50'>.whatsapp-float img{width:50px;height:50px;border-radius:50%;}</style>
