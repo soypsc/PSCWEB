@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Buscar Mal Identificados (ML)</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      :root {
+        --fg: #111;
+        --bg: #fafafa;
+        --muted: #6b7280;
+        --accent: #111;
+        --ok: #16a34a;
+        --err: #ff0000;
+        --warn: #ff0000;
+        --card: #fff;
+        --border: #e5e7eb;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+          Arial, sans-serif;
+        display: grid;
+        place-items: start;
+        min-height: 100dvh;
+        padding: 24px;
+      }
+      .wrap {
+        width: 100%;
+        max-width: 720px;
+        margin: 0 auto;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
+        padding: 20px;
+      }
+      h1 {
+        margin: 0 0 6px;
+        text-align: center;
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: 0.2px;
+      }
+      .subtitle {
+        margin: 0 0 18px;
+        text-align: center;
+        color: var(--muted);
+      }
+      label {
+        display: block;
+        font-size: 14px;
+        color: var(--muted);
+        margin: 8px 0 6px;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: #fff;
+        font-size: 16px;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+      button {
+        border: 0;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+      }
+      .btn-ghost {
+        background: #f3f4f6;
+        color: #111;
+        border: 1px solid var(--border);
+      }
+      .btn-primary:disabled,
+      .btn-ghost:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .status {
+        margin-top: 10px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .status.ok {
+        color: var(--ok);
+      }
+      .status.err {
+        color: var(--err);
+      }
+      .status.warn {
+        color: var(--warn);
+      }
+      pre {
+        background: #2325d4;
+        color: #e5e7eb;
+        border-radius: 12px;
+        padding: 14px;
+        white-space: pre-wrap;
+        word-break: break-word;
+        margin-top: 12px;
+        min-height: 44px;
+      }
+
+      .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 16px 0;
+      }
+
+      .question {
+        margin-top: 14px;
+      }
+      .choices {
+        display: flex;
+        gap: 10px;
+        margin-top: 6px;
+      }
+      .choice {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        border: 1px solid var(--border);
+        padding: 8px 10px;
+        border-radius: 10px;
+        cursor: pointer;
+        background: #fff;
+      }
+      .choice input {
+        accent-color: #111;
+      }
+
+      .hint {
+        margin-top: 8px;
+        color: var(--warn);
+        font-size: 14px;
+        display: none;
+      }
+
+      .form {
+        margin-top: 14px;
+        display: none;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 160px;
+        gap: 8px;
+      }
+      .form .note {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+
+      .toast {
+        margin-top: 10px;
+        font-size: 14px;
+      }
+      .toast.ok {
+        color: var(--ok);
+      }
+      .toast.err {
+        color: var(--err);
+      }
+      .toast.warn {
+        color: var(--warn);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Buscar Mal Identificados</h1>
+      <p class="subtitle">Ingrese Tracking</p>
+
+      <!-- Paso 1: búsqueda -->
+      <label for="trk">Tracking</label>
+      <input
+        id="trk"
+        type="text"
+        placeholder="Ej: UUS57S2565569158307"
+        autocomplete="off"
+      />
+      <div class="row">
+        <button id="go" class="btn-primary">Buscar</button>
+        <button id="clear" class="btn-ghost">Limpiar</button>
+      </div>
+      <div id="status" class="status"></div>
+      <pre id="out"></pre>
+
+      <div class="divider"></div>
+
+      <!-- Paso 2: confirmación y solicitud -->
+      <div class="question">
+        <label>¿Mostró Fecha de ingreso CB, saco o Parrafo con fecha? Marque, *SI*</label>
+        <label>-Lo mas probable que su paquete este Mal Identificado</label>
+        <div class="choices">
+          <label class="choice"
+            ><input type="radio" name="seen" value="si" />
+            <span>Sí</span></label
+          >
+          <label class="choice"
+            ><input type="radio" name="seen" value="no" />
+            <span>No</span></label
+          >
+        </div>
+        <div id="noMsg" class="hint">
+          Si no sale información intente Buscar nuevamente o Contactarse con PSC.
+        </div>
+      </div>
+
+      <div class="form" id="mlForm">
+        <label for="cas">N.º de casillero (obligatorio)</label>
+        <div class="form-grid">
+          <input id="cas" type="text" placeholder="Ej: 12345" />
+          <button id="ask" class="btn-primary">Solicitar ML</button>
+        </div>
+        <div class="note">
+        
+        
+        </div>
+        <div id="msg" class="toast"></div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        // --- Endpoints ---
+        const SCRAPER_DEFAULT =
+          "https://gel-scraper-proxy.onrender.com/api/gel";
+        const SCRAPER = location.hostname.includes(
+          "gel-scraper-proxy.onrender.com"
+        )
+          ? "/api/gel"
+          : SCRAPER_DEFAULT;
+
+        const CHECK_URL =
+          "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/check-ml";
+        const PUT_URL =
+          "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/put-tracking";
+
+        // --- DOM ---
+        const $ = (s) => document.querySelector(s);
+        const trk = $("#trk");
+        const go = $("#go");
+        const clr = $("#clear");
+        const status = $("#status");
+        const out = $("#out");
+
+        const seenRadios = document.getElementsByName("seen");
+        const noMsg = $("#noMsg");
+        const form = $("#mlForm");
+        const cas = $("#cas");
+        const ask = $("#ask");
+        const toast = $("#msg");
+
+        // --- Filtro de texto fijo (si llegamos a usar snippet de error) ---
+        const FILTER_STRINGS = [
+          // pega aquí bloques de texto CONSTANTE de la web original para ocultar del snippet
+          `Login BUSCAR PAQUETES SIN IDENTIFICAR Número de Rastreo "Tracking" CLEAR SACO FECHA DE INGRESO SACO FECHA DE INGRESO Displaying 1 - 1 of 1 CÓMO RECLAMAR UN PAQUETE SIN IDENTIFICAR Sin Resultado En Búsqueda Reclamar Paquete Encontrado. RECLAMO DE PAQUETE Una vez compruebe que su paquete está mal identificado llene los campos con la información requerida No. de Casillero* No. Tracking a reclamar* Es Saco o CB* CB Saco Ninguno No. de Saco o CB* Sólo Número de SACO o CB con fecha más reciente Su Email de contacto* Agregar Nota: (opcional)`,
+        ];
+        function cleanText(str) {
+          if (!str) return "";
+          let t = String(str);
+          for (const block of FILTER_STRINGS) {
+            if (block && block.trim()) {
+              t = t.split(block).join("");
+              const norm = (s) => s.replace(/\s+/g, " ").trim();
+              const tb = norm(block);
+              const re = new RegExp(
+                tb.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+                "g"
+              );
+              t = norm(t).replace(re, "");
+            }
+          }
+          return t
+            .replace(/[ \t]+\n/g, "\n")
+            .replace(/\n{3,}/g, "\n\n")
+            .trim();
+        }
+        function extractSnippetFromError(errMsg) {
+          if (!errMsg) return "";
+          const i = errMsg.indexOf("Snippet:");
+          return i >= 0 ? errMsg.slice(i + "Snippet:".length).trim() : "";
+        }
+
+        // --- Estados UI ---
+        let tickerTimer = null;
+        let searchAbort = null;
+        const submittedSet = new Set(); // evita doble envío en esta sesión
+
+        function setStatus(msg, kind = "") {
+          status.textContent = msg || "";
+          status.className = "status" + (kind ? " " + kind : "");
+        }
+        function setToast(msg, kind = "") {
+          toast.textContent = msg || "";
+          toast.className = "toast" + (kind ? " " + kind : "");
+        }
+
+        function startTicker() {
+          let elapsed = 0,
+            showAlt = false;
+          stopTicker();
+          tickerTimer = setInterval(() => {
+            elapsed += 5;
+            showAlt = !showAlt;
+            setStatus(
+              showAlt ? "Estamos buscando tu Paquete…" : "Buscando…",
+              "warn"
+            );
+            if (elapsed >= 45) stopTicker();
+          }, 5000);
+        }
+        function stopTicker() {
+          if (tickerTimer) {
+            clearInterval(tickerTimer);
+            tickerTimer = null;
+          }
+        }
+
+        function resetAll() {
+          trk.value = "";
+          out.textContent = "";
+          setStatus("");
+          setToast("");
+          noMsg.style.display = "none";
+          form.style.display = "none";
+          cas.value = "";
+          for (const r of seenRadios) {
+            r.checked = false;
+          }
+          go.disabled = false;
+          ask.disabled = false;
+          stopTicker();
+          if (searchAbort) {
+            searchAbort.abort();
+            searchAbort = null;
+          }
+        }
+
+        // --- Paso 1: Buscar ---
+        async function buscar() {
+          const t = trk.value.trim();
+          setToast("");
+          if (!t) {
+            setStatus("", "");
+            out.textContent = "";
+            return;
+          }
+
+          go.disabled = true;
+          setStatus("Buscando…", "warn");
+          startTicker();
+
+          // timeout 45s
+          searchAbort = new AbortController();
+          const tt = setTimeout(() => searchAbort.abort(), 45000);
+
+          try {
+            const r = await fetch(
+              `${SCRAPER}?tracking=${encodeURIComponent(t)}`,
+              { cache: "no-store", signal: searchAbort.signal }
+            );
+            clearTimeout(tt);
+            stopTicker();
+
+            let data = null,
+              raw = "";
+            try {
+              data = await r.json();
+            } catch {
+              raw = await r.text();
+            }
+
+            if (r.ok && data && data.ok) {
+              const has = data.saco || data.fecha_de_ingreso;
+              if (has) {
+                // mostramos limpio; por confiabilidad dejamos "FECHA DE INGRESO" si viene
+                const resp = [data.saco || "", data.fecha_de_ingreso || ""]
+                  .filter(Boolean)
+                  .join("\n")
+                  .trim();
+                out.textContent = resp || "No encontrado";
+              } else {
+                out.textContent = "No encontrado";
+              }
+              setStatus(has ? "Listo" : "No encontrado", has ? "ok" : "err");
+            } else {
+              const errMsg = data && data.error ? String(data.error) : raw;
+              const snippet = cleanText(extractSnippetFromError(errMsg));
+              if (snippet) {
+                out.textContent = snippet;
+                setStatus("Listo", "ok");
+              } else {
+                out.textContent = "No encontrado";
+                setStatus("No encontrado", "err");
+              }
+            }
+          } catch (e) {
+            clearTimeout(tt);
+            stopTicker();
+            out.textContent = "No encontrado";
+            setStatus("No encontrado", "err");
+          } finally {
+            go.disabled = false;
+            searchAbort = null;
+          }
+        }
+
+        // --- Lógica pregunta Sí/No ---
+        function onSeenChange() {
+          const v = Array.from(seenRadios).find((r) => r.checked)?.value || "";
+          if (v === "no") {
+            noMsg.style.display = "block";
+            form.style.display = "none";
+            setToast("");
+          } else if (v === "si") {
+            noMsg.style.display = "none";
+            form.style.display = "block";
+            cas.focus();
+          } else {
+            noMsg.style.display = "none";
+            form.style.display = "none";
+          }
+        }
+
+        // --- check-ml antes de insertar ---
+        async function checkDuplicate(code) {
+          const t = (code || "").trim();
+          if (!t) return { exists: false, ml: false };
+
+          // si ya lo solicitamos en esta sesión, bloquea
+          if (submittedSet.has(t.toLowerCase())) {
+            return { exists: true, ml: true };
+          }
+
+          const ctrl = new AbortController();
+          const timeout = setTimeout(() => ctrl.abort(), 8000);
+          try {
+            const res = await fetch(CHECK_URL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ trackings: [t] }),
+              signal: ctrl.signal,
+            });
+            clearTimeout(timeout);
+            if (!res.ok) return { exists: false, ml: false };
+            const payload = await res.json().catch(() => ({}));
+            const it = Array.isArray(payload?.items)
+              ? payload.items.find(
+                  (x) =>
+                    String(x.tracking || "").toLowerCase() === t.toLowerCase()
+                )
+              : null;
+            const ml =
+              it && (it.ml === true || it.ML === "true" || it.status === "ML");
+            const exists = Boolean(it && (it.exists === true || ml));
+            return { exists, ml: Boolean(ml) };
+          } catch {
+            clearTimeout(timeout);
+            return { exists: false, ml: false };
+          }
+        }
+
+        // --- Enviar solicitud ML ---
+        async function solicitarML() {
+          const code = trk.value.trim();
+          const casillero = cas.value.trim();
+          setToast("");
+
+          // Validaciones
+          const seen =
+            Array.from(seenRadios).find((r) => r.checked)?.value || "";
+          if (seen !== "si") {
+            setToast(
+              "Confirma que se mostró la información (elige 'Sí').",
+              "warn"
+            );
+            return;
+          }
+          if (!code || !casillero) {
+            setToast("Ingresa tracking y número de casillero.", "err");
+            return;
+          }
+
+          ask.disabled = true;
+
+          // 1) Verificar duplicado
+          setToast("Verificando…", "warn");
+          const dup = await checkDuplicate(code);
+          if (dup.ml) {
+            // solo bloquea si ya fue solicitado ML
+            setToast("Tracking ya fue Solicitado.", "warn");
+            ask.disabled = false;
+            return;
+          }
+
+          // 2) Insertar solicitud
+          try {
+            setToast("Enviando solicitud…", "warn");
+            const res = await fetch(PUT_URL, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                tracking_original: code,
+                tracking_corrected: code, // mismo valor si no corriges
+                num_casillero: casillero,
+                status: "ML",
+                ML: "true",
+              }),
+            });
+            const txt = await res.text().catch(() => "");
+            let payload = {};
+            try {
+              payload = JSON.parse(txt || "{}");
+            } catch {}
+
+            if (!res.ok || payload?.ok !== true) {
+              const msg =
+                payload?.error ||
+                payload?.detail ||
+                res.statusText ||
+                `HTTP ${res.status}`;
+              setToast(`Error: ${msg}`, "err");
+              ask.disabled = false;
+              return;
+            }
+
+            // OK
+            setToast("Solicitud recibida", "ok");
+            submittedSet.add(code.toLowerCase());
+            // Opcional: deshabilitar definitivo o limpiar casillero
+            // ask.disabled = true;
+            // cas.value = "";
+          } catch (e) {
+            setToast(`Error de red: ${e?.message || e}`, "err");
+            ask.disabled = false;
+          }
+        }
+
+        // --- Wire up ---
+        go.addEventListener("click", buscar);
+        trk.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") buscar();
+        });
+        clr.addEventListener("click", resetAll);
+
+        for (const r of seenRadios) {
+          r.addEventListener("change", onSeenChange);
+        }
+        ask.addEventListener("click", solicitarML);
+      })();
+    </script>
+  </body>
+</html>
