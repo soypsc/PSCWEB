@@ -530,9 +530,9 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            z-index: 1000; 
+            z-index: 1000;
         }
-        
+
         .fab-screen-overlay {
             position: fixed;
             top: 0;
@@ -540,7 +540,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(240, 240, 240, 0.8);
-            z-index: 999; /* Z-index menor que el del FAB para que se quede detrás */
+            z-index: 999;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease;
@@ -552,8 +552,8 @@
         }
 
         .fab-main-button {
-            position: relative; 
-            z-index: 1002; /* Poner el botón principal por encima de todo */
+            position: relative;
+            z-index: 1002;
             width: 60px;
             height: 60px;
             border-radius: 50%;
@@ -585,7 +585,7 @@
 
         .fab-actions {
             position: absolute;
-            bottom: 70px; /* Ajuste para la nueva posición */
+            bottom: 70px;
             right: 0;
             display: flex;
             flex-direction: column;
@@ -594,7 +594,7 @@
             transform: scale(0);
             transform-origin: bottom right;
             transition: transform 0.3s ease-out;
-            z-index: 1001; /* Asegura que los botones de acción estén por encima del overlay */
+            z-index: 1001;
         }
 
         .fab-container.open .fab-actions {
@@ -608,7 +608,7 @@
             gap: 10px;
             transition: opacity 0.3s ease-out, transform 0.3s ease-out;
             opacity: 0;
-            transform: translateX(20px); /* Empieza fuera de pantalla */
+            transform: translateX(20px);
         }
 
         .fab-container.open .fab-action-item {
@@ -617,14 +617,22 @@
         }
 
         /* Retrasos para una animación escalonada */
-        .fab-container.open .whatsapp-action { transition-delay: 0.2s; }
-        .fab-container.open .tracker-action { transition-delay: 0.15s; }
-        .fab-container.open .ml-action { transition-delay: 0.10s; }
-        .fab-container.open .quotes-action { transition-delay: 0.05s; }
+        .fab-container.open .whatsapp-action {
+            transition-delay: 0.2s;
+        }
+        .fab-container.open .tracker-action {
+            transition-delay: 0.15s;
+        }
+        .fab-container.open .ml-action {
+            transition-delay: 0.10s;
+        }
+        .fab-container.open .quotes-action {
+            transition-delay: 0.05s;
+        }
 
         .fab-circular-button {
-            width: 55px; /* Aumento de tamaño */
-            height: 55px; /* Aumento de tamaño */
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             background-color: var(--blue-1);
             color: white;
@@ -645,8 +653,8 @@
         }
 
         .fab-circular-button svg {
-            width: 30px; /* Aumento del tamaño del icono */
-            height: 30px; /* Aumento del tamaño del icono */
+            width: 30px;
+            height: 30px;
             fill: currentColor;
         }
 
@@ -793,8 +801,8 @@
             <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener" class="fab-action-item whatsapp-action">
                 <span class="fab-action-label">WhatsApp</span>
                 <button class="fab-circular-button" style="background-color: #25D366;">
-                    <svg viewBox="0 0 24 24" fill="white">
-                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.176 13.916c-.234.34-.847.41-1.285.394-.616-.017-1.127-.183-1.637-.417-.51-.234-1.02-.51-1.554-.834-1.144-.694-2.115-1.748-2.615-2.628-.093-.166-.182-.32-.267-.468-.135-.224-.225-.49-.24-.766-.02-.38.167-.7.424-.916.142-.116.326-.18.52-.224.23-.05.46-.08.694-.094.22-.014.436.002.62.062.24.08.48.21.68.4.15.138.28.32.39.53.078.14.135.29.176.44.02.09.03.18.03.26-.002.32-.234.56-.566.67-.34.11-.69.07-.98.02-.27-.05-.54-.15-.8-.22-.05-.014-.1-.03-.15-.04l-.06-.017c-.126-.03-.252-.06-.37-.06-.118 0-.236.01-.35.03l-.06.014c-.2.064-.4.2-.59.39-.1.1-.19.2-.28.31-.22.28-.4.6-.5.95-.1.35-.12.7-.06 1.05.1.58.38 1.13.78 1.63.4.5.9.96 1.48 1.34 1.5.97 3.32 1.67 5.09 1.95.27.04.54.06.81.06.33 0 .65-.01.97-.04.48-.04.97-.13 1.42-.28.2-.07.4-.17.59-.28.16-.1.3-.23.42-.37.2-.2.3-.43.34-.69.04-.26.02-.5-.04-.75-.06-.25-.15-.49-.25-.72-.1-.23-.23-.46-.37-.67l-.02-.03z"/>
+                    <svg fill="#ffffff" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="30px" height="30px">
+                        <path d="M15,3C8.373,3,3,8.373,3,15c0,2.164,0.569,4.195,1.554,5.95l-1.464,5.438l5.632-1.462c1.722,0.925,3.676,1.439,5.278,1.439 c6.627,0,12-5.373,12-12C27,8.373,21.627,3,15,3z M15,5c5.522,0,10,4.478,10,10c0,5.523-4.478,10-10,10 c-1.644,0-3.218-0.413-4.593-1.129l-0.32-0.169l-3.328,0.865l0.871-3.226l-0.177-0.325C5.419,18.21,5,16.64,5,15 C5,9.478,9.478,5,15,5z M10.457,9.394c-0.174-0.38-0.218-0.849,0.222-1.289c0.239-0.239,0.584-0.428,0.767-0.455 c0.183-0.027,0.375-0.012,0.548-0.002c0.174,0.01,0.297,0.02,0.421,0.315c0.124,0.296,0.426,1.066,0.47,1.164 c0.044,0.098,0.073,0.214,0.025,0.364c-0.048,0.15-0.048,0.25-0.12,0.376c-0.073,0.126-0.15,0.23-0.274,0.395 c-0.125,0.165-0.258,0.344-0.363,0.455c-0.105,0.111-0.229,0.218-0.379,0.322c-0.15,0.104-0.32,0.203-0.5,0.283 c-0.179,0.08-0.38,0.13-0.582,0.147c-0.202,0.017-0.347-0.003-0.421-0.03c-0.073-0.027-0.264-0.079-0.518-0.175 c-0.254-0.096-0.449-0.256-0.612-0.485c-0.163-0.228-0.283-0.485-0.388-0.669c-0.105-0.183-0.215-0.37-0.32-0.553 c-0.105-0.184-0.211-0.354-0.32-0.537c-0.11-0.184-0.239-0.389-0.45-0.702z M15,20.088c-1.543,0-3.085-0.49-4.321-1.464 c-1.236-0.974-2.181-2.317-2.795-3.882c-0.614-1.565-0.701-3.235-0.244-4.821c0.457-1.587,1.442-2.999,2.83-3.992 C9.014,5.438,10.601,5,12.213,5c0.814,0,1.624,0.124,2.399,0.379l-0.08,0.016c1.11,0.231,2.072,0.806,2.83,1.688 c0.758,0.881,1.18,1.968,1.18,3.13c0,1.066-0.32,2.074-0.957,2.882c-0.637,0.808-1.536,1.4-2.585,1.724 c-0.289,0.089-0.58,0.134-0.871,0.134c-0.536,0-1.077-0.182-1.523-0.548c-0.446-0.366-0.781-0.89-0.999-1.488 c-0.218-0.598-0.315-1.258-0.283-1.921c0.032-0.662,0.225-1.309,0.57-1.892c0.345-0.583,0.835-1.075,1.439-1.463 c0.604-0.389,1.309-0.582,2.052-0.582c0.551,0,1.09,0.113,1.597,0.34c0.507,0.227,0.96,0.557,1.353,0.985 c0.393,0.428,0.73,0.938,0.99,1.521c0.26,0.584,0.444,1.218,0.554,1.884c-0.458,0.11-0.902,0.288-1.31,0.528 c-0.408,0.24-0.763,0.57-1.056,0.978c-0.293,0.408-0.527,0.89-0.702,1.442c-0.174,0.551-0.288,1.144-0.34,1.764 c-0.051,0.62-0.02,1.246,0.094,1.861c0.115,0.615,0.33,1.205,0.645,1.758c0.315,0.553,0.724,1.054,1.228,1.493 C16.591,19.34,17.47,19.676,18.337,19.825c0.027,0.005,0.054,0.009,0.081,0.014c0.027,0.005,0.054,0.01,0.081,0.015 c-0.115,0.027-0.23,0.054-0.345,0.078c-0.115,0.024-0.23,0.048-0.345,0.063c-0.274,0.035-0.555,0.052-0.835,0.052 C16.143,20.088,15.568,20.088,15,20.088z"/>
                     </svg>
                 </button>
             </a>
