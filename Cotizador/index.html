@@ -1,604 +1,702 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Panama Shipping Co. - Calculadora de Compras</title>
-  <meta name="robots" content="noindex">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Panama Shipping Co. - Calculadora de Compras</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
 
-  <style>
-    /* ====================================================================== */
-    /* Estilos Globales y Reseteo (Originales) */
-    /* ====================================================================== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #fff;
-      color: #000;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-    :root{
-      --blue-1:#2325d4;
-      --blue-2:#1a1cb3;
-      --accent:#ffec00;
-      --bg:#fff;
-      --muted:#777;
-      --card-border:#e6e6ee;
-      --shadow: 0 6px 30px rgba(0,0,0,0.06);
-      --radius:12px;
-      --max-width:1200px;
-    }
+    <style>
+        /* ====================================================================== */
+        /* Estilos Globales y Reseteo */
+        /* ====================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    /* ====================================================================== */
-    /* HEADER (Original) */
-    /* ====================================================================== */
-    header {
-      background: linear-gradient(135deg, #2325d4, #1a1cb3);
-      color: white;
-      position: relative;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      height: 140px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 25px;
-    }
-    .header-inner {
-      max-width: 1200px;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
-      z-index: 2;
-    }
-    .logo {
-      height: 180px;
-      display: flex;
-      align-items: center;
-    }
-    .logo img {
-      max-height: 225px;
-      width: auto;
-      object-fit: contain;
-      user-select: none;
-      pointer-events: none;
-    }
-    nav {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    nav a {
-      color: white;
-      font-weight: 500;
-      font-size: 14px;
-      position: relative;
-      transition: color 0.3s ease, transform 0.2s ease;
-      will-change: color, transform;
-    }
-    nav a:hover {
-      color: #ffec00;
-      transform: translateY(-2px);
-    }
-    nav a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -3px;
-      width: 0%;
-      height: 2px;
-      background: #ffec00;
-      transition: width 0.3s ease;
-    }
-    nav a:hover::after {
-      width: 100%;
-    }
-    .header-buttons {
-      display: flex;
-      gap: 10px;
-    }
-    .btn-header {
-      background: #ffec00;
-      color: #2325d4;
-      padding: 8px 18px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 13px;
-      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .btn-header:hover {
-      background: #e6d800;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-    }
-    .onda {
-      position: absolute;
-      bottom: -20px;
-      left: 0;
-      width: 100%;
-      height: 40px;
-      background: url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;
-      background-size: cover;
-      z-index: 1;
-      pointer-events: none;
-    }
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #2325d4;
-      min-width: 200px;
-      box-shadow: 0px 8px 16px rgba(0,0,0,0.25);
-      border-radius: 8px;
-      z-index: 10002;
-      overflow: hidden;
-    }
-    .dropdown-content a {
-      color: white;
-      padding: 10px 16px;
-      display: block;
-      font-size: 14px;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-    .dropdown-content a:hover {
-      background-color: #1a1cb3;
-      color: #ffec00;
-    }
-    .dropdown:hover .dropdown-content {
-      display: block;
-    }
+        html, body {
+            height: 100%;
+        }
 
-    /* Media Queries (Original) */
-    @media (max-width: 900px) {
-      header { height: auto; }
-      .header-buttons { display: none; }
-      .menu-toggle {
-        display: block;
-        font-size: 26px;
-        cursor: pointer;
-        color: white;
-        position: relative;
-        z-index: 10001;
-        user-select: none;
-      }
-      header nav {
-        display: none;
-        position: absolute;
-        top: 100%;
-        right: 20px;
-        background: #2325d4;
-        flex-direction: column;
-        gap: 8px;
-        padding: 14px;
-        border-radius: 12px;
-        box-shadow: 0 12px 24px rgba(0,0,0,.25);
-        z-index: 10000;
-        width: max-content;
-        min-width: 220px;
-      }
-      header nav.show { display: flex; }
-      header .dropdown:hover .dropdown-content { display: none; }
-      header .dropdown .dropdown-content {
-        position: relative;
-        top: auto;
-        left: auto;
-        background: #1a1cb3;
-        box-shadow: none;
-        min-width: 220px;
-      }
-    }
-    @media (min-width: 901px){
-      .menu-toggle{ display:none; }
-      header nav{
-        display:flex !important;
-        position:static;
-        box-shadow:none;
-        padding:0;
-      }
-    }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #fff;
+            color: #000;
+            line-height: 1.6;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
 
-    /* ====================================================================== */
-    /* FOOTER (Original) */
-    /* ====================================================================== */
-    footer {
-      background: #fff;
-      color: #000;
-      padding: 40px 20px;
-      margin-top: 50px;
-      box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
-    }
-    .footer-container {
-      max-width: 1200px;
-      margin: auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 30px;
-    }
-    .footer-col h3 {
-      font-size: 1.2rem;
-      margin-bottom: 12px;
-      color: #333;
-    }
-    .footer-col p, .footer-col a {
-      font-size: 14px;
-      color: #555;
-      transition: color 0.3s ease;
-    }
-    .footer-col a:hover { color: #2325d4; }
-    .social-icons {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .footer-bottom {
-      text-align: center;
-      margin-top: 30px;
-      font-size: 12px;
-      color: #777;
-      border-top: 1px solid rgba(0,0,0,0.1);
-      padding-top: 15px;
-    }
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-top: 10px;
-    }
-    .footer-links a {
-      color: #2325d4;
-      font-size: 12px;
-    }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
 
-    /* WhatsApp Flotante (Original) */
-    .whatsapp-float {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 999;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      border-radius: 50%;
-    }
-    .whatsapp-float:hover {
-      transform: scale(1.05) translateY(-2px);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-    }
-    .whatsapp-float img {
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-    }
-  </style>
-  
-  <style>
-    main.wrapper {
-      max-width:var(--max-width);
-      margin:40px auto 18px; 
-      padding:1.6rem;
-      display: flex; /* Añadido para centrar */
-      justify-content: center; /* Añadido para centrar */
-      align-items: flex-start; /* Añadido para centrar */
-    }
-    :root {
-      --bg: #ffffff;
-      --fg: #1c1c1e;
-      --border: #d1d1d6;
-      --font: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    .card {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 2rem;
-      width: 100%;
-      max-width: 720px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--border);
-    }
-    input, button {
-      width: 100%;
-      font-size: 1rem;
-      padding: 0.85rem 1rem;
-      border-radius: 0.75rem;
-      margin-bottom: 1rem;
-      border: 1px solid var(--border);
-    }
-    button {
-      background-color: #000;
-      color: #fff;
-      cursor: pointer;
-      font-weight: 500;
-    }
-    button:hover { background-color: #222; }
-    #resultado, #calculadora, #resultadoCalc { display: none; }
-    .card img {
-      max-width: 240px;
-      border-radius: 1rem;
-      margin-bottom: 1rem;
-    }
-    .producto h3 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-    .producto span {
-      display: inline-block;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: black;
-      margin-top: 0.25rem;
-    }
-    .option-block {
-      border: 1px solid #ececec;
-      border-radius: 0.5rem;
-      padding: 10px 12px;
-      margin-bottom: 12px;
-      background: #fbfbfb;
-    }
-    .option-header {
-      font-weight: 700;
-      margin-bottom: 6px;
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.95rem;
-    }
-    .field {
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 0;
-      font-size: 1rem;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .field:last-child { border-bottom: none; }
-    .subtle {
-      font-size: 0.85rem;
-      color: #777;
-    }
-    .spinner {
-      display: inline-block;
-      width: 24px;
-      height: 24px;
-      border: 3px solid #ccc;
-      border-top-color: #000;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      vertical-align: middle;
-      margin-right: 8px;
-    }
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-  </style>
+        /* ====================================================================== */
+        /* Variables CSS (Colores, etc.) */
+        /* ====================================================================== */
+        :root{
+            --blue-1:#2325d4;
+            --blue-2:#1a1cb3;
+            --accent:#ffec00;
+            --bg:#fff;
+            --muted:#777;
+            --card-border:#e6e6ee;
+            --shadow: 0 6px 30px rgba(0,0,0,0.06);
+            --radius:12px;
+            --max-width:1200px;
+        }
 
-  <style media="print">
-    body {
-      padding: 1rem;
-      margin: 0;
-      zoom: 80%;
-    }
-    .card {
-      box-shadow: none;
-      border: none;
-      padding: 0;
-      margin: 0;
-    }
-    img {
-      max-width: 150px;
-    }
-    .producto h3,
-    .producto span {
-      font-size: 1rem;
-    }
-    .field-block,
-    .option-block {
-      page-break-inside: avoid;
-    }
-    .field-block strong {
-      font-size: 0.9rem;
-    }
-    @page {
-      size: A4;
-      margin: 1.5cm;
-    }
-    .logo-print-only {
-      display: none;
-    }
-    @media print {
-      .logo-print-only {
-        display: block;
-        position: fixed;
-        top: 1rem;
-        right: 1rem;
-        width: 200px;
-        height: 90px;
-        z-index: 9999;
-      }
-      .logo-print-only img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        display: block;
-      }
-    }
-  </style>
+        /* ====================================================================== */
+        /* HEADER (Plantilla PSC) */
+        /* ====================================================================== */
+        header {
+            background: linear-gradient(135deg, #2325d4, #1a1cb3);
+            color: white;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 25px;
+            flex-shrink: 0;
+        }
+
+        .header-inner {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo {
+            height: 180px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            max-height: 225px;
+            width: auto;
+            object-fit: contain;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+            position: relative;
+            transition: color 0.3s ease, transform 0.2s ease;
+        }
+
+        nav a:hover {
+            color: #ffec00;
+            transform: translateY(-2px);
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-header {
+            background: #ffec00;
+            color: #2325d4;
+            padding: 8px 18px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 13px;
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn-header:hover {
+            background: #e6d800;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .onda {
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;
+            background-size: cover;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #2325d4;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.25);
+            border-radius: 8px;
+            z-index: 10002;
+            overflow: hidden;
+        }
+
+        .dropdown-content a {
+            color: white;
+            padding: 10px 16px;
+            display: block;
+            font-size: 14px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #1a1cb3;
+            color: #ffec00;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        @media (max-width: 900px) {
+            header {
+                height: auto;
+                padding: 25px;
+            }
+            .header-inner {
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                gap: 15px;
+            }
+            .logo {
+                height: auto;
+                width: auto;
+                margin-right: auto;
+            }
+            .logo img {
+                max-height: 150px;
+            }
+            nav {
+                display: none;
+            }
+            .header-buttons {
+                display: flex;
+                flex-wrap: nowrap;
+                justify-content: flex-end;
+                width: auto;
+                gap: 8px;
+                margin-left: auto;
+            }
+            .btn-header {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+        }
+
+        @media (min-width: 901px) {
+            header nav {
+                display: flex !important;
+                position: static;
+                box-shadow: none;
+                padding: 0;
+            }
+        }
+
+        /* ====================================================================== */
+        /* Estilos del Contenido Principal (Cotizador) */
+        /* ====================================================================== */
+        main.wrapper {
+            flex-grow: 1;
+            max-width:var(--max-width);
+            margin:40px auto 18px; 
+            padding:1.6rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .card {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 2rem;
+            width: 100%;
+            max-width: 720px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--card-border);
+        }
+        input, button {
+            width: 100%;
+            font-size: 1rem;
+            padding: 0.85rem 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #d1d1d6;
+        }
+        button {
+            background-color: #000;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        button:hover { background-color: #222; }
+        #resultado, #calculadora, #resultadoCalc { display: none; }
+        .card img {
+            max-width: 240px;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+        }
+        .producto h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .producto span {
+            display: inline-block;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: black;
+            margin-top: 0.25rem;
+        }
+        .option-block {
+            border: 1px solid #ececec;
+            border-radius: 0.5rem;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+            background: #fbfbfb;
+        }
+        .option-header {
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+        }
+        .field {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .field:last-child { border-bottom: none; }
+        .subtle {
+            font-size: 0.85rem;
+            color: #777;
+        }
+        .spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #ccc;
+            border-top-color: #000;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* ====================================================================== */
+        /* FOOTER (Plantilla PSC) */
+        /* ====================================================================== */
+        footer {
+            background: #fff;
+            color: #000;
+            padding: 40px 20px;
+            margin-top: auto;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
+            flex-shrink: 0;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .footer-col h3 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .footer-col p, .footer-col a {
+            font-size: 14px;
+            color: #555;
+            transition: color 0.3s ease;
+        }
+
+        .footer-col a:hover {
+            color: #2325d4;
+        }
+
+        .social-icons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: #777;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            padding-top: 15px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .footer-links a {
+            color: #2325d4;
+            font-size: 12px;
+        }
+
+        /* ====================================================================== */
+        /* FAB (Plantilla PSC) */
+        /* ====================================================================== */
+        .fab-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .fab-screen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(240, 240, 240, 0.8);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .fab-screen-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .fab-main-button {
+            position: relative;
+            z-index: 1002;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: red;
+            color: white;
+            border: none;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+
+        .fab-main-button:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+            transform: scale(1.05);
+            background-color: darkred;
+        }
+
+        .fab-main-button .plus-icon {
+            width: 30px;
+            height: 30px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .fab-container.open .fab-main-button .plus-icon {
+            transform: rotate(45deg);
+        }
+
+        .fab-actions {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-end;
+            transform: scale(0);
+            transform-origin: bottom right;
+            transition: transform 0.3s ease-out;
+            z-index: 1001;
+        }
+
+        .fab-container.open .fab-actions {
+            transform: scale(1);
+        }
+
+        .fab-action-item {
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            gap: 10px;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            opacity: 0;
+            transform: translateX(20px);
+        }
+
+        .fab-container.open .fab-action-item {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .fab-circular-button {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background-color: var(--blue-1);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .fab-circular-button:hover {
+            background-color: var(--blue-2);
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+        }
+
+        .fab-circular-button svg {
+            width: 30px;
+            height: 30px;
+            fill: currentColor;
+        }
+
+        .fab-action-label {
+            background-color: white;
+            color: var(--blue-1);
+            padding: 8px 12px;
+            border-radius: 18px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .fab-action-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+    </style>
 </head>
 <body>
 
-  <header class="no-print">
-    <div class="header-inner">
-      <div class="logo">
-        <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
-      </div>
-      <div class="menu-toggle">☰</div>
-      <nav>
-        <a href="../index.html">Inicio</a>
-        <a href="../Rastreo/">Rastreador de Paquetes</a>
-        <a href="../Cotizador/">Cotiza tus Compras</a>
-        <a href="../ML/">Solicitar ML</a>
-        
-        <div class="dropdown">
-          <a href="#">Más ▾</a>
-          <div class="dropdown-content">
-            <a href="../DG/">Mercancía Peligrosa</a>
-            <a href="../Politicas/">Términos y Condiciones</a>
-          </div>
+    <header class="no-print">
+        <div class="header-inner">
+            <div class="logo">
+                <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
+            </div>
+            <div class="menu-toggle" style="display:none;">☰</div>
+            <nav>
+                <a href="/">Inicio</a>
+                <a href="/Rastreo/">Rastreador de Paquetes</a>
+                <a href="/Cotizador/">Cotiza tus Compras</a>
+                <a href="/ML/">Solicitar ML</a>
+                
+                <div class="dropdown">
+                    <a href="#">Más ▾</a>
+                    <div class="dropdown-content">
+                        <a href="/DG/">Mercancía Peligrosa</a>
+                        <a href="/Politicas/">Términos y Condiciones</a>
+                    </div>
+                </div>
+            </nav>
+            <div class="header-buttons">
+                <a href="https://psc.e-rmez.com/zonacliente/" class="btn-header">Zona de Clientes</a>
+                <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-header">Regístrate</a>
+            </div>
         </div>
-      </nav>
-      <div class="header-buttons">
-        <a href="https://psc.e-rmez.com/zonacliente/" class="btn-header">Zona de Clientes</a>
-        <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-header">Regístrate</a>
-      </div>
-    </div>
-    <div class="onda" aria-hidden="true"></div>
-  </header>
+        <div class="onda" aria-hidden="true"></div>
+    </header>
 
-  <main class="wrapper">
-      <div class="card">
-      <div class="logo-visible" style="text-align: center; margin-bottom: 1rem">
-        <img
-          src="https://i.postimg.cc/G35hZmXg/Captura-de-pantalla-2025-08-06-a-la-s-3-36-08-p-m.png"
-          alt="Logo Panamá Shipping"
-          style="width: 200px; height: auto"
-        />
-      </div>
+    <main class="wrapper">
+        <div class="card">
+            <div class="logo-visible" style="text-align: center; margin-bottom: 1rem">
+                <img src="https://i.postimg.cc/G35hZmXg/Captura-de-pantalla-2025-08-06-a-la-s-3-36-08-p-m.png" alt="Logo Panamá Shipping" style="width: 200px; height: auto" />
+            </div>
 
-      <div
-        id="resultado-producto"
-        style="text-align: center; margin-bottom: 1rem"
-      >
-        <img id="imagen-producto" style="display: none" />
-        <h3 id="titulo-producto" style="display: none"></h3>
-        <span id="precio-producto" style="display: none"></span>
-      </div>
+            <div id="resultado-producto" style="text-align: center; margin-bottom: 1rem">
+                <img id="imagen-producto" style="display: none" />
+                <h3 id="titulo-producto" style="display: none"></h3>
+                <span id="precio-producto" style="display: none"></span>
+            </div>
 
-      <div id="buscador">
-        <h2>Buscar Producto</h2>
-        <input
-          id="linkBuscar"
-          placeholder="🔗 Pega el link del producto"
-          type="text"
-        />
-        <button id="btnBuscar" onclick="buscarProducto()">Buscar</button>
-        <button onclick="mostrarCalculadoraDirecto()">Saltar</button>
-        <div id="resultado"></div>
-      </div>
+            <div id="buscador">
+                <h2>Buscar Producto</h2>
+                <input id="linkBuscar" placeholder="🔗 Pega el link del producto" type="text" />
+                <button id="btnBuscar" onclick="buscarProducto()">Buscar</button>
+                <button onclick="mostrarCalculadoraDirecto()">Saltar</button>
+                <div id="resultado"></div>
+            </div>
 
-      <div id="calculadora">
-        <hr />
-        <h2>Calculadora de Compras</h2>
-        <label>Link del producto</label>
-        <input id="link" placeholder="https://..." type="url" />
-        <label>Costo del producto ($)</label>
-        <input
-          id="costo"
-          min="0"
-          placeholder="Precio de Pagina"
-          step="0.01"
-          type="number"
-        />
-        <label>Abono ($) (opcional)</label>
-        <input
-          id="abono"
-          min="0"
-          placeholder="Abono"
-          step="0.01"
-          type="number"
-        />
-        <label>Peso aproximado (libras)</label>
-        <input
-          id="peso"
-          min="0"
-          placeholder="Peso Aprox. (libras)"
-          step="0.01"
-          type="number"
-        />
-        <button onclick="calcular()">Calcular</button>
+            <div id="calculadora">
+                <hr />
+                <h2>Calculadora de Compras</h2>
+                <label>Link del producto</label>
+                <input id="link" placeholder="https://..." type="url" />
+                <label>Costo del producto ($)</label>
+                <input id="costo" min="0" placeholder="Precio de Pagina" step="0.01" type="number" />
+                <label>Abono ($) (opcional)</label>
+                <input id="abono" min="0" placeholder="Abono" step="0.01" type="number" />
+                <label>Peso aproximado (libras)</label>
+                <input id="peso" min="0" placeholder="Peso Aprox. (libras)" step="0.01" type="number" />
+                <button onclick="calcular()">Calcular</button>
 
-        <div id="resultadoCalc" style="margin-top: 1.5rem"></div>
+                <div id="resultadoCalc" style="margin-top: 1.5rem"></div>
 
-        <div id="accionesCalc" style="display: none">
-          <button onclick="limpiarTodo()">Limpiar</button>
-          <button id="btnImprimir" onclick="imprimirCotizacion()">
-            Imprimir
-          </button>
+                <div id="accionesCalc" style="display: none">
+                    <button onclick="limpiarTodo()">Limpiar</button>
+                    <button id="btnImprimir" onclick="imprimirCotizacion()">Imprimir</button>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; background: #f9f9f9; border: 1px solid #e0e0e0; padding: 1rem 1.25rem; border-radius: 1rem; font-size: 0.9rem; color: #333;">
+                <strong style="display: block; margin-bottom: 0.5rem">IMPORTANTE</strong>
+                EL PESO DEL PRODUCTO Y EL SALDO SE CANCELAN AL MOMENTO DE RETIRAR. ABONOS MENORES A EL 80% DEL VALOR DEL PRODUCTO TIENEN UN COSTO DE FINANCIAMIENTO DEL SALDO PENDIENTE.
+            </div>
         </div>
-      </div>
+    </main>
 
-      <div
-        style="
-          margin-top: 2rem;
-          background: #f9f9f9;
-          border: 1px solid #e0e0e0;
-          padding: 1rem 1.25rem;
-          border-radius: 1rem;
-          font-size: 0.9rem;
-          color: #333;
-        "
-      >
-        <strong style="display: block; margin-bottom: 0.5rem"
-          >IMPORTANTE</strong
-        >
-        EL PESO DEL PRODUCTO Y EL SALDO SE CANCELAN AL MOMENTO DE RETIRAR.
-        ABONOS MENORES A EL 80% DEL VALOR DEL PRODUCTO TIENEN UN COSTO DE
-        FINANCIAMIENTO DEL SALDO PENDIENTE.
-      </div>
-    </div>
-  </main>
-
-  <footer class="no-print">
-    <div class="footer-container">
-      <div class="footer-col">
-        <h3>Contacto</h3>
-        <p>Asistencia personalizada</p>
-        <div class="social-icons">
-          <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
-          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
-          <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
-          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">💬 WhatsApp</a>
+    <footer class="no-print">
+        <div class="footer-container">
+            <div class="footer-col">
+                <h3>Contacto</h3>
+                <p>Asistencia personalizada</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
+                    <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
+                    <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
+                    <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">💬 WhatsApp</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Enlaces Rápidos</h3>
+                <a href="/Politicas/">Términos y Condiciones</a><br>
+                <a href="/DG/">Mercancía Restringida</a>
+            </div>
+            <div class="footer-col">
+                <h3>Sobre Nosotros</h3>
+                <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p>
+            </div>
         </div>
-      </div>
-      <div class="footer-col">
-        <h3>Enlaces Rápidos</h3>
-        <a href="../Politicas/">Términos y Condiciones</a><br>
-        <a href="../DG/">Mercancía Restringida</a>
-      </div>
-      <div class="footer-col">
-        <h3>Sobre Nosotros</h3>
-        <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      &copy; 2023 Panama Shipping Co. Todos los derechos reservados.
-      <div class="footer-links">
-        <a href="#">Términos</a>
-        <a href="#">Privacidad</a>
-      </div>
-    </div>
-  </footer>
+        <div class="footer-bottom">
+            &copy; 2023 Panama Shipping Co. Todos los derechos reservados.
+            <div class="footer-links">
+                <a href="#">Términos</a>
+                <a href="#">Privacidad</a>
+            </div>
+        </div>
+    </footer>
 
-  <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" class="whatsapp-float" target="_blank" rel="noopener">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Icono de WhatsApp" />
-  </a>
+    <div class="fab-container">
+        <div class="fab-screen-overlay"></div>
+        <div class="fab-actions">
+            <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener" class="fab-action-item whatsapp-action">
+                <span class="fab-action-label">WhatsApp</span>
+                <button class="fab-circular-button" style="background-color: #25D366;">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01s-.52.074-.792.372c-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.289.173-1.414z"/>
+                    </svg>
+                </button>
+            </a>
+            <a href="/Rastreo/" class="fab-action-item tracker-action">
+                <span class="fab-action-label">Rastreador</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </button>
+            </a>
+            <a href="/ML/" class="fab-action-item ml-action">
+                <span class="fab-action-label">Solicitar ML</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                </button>
+            </a>
+            <a href="/Cotizador/" class="fab-action-item quotes-action">
+                <span class="fab-action-label">Cotizador</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7V8h10v7zm-5-3c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
+                    </svg>
+                </button>
+            </a>
+        </div>
+
+        <button class="fab-main-button">
+            <svg class="plus-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </button>
+    </div>
 
 <script>
+    // Script para el menú FAB
+    document.addEventListener('DOMContentLoaded', () => {
+        const fabContainer = document.querySelector('.fab-container');
+        if (fabContainer) {
+            const mainFabButton = fabContainer.querySelector('.fab-main-button');
+            const overlay = fabContainer.querySelector('.fab-screen-overlay');
+            
+            function toggleFabMenu() {
+                fabContainer.classList.toggle('open');
+                overlay.classList.toggle('show');
+            }
+
+            mainFabButton.addEventListener('click', toggleFabMenu);
+            overlay.addEventListener('click', toggleFabMenu);
+        }
+    });
+
+    // Script para el cotizador
     const apiKey = "fcee4890ff2a9fd58e410400103b094d";
 
     async function buscarProducto() {
@@ -611,8 +709,7 @@
       boton.textContent = "Buscando...";
 
       if (!link.includes("amazon.")) {
-        resultado.innerHTML =
-          "<p>⚠️ No se encontró el precio. Puede ingresarlo manualmente.</p>";
+        resultado.innerHTML = "<p>⚠️ No se encontró el precio. Puede ingresarlo manualmente.</p>";
         mostrarCalculadora(link);
         boton.disabled = false;
         boton.textContent = "Buscar";
@@ -627,9 +724,7 @@
         resultado.innerHTML = `<p><span class="spinner"></span>Buscando producto en Amazon...</p>`;
       }, 100);
 
-      const scrapeUrl = `https://api.scraperapi.com?api_key=${apiKey}&url=${encodeURIComponent(
-        link
-      )}`;
+      const scrapeUrl = `https://api.scraperapi.com?api_key=${apiKey}&url=${encodeURIComponent(link)}`;
 
       try {
         const res = await fetch(scrapeUrl);
@@ -637,21 +732,10 @@
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, "text/html");
 
-        const titulo =
-          doc.querySelector("#productTitle")?.textContent?.trim() ||
-          "Sin título";
-        const precioRaw =
-          doc.querySelector("#priceblock_ourprice")?.textContent ||
-          doc.querySelector("#priceblock_dealprice")?.textContent ||
-          doc.querySelector(".a-price .a-offscreen")?.textContent ||
-          null;
-        const precio = precioRaw
-          ? parseFloat(precioRaw.replace(/[^0-9.]/g, ""))
-          : null;
-        const img =
-          doc.querySelector("#landingImage")?.src ||
-          doc.querySelector("#imgTagWrapperId img")?.src ||
-          null;
+        const titulo = doc.querySelector("#productTitle")?.textContent?.trim() || "Sin título";
+        const precioRaw = doc.querySelector("#priceblock_ourprice")?.textContent || doc.querySelector("#priceblock_dealprice")?.textContent || doc.querySelector(".a-price .a-offscreen")?.textContent || null;
+        const precio = precioRaw ? parseFloat(precioRaw.replace(/[^0-9.]/g, "")) : null;
+        const img = doc.querySelector("#landingImage")?.src || doc.querySelector("#imgTagWrapperId img")?.src || null;
 
         if (precio) {
           if (img) {
@@ -666,13 +750,7 @@
           precioEl.textContent = `$${precio.toFixed(2)}`;
           precioEl.style.display = "inline-block";
           document.getElementById("costo").value = precio.toFixed(2);
-          resultado.innerHTML = `
-           <div class="producto">
-             ${img ? `<img src="${img}" alt="Imagen del producto">` : ""}
-             <h3>${titulo}</h3>
-             <span>$${precio.toFixed(2)}</span>
-           </div>
-         `;
+          resultado.innerHTML = `<div class="producto">${img ? `<img src="${img}" alt="Imagen del producto">` : ""}<h3>${titulo}</h3><span>$${precio.toFixed(2)}</span></div>`;
           mostrarCalculadora(link, precio);
         } else {
           resultado.innerHTML = `<p>⚠️ No se encontró el precio. Puede ingresarlo manualmente.</p>`;
@@ -696,23 +774,19 @@
 
     function calcular() {
       const costo = parseFloat(document.getElementById("costo").value);
-      const abono =
-        parseFloat(document.getElementById("abono").value) || null; // se mantiene comportamiento original
+      const abono = parseFloat(document.getElementById("abono").value) || null;
       const peso = parseFloat(document.getElementById("peso").value) || 0;
-
       const contenedor = document.getElementById("resultadoCalc");
       contenedor.style.display = "block";
       contenedor.innerHTML = "";
 
       const pesoLb = Math.ceil(peso);
       const costoPeso = pesoLb * 2.95;
-
       const comision = costo < 20 ? 5 : costo * 0.2;
       const tarifa = 2.75;
       const totalBase = costo + comision + tarifa;
       const porc80 = costo * 0.8;
 
-      // ✅ Corregido: el saldo mostrado incluye el 30% cuando aplica
       function calcularSaldo(abonoVal) {
         if (abonoVal >= totalBase) {
           return { totalFinal: abonoVal, abono: abonoVal, saldo: 0 };
@@ -724,63 +798,19 @@
       }
 
       if (!abono) {
-        const opciones = [
-          { label: "Opción 1", pct: 1.0 },
-          { label: "Opción 2", pct: 0.6 },
-          { label: "Opción 3", pct: 0.25 },
-        ];
+        const opciones = [{ label: "Opción 1", pct: 1.0 }, { label: "Opción 2", pct: 0.6 }, { label: "Opción 3", pct: 0.25 }];
         opciones.forEach((op) => {
           const abonoVal = costo * op.pct;
           const datos = calcularSaldo(abonoVal);
-          contenedor.innerHTML += `
-           <div class="option-block">
-             <div class="option-header">
-               <div>${op.label}</div>
-               <div class="subtle">${Math.round(op.pct * 100)}% del costo</div>
-             </div>
-             <div class="field"><div>Total de la compra:</div><div class="value">$${datos.totalFinal.toFixed(
-               2
-             )}</div></div>
-             <div class="field"><div>Abono:</div><div class="value">$${datos.abono.toFixed(
-               2
-             )}</div></div>
-             <div class="field"><div>Saldo a cancelar:</div><div class="value">$${datos.saldo.toFixed(
-               2
-             )}</div></div>
-           </div>
-         `;
+          contenedor.innerHTML += `<div class="option-block"><div class="option-header"><div>${op.label}</div><div class="subtle">${Math.round(op.pct * 100)}% del costo</div></div><div class="field"><div>Total de la compra:</div><div class="value">$${datos.totalFinal.toFixed(2)}</div></div><div class="field"><div>Abono:</div><div class="value">$${datos.abono.toFixed(2)}</div></div><div class="field"><div>Saldo a cancelar:</div><div class="value">$${datos.saldo.toFixed(2)}</div></div></div>`;
         });
       } else {
         const datos = calcularSaldo(abono);
-        contenedor.innerHTML += `
-         <div class="option-block">
-           <div class="option-header">
-             <div>Cotización personalizada</div>
-             <div class="subtle">Abono ingresado</div>
-           </div>
-           <div class="field"><div>Total de la compra:</div><div class="value">$${datos.totalFinal.toFixed(
-             2
-           )}</div></div>
-           <div class="field"><div>Abono:</div><div class="value">$${datos.abono.toFixed(
-             2
-           )}</div></div>
-           <div class="field"><div>Saldo a cancelar:</div><div class="value">$${datos.saldo.toFixed(
-             2
-           )}</div></div>
-         </div>
-       `;
+        contenedor.innerHTML += `<div class="option-block"><div class="option-header"><div>Cotización personalizada</div><div class="subtle">Abono ingresado</div></div><div class="field"><div>Total de la compra:</div><div class="value">$${datos.totalFinal.toFixed(2)}</div></div><div class="field"><div>Abono:</div><div class="value">$${datos.abono.toFixed(2)}</div></div><div class="field"><div>Saldo a cancelar:</div><div class="value">$${datos.saldo.toFixed(2)}</div></div></div>`;
       }
 
       if (peso > 0) {
-        contenedor.innerHTML += `
-         <div class="option-block">
-           <div class="option-header"><div>Peso estimado</div></div>
-           <div class="field"><div>Peso:</div><div class="value">${pesoLb} lb</div></div>
-           <div class="field"><div>Costo estimado del peso:</div><div class="value">$${costoPeso.toFixed(
-             2
-           )}</div></div>
-         </div>
-       `;
+        contenedor.innerHTML += `<div class="option-block"><div class="option-header"><div>Peso estimado</div></div><div class="field"><div>Peso:</div><div class="value">${pesoLb} lb</div></div><div class="field"><div>Costo estimado del peso:</div><div class="value">$${costoPeso.toFixed(2)}</div></div></div>`;
       }
 
       document.getElementById("accionesCalc").style.display = "block";
@@ -792,26 +822,21 @@
       document.getElementById("costo").value = "";
       document.getElementById("abono").value = "";
       document.getElementById("peso").value = "";
-
       document.getElementById("resultado").innerHTML = "";
       document.getElementById("resultadoCalc").innerHTML = "";
       document.getElementById("calculadora").style.display = "none";
-
       const img = document.getElementById("imagen-producto");
       const titulo = document.getElementById("titulo-producto");
       const precio = document.getElementById("precio-producto");
-
       img.src = "";
       img.style.display = "none";
       titulo.textContent = "";
       titulo.style.display = "none";
       precio.textContent = "";
       precio.style.display = "none";
-
       const boton = document.getElementById("btnBuscar");
       boton.disabled = false;
       boton.textContent = "Buscar";
-
       document.getElementById("linkBuscar").focus();
       document.getElementById("accionesCalc").style.display = "none";
       document.getElementById("btnImprimir").style.display = "inline-block";
@@ -822,7 +847,6 @@
       document.getElementById("imagen-producto").style.display = "none";
       document.getElementById("titulo-producto").style.display = "none";
       document.getElementById("precio-producto").style.display = "none";
-
       document.getElementById("linkBuscar").value = "";
       document.getElementById("link").value = "";
       document.getElementById("costo").value = "";
@@ -830,92 +854,30 @@
       document.getElementById("peso").value = "";
       document.getElementById("resultadoCalc").innerHTML = "";
       document.getElementById("btnImprimir").style.display = "none";
-
       document.getElementById("calculadora").style.display = "block";
     }
 
-    document
-      .getElementById("linkBuscar")
-      .addEventListener("keydown", function (e) {
-        if (e.key === "Enter") buscarProducto();
-      });
+    document.getElementById("linkBuscar").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") buscarProducto();
+    });
 
     function imprimirCotizacion() {
       const link = document.getElementById("link").value;
       const costo = document.getElementById("costo").value;
       const abono = document.getElementById("abono").value;
       const peso = document.getElementById("peso").value;
-
       const imagen = document.getElementById("imagen-producto").outerHTML;
       const titulo = document.getElementById("titulo-producto").textContent;
       const precio = document.getElementById("precio-producto").textContent;
-      const resultadoCalc =
-        document.getElementById("resultadoCalc").innerHTML;
-      const notaLegal = document.querySelector(
-        "div[style*='margin-top: 2rem']"
-      ).outerHTML;
-
+      const resultadoCalc = document.getElementById("resultadoCalc").innerHTML;
+      const notaLegal = document.querySelector("div[style*='margin-top: 2rem']").outerHTML;
       const ventana = window.open("", "", "height=800,width=600");
-      ventana.document.write(
-        "<html><head><title>Imprimir Cotización</title>"
-      );
+      ventana.document.write("<html><head><title>Imprimir Cotización</title>");
       ventana.document.write("<style>");
-      ventana.document.write(`
-       body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 2rem; }
-       img { max-width: 200px; border-radius: 1rem; margin-bottom: 1rem; }
-       .producto { text-align: center; margin-bottom: 1rem; }
-       .producto h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
-       .producto span { font-size: 1.25rem; font-weight: 600; color: black; margin-top: 0.25rem; display: inline-block; }
-       .field-block { margin-bottom: 1rem; }
-       .field-block strong { display: block; margin-bottom: 0.25rem; }
-       .option-block { border: 1px solid #ececec; border-radius: 0.5rem; padding: 10px 12px; margin-bottom: 12px; background: #fbfbfb; }
-       .option-header { font-weight: 700; margin-bottom: 6px; display: flex; justify-content: space-between; font-size: 0.95rem; }
-       .field { display: flex; justify-content: space-between; padding: 6px 0; font-size: 1rem; border-bottom: 1px solid #f0f0f0; }
-       .field:last-child { border-bottom: none; }
-       .subtle { font-size: 0.85rem; color: #777; }
-       @media print {
-         html, body { zoom: 80%; margin: 0; padding: 0; }
-         .producto img { max-width: 140px; }
-         .option-block, .field-block { page-break-inside: avoid; }
-         @page { size: A4; margin: 1cm; }
-       }
-     `);
+      ventana.document.write(`body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 2rem; } img { max-width: 200px; border-radius: 1rem; margin-bottom: 1rem; } .producto { text-align: center; margin-bottom: 1rem; } .producto h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; } .producto span { font-size: 1.25rem; font-weight: 600; color: black; margin-top: 0.25rem; display: inline-block; } .field-block { margin-bottom: 1rem; } .field-block strong { display: block; margin-bottom: 0.25rem; } .option-block { border: 1px solid #ececec; border-radius: 0.5rem; padding: 10px 12px; margin-bottom: 12px; background: #fbfbfb; } .option-header { font-weight: 700; margin-bottom: 6px; display: flex; justify-content: space-between; font-size: 0.95rem; } .field { display: flex; justify-content: space-between; padding: 6px 0; font-size: 1rem; border-bottom: 1px solid #f0f0f0; } .field:last-child { border-bottom: none; } .subtle { font-size: 0.85rem; color: #777; } @media print { html, body { zoom: 80%; margin: 0; padding: 0; } .producto img { max-width: 140px; } .option-block, .field-block { page-break-inside: avoid; } @page { size: A4; margin: 1cm; } }`);
       ventana.document.write("</style></head><body>");
-
-      ventana.document.write(`
-       <div style="position: fixed; top: 1rem; right: 1rem; width: 200px; height: 90px; z-index: 9999;">
-         <img src="https://i.postimg.cc/G35hZmXg/Captura-de-pantalla-2025-08-06-a-la-s-3-36-08-p-m.png" style="width: 100%; height: 100%; object-fit: contain;" />
-       </div>
-     `);
-
-      ventana.document.write(`
-       <div class="producto">
-         ${imagen}
-         <h3>${titulo}</h3>
-         <span>${precio}</span>
-       </div>
-
-       <div class="field-block">
-         <strong>Link del producto:</strong>
-         <div>${link}</div>
-       </div>
-       <div class="field-block">
-         <strong>Costo del producto:</strong>
-         <div>$${costo}</div>
-       </div>
-       <div class="field-block">
-         <strong>Abono:</strong>
-         <div>$${abono || "—"}</div>
-       </div>
-       <div class="field-block">
-         <strong>Peso aproximado:</strong>
-         <div>${peso ? peso + " lb" : "—"}</div>
-       </div>
-
-       ${resultadoCalc}
-       ${notaLegal}
-     `);
-
+      ventana.document.write(`<div style="position: fixed; top: 1rem; right: 1rem; width: 200px; height: 90px; z-index: 9999;"><img src="https://i.postimg.cc/G35hZmXg/Captura-de-pantalla-2025-08-06-a-la-s-3-36-08-p-m.png" style="width: 100%; height: 100%; object-fit: contain;" /></div>`);
+      ventana.document.write(`<div class="producto">${imagen}<h3>${titulo}</h3><span>${precio}</span></div><div class="field-block"><strong>Link del producto:</strong><div>${link}</div></div><div class="field-block"><strong>Costo del producto:</strong><div>$${costo}</div></div><div class="field-block"><strong>Abono:</strong><div>$${abono || "—"}</div></div><div class="field-block"><strong>Peso aproximado:</strong><div>${peso ? peso + " lb" : "—"}</div></div>${resultadoCalc}${notaLegal}`);
       ventana.document.write("</body></html>");
       ventana.document.close();
       ventana.focus();
@@ -926,44 +888,6 @@
     document.getElementById("linkBuscar").focus();
 </script>
 
-<script>
- (function(){
-   const header = document.querySelector('header');
-   const nav = header ? header.querySelector('nav') : null;
-   const menuToggle = header ? header.querySelector('.menu-toggle') : null;
-
-   if (!header || !nav || !menuToggle) {
-     return; // Salir si los elementos no existen
-   }
-
-   function toggleMenu(show) {
-     if (show) {
-       nav.classList.add('show');
-       menuToggle.setAttribute('aria-expanded', 'true');
-     } else {
-       nav.classList.remove('show');
-       menuToggle.setAttribute('aria-expanded', 'false');
-     }
-   }
-
-   menuToggle.addEventListener('click', (e) => {
-     e.stopPropagation(); 
-     toggleMenu(!nav.classList.contains('show'));
-   });
-
-   document.addEventListener('click', (e) => {
-     if (!header.contains(e.target)) {
-       toggleMenu(false);
-     }
-   });
-
-   window.addEventListener('resize', () => {
-     if (window.innerWidth > 900) {
-       toggleMenu(false);
-     }
-   });
- })();
-</script>
-
 </body>
 </html>
+
