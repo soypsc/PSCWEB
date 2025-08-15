@@ -1,1063 +1,1056 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panama Shipping Co. - Buscar Mal Identificados</title>
-  <!-- Enlaces a fuentes de Google Fonts -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSC - Mal Identificados</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
+    <style>
+        /* Estilos globales y reseteo */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <style>
-    /* ====================================================================== */
-    /* Estilos Globales y Reseteo */
-    /* ====================================================================== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #fafafa; /* Color de fondo de la nueva página */
+            color: #000;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-    /* Ajuste para footer fijo: body como flex container */
-    html, body {
-      height: 100%; /* Asegura que html y body ocupen toda la altura de la ventana */
-    }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #fff;
-      color: #000;
-      line-height: 1.6;
-      overflow-x: hidden; /* Evita el scroll horizontal causado por animaciones */
-      display: flex; /* Habilita Flexbox */
-      flex-direction: column; /* Organiza los hijos en columna */
-      min-height: 100vh; /* Asegura que el body tenga al menos la altura de la ventana */
-    }
+        /* Variables CSS (Colores, etc.) */
+        :root {
+            --blue-1: #2325d4;
+            --blue-2: #1a1cb3;
+            --accent: #ffec00;
+            --bg: #fff;
+            --muted: #777;
+            --card-border: #e6e6ee;
+            --shadow: 0 6px 30px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+            --max-width: 1200px;
+        }
 
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, var(--blue-1), var(--blue-2));
+            color: white;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 25px;
+        }
 
-    /* ====================================================================== */
-    /* Variables CSS (Colores, etc.) */
-    /* ====================================================================== */
-    :root{
-      --blue-1:#2325d4;
-      --blue-2:#1a1cb3;
-      --accent:#ffec00;
-      --bg:#fff;
-      --muted:#777;
-      --card-border:#e6e6ee;
-      --shadow: 0 6px 30px rgba(0,0,0,0.06);
-      --radius:12px;
-      --max-width:1200px;
+        .header-inner {
+            max-width: var(--max-width);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
 
-      /* Variables específicas del módulo "Buscar Mal Identificados" */
-      --fg: #111;
-      --ok: #16a34a;
-      --err: #ff0000;
-      --warn: #ff0000;
-      --card: #fff;
-      --border: #e5e7eb;
-    }
+        .logo {
+            height: 180px;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
 
-    /* ====================================================================== */
-    /* HEADER (Encabezado principal y navegación superior) - COPIADO DE homepage_enhanced_design */
-    /* ====================================================================== */
-    header {
-      background: linear-gradient(135deg, #2325d4, #1a1cb3);
-      color: white;
-      position: relative;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Sombra más pronunciada para profundidad */
-      height: 140px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 25px;
-      flex-shrink: 0; /* Evita que el header se encoja */
-    }
+        .logo img {
+            max-height: 225px;
+            width: auto;
+            object-fit: contain;
+            user-select: none;
+            pointer-events: none;
+        }
 
-    .header-inner {
-      max-width: 1200px;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
-      z-index: 2; /* Asegura que el contenido esté por encima de la onda */
-    }
+        nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
 
-    .logo {
-      height: 180px;
-      display: flex;
-      align-items: center;
-    }
+        nav a {
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+            position: relative;
+            transition: color 0.3s ease, transform 0.2s ease;
+        }
 
-    .logo img {
-      max-height: 225px;
-      width: auto;
-      object-fit: contain;
-      user-select: none;
-      pointer-events: none;
-    }
+        nav a:hover {
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
 
-    nav {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
 
-    nav a {
-      color: white;
-      font-weight: 500;
-      font-size: 14px;
-      position: relative;
-      transition: color 0.3s ease, transform 0.2s ease; /* Transiciones para color y movimiento */
-      will-change: color, transform; /* Optimización de rendimiento para animaciones */
-    }
+        .btn-header {
+            background: var(--accent);
+            color: var(--blue-1);
+            padding: 8px 18px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 13px;
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 
-    nav a:hover {
-      color: #ffec00;
-      transform: translateY(-2px); /* Pequeño levantamiento al pasar el cursor */
-    }
+        .btn-header:hover {
+            background: #e6d800;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
 
-    nav a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -3px;
-      width: 0%;
-      height: 2px;
-      background: #ffec00;
-      transition: width 0.3s ease; /* Animación de subrayado */
-    }
+        .onda {
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23fafafa" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;
+            background-size: cover;
+            z-index: 1;
+            pointer-events: none;
+        }
 
-    nav a:hover::after {
-      width: 100%;
-    }
+        /* Dropdown */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
 
-    .header-buttons {
-      display: flex;
-      gap: 10px;
-    }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--blue-1);
+            min-width: 200px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.25);
+            border-radius: var(--radius);
+            z-index: 10002;
+            overflow: hidden;
+        }
 
-    .btn-header {
-      background: #ffec00;
-      color: #2325d4;
-      padding: 8px 18px;
-      border-radius: 12px; /* Bordes suaves y consistentes */
-      font-weight: 600;
-      font-size: 13px;
-      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Animaciones para botones */
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra inicial */
-    }
+        .dropdown-content a {
+            color: white;
+            padding: 10px 16px;
+            display: block;
+            font-size: 14px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
 
-    .btn-header:hover {
-      background: #e6d800;
-      transform: translateY(-2px); /* Levantamiento al pasar el cursor */
-      box-shadow: 0 6px 12px rgba(0,0,0,0.2); /* Sombra más grande al pasar el cursor */
-    }
+        .dropdown-content a:hover {
+            background-color: var(--blue-2);
+            color: var(--accent);
+        }
 
-    .onda {
-      position: absolute;
-      bottom: -20px;
-      left: 0;
-      width: 100%;
-      height: 40px;
-      background: url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;
-      background-size: cover;
-      z-index: 1; /* Asegura que la onda esté debajo del contenido del header */
-      pointer-events: none; /* No interfiere con clics */
-    }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        /* FOOTER */
+        footer {
+            background: var(--bg);
+            color: #000;
+            padding: 40px 20px;
+            margin-top: 50px;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08);
+        }
 
-    /* ====================================================================== */
-    /* Dropdown (Menú desplegable) - COPIADO DE homepage_enhanced_design */
-    /* ====================================================================== */
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
+        .footer-container {
+            max-width: var(--max-width);
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
 
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #2325d4;
-      min-width: 200px;
-      box-shadow: 0px 8px 16px rgba(0,0,0,0.25); /* Sombra definida */
-      border-radius: 8px; /* Bordes suaves */
-      z-index: 10002; /* ¡Z-index ajustado para asegurar visibilidad! */
-      overflow: hidden; /* Asegura que los bordes redondeados se apliquen */
-    }
+        .footer-col h3 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: #333;
+        }
 
-    .dropdown-content a {
-      color: white;
-      padding: 10px 16px;
-      display: block;
-      font-size: 14px;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
+        .footer-col p, .footer-col a {
+            font-size: 14px;
+            color: #555;
+            transition: color 0.3s ease;
+        }
 
-    .dropdown-content a:hover {
-      background-color: #1a1cb3;
-      color: #ffec00;
-    }
+        .footer-col a:hover {
+            color: var(--blue-1);
+        }
 
-    .dropdown:hover .dropdown-content {
-      display: block;
-    }
+        .social-icons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
 
-    /* ====================================================================== */
-    /* Media Queries (Diseño Responsivo) - COPIADO DE homepage_enhanced_design */
-    /* ====================================================================== */
-    @media (max-width: 900px) {
-      header {
-        height: auto; /* Altura auto para el menú desplegado */
-      }
-      .header-buttons {
-        display: none;
-      }
-      .menu-toggle {
-        display: block;
-        font-size: 26px;
-        cursor: pointer;
-        color: white;
-        position: relative;
-        z-index: 10001; /* Asegura que el toggle esté por encima del menú móvil */
-        user-select: none;
-      }
-      header nav {
-        display: none;
-        position: absolute;
-        top: 100%;
-        right: 20px;
-        background: #2325d4;
-        flex-direction: column;
-        gap: 8px;
-        padding: 14px;
-        border-radius: 12px;
-        box-shadow: 0 12px 24px rgba(0,0,0,.25);
-        z-index: 10000;
-        width: max-content;
-        min-width: 220px;
-      }
-      header nav.show {
-        display: flex;
-      }
-      /* Dropdown dentro del panel móvil (se comporta como un elemento normal) */
-      header .dropdown:hover .dropdown-content {
-        display: none; /* Deshabilita hover en móvil para evitar conflictos */
-      }
-      header .dropdown .dropdown-content {
-        position: relative;
-        top: auto;
-        left: auto;
-        background: #1a1cb3;
-        box-shadow: none;
-        min-width: 220px;
-      }
-    }
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            padding-top: 15px;
+        }
 
-    @media (min-width: 901px){
-      .menu-toggle{
-        display:none;
-      }
-      header nav{
-        display:flex !important;
-        position:static;
-        box-shadow:none;
-        padding:0;
-      }
-    }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
 
-    /* ====================================================================== */
-    /* Estilos del Módulo "Buscar Mal Identificados" (originales, fusionados y ajustados) */
-    /* ====================================================================== */
-    main.content {
-      flex-grow: 1; /* Permite que el contenido principal se estire */
-      max-width: 1200px;
-      margin: 50px auto;
-      padding: 20px;
-    }
-    .wrap {
-      width: 100%;
-      max-width: 720px; /* Se ajusta dentro del .content de 1200px */
-      margin: 0 auto; /* Centra el wrap dentro del content */
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
-      padding: 20px;
-    }
-    h1 {
-      margin: 0 0 6px;
-      text-align: center;
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: 0.2px;
-    }
-    .subtitle {
-      margin: 0 0 18px;
-      text-align: center;
-      color: var(--muted);
-    }
-    label {
-      display: block;
-      font-size: 14px;
-      color: var(--muted);
-      margin: 8px 0 6px;
-    }
-    input[type="text"] {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: #fff;
-      font-size: 16px;
-    }
-    .row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-    button {
-      border: 0;
-      border-radius: 12px;
-      padding: 10px 14px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    /* Estilo específico para el botón Buscar: negro */
-    #go {
-      background-color: #000 !important;
-      color: #fff !important;
-    }
-    .btn-primary {
-      background: var(--accent); /* Usando el --accent de tu sitio */
-      color: #fff;
-    }
-    .btn-ghost {
-      background: #f3f4f6;
-      color: #111;
-      border: 1px solid var(--border);
-    }
-    .btn-primary:disabled,
-    .btn-ghost:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    .status {
-      margin-top: 10px;
-      font-size: 14px;
-      color: var(--muted);
-    }
-    .status.ok {
-      color: var(--ok);
-    }
-    .status.err {
-      color: var(--err);
-    }
-    .status.warn {
-      color: var(--warn);
-    }
-    pre {
-      background: #2325d4; /* Usando el azul de tu header para el fondo del output */
-      color: #e5e7eb;
-      border-radius: 12px;
-      padding: 14px;
-      white-space: pre-wrap;
-      word-break: break-word;
-      margin-top: 12px;
-      min-height: 44px;
-    }
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 16px 0;
-    }
-    .question {
-      margin-top: 14px;
-    }
-    .choices {
-      display: flex;
-      gap: 10px;
-      margin-top: 6px;
-    }
-    .choice {
-      display: inline-flex;
-      gap: 8px;
-      align-items: center;
-      border: 1px solid var(--border);
-      padding: 8px 10px;
-      border-radius: 10px;
-      cursor: pointer;
-      background: #fff;
-    }
-    .choice input {
-      accent-color: #2325d4; /* Usando el azul de tu sitio para los radio buttons */
-    }
-    .hint {
-      margin-top: 8px;
-      color: var(--warn);
-      font-size: 14px;
-      display: none;
-    }
-    .form {
-      margin-top: 14px;
-      display: none;
-    }
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 160px;
-      gap: 8px;
-    }
-    .form .note {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-    .toast {
-      margin-top: 10px;
-      font-size: 14px;
-    }
-    .toast.ok {
-      color: var(--ok);
-    }
-    .toast.err {
-      color: var(--err);
-    }
-    .toast.warn {
-      color: var(--warn);
-    }
+        .footer-links a {
+            color: var(--blue-1);
+            font-size: 12px;
+        }
 
-    /* ====================================================================== */
-    /* FOOTER (Pie de página) - COPIADO DE homepage_enhanced_design */
-    /* ====================================================================== */
-    footer {
-      background: #fff;
-      color: #000;
-      padding: 40px 20px; /* Más padding para más "aire" */
-      margin-top: 50px; /* Más espacio superior */
-      box-shadow: 0 -4px 15px rgba(0,0,0,0.08); /* Sombra sutil y más prominente */
-      flex-shrink: 0; /* Evita que el footer se encoja */
-    }
+        /* Media Queries (Diseño Responsivo) */
+        @media (max-width: 900px) {
+            header {
+                height: auto;
+                padding: 25px;
+            }
 
-    .footer-container {
-      max-width: 1200px;
-      margin: auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 30px; /* Más espacio entre columnas */
-    }
+            .header-inner {
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                gap: 15px;
+            }
 
-    .footer-col h3 {
-      font-size: 1.2rem; /* Tamaño ajustado para elegancia */
-      margin-bottom: 12px; /* Más espacio debajo del título */
-      color: #333; /* Color gris oscuro para encabezados */
-    }
+            .logo {
+                height: auto;
+                width: auto;
+                margin-right: auto;
+            }
 
-    .footer-col p, .footer-col a {
-      font-size: 14px; /* Tamaño ligeramente ajustado para legibilidad */
-      color: #555; /* Color gris suave para texto normal */
-      transition: color 0.3s ease; /* Transición para enlaces */
-    }
+            .logo img {
+                max-height: 150px;
+            }
 
-    .footer-col a:hover {
-      color: #2325d4; /* Color azul PSC al pasar el cursor */
-    }
+            nav {
+                display: none;
+            }
 
-    .social-icons {
-      display: flex;
-      flex-direction: column;
-      gap: 8px; /* Más espacio entre iconos sociales */
-    }
+            .header-buttons {
+                display: flex;
+                flex-wrap: nowrap;
+                justify-content: flex-end;
+                width: auto;
+                gap: 8px;
+                margin-left: auto;
+            }
+            
+            .btn-header {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+            
+            .menu-toggle {
+                display: none;
+            }
+        }
 
-    .footer-bottom {
-      text-align: center;
-      margin-top: 30px; /* Más espacio superior */
-      font-size: 12px; /* Tamaño ligeramente ajustado */
-      color: #777;
-      border-top: 1px solid rgba(0,0,0,0.1);
-      padding-top: 15px; /* Más padding superior */
-    }
+        @media (min-width: 901px) {
+            .fab-container {
+                display: none;
+            }
 
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 20px; /* Más espacio entre enlaces del footer-bottom */
-      margin-top: 10px; /* Más espacio */
-    }
+            .menu-toggle {
+                display: none;
+            }
 
-    .footer-links a {
-      color: #2325d4;
-      font-size: 12px;
-    }
+            header nav {
+                display: flex;
+                position: static;
+                box-shadow: none;
+                padding: 0;
+            }
 
-    /* ====================================================================== */
-    /* WhatsApp Flotante - COPIADO DE homepage_enhanced_design */
-    /* ====================================================================== */
-    .whatsapp-float {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 999;
-      transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animación */
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Sombra inicial */
-      border-radius: 50%; /* Asegura que la sombra se vea bien en el círculo */
-    }
+            .header-buttons {
+                display: flex;
+            }
+        }
 
-    .whatsapp-float:hover {
-      transform: scale(1.05) translateY(-2px); /* Pequeña escala y levantamiento */
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3); /* Sombra más grande */
-    }
+        /* ====================================================================== */
+        /* FLOATING ACTION BUTTON (FAB) */
+        /* ====================================================================== */
+        .fab-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
 
-    .whatsapp-float img {
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-    }
+        .fab-screen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(240, 240, 240, 0.8);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
 
-    /* Mobile-friendly adjustments (iPhone & Android) */
-    html { -webkit-text-size-adjust: 100%; }
-    /* body margin/padding handled by flexbox setup */
-    * { box-sizing: border-box; }
+        .fab-screen-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
 
-    /* Use device safe areas (notch, home indicator) */
-    :root {
-      --safe-top: env(safe-area-inset-top);
-      --safe-right: env(safe-area-inset-right);
-      --safe-bottom: env(safe-area-inset-bottom);
-      --safe-left: env(safe-area-inset-left);
-    }
-    body {
-      padding-left: max(0px, var(--safe-left));
-      padding-right: max(0px, var(--safe-right));
-      padding-bottom: max(0px, var(--safe-bottom));
-    }
+        .fab-main-button {
+            position: relative;
+            z-index: 1002;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: red;
+            color: white;
+            border: none;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), box-shadow 0.3s ease, background-color 0.3s ease;
+        }
 
-    /* Prevent iOS zoom on focus by ensuring >=16px */
-    input, select, textarea { font-size: 16px; }
+        .fab-main-button:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+            transform: scale(1.05);
+            background-color: darkred;
+        }
 
-    /* Comfortable tap targets */
-    button, .btn, input[type="button"], input[type="submit"] { min-height: 44px; touch-action: manipulation; }
+        .fab-main-button .plus-icon {
+            width: 30px;
+            height: 30px;
+            transition: transform 0.3s ease-in-out;
+        }
 
-    /* Images responsive */
-    img, svg, video, canvas { max-width: 100%; height: auto; }
+        .fab-container.open .fab-main-button .plus-icon {
+            transform: rotate(45deg);
+        }
 
-    /* Reduce outer paddings on small screens */
-    @media (max-width: 640px) {
-      .nav { padding: .5rem .75rem; }
-      .nav__links { gap: .5rem; }
-      .container, .wrapper, .card { padding-left: 0; padding-right: 0; }
-    }
-  </style>
+        .fab-actions {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-end;
+            transform: scale(0);
+            transform-origin: bottom right;
+            transition: transform 0.3s ease-out;
+            z-index: 1001;
+        }
+
+        .fab-container.open .fab-actions {
+            transform: scale(1);
+        }
+
+        .fab-action-item {
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            gap: 10px;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            opacity: 0;
+            transform: translateX(20px);
+        }
+
+        .fab-container.open .fab-action-item {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Retrasos para una animación escalonada */
+        .fab-container.open .whatsapp-action {
+            transition-delay: 0.2s;
+        }
+        .fab-container.open .tracker-action {
+            transition-delay: 0.15s;
+        }
+        .fab-container.open .ml-action {
+            transition-delay: 0.10s;
+        }
+        .fab-container.open .quotes-action {
+            transition-delay: 0.05s;
+        }
+
+        .fab-circular-button {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background-color: var(--blue-1);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .fab-circular-button:hover {
+            background-color: var(--blue-2);
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+        }
+
+        .fab-circular-button svg {
+            width: 30px;
+            height: 30px;
+            fill: currentColor;
+        }
+
+        .fab-action-label {
+            background-color: white;
+            color: var(--blue-1);
+            padding: 8px 12px;
+            border-radius: 18px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .fab-action-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* --- ESTILOS ESPECÍFICOS DE LA PÁGINA ML --- */
+        main.wrap {
+            min-height: 60vh;
+            display: grid;
+            place-items: center;
+            padding: 40px 24px;
+        }
+        .card {
+            width: 100%;
+            max-width: 720px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+        }
+        h1 {
+            margin: 0 0 6px 0;
+            font-size: 20px;
+            letter-spacing: -0.01em;
+        }
+        p.sub {
+            margin: 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 16px 0;
+        }
+        .row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            background: #fff;
+            font-size: 16px;
+        }
+        button {
+            border: 0;
+            border-radius: 12px;
+            padding: 12px 14px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        .btn-ghost {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+        }
+        .btn-primary {
+            background: #111;
+            color: #fff;
+        }
+        .status {
+            margin-top: 6px;
+            color: #6b7280;
+            min-height: 22px;
+        }
+        pre {
+            background: #eef6ff;
+            border: 1px dashed #bfdbfe;
+            color: #0f172a;
+            border-radius: 12px;
+            padding: 14px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-top: 12px;
+            min-height: 44px;
+        }
+        .question {
+            margin-top: 14px;
+            font-size: 15px;
+            color: #111;
+        }
+        .choices {
+            display: flex;
+            gap: 10px;
+            margin-top: 6px;
+        }
+        .choice {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            border: 1px solid #e5e7eb;
+            padding: 8px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #fff;
+        }
+        .choice input {
+            accent-color: #111;
+        }
+        .hint {
+            margin-top: 8px;
+            color: #f59e0b;
+            font-size: 14px;
+            display: none;
+        }
+        .form {
+            margin-top: 14px;
+            display: none;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 160px;
+            gap: 8px;
+        }
+        .note {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 6px;
+        }
+        .toast {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .toast.ok {
+            color: #16a34a;
+        }
+        .toast.err {
+            color: #ff0000;
+        }
+        .ticker {
+            display: inline-block;
+            width: 12ch;
+            overflow: hidden;
+            white-space: nowrap;
+            vertical-align: bottom;
+        }
+        .hidden { display: none !important; }
+
+    </style>
 </head>
 <body>
-
-  <!-- HEADER - Contenido copiado de homepage_enhanced_design -->
-  <header>
-    <div class="header-inner">
-      <div class="logo">
-        <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
-      </div>
-      <div class="menu-toggle">☰</div>
-      <nav>
-        <a href="../index.html">Inicio</a>
-        <a href="../Rastreo/">Rastreador de Paquetes</a>
-        <a href="../Cotizador/">Cotiza tus Compras</a>
-        <a href="../ML/">Solicitar ML</a>
-        
-        <!-- Menú desplegable "Más" -->
-        <div class="dropdown">
-          <a href="#">Más ▾</a>
-          <div class="dropdown-content">
-            <a href="../DG/">Mercancía Peligrosa</a>
-            <a href="../Politicas/">Términos y Condiciones</a>
-          </div>
+    
+    <header>
+        <div class="header-inner">
+            <div class="logo">
+                <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
+            </div>
+            <nav>
+                <a href="./">Inicio</a>
+                <a href="Rastreo/">Rastreador de Paquetes</a>
+                <a href="Cotizador/">Cotiza tus Compras</a>
+                <a href="ML/">Solicitar ML</a>
+                
+                <div class="dropdown">
+                    <a href="#">Más ▾</a>
+                    <div class="dropdown-content">
+                        <a href="DG/">Mercancía Peligrosa</a>
+                        <a href="Politicas/">Términos y Condiciones</a>
+                    </div>
+                </div>
+            </nav>
+            <div class="header-buttons">
+                <a href="https://psc.e-rmez.com/zonacliente/" class="btn-header">Zona de Clientes</a>
+                <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-header">Regístrate</a>
+            </div>
         </div>
-      </nav>
-      <div class="header-buttons">
-        <a href="https://psc.e-rmez.com/zonacliente/" class="btn-header">Zona de Clientes</a>
-        <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-header">Regístrate</a>
-      </div>
-    </div>
-    <div class="onda" aria-hidden="true"></div>
-  </header>
+        <div class="onda"></div>
+    </header>
 
-  <!-- SECCIÓN CENTRAL (Aquí se mantiene el código de "Buscar Mal Identificados") -->
-  <main class="content">
-    <div class="wrap">
-      <h1>Buscar Mal Identificados</h1>
-      <p class="subtitle">Ingrese Tracking</p>
+    <main class="wrap">
+      <div class="card">
+        <h1>Buscar Mal Identificados (ML)</h1>
+        <p class="sub">
+          Busca tu paquete por número de tracking para solicitar la corrección.
+        </p>
 
-      <!-- Paso 1: búsqueda -->
-      <label for="trk">Tracking</label>
-      <input
-        id="trk"
-        type="text"
-        placeholder="Ej: UUS57S2565569158307"
-        autocomplete="off"
-      />
-      <div class="row">
-        <button id="go" class="btn-primary">Buscar</button>
-        <button id="clear" class="btn-ghost">Limpiar</button>
-      </div>
-      <div id="status" class="status"></div>
-      <pre id="out"></pre>
+        <div class="divider"></div>
 
-      <div class="divider"></div>
+        <!-- Paso 1 -->
+        <div>
+          <label for="trk">Tracking</label>
+          <div class="row">
+            <input id="trk" type="text" placeholder="Ej: 1Z999999..." />
+            <button id="go" class="btn-primary">Buscar</button>
+            <button id="clear" class="btn-ghost">Limpiar</button>
+          </div>
+          <div id="status" class="status"></div>
+          <pre id="out"></pre>
+        </div>
 
-      <!-- Paso 2: confirmación y solicitud -->
-      <div class="question">
-        <label>¿Mostró Fecha de ingreso CB, saco o Parrafo con fecha? Marque, *SI*</label>
-        <label>-Lo mas probable que su paquete este Mal Identificado</label>
-        <div class="choices">
+        <div class="divider"></div>
+
+        <!-- Paso 2 -->
+        <div class="question hidden">
+          <p>¿Mostró Fecha de ingreso CB, saco o Párrafo con fecha? Marque, <strong>SÍ</strong></p>
+          <p>-Lo más probable que su paquete esté Mal Identificado</p>
+        </div>
+      
+        <div class="choices hidden">
           <label class="choice"
-            ><input type="radio" name="seen" value="si" />
-            <span>Sí</span></label
+            ><input type="radio" name="seen" value="si" /> Sí</label
           >
           <label class="choice"
-            ><input type="radio" name="seen" value="no" />
-            <span>No</span></label
+            ><input type="radio" name="seen" value="no" /> No</label
           >
         </div>
         <div id="noMsg" class="hint">
           Si no sale información intente Buscar nuevamente o Contactarse con PSC.
         </div>
-      </div>
 
-      <div class="form" id="mlForm">
-        <label for="cas">N.º de casillero (obligatorio)</label>
-        <div class="form-grid">
-          <input id="cas" type="text" placeholder="Ej: 12345" />
-          <button id="ask" class="btn-primary">Solicitar ML</button>
-        </div>
-        <div class="note">
-          <!-- Aquí puedes añadir una nota o instrucción adicional para el usuario -->
-        </div>
-        <div id="msg" class="toast"></div>
-      </div>
-    </div>
-  </main>
-
-  <!-- FOOTER - Contenido copiado de homepage_enhanced_design -->
-  <footer>
-    <div class="footer-container">
-      <div class="footer-col">
-        <h3>Contacto</h3>
-        <p>Asistencia personalizada</p>
-        <div class="social-icons">
-          <!-- Enlace de Instagram actualizado -->
-          <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
-          <!-- Enlace de WhatsApp para el número de teléfono -->
-          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
-          <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
-          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">💬 WhatsApp</a>
+        <div class="form" id="mlForm">
+          <label for="cas">N.º de casillero (obligatorio)</label>
+          <div class="form-grid">
+            <input id="cas" type="text" placeholder="Ej: 12345" />
+            <input id="name" type="text" placeholder="Ingrese Nombre" />
+            <button id="ask" class="btn-primary">Solicitar ML</button>
+          </div>
+          <div class="note"></div>
+          <div id="msg" class="toast"></div>
         </div>
       </div>
-      <div class="footer-col">
-        <h3>Enlaces Rápidos</h3>
-        <!-- Enlace "Términos y Condiciones" ahora apunta a "Politicas/" -->
-        <a href="../Politicas/">Términos y Condiciones</a><br>
-        <!-- Enlace "Mercancía Restringida" ahora apunta a "DG/" -->
-        <a href="../DG/">Mercancía Restringida</a>
-      </div>
-      <div class="footer-col">
-        <h3>Sobre Nosotros</h3>
-        <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p>
-      </div>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-col">
+                <h3>Contacto</h3>
+                <p>Asistencia personalizada</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
+                    <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
+                    <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
+                    <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">💬 WhatsApp</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Enlaces Rápidos</h3>
+                <a href="Politicas/">Términos y Condiciones</a><br>
+                <a href="DG/">Mercancía Restringida</a>
+            </div>
+            <div class="footer-col">
+                <h3>Sobre Nosotros</h3>
+                <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2023 Panama Shipping Co. Todos los derechos reservados.
+            <div class="footer-links">
+                <a href="#">Términos</a>
+                <a href="#">Privacidad</a>
+            </div>
+        </div>
+    </footer>
+
+    <div class="fab-container">
+        <div class="fab-screen-overlay"></div>
+        <div class="fab-actions">
+            <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener" class="fab-action-item whatsapp-action">
+                <span class="fab-action-label">WhatsApp</span>
+                <button class="fab-circular-button" style="background-color: #25D366;">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01s-.52.074-.792.372c-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.289.173-1.414z"/>
+                    </svg>
+                </button>
+            </a>
+            <a href="Rastreo/" class="fab-action-item tracker-action">
+                <span class="fab-action-label">Rastreador</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </button>
+            </a>
+            <a href="ML/" class="fab-action-item ml-action">
+                <span class="fab-action-label">Solicitar ML</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                </button>
+            </a>
+            <a href="Cotizador/" class="fab-action-item quotes-action">
+                <span class="fab-action-label">Cotizador</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7V8h10v7zm-5-3c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
+                    </svg>
+                </button>
+            </a>
+        </div>
+
+        <button class="fab-main-button">
+            <svg class="plus-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </button>
     </div>
-    <div class="footer-bottom">
-      &copy; 2023 Panama Shipping Co. Todos los derechos reservados.
-      <div class="footer-links">
-        <a href="#">Términos</a>
-        <a href="#">Privacidad</a>
-      </div>
-    </div>
-  </footer>
 
-  <!-- WHATSAPP FLOATING BUTTON - Contenido copiado de homepage_enhanced_design -->
-  <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" 
-     class="whatsapp-float" target="_blank" rel="noopener">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Icono de WhatsApp" />
-  </a>
+    <script>
+        // Script para el menú FAB
+        document.addEventListener('DOMContentLoaded', () => {
+            const fabContainer = document.querySelector('.fab-container');
+            if (fabContainer) {
+                const mainFabButton = fabContainer.querySelector('.fab-main-button');
+                const overlay = fabContainer.querySelector('.fab-screen-overlay');
+                
+                function toggleFabMenu() {
+                    fabContainer.classList.toggle('open');
+                    overlay.classList.toggle('show');
+                }
 
-  <script>
-    // Lógica principal para el menú responsivo (botón de hamburguesa) - COPIADO DE homepage_enhanced_design
-    (function(){
-      const header = document.querySelector('header');
-      const nav = header ? header.querySelector('nav') : null;
-      const menuToggle = header ? header.querySelector('.menu-toggle') : null;
-
-      if (!header || !nav || !menuToggle) {
-        // console.warn('Elementos de navegación no encontrados. El menú de hamburguesa podría no funcionar.');
-        return; // Salir si los elementos no existen
-      }
-
-      // Función para abrir/cerrar el menú
-      function toggleMenu(show) {
-        if (show) {
-          nav.classList.add('show');
-          menuToggle.setAttribute('aria-expanded', 'true');
-        } else {
-          nav.classList.remove('show');
-          menuToggle.setAttribute('aria-expanded', 'false');
-        }
-      }
-
-      // Evento de clic en el botón de hamburguesa
-      menuToggle.addEventListener('click', (e) => {
-        e.stopPropagation(); // Evita que el clic se propague al documento
-        toggleMenu(!nav.classList.contains('show'));
-      });
-
-      // Cierra el menú cuando se hace clic fuera del encabezado
-      document.addEventListener('click', (e) => {
-        if (!header.contains(e.target)) {
-          toggleMenu(false);
-        }
-      });
-
-      // Cierra el menú cuando se redimensiona a un tamaño de escritorio
-      window.addEventListener('resize', () => {
-        if (window.innerWidth > 900) {
-          toggleMenu(false);
-        }
-      });
-    })();
-
-
-    // JavaScript del módulo "Buscar Mal Identificados" (original)
-    (function () {
-      // --- Endpoints ---
-      const SCRAPER_DEFAULT =
-        "https://gel-scraper-proxy.onrender.com/api/gel";
-      const SCRAPER = location.hostname.includes(
-          "gel-scraper-proxy.onrender.com"
-        )
-          ? "/api/gel"
-          : SCRAPER_DEFAULT;
-
-      const CHECK_URL =
-        "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/check-ml";
-      const PUT_URL =
-        "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/put-tracking";
-
-      // --- DOM ---
-      const $ = (s) => document.querySelector(s);
-      const trk = $("#trk");
-      const go = $("#go");
-      const clr = $("#clear");
-      const status = $("#status");
-      const out = $("#out");
-
-      const seenRadios = document.getElementsByName("seen");
-      const noMsg = $("#noMsg");
-      const form = $("#mlForm");
-      const cas = $("#cas");
-      const ask = $("#ask");
-      const toast = $("#msg");
-
-      // --- Filtro de texto fijo (si llegamos a usar snippet de error) ---
-      const FILTER_STRINGS = [
-        // pega aquí bloques de texto CONSTANTE de la web original para ocultar del snippet
-        `Login BUSCAR PAQUETES SIN IDENTIFICAR Número de Rastreo "Tracking" CLEAR SACO FECHA DE INGRESO SACO FECHA DE INGRESO Displaying 1 - 1 of 1 CÓMO RECLAMAR UN PAQUETE SIN IDENTIFICAR Sin Resultado En Búsqueda Reclamar Paquete Encontrado. RECLAMO DE PAQUETE Una vez compruebe que su paquete está mal identificado llene los campos con la información requerida No. de Casillero* No. Tracking a reclamar* Es Saco o CB* CB Saco Ninguno No. de Saco o CB* Sólo Número de SACO o CB con fecha más reciente Su Email de contacto* Agregar Nota: (opcional)`,
-      ];
-      function cleanText(str) {
-        if (!str) return "";
-        let t = String(str);
-        for (const block of FILTER_STRINGS) {
-          if (block && block.trim()) {
-            t = t.split(block).join("");
-            const norm = (s) => s.replace(/\s+/g, " ").trim();
-            const tb = norm(block);
-            const re = new RegExp(
-              tb.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
-              "g"
-            );
-            t = norm(t).replace(re, "");
-          }
-        }
-        return t
-          .replace(/[ \t]+\n/g, "\n")
-          .replace(/\n{3,}/g, "\n\n")
-          .trim();
-      }
-      function extractSnippetFromError(errMsg) {
-        if (!errMsg) return "";
-        const i = errMsg.indexOf("Snippet:");
-        return i >= 0 ? errMsg.slice(i + "Snippet:".length).trim() : "";
-      }
-
-      // --- Estados UI ---
-      let tickerTimer = null;
-      let searchAbort = null;
-      const submittedSet = new Set(); // evita doble envío en esta sesión
-
-      function setStatus(msg, kind = "") {
-        status.textContent = msg || "";
-        status.className = "status" + (kind ? " " + kind : "");
-      }
-      function setToast(msg, kind = "") {
-        toast.textContent = msg || "";
-        toast.className = "toast" + (kind ? " " + kind : "");
-      }
-
-      function startTicker() {
-        let elapsed = 0,
-          showAlt = false;
-        stopTicker();
-        tickerTimer = setInterval(() => {
-          elapsed += 5;
-          showAlt = !showAlt;
-          setStatus(
-            showAlt ? "Estamos buscando tu Paquete…" : "Buscando…",
-            "warn"
-          );
-          if (elapsed >= 45) stopTicker();
-        }, 5000);
-      }
-      function stopTicker() {
-        if (tickerTimer) {
-          clearInterval(tickerTimer);
-          tickerTimer = null;
-        }
-      }
-
-      function resetAll() {
-        trk.value = "";
-        out.textContent = "";
-        setStatus("");
-        setToast("");
-        noMsg.style.display = "none";
-        form.style.display = "none";
-        cas.value = "";
-        for (const r of seenRadios) {
-          r.checked = false;
-        }
-        go.disabled = false;
-        ask.disabled = false;
-        stopTicker();
-        if (searchAbort) {
-          searchAbort.abort();
-          searchAbort = null;
-        }
-      }
-
-      // --- Paso 1: Buscar ---
-      async function buscar() {
-        const t = trk.value.trim();
-        setToast("");
-        if (!t) {
-          setStatus("", "");
-          out.textContent = "";
-          return;
-        }
-
-        go.disabled = true;
-        setStatus("Buscando…", "warn");
-        startTicker();
-
-        // timeout 45s
-        searchAbort = new AbortController();
-        const tt = setTimeout(() => searchAbort.abort(), 45000);
-
-        try {
-          const r = await fetch(
-            `${SCRAPER}?tracking=${encodeURIComponent(t)}`,
-            { cache: "no-store", signal: searchAbort.signal }
-          );
-          clearTimeout(tt);
-          stopTicker();
-
-          let data = null,
-            raw = "";
-          try {
-            data = await r.json();
-          } catch {
-            raw = await r.text();
-          }
-
-          if (r.ok && data && data.ok) {
-            const has = data.saco || data.fecha_de_ingreso;
-            if (has) {
-              // mostramos limpio; por confiabilidad dejamos "FECHA DE INGRESO" si viene
-              const resp = [data.saco || "", data.fecha_de_ingreso || ""]
-                .filter(Boolean)
-                .join("\n")
-                .trim();
-              out.textContent = resp || "No encontrado";
-            } else {
-              out.textContent = "No encontrado";
+                mainFabButton.addEventListener('click', toggleFabMenu);
+                overlay.addEventListener('click', toggleFabMenu);
             }
-            setStatus(has ? "Listo" : "No encontrado", has ? "ok" : "err");
-          } else {
-            const errMsg = data && data.error ? String(data.error) : raw;
-            const snippet = cleanText(extractSnippetFromError(errMsg));
-            if (snippet) {
-              out.textContent = snippet;
-              setStatus("Listo", "ok");
-            } else {
-              out.textContent = "No encontrado";
-              setStatus("No encontrado", "err");
+        });
+
+        // Script para la funcionalidad de la página ML
+        (function () {
+            const SCRAPER_DEFAULT = "https://gel-scraper-proxy.onrender.com/api/gel";
+            const SCRAPER = location.host.includes("gel-scraper-proxy.onrender.com") ? "/api/gel" : SCRAPER_DEFAULT;
+            const CHECK_URL = "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/check-ml";
+            const PUT_URL = "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/put-tracking";
+
+            const $ = (s) => document.querySelector(s);
+            const trk = $("#trk");
+            const go = $("#go");
+            const clr = $("#clear");
+            const status = $("#status");
+            const out = $("#out");
+            const seenRadios = document.getElementsByName("seen");
+            const noMsg = $("#noMsg");
+            const form = $("#mlForm");
+            const cas = $("#cas");
+            const nameInput = $("#name");
+            const ask = $("#ask");
+            const toast = $("#msg");
+            const question = $(".question");
+            const choices = $(".choices");
+
+            const FILTER_STRINGS = [
+                `Login BUSCAR PAQUETES SIN IDENTIFICAR Número de Rastr...N IDENTIFICAR Sin Resultado En Búsqueda Reclamar Paquete Encontrado`,
+            ];
+
+            let tickerTimer = null;
+            function startTicker() {
+                if (tickerTimer) return;
+                const words = ["Estamos ", "Estamos buscando ", "Estamos buscando tu", "Estamos buscando tu Paquete", "Estamos buscando tu Paquete"];
+                let i = 0;
+                tickerTimer = setInterval(() => {
+                    const s = words[i++ % words.length];
+                    setStatus(`${s} <span class="ticker">•••</span>`, "warn");
+                }, 600);
             }
-          }
-        } catch (e) {
-          clearTimeout(tt);
-          stopTicker();
-          out.textContent = "No encontrado";
-          setStatus("No encontrado", "err");
-        } finally {
-          go.disabled = false;
-          searchAbort = null;
-        }
-      }
+            function stopTicker() {
+                if (tickerTimer) {
+                    clearInterval(tickerTimer);
+                    tickerTimer = null;
+                }
+            }
 
-      // --- Lógica pregunta Sí/No ---
-      function onSeenChange() {
-        const v = Array.from(seenRadios).find((r) => r.checked)?.value || "";
-        if (v === "no") {
-          noMsg.style.display = "block";
-          form.style.display = "none";
-          setToast("");
-        } else if (v === "si") {
-          noMsg.style.display = "none";
-          form.style.display = "block";
-          cas.focus();
-        } else {
-          noMsg.style.display = "none";
-          form.style.display = "none";
-        }
-      }
+            function setStatus(msg, cls) {
+                status.innerHTML = msg || "";
+                status.style.color = cls === "warn" ? "#f59e0b" : "#6b7280";
+            }
+            function setToast(msg, kind) {
+                toast.textContent = msg || "";
+                toast.className = "toast " + (kind || "");
+                if (msg && (kind === "ok" || kind === "warn")) {
+                    setTimeout(() => setToast(""), 5000);
+                }
+            }
+            function norm(t) {
+                return String(t || "").replace(/\s+/g, " ").trim();
+            }
+            function sanitizeSnippet(t) {
+                t = norm(t);
+                for (const tb of FILTER_STRINGS) {
+                    if (tb && tb.trim()) {
+                        const re = new RegExp(tb.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g");
+                        t = norm(t).replace(re, "");
+                    }
+                }
+                return t.trim();
+            }
 
-      // --- check-ml antes de insertar ---
-      async function checkDuplicate(code) {
-        const t = (code || "").trim();
-        if (!t) return { exists: false, ml: false };
+            function resetAll() {
+                trk.value = "";
+                out.textContent = "";
+                setStatus("");
+                setToast("");
+                noMsg.style.display = "none";
+                form.style.display = "none";
+                cas.value = "";
+                nameInput.value = "";
+                for (const r of seenRadios) {
+                    r.checked = false;
+                }
+                question.classList.add("hidden");
+                choices.classList.add("hidden");
+                go.disabled = false;
+                ask.disabled = false;
+                stopTicker();
+                if (searchAbort) {
+                    searchAbort.abort();
+                    searchAbort = null;
+                }
+            }
 
-        // si ya lo solicitamos en esta sesión, bloquea
-        if (submittedSet.has(t.toLowerCase())) {
-          return { exists: true, ml: true };
-        }
+            let searchAbort = null;
+            async function buscar() {
+                const t = trk.value.trim();
+                setToast("");
+                if (!t) {
+                    setStatus("", "");
+                    out.textContent = "";
+                    return;
+                }
 
-        const ctrl = new AbortController();
-        const timeout = setTimeout(() => ctrl.abort(), 8000);
-        try {
-          const res = await fetch(CHECK_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ trackings: [t] }),
-            signal: ctrl.signal,
-          });
-          clearTimeout(timeout);
-          if (!res.ok) return { exists: false, ml: false };
-          const payload = await res.json().catch(() => ({}));
-          const it = Array.isArray(payload?.items)
-            ? payload.items.find(
-                (x) =>
-                  String(x.tracking || "").toLowerCase() === t.toLowerCase()
-              )
-            : null;
-          const ml =
-            it && (it.ml === true || it.ML === "true" || it.status === "ML");
-          const exists = Boolean(it && (it.exists === true || ml));
-          return { exists, ml: Boolean(ml) };
-        } catch {
-          clearTimeout(timeout);
-          return { exists: false, ml: false };
-        }
-      }
+                go.disabled = true;
+                setStatus("Buscando…", "warn");
+                startTicker();
 
-      // --- Enviar solicitud ML ---
-      async function solicitarML() {
-        const code = trk.value.trim();
-        const casillero = cas.value.trim();
-        setToast("");
+                searchAbort = new AbortController();
+                const tt = setTimeout(() => searchAbort.abort(), 45000);
 
-        // Validaciones
-        const seen =
-          Array.from(seenRadios).find((r) => r.checked)?.value || "";
-        if (seen !== "si") {
-          setToast(
-            "Confirma que se mostró la información (elige 'Sí').",
-            "warn"
-          );
-          return;
-        }
-        if (!code || !casillero) {
-          setToast("Ingresa tracking y número de casillero.", "err");
-          return;
-        }
+                try {
+                    const r = await fetch(`${SCRAPER}?tracking=${encodeURIComponent(t)}`, { cache: "no-store", signal: searchAbort.signal });
+                    clearTimeout(tt);
+                    stopTicker();
 
-        ask.disabled = true;
+                    let data = null, raw = "";
+                    try {
+                        data = await r.json();
+                    } catch {
+                        try {
+                            raw = await r.text();
+                        } catch {}
+                    }
 
-        // 1) Verificar duplicado
-        setToast("Verificando…", "warn");
-        const dup = await checkDuplicate(code);
-        if (dup.ml) {
-          // solo bloquea si ya fue solicitado ML
-          setToast("Tracking ya fue Solicitado.", "warn");
-          ask.disabled = false;
-          return;
-        }
+                    const show = [];
+                    const sako = data?.saco || data?.sack || "";
+                    const fecha = data?.fecha_de_ingreso || data?.fecha || "";
+                    if (sako) show.push(`saco: ${sako}`);
+                    if (fecha) show.push(`fecha_de_ingreso: ${fecha}`);
 
-        // 2) Insertar solicitud
-        try {
-          setToast("Enviando solicitud…", "warn");
-          const res = await fetch(PUT_URL, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              tracking_original: code,
-              tracking_corrected: code, // mismo valor si no corriges
-              num_casillero: casillero,
-              status: "ML",
-              ML: "true",
-            }),
-          });
-          const txt = await res.text().catch(() => "");
-          let payload = {};
-          try {
-            payload = JSON.parse(txt || "{}");
-          } catch {}
+                    if (show.length > 0) {
+                        out.textContent = show.join("\n");
+                        question.classList.remove("hidden");
+                        choices.classList.remove("hidden");
+                        noMsg.style.display = "none";
+                        form.style.display = "none";
+                        for (const r of seenRadios) r.checked = false;
+                    } else {
+                        let snippet = "";
+                        if (raw) {
+                            const idx = raw.indexOf("Snippet:");
+                            if (idx >= 0) snippet = raw.slice(idx + 8);
+                        }
+                        snippet = sanitizeSnippet(snippet);
+                        out.textContent = snippet ? snippet : "No se encontró información para este tracking.";
+                        if (snippet) {
+                            question.classList.remove("hidden");
+                            choices.classList.remove("hidden");
+                            noMsg.style.display = "none";
+                            form.style.display = "none";
+                            for (const r of seenRadios) r.checked = false;
+                        } else {
+                            question.classList.add("hidden");
+                            choices.classList.add("hidden");
+                            noMsg.style.display = "none";
+                            form.style.display = "none";
+                        }
+                    }
+                } catch (e) {
+                    clearTimeout(tt);
+                    stopTicker();
+                    setStatus("Error en la búsqueda.", "err");
+                    out.textContent = "";
+                } finally {
+                    go.disabled = false;
+                }
+            }
 
-          if (!res.ok || payload?.ok !== true) {
-            const msg =
-              payload?.error ||
-              payload?.detail ||
-              res.statusText ||
-              `HTTP ${res.status}`;
-            setToast(`Error: ${msg}`, "err");
-            ask.disabled = false;
-            return;
-          }
+            const submittedSet = new Set();
+            async function checkDuplicate(code) {
+                const t = (code || "").trim();
+                if (!t) return { exists: false, ml: false };
 
-          // OK
-          setToast("Solicitud recibida", "ok");
-          submittedSet.add(code.toLowerCase());
-          // Opcional: deshabilitar definitivo o limpiar casillero
-          // ask.disabled = true;
-          // cas.value = "";
-        } catch (e) {
-          setToast(`Error de red: ${e?.message || e}`, "err");
-          ask.disabled = false;
-        }
-      }
+                if (submittedSet.has(t.toLowerCase())) {
+                    return { exists: true, ml: true };
+                }
 
-      // --- Wire up ---
-      go.addEventListener("click", buscar);
-      trk.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") buscar();
-      });
-      clr.addEventListener("click", resetAll);
+                const ctrl = new AbortController();
+                const timeout = setTimeout(() => ctrl.abort(), 8000);
+                try {
+                    const res = await fetch(CHECK_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ trackings: [t] }),
+                        signal: ctrl.signal,
+                    });
+                    clearTimeout(timeout);
+                    if (!res.ok) return { exists: false, ml: false };
+                    const payload = await res.json().catch(() => ({}));
+                    const it = Array.isArray(payload?.items) ? payload.items.find((x) => String(x.tracking || "").toLowerCase() === t.toLowerCase()) : null;
+                    const ml = it && (it.ml === true || it.ML === "true" || it.status === "ML");
+                    const exists = Boolean(it && (it.exists === true || ml));
+                    return { exists, ml: Boolean(ml) };
+                } catch {
+                    clearTimeout(timeout);
+                    return { exists: false, ml: false };
+                }
+            }
 
-      for (const r of seenRadios) {
-        r.addEventListener("change", onSeenChange);
-      }
-      ask.addEventListener("click", solicitarML);
-    })();
-  </script>
+            async function solicitarML() {
+                const code = trk.value.trim();
+                const casillero = cas.value.trim();
+                setToast("");
+                const name = nameInput.value.trim();
+
+                const seen = Array.from(seenRadios).find((r) => r.checked)?.value || "";
+                if (seen !== "si") {
+                    setToast("Confirma que se mostró la información (elige 'Sí').", "warn");
+                    return;
+                }
+                if (!code || !casillero) {
+                    setToast("Ingresa tracking y número de casillero.", "err");
+                    return;
+                }
+
+                ask.disabled = true;
+
+                const dup = await checkDuplicate(code);
+                if (dup.exists) {
+                    setToast(dup.ml ? "Ya existe una solicitud ML para este tracking." : "Ya existe este tracking en la tabla.", "warn");
+                    ask.disabled = false;
+                    return;
+                }
+
+                try {
+                    const res = await fetch(PUT_URL, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            tracking_original: code,
+                            tracking_corrected: code,
+                            num_casillero: casillero,
+                            status: "ML",
+                            ML: "true",
+                            name: name,
+                        }),
+                    });
+                    const txt = await res.text().catch(() => "");
+                    let payload = {};
+                    try {
+                        payload = JSON.parse(txt || "{}");
+                    } catch {}
+
+                    if (!res.ok || payload?.ok !== true) {
+                        const msg = payload?.error || payload?.detail || res.statusText || `HTTP ${res.status}`;
+                        setToast(`Error: ${msg}`, "err");
+                        ask.disabled = false;
+                        return;
+                    }
+
+                    setToast("Solicitud recibida", "ok");
+                    submittedSet.add(code.toLowerCase());
+                } catch (e) {
+                    setToast("No se pudo enviar la solicitud.", "err");
+                } finally {
+                    ask.disabled = false;
+                }
+            }
+
+            go.addEventListener("click", buscar);
+            trk.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") buscar();
+            });
+            clr.addEventListener("click", resetAll);
+
+            for (const r of seenRadios) {
+                r.addEventListener("change", () => {
+                    const v = Array.from(seenRadios).find((x) => x.checked)?.value;
+                    if (v === "si") {
+                        noMsg.textContent = "";
+                        noMsg.style.display = "none";
+                        form.style.display = "block";
+                        cas.focus();
+                    } else if (v === "no") {
+                        noMsg.textContent = "Has marcado «No». Si no sale información intente Buscar nuevamente o contactarse con PSC.";
+                        noMsg.style.display = "block";
+                        form.style.display = "none";
+                    } else {
+                        noMsg.textContent = "";
+                        noMsg.style.display = "none";
+                        form.style.display = "none";
+                    }
+                });
+            }
+            ask.addEventListener("click", solicitarML);
+        })();
+    </script>
 </body>
 </html>
+
