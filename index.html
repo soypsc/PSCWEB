@@ -396,42 +396,93 @@
             color: var(--blue-1);
             font-size: 12px;
         }
-        
+
         /* MEDIA QUERIES (Diseño Responsivo) */
+        /* Oculta los elementos de escritorio en móvil */
+        .desktop-nav {
+            display: flex;
+        }
+        .mobile-buttons {
+            display: none;
+        }
+        .onda-mobile {
+            display: none;
+        }
+        
         @media (max-width: 900px) {
             header {
-                height: auto;
-                padding: 15px;
-            }
-
-            .logo img {
-                max-height: 70px;
-            }
-            
-            nav {
-                display: none; /* Oculta la navegación en móviles y tablets */
+                height: auto !important;
+                padding: 15px 25px !important;
             }
 
             .header-inner {
-                flex-wrap: nowrap;
-                gap: 15px;
+                flex-wrap: nowrap !important;
+                justify-content: space-between !important;
+                gap: 15px !important;
+                flex-direction: row !important;
             }
 
-            .header-buttons {
-                gap: 5px;
-            }
-
-            .btn-header {
-                padding: 6px 14px;
-                font-size: 12px;
-            }
-        }
-
-        @media (min-width: 901px) {
-            .fab-container {
+            /* Oculta los elementos de escritorio en móvil */
+            .desktop-nav {
                 display: none;
             }
+            .header-buttons {
+                display: none;
+            }
+            .onda {
+                display: none;
+            }
+
+            /* Muestra los elementos móviles */
+            .mobile-buttons {
+                display: flex !important;
+                gap: 5px !important;
+            }
+            .onda-mobile {
+                display: block;
+            }
+
+            .logo {
+                height: auto !important;
+                max-height: 80px !important;
+                width: auto !important;
+                margin-right: auto !important;
+            }
+
+            .logo img {
+                max-height: 70px !important;
+            }
+        
+            .btn-header {
+                padding: 6px 14px !important;
+                font-size: 12px !important;
+            }
+
+            @media (max-width: 480px) {
+                .header-inner {
+                    justify-content: center !important;
+                    flex-direction: column !important;
+                    gap: 10px !important;
+                }
+
+                .logo {
+                    width: 100% !important;
+                    justify-content: center !important;
+                    margin-right: 0 !important;
+                }
+
+                .mobile-buttons {
+                    width: 100% !important;
+                    justify-content: center !important;
+                    margin-left: 0 !important;
+                }
+            }
         }
+
+        /*
+            El media query para escritorio ya no es necesario
+            porque los estilos por defecto ya son para escritorio.
+        */
 
         /* Animaciones Generales */
         .psc-anim-hidden {
@@ -607,7 +658,8 @@
                     <img src="https://assets-global.website-files.com/652f4c330f81d5964894982a/652f4c330f81d59648949830_611599816-01.png" alt="Logo">
                 </a>
             </div>
-            <nav>
+
+            <nav class="desktop-nav">
                 <a href="#">Inicio</a>
                 <a href="#">Servicios</a>
                 <a href="#">Proyectos</a>
@@ -621,12 +673,18 @@
                     </div>
                 </div>
             </nav>
-            <div class="header-buttons">
+
+            <div class="header-buttons desktop-nav">
+                <a href="#" class="btn-header">Zona de Cliente</a>
+                <a href="#" class="btn-header">Regístrate</a>
+            </div>
+
+            <div class="mobile-buttons">
                 <a href="#" class="btn-header">Zona de Cliente</a>
                 <a href="#" class="btn-header">Regístrate</a>
             </div>
         </div>
-        <div class="onda"></div>
+        <div class="onda onda-desktop"></div>
     </header>
 
     <section class="hero">
@@ -720,6 +778,7 @@
                 <p><a href="#">Inicio</a></p>
                 <p><a href="#">Servicios</a></p>
                 <p><a href="#">Proyectos</a></p>
+                <p><a href="#">Nosotros</a></p>
             </div>
             <div class="footer-col">
                 <h3>Contacto</h3>
