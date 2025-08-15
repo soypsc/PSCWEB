@@ -182,13 +182,14 @@
             padding: 20px;
         }
 
+        /* --- MODIFICACIÓN DE ESTILO DE SLOGAN --- */
         .hero-slogan {
-            font-family: 'Dancing Script', cursive;
+            font-family: 'Poppins', sans-serif; /* Cambio de fuente */
             font-size: 2.2rem;
-            color: var(--blue-1);
+            color: #000; /* Cambio de color a negro */
             margin-bottom: 10px;
             line-height: 1.2;
-            font-weight: bold;
+            font-weight: 700; /* Asegura que sea bold */
         }
 
         .hero-text h1 {
@@ -437,27 +438,7 @@
                 gap: 10px;
                 margin-left: auto;
             }
-
-            @media (max-width: 480px) {
-                .header-inner {
-                    justify-content: center;
-                    flex-direction: column;
-                    gap: 10px;
-                }
-
-                .logo {
-                    width: 100%;
-                    justify-content: center;
-                    margin-right: 0;
-                }
-
-                .header-buttons {
-                    width: 100%;
-                    justify-content: center;
-                    margin-left: 0;
-                }
-            }
-
+            
             .menu-toggle {
                 display: none;
             }
@@ -707,7 +688,8 @@
 
     <section class="hero">
         <div class="hero-text">
-            <p class="hero-slogan">Tu conexión directo al mundo</p>
+            <!-- --- MODIFICACIÓN DE TEXTO Y AÑADIDO DE ICONO --- -->
+            <p class="hero-slogan">Tu conexión directo al mundo 🌍</p>
             <h1>¿Quieres un casillero?</h1>
             <p>En PSC, traemos tus paquetes de cualquier parte del mundo a todo Panamá. ¡Somos los más rápidos! ⚡</p>
             <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-azul">Regístrate Gratis →</a>
