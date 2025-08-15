@@ -217,6 +217,7 @@
       color: var(--blue-1); /* Azul PSC */
       margin-bottom: 10px;
       line-height: 1.2;
+      font-weight: bold; /* ¡Texto más grueso! */
     }
 
     .hero-text h1 {
@@ -595,7 +596,7 @@
       height: 50px; /* Alto para el círculo */
       border-radius: 50%;
       background-color: white;
-      color: var(--blue-1); /* Color del ícono y texto */
+      color: white; /* Asegura que el texto y los íconos sean blancos */
       border: 1px solid rgba(0,0,0,0.1);
       box-shadow: 0 2px 5px rgba(0,0,0,0.15);
       display: flex;
@@ -619,41 +620,62 @@
     }
 
     .fab-container.open .fab-action-button {
+      background-color: var(--blue-1); /* Fondo azul para los botones de acción cuando están abiertos */
       opacity: 1;
       transform: translateY(0) scale(1); /* Vuelve a su tamaño y posición normal */
       pointer-events: auto; /* Se vuelve interactuable */
     }
 
     /* Posiciones escalonadas para los botones de acción al abrirse (simulando un "fan" hacia arriba) */
-    .fab-container.open .fab-action-button:nth-child(2) { /* Primer botón secundario (el más cercano al principal) */
-      transform: translateY(-70px) scale(1); /* Ajusta este valor para el espaciado vertical */
+    /* Importante: el nth-child se refiere al orden en el HTML, donde el primer .fab-action-button es WhatsApp */
+    .fab-container.open .fab-action-button:nth-child(1) { /* WhatsApp - el más cercano al principal */
+      transform: translateY(-70px) scale(1);
       transition-delay: 0.05s;
     }
-    .fab-container.open .fab-action-button:nth-child(3) {
+    .fab-container.open .fab-action-button:nth-child(2) { /* Rastreador */
       transform: translateY(-130px) scale(1);
       transition-delay: 0.10s;
     }
-    .fab-container.open .fab-action-button:nth-child(4) {
+    .fab-container.open .fab-action-button:nth-child(3) { /* Solicitar ML */
       transform: translateY(-190px) scale(1);
       transition-delay: 0.15s;
     }
-    .fab-container.open .fab-action-button:nth-child(5) {
+    .fab-container.open .fab-action-button:nth-child(4) { /* Cotizar Artículos */
       transform: translateY(-250px) scale(1);
       transition-delay: 0.20s;
     }
 
     .fab-action-button svg {
-      width: 28px; /* Tamaño del ícono dentro del botón */
-      height: 28px;
-      fill: currentColor; /* Usa el color de texto del botón */
+      width: 30px; /* Tamaño del ícono dentro del botón */
+      height: 30px;
+      fill: currentColor; /* Usa el color de texto del botón (ahora blanco) */
       margin-bottom: 2px; /* Espacio entre el ícono y el texto */
     }
 
     .fab-action-button img { /* Estilo específico para la imagen de WhatsApp */
-      width: 32px; /* Ajusta el tamaño de la imagen */
-      height: 32px;
+      width: 30px; /* Ajusta el tamaño de la imagen */
+      height: 30px;
       border-radius: 50%; /* Asegura que la imagen sea circular si es necesario */
       margin-bottom: 2px;
+    }
+
+    /* Overlay de pantalla completa para el FAB */
+    .fab-screen-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(35, 37, 212, 0.5); /* Color azul PSC con 50% de transparencia */
+      z-index: 998; /* Debe estar por debajo del FAB (z-index: 1000) */
+      opacity: 0;
+      pointer-events: none; /* Permite clicks a través cuando está oculto */
+      transition: opacity 0.3s ease; /* Animación de aparición/desaparición */
+    }
+
+    .fab-screen-overlay.show {
+      opacity: 1;
+      pointer-events: auto; /* Bloquea clicks cuando está visible */
     }
     
   </style>
@@ -806,7 +828,7 @@
   <div class="fab-container">
     <button class="fab-action-button" onclick="location.href='https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion'">
       <!-- WhatsApp Icon -->
-      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp Icon" />
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Icono de WhatsApp" />
       WhatsApp
     </button>
     <button class="fab-action-button" onclick="location.href='Rastreo/'">
@@ -828,6 +850,9 @@
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
     </button>
   </div>
+
+  <!-- Overlay de pantalla completa para el FAB -->
+  <div class="fab-screen-overlay"></div>
 
 
   <!-- ==================================================================== -->
@@ -874,7 +899,7 @@
                 obs.unobserve(experienciaEl); // Deja de observar una vez que la animación se activa
               }
             });
-          }, { threshold: 0.35 }); // Se activa cuando el 35% del elemento es visible
+          }, { threshold: 0.35 }); // Se activa cuando el 35% de la sección es visible
           observer.observe(experienciaEl);
         } else {
           // Fallback si la sección .experiencia no existe (poco probable pero seguro)
@@ -942,8 +967,9 @@
       const fabContainer = document.querySelector('.fab-container');
       const fabMainBtn = document.getElementById('fabMainBtn');
       const nav = document.querySelector('header nav'); // Obtener el elemento nav
+      const fabOverlay = document.querySelector('.fab-screen-overlay'); // Obtener el overlay
 
-      if (!fabContainer || !fabMainBtn || !nav) {
+      if (!fabContainer || !fabMainBtn || !nav || !fabOverlay) {
         console.warn('FAB or navigation elements not found. Some features might not work.');
         return;
       }
@@ -951,22 +977,24 @@
       fabMainBtn.addEventListener('click', (e) => {
         e.stopPropagation(); // Evita que el clic se propague al documento
         fabContainer.classList.toggle('open');
+        fabOverlay.classList.toggle('show'); // Muestra/oculta el overlay
       });
 
-      // Cierra el FAB si se hace clic fuera de él (solo en móvil)
+      // Cierra el FAB y el overlay cuando se hace clic fuera de él (solo en móvil)
       document.addEventListener('click', (e) => {
-        // Asegurarse de que solo se aplique en móvil
         if (window.innerWidth <= 900) {
           if (!fabContainer.contains(e.target) && fabContainer.classList.contains('open')) {
             fabContainer.classList.remove('open');
+            fabOverlay.classList.remove('show'); // Oculta el overlay
           }
         }
       });
 
-      // Asegura que el FAB se cierre si la ventana se redimensiona a escritorio
+      // Asegura que el FAB y el overlay se cierren si la ventana se redimensiona a escritorio
       window.addEventListener('resize', () => {
         if (window.innerWidth > 900) {
           fabContainer.classList.remove('open');
+          fabOverlay.classList.remove('show'); // Oculta el overlay
           // Asegura que la navegación de escritorio se muestre si se redimensiona a escritorio
           nav.style.display = 'flex';
         } else {
