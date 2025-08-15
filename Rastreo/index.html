@@ -247,6 +247,9 @@
         background: #1a1cb3;
         box-shadow: none;
         min-width: 220px;
+        /* IMPORTANTE: Mostrar el contenido del dropdown cuando el nav móvil está abierto */
+        display: flex;
+        flex-direction: column; /* Asegura que los enlaces del dropdown se apilen */
       }
     }
 
@@ -851,60 +854,6 @@
     })();
   </script>
 
-<script id="nav_close_outside">
-document.addEventListener('click', function(e){
-  var header = document.querySelector('header');
-  var nav = document.querySelector('nav');
-  var toggle = document.querySelector('.menu-toggle');
-  if(!header || !nav || !toggle) return;
-  // If click outside header and nav is open, close it
-  if(!header.contains(e.target)) nav.classList.remove('show');
-});
-window.addEventListener('resize', function(){
-  var nav = document.querySelector('nav');
-  if(window.innerWidth>900 && nav) nav.classList.remove('show');
-});
-</script>
-
-
-<script id="psc_nav_outside_close">
-(function(){
-  var header = document.querySelector('header');
-  if(!header) return;
-  var nav = header.querySelector('nav');
-  var toggle = header.querySelector('.menu-toggle');
-  if(!nav || !toggle) return;
-  // close on outside click
-  document.addEventListener('click', function(e){
-    if(!header.contains(e.target)){ nav.classList.remove('show'); }
-  });
-  // close on resize to desktop
-  window.addEventListener('resize', function(){
-    if(window.innerWidth > 900){ nav.classList.remove('show'); }
-  });
-})();
-</script>
-
-
-<script id="psc_nav_toggle">
-(function(){
-  var header = document.querySelector('header');
-  if(!header) return;
-  var nav = header.querySelector('nav');
-  var toggle = header.querySelector('.menu-toggle');
-  if(!nav || !toggle) return;
-  function openNav(open){
-    if(open){ nav.classList.add('show'); toggle.setAttribute('aria-expanded','true'); }
-    else { nav.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); }
-  }
-  toggle.addEventListener('click', function(e){ e.stopPropagation(); openNav(!nav.classList.contains('show')); });
-  toggle.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openNav(!nav.classList.contains('show')); }});
-  document.addEventListener('click', function(e){ if(!header.contains(e.target)){ openNav(false); } });
-  window.addEventListener('resize', function(){ if(window.innerWidth>900){ openNav(false); } });
-})();
-</script>
-
 </body>
 </html>
-
 
