@@ -257,16 +257,15 @@
         .psc-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
 
         .psc-head{
-            display:grid;
-            grid-template-columns:minmax(320px,1fr) 260px;
-            gap:16px;
-            align-items:start;
-            padding:18px;
-            border-bottom:1px solid var(--line);
-            background:#fff;
-            font-family:var(--font);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+            align-items: start;
+            padding: 18px;
+            border-bottom: 1px solid var(--line);
+            background: #fff;
+            font-family: var(--font);
         }
-        @media (max-width:900px){ .psc-head{grid-template-columns:1fr} .psc-qsum{text-align:left} }
 
         .psc-searchBox{position:relative;max-width:660px}
         .psc-searchBox label{display:block;font-size:18px;color:var(--ink);font-weight:800;margin-bottom:10px}
@@ -291,9 +290,21 @@
         .psc-help{font-size:12px;color:var(--muted);margin-top:6px}
 
         .psc-qsum{display:grid;grid-template-columns:1fr;gap:6px;align-content:start;text-align:right;font-family:var(--font)}
-        .psc-qrow{display:flex;gap:8px;align-items:center;justify-content:space-between;font-size:14px}
+        
+        .psc-qrow {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: flex-end;
+            font-size: 14px;
+        }
+
         .psc-qrow span{color:var(--muted);min-width:90px}
-        .psc-qrow b{font-weight:700}
+        
+        .psc-qrow b {
+            font-weight: 700;
+            word-break: break-all;
+        }
 
         .psc-state{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px dashed var(--line);background:#fff}
         .psc-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--line)}
@@ -331,31 +342,25 @@
         .psc-more{display:flex;justify-content:center;margin-top:8px}
         .psc-more button{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
         
-        /* ✅ INICIO: ESTILOS PARA EL BOTÓN 'SOLICITAR AQUÍ' */
         .psc-btn-link {
-            /* Apariencia del botón */
             display: inline-block;
-            background-color: var(--warn); /* Usamos el color amarillo de advertencia */
-            color: var(--ink); /* Texto oscuro para contraste */
+            background-color: var(--warn);
+            color: var(--ink);
             padding: 6px 12px;
             border-radius: 8px;
             font-weight: 600;
             font-size: 13px;
-            text-decoration: none; /* Quitamos el subrayado del enlace */
+            text-decoration: none;
             border: 1px solid rgba(0,0,0,0.1);
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-
-            /* Transición suave para el efecto hover */
             transition: all 0.2s ease-in-out;
         }
 
         .psc-btn-link:hover {
-            /* Efecto al pasar el mouse */
-            transform: translateY(-2px); /* Eleva un poco el botón */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra más pronunciada */
-            filter: brightness(1.05); /* Lo hace un poco más brillante */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            filter: brightness(1.05);
         }
-        /* ✅ FIN: ESTILOS PARA EL BOTÓN */
 
         /* ====================================================================== */
         /* FOOTER (Plantilla PSC) */
@@ -364,7 +369,7 @@
             background: #fff;
             color: #000;
             padding: 40px 20px;
-            margin-top: auto; /* Empuja el footer al fondo */
+            margin-top: auto;
             box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
             flex-shrink: 0;
         }
@@ -844,13 +849,28 @@
                 if(chosen){
                     const src = eventSource(chosen, r);
                     let label='';
-                    if(src==='psc') label='Centro de Dist. PSC';
+                    if(src==='psc') {
+                        label='En Bodega PSC';
+                    }
                     else if(src==='fz'){
-                        const td = transformDesc(src, chosen, r);
-                        label = /Aduanas - Panama City/i.test(td) ? 'Aduanas' : td;
+                        const rawDesc = String(chosen.description || '').toLowerCase().trim();
+                        if (rawDesc === 'mal') {
+                            label = 'Mal Identificado';
+                        } else {
+                            const td = transformDesc(src, chosen, r);
+                            if (/Aduanas - Panama City/i.test(td)) {
+                                label = 'En Aduanas';
+                            } else {
+                                label = td;
+                            }
+                        }
                     } else {
                         const d = String(chosen.description||'');
-                        label = /delivered/i.test(d) ? 'Delivered' : 'In transit';
+                        if (/delivered/i.test(d)) {
+                            label = 'Entregado';
+                        } else {
+                            label = 'En Tránsito';
+                        }
                     }
                     qsStatus.textContent = label || '—';
                 } else { qsStatus.textContent = '—'; }
@@ -915,5 +935,6 @@
 
 </body>
 </html>
+
 
 
