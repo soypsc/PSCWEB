@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Landing Page</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <title>Panama Shipping Co.</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
     <style>
         /* Estilos globales y reseteo */
         * {
@@ -273,6 +271,12 @@
             filter: drop-shadow(0 2px 4px rgba(0, 0, 255, 0.2));
         }
 
+        .servicio h4 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--blue-1);
+        }
+
         /* SUCURSALES */
         .sucursales .sucursal-img {
             max-width: 80%;
@@ -397,92 +401,115 @@
             font-size: 12px;
         }
 
-        /* MEDIA QUERIES (Diseño Responsivo) */
-        /* Oculta los elementos de escritorio en móvil */
-        .desktop-nav {
-            display: flex;
-        }
-        .mobile-buttons {
-            display: none;
-        }
-        .onda-mobile {
-            display: none;
-        }
-        
+        /* Media Queries (Diseño Responsivo) */
         @media (max-width: 900px) {
             header {
-                height: auto !important;
-                padding: 15px 25px !important;
+                height: auto;
+                padding: 15px 25px;
             }
 
             .header-inner {
-                flex-wrap: nowrap !important;
-                justify-content: space-between !important;
-                gap: 15px !important;
-                flex-direction: row !important;
-            }
-
-            /* Oculta los elementos de escritorio en móvil */
-            .desktop-nav {
-                display: none;
-            }
-            .header-buttons {
-                display: none;
-            }
-            .onda {
-                display: none;
-            }
-
-            /* Muestra los elementos móviles */
-            .mobile-buttons {
-                display: flex !important;
-                gap: 5px !important;
-            }
-            .onda-mobile {
-                display: block;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: 15px;
             }
 
             .logo {
-                height: auto !important;
-                max-height: 80px !important;
-                width: auto !important;
-                margin-right: auto !important;
+                height: auto;
+                max-height: 80px;
+                width: auto;
+                margin-right: auto;
             }
 
             .logo img {
-                max-height: 70px !important;
+                max-height: 70px;
             }
-        
-            .btn-header {
-                padding: 6px 14px !important;
-                font-size: 12px !important;
+
+            nav {
+                display: none;
+            }
+
+            .header-buttons {
+                display: flex;
+                flex-wrap: nowrap;
+                justify-content: flex-end;
+                width: auto;
+                gap: 10px;
+                margin-left: auto;
             }
 
             @media (max-width: 480px) {
                 .header-inner {
-                    justify-content: center !important;
-                    flex-direction: column !important;
-                    gap: 10px !important;
+                    justify-content: center;
+                    flex-direction: column;
+                    gap: 10px;
                 }
 
                 .logo {
-                    width: 100% !important;
-                    justify-content: center !important;
-                    margin-right: 0 !important;
+                    width: 100%;
+                    justify-content: center;
+                    margin-right: 0;
                 }
 
-                .mobile-buttons {
-                    width: 100% !important;
-                    justify-content: center !important;
-                    margin-left: 0 !important;
+                .header-buttons {
+                    width: 100%;
+                    justify-content: center;
+                    margin-left: 0;
                 }
+            }
+
+            .menu-toggle {
+                display: none;
             }
         }
 
-        /*
-            El media query para escritorio ya no es necesario
-            porque los estilos por defecto ya son para escritorio.
-        */
+        @media (min-width: 901px) {
+            .fab-container {
+                display: none;
+            }
+
+            .menu-toggle {
+                display: none;
+            }
+
+            header nav {
+                display: flex;
+                position: static;
+                box-shadow: none;
+                padding: 0;
+            }
+
+            .header-buttons {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .hero-text {
+                padding: 10px;
+            }
+
+            .hero-img {
+                padding: 10px;
+            }
+
+            .servicios {
+                flex-direction: column;
+            }
+
+            .stats {
+                flex-direction: column;
+            }
+
+            .servicio {
+                margin-bottom: 20px;
+            }
+        }
 
         /* Animaciones Generales */
         .psc-anim-hidden {
@@ -650,230 +677,222 @@
     </style>
 </head>
 <body>
-
+    
     <header>
         <div class="header-inner">
             <div class="logo">
-                <a href="#">
-                    <img src="https://assets-global.website-files.com/652f4c330f81d5964894982a/652f4c330f81d59648949830_611599816-01.png" alt="Logo">
-                </a>
+                <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
             </div>
-
-            <nav class="desktop-nav">
-                <a href="#">Inicio</a>
-                <a href="#">Servicios</a>
-                <a href="#">Proyectos</a>
-                <a href="#">Nosotros</a>
+            <nav>
+                <a href="./">Inicio</a>
+                <a href="Rastreo/">Rastreador de Paquetes</a>
+                <a href="Cotizador/">Cotiza tus Compras</a>
+                <a href="ML/">Solicitar ML</a>
+                
                 <div class="dropdown">
-                    <a href="#">Más</a>
+                    <a href="#">Más ▾</a>
                     <div class="dropdown-content">
-                        <a href="#">Contacto</a>
-                        <a href="#">Blog</a>
-                        <a href="#">Testimonios</a>
+                        <a href="DG/">Mercancía Peligrosa</a>
+                        <a href="Politicas/">Términos y Condiciones</a>
                     </div>
                 </div>
             </nav>
-
-            <div class="header-buttons desktop-nav">
-                <a href="#" class="btn-header">Zona de Cliente</a>
-                <a href="#" class="btn-header">Regístrate</a>
-            </div>
-
-            <div class="mobile-buttons">
-                <a href="#" class="btn-header">Zona de Cliente</a>
-                <a href="#" class="btn-header">Regístrate</a>
+            <div class="header-buttons">
+                <a href="https://psc.e-rmez.com/zonacliente/" class="btn-header">Zona de Clientes</a>
+                <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-header">Regístrate</a>
             </div>
         </div>
-        <div class="onda onda-desktop"></div>
+        <div class="onda"></div>
     </header>
 
     <section class="hero">
-        <div class="hero-text psc-anim-hidden">
-            <p class="hero-slogan">
-                <span>Tu Marca en el Mundo Digital</span>
-            </p>
-            <h1>La agencia de marketing digital que te ayuda a conectar con tus clientes.</h1>
-            <p>
-                Ofrecemos soluciones de marketing innovadoras y personalizadas para que tu negocio crezca.
-            </p>
-            <a href="#" class="btn-azul">
-                Ver Proyectos
-            </a>
+        <div class="hero-text">
+            <p class="hero-slogan">Tu conexión directo al mundo</p>
+            <h1>¿Quieres un casillero?</h1>
+            <p>En PSC, traemos tus paquetes de cualquier parte del mundo a todo Panamá. ¡Somos los más rápidos! ⚡</p>
+            <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-azul">Regístrate Gratis →</a>
         </div>
-        <div class="hero-img psc-anim-hidden">
-            <img src="https://via.placeholder.com/600x400" alt="Marketing Digital">
+        <div class="hero-img">
+            <img src="https://static.wixstatic.com/media/f7f5e1_b7d11b4129d84543b40acc639414a93c~mv2.png" alt="Imagen representativa del servicio de envío de paquetes">
         </div>
     </section>
 
     <section class="section">
-        <h2 class="psc-anim-hidden">Nuestros Servicios</h2>
-        <p class="psc-anim-hidden">
-            Ofrecemos un amplio portafolio de servicios para impulsar tu presencia en línea.
-        </p>
-        <div class="servicios psc-anim-hidden">
+        <h2>NUESTROS SERVICIOS</h2>
+        <p style="margin-bottom: 40px;">Llevando tu logística al siguiente nivel</p>
+        <div class="servicios">
             <div class="servicio">
-                <img src="https://assets-global.website-files.com/652f4c330f81d5964894982a/653066318e80757d54c730e7_652f75a7c21115b804246960_seo-icon.svg" alt="SEO">
-                <h3>SEO</h3>
-                <p>
-                    Posicionamiento web para que tu negocio sea encontrado.
-                </p>
+                <img src="https://img.icons8.com/ios/100/0000FF/shopping-cart.png" alt="Icono de carrito de compras" />
+                <h4>Compras por internet</h4>
+                <p>Adquiere tus productos en línea, incluso sin tarjeta. Nosotros nos encargamos de tu compra y envío.</p>
             </div>
             <div class="servicio">
-                <img src="https://assets-global.website-files.com/652f4c330f81d5964894982a/653066318e80757d54c730e8_652f75a7c21115b804246960_social-media-icon.svg" alt="Redes Sociales">
-                <h3>Redes Sociales</h3>
-                <p>
-                    Gestión y estrategia para redes sociales, construyendo comunidad.
-                </p>
+                <img src="https://img.icons8.com/ios/100/0000FF/warehouse.png" alt="Icono de almacén" />
+                <h4>Casilleros en Miami</h4>
+                <p>Recibe tus paquetes desde Miami en solo 2 a 5 días. Un servicio seguro y totalmente confiable.</p>
             </div>
             <div class="servicio">
-                <img src="https://assets-global.website-files.com/652f4c330f81d5964894982a/653066318e80757d54c730e6_652f75a7c21115b804246960_ppc-icon.svg" alt="PPC">
-                <h3>PPC</h3>
-                <p>
-                    Campañas de publicidad pagada en Google y otras plataformas.
-                </p>
+                <img src="https://img.icons8.com/ios/100/0000FF/customer-support.png" alt="Icono de soporte al cliente" />
+                <h4>Compras asistidas</h4>
+                <p>Obtén asesoría experta y soporte completo para tus compras, garantizando una experiencia sin complicaciones.</p>
             </div>
         </div>
     </section>
 
-    <section class="section sucursales">
-        <h2 class="psc-anim-hidden">Nuestras Sucursales</h2>
-        <p class="psc-anim-hidden">
-            Nos puedes encontrar en nuestra oficina principal.
-        </p>
-        <img class="sucursal-img psc-anim-hidden" src="https://via.placeholder.com/800x500" alt="Oficina Sucursal">
+    <section class="section sucursales" aria-label="Nuestras Sucursales">
+        <h2>NUESTRAS SUCURSALES</h2>
+        <p style="margin-bottom: 20px;">Visítanos en nuestras distintas ubicaciones en Panamá.</p>
+        <img class="sucursal-img" src="https://static.wixstatic.com/media/f7f5e1_8607c401b2cd45cba61a671c3174c8fb~mv2.png" alt="Mapa de ubicaciones de sucursales">
     </section>
 
-    <section class="experiencia section">
-        <h2 class="psc-anim-hidden">Más de 5 años de experiencia</h2>
-        <p class="psc-anim-hidden">
-            Hemos ayudado a más de 100 clientes a alcanzar sus objetivos digitales.
-        </p>
-        <div class="stats psc-anim-hidden">
-            <div class="stat">
-                100+
-                <small>Clientes felices</small>
-            </div>
-            <div class="stat">
-                200+
-                <small>Proyectos completados</small>
-            </div>
-            <div class="stat">
-                5+
-                <small>Años de experiencia</small>
-            </div>
+    <section class="experiencia">
+        <h2>NUESTRA EXPERIENCIA</h2>
+        <div class="stats">
+            <div class="stat"><span class="counter" data-target="10">0</span><br/><small>Años de servicio</small></div>
+            <div class="stat"><span class="counter" data-target="15000">0</span><br/><small>Casilleros creados</small></div>
+            <div class="stat"><span class="counter" data-target="10000">0</span><br/><small>Clientes satisfechos</small></div>
+            <div class="stat"><span class="counter" data-target="1000000">0</span><br/><small>Paquetes entregados</small></div>
         </div>
-        <img class="experiencia-image psc-anim-hidden" src="https://via.placeholder.com/600x300" alt="Experiencia">
+
+        <div class="experiencia-image">
+            <img
+                src="https://static.wixstatic.com/media/f7f5e1_60e079b447f54853aa679ed6a92e1aa6~mv2.png"
+                alt="Imagen ilustrativa de la experiencia de la empresa"
+            >
+        </div>
     </section>
 
     <footer>
         <div class="footer-container">
             <div class="footer-col">
-                <h3>Acerca de</h3>
-                <p>
-                    Somos una agencia de marketing digital dedicada a ayudarte a crecer en línea.
-                </p>
+                <h3>Contacto</h3>
+                <p>Asistencia personalizada</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
+                    <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
+                    <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
+                    <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">💬 WhatsApp</a>
+                </div>
+                
             </div>
             <div class="footer-col">
                 <h3>Enlaces Rápidos</h3>
-                <p><a href="#">Inicio</a></p>
-                <p><a href="#">Servicios</a></p>
-                <p><a href="#">Proyectos</a></p>
-                <p><a href="#">Nosotros</a></p>
+                <a href="Politicas/">Términos y Condiciones</a><br>
+                <a href="DG/">Mercancía Restringida</a>
             </div>
             <div class="footer-col">
-                <h3>Contacto</h3>
-                <p>Email: contacto@ejemplo.com</p>
-                <p>Tel: +123 456 7890</p>
-            </div>
-            <div class="footer-col">
-                <h3>Síguenos</h3>
-                <div class="social-icons">
-                    <a href="#">Facebook</a>
-                    <a href="#">Instagram</a>
-                    <a href="#">LinkedIn</a>
-                </div>
+                <h3>Sobre Nosotros</h3>
+                <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>
-                © 2025 Mi Agencia Digital. Todos los derechos reservados.
-            </p>
+            &copy; 2023 Panama Shipping Co. Todos los derechos reservados.
             <div class="footer-links">
-                <a href="#">Política de Privacidad</a>
-                <a href="#">Términos de Servicio</a>
+                <a href="#">Términos</a>
+                <a href="#">Privacidad</a>
             </div>
-        </div>
+            </div>
     </footer>
 
     <div class="fab-container">
         <div class="fab-screen-overlay"></div>
+
         <div class="fab-actions">
-            <div class="fab-action-item whatsapp-action">
+            <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener" class="fab-action-item whatsapp-action">
                 <span class="fab-action-label">WhatsApp</span>
-                <button class="fab-circular-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M380.9 97.1C339.6 50.8 281.3 25 224 25C136.2 25 61.1 91.9 61.1 180.2c0 30.6 8 60.1 23.3 86.2L25 431.1l111.9-28.5c24.6 13.4 52.4 20.2 80.2 20.2h.1c87.8 0 162.9-66.9 162.9-155.2c0-30.6-7.9-60.1-23.3-86.2L380.9 97.1zM342.3 331.4c-2.8 1.5-16.4 8.1-19 9.6c-2.6 1.5-4.5 1.7-7.2 1.7c-2.7 0-5.4-.9-7.9-3.6c-2.6-2.7-10.4-12.7-12-14.7c-1.6-2-3.3-2.3-5.7-2.3c-2.5 0-5.1 0-7.8 0c-2.8 0-4.6 1.3-6.4 3.2c-1.8 1.9-6.9 6.8-8.5 8.7c-1.6 1.9-3.2 2.1-5.9 2.1c-2.6 0-5.1-.9-8.1-3.6c-2.9-2.7-12.3-4.5-23.4-14.4c-17.3-15.1-28.6-33.8-32-39.6c-3.4-5.8-3.4-9.3-3.4-9.3c0-3 1.1-4.7 1.8-6.1c.7-1.4 1.8-2.6 3.6-4.5c1.2-1.2 2.5-2.9 3.7-4.4c1.3-1.5 1.7-2.7 2.6-4.7c.9-1.9.4-3.5-.2-4.9c-.6-1.4-5.4-12.9-7.3-17.6c-1.9-4.8-3.9-4-6.7-4.1h-5.9c-2.8 0-7.2.9-11 4.7c-3.8 3.8-14.5 14.1-14.5 34.4c0 20.3 14.9 39.8 17 42.5c2.1 2.7 28.5 43.4 69.4 61.9c40.8 18.5 40.8 12.3 48.3 12.3c7.5 0 24.3-1.8 27.6-14.3c3.3-12.6 3.3-23.5 2.3-25.3c-1-1.9-3.9-3.1-8.2-5.4z" fill="white"/></svg>
+                <button class="fab-circular-button" style="background-color: #25D366;">
+                    <svg fill="#ffffff" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="30px" height="30px">
+                        <path d="M15,3C8.373,3,3,8.373,3,15c0,2.164,0.569,4.195,1.554,5.95l-1.464,5.438l5.632-1.462c1.722,0.925,3.676,1.439,5.278,1.439 c6.627,0,12-5.373,12-12C27,8.373,21.627,3,15,3z M15,5c5.522,0,10,4.478,10,10c0,5.523-4.478,10-10,10 c-1.644,0-3.218-0.413-4.593-1.129l-0.32-0.169l-3.328,0.865l0.871-3.226l-0.177-0.325C5.419,18.21,5,16.64,5,15 C5,9.478,9.478,5,15,5z M10.457,9.394c-0.174-0.38-0.218-0.849,0.222-1.289c0.239-0.239,0.584-0.428,0.767-0.455 c0.183-0.027,0.375-0.012,0.548-0.002c0.174,0.01,0.297,0.02,0.421,0.315c0.124,0.296,0.426,1.066,0.47,1.164 c0.044,0.098,0.073,0.214,0.025,0.364c-0.048,0.15-0.048,0.25-0.12,0.376c-0.073,0.126-0.15,0.23-0.274,0.395 c-0.125,0.165-0.258,0.344-0.363,0.455c-0.105,0.111-0.229,0.218-0.379,0.322c-0.15,0.104-0.32,0.203-0.5,0.283 c-0.179,0.08-0.38,0.13-0.582,0.147c-0.202,0.017-0.347-0.003-0.421-0.03c-0.073-0.027-0.264-0.079-0.518-0.175 c-0.254-0.096-0.449-0.256-0.612-0.485c-0.163-0.228-0.283-0.485-0.388-0.669c-0.105-0.183-0.215-0.37-0.32-0.553 c-0.105-0.184-0.211-0.354-0.32-0.537c-0.11-0.184-0.239-0.389-0.45-0.702z M15,20.088c-1.543,0-3.085-0.49-4.321-1.464 c-1.236-0.974-2.181-2.317-2.795-3.882c-0.614-1.565-0.701-3.235-0.244-4.821c0.457-1.587,1.442-2.999,2.83-3.992 C9.014,5.438,10.601,5,12.213,5c0.814,0,1.624,0.124,2.399,0.379l-0.08,0.016c1.11,0.231,2.072,0.806,2.83,1.688 c0.758,0.881,1.18,1.968,1.18,3.13c0,1.066-0.32,2.074-0.957,2.882c-0.637,0.808-1.536,1.4-2.585,1.724 c-0.289,0.089-0.58,0.134-0.871,0.134c-0.536,0-1.077-0.182-1.523-0.548c-0.446-0.366-0.781-0.89-0.999-1.488 c-0.218-0.598-0.315-1.258-0.283-1.921c0.032-0.662,0.225-1.309,0.57-1.892c0.345-0.583,0.835-1.075,1.439-1.463 c0.604-0.389,1.309-0.582,2.052-0.582c0.551,0,1.09,0.113,1.597,0.34c0.507,0.227,0.96,0.557,1.353,0.985 c0.393,0.428,0.73,0.938,0.99,1.521c0.26,0.584,0.444,1.218,0.554,1.884c-0.458,0.11-0.902,0.288-1.31,0.528 c-0.408,0.24-0.763,0.57-1.056,0.978c-0.293,0.408-0.527,0.89-0.702,1.442c-0.174,0.551-0.288,1.144-0.34,1.764 c-0.051,0.62-0.02,1.246,0.094,1.861c0.115,0.615,0.33,1.205,0.645,1.758c0.315,0.553,0.724,1.054,1.228,1.493 C16.591,19.34,17.47,19.676,18.337,19.825c0.027,0.005,0.054,0.009,0.081,0.014c0.027,0.005,0.054,0.01,0.081,0.015 c-0.115,0.027-0.23,0.054-0.345,0.078c-0.115,0.024-0.23,0.048-0.345,0.063c-0.274,0.035-0.555,0.052-0.835,0.052 C16.143,20.088,15.568,20.088,15,20.088z"/>
+                    </svg>
                 </button>
-            </div>
-            <div class="fab-action-item tracker-action">
-                <span class="fab-action-label">Tracker</span>
+            </a>
+            <a href="Rastreo/" class="fab-action-item tracker-action">
+                <span class="fab-action-label">Rastreador</span>
                 <button class="fab-circular-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 0c11.6 0 22 5.5 28.8 14.2L428.1 190.2c4.4 5.7 7.9 12.3 9.7 19.3L507.9 440c3.1 9.9-4.2 19.9-14.3 19.9H256 18.4c-10.1 0-17.4-10-14.3-19.9l70-230.5c1.8-7 5.3-13.6 9.7-19.3L227.2 14.2C234 5.5 244.4 0 256 0zm0 160a48 48 0 1 0 0 96 48 48 0 1 0 0-96zM151.7 339.4L188.4 320l7.2 114.9-43.9-122.9zM360.3 339.4L351.4 434.9 358 320l36.7 19.4L360.3 339.4zm-64-167.3L256 128l-40.3 44.1 22.3 103.5 18 10.9 18-10.9 22.3-103.5zM224 434.9l-22.3-103.5L188.4 320l-36.7 19.4L224 434.9zm41.6-103.5L256 320l-15.6 114.9 36.7-19.4 1.4-110.1zM256 476.9l-22.3-103.5-15.6 114.9 37.9-11.4L256 476.9z" fill="white"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
                 </button>
-            </div>
-            <div class="fab-action-item ml-action">
-                <span class="fab-action-label">Machine Learning</span>
+            </a>
+            <a href="ML/" class="fab-action-item ml-action">
+                <span class="fab-action-label">Solicitar ML</span>
                 <button class="fab-circular-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M472 256c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24zM88 256c0-13.3 10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24s-24-10.7-24-24zM240 88c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24zM240 424c0-13.3 10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24s-24-10.7-24-24zM400 400c0-13.3 10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24s-24-10.7-24-400zM112 112c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24zM400 112c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24zM112 400c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24zM256 192c-35.3 0-64 28.7-64 64s28.7 64 64 64s64-28.7 64-64s-28.7-64-64-64zm0-64c-70.7 0-128 57.3-128 128s57.3 128 128 128s128-57.3 128-128s-57.3-128-128-128zM392 256c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24z" fill="white"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
                 </button>
-            </div>
-            <div class="fab-action-item quotes-action">
-                <span class="fab-action-label">Cotiza</span>
+            </a>
+            <a href="Cotizador/" class="fab-action-item quotes-action">
+                <span class="fab-action-label">Cotizador</span>
                 <button class="fab-circular-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M47.6 300.4L228.3 469.7c5.8 5.6 13.2 8.3 20.7 8.3s14.9-2.6 20.7-8.3l180.7-169.3c5.6-5.2 8.7-12.7 8.7-20.7c0-8-3.1-15.5-8.7-20.7L269.7 75.3C264.2 70 256.8 67 249.3 67s-14.9 3-20.7 8.3L47.6 259.6c-5.6 5.2-8.7 12.7-8.7 20.7c0 8 3.1 15.5 8.7 20.1zM113.8 288c-1.3-1.2-2.1-2.9-2.1-4.7c0-1.7.8-3.5 2.1-4.7l124.9-116.7c1.3-1.2 2.9-1.8 4.7-1.8c1.7 0 3.4.6 4.7 1.8l124.9 116.7c1.3 1.2 2.1 2.9 2.1 4.7c0 1.7-.8 3.5-2.1 4.7L250.7 404.7c-1.3 1.2-2.9 1.8-4.7 1.8c-1.7 0-3.4-.6-4.7-1.8L113.8 288z" fill="white"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7V8h10v7zm-5-3c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
+                    </svg>
                 </button>
-            </div>
+            </a>
         </div>
+
         <button class="fab-main-button">
-            <svg class="plus-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" fill="white"/></svg>
+            <svg class="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
         </button>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const observer = new IntersectionObserver((entries) => {
+            const fabContainer = document.querySelector('.fab-container');
+            const mainFabButton = document.querySelector('.fab-main-button');
+            const overlay = document.querySelector('.fab-screen-overlay');
+            const fabActions = document.querySelector('.fab-actions');
+
+            function toggleFabMenu() {
+                const isOpen = fabContainer.classList.toggle('open');
+                overlay.classList.toggle('show', isOpen);
+
+                if (isOpen) {
+                    const actionItems = fabActions.querySelectorAll('.fab-action-item');
+                    actionItems.forEach((item, index) => {
+                        item.style.transitionDelay = `${(actionItems.length - 1 - index) * 0.05}s`;
+                    });
+                }
+            }
+
+            mainFabButton.addEventListener('click', toggleFabMenu);
+            overlay.addEventListener('click', toggleFabMenu);
+
+            const counters = document.querySelectorAll('.counter');
+            const speed = 200;
+
+            const startCount = (counter) => {
+                const target = +counter.dataset.target;
+                const update = () => {
+                    const value = +counter.innerText;
+                    const increment = target / speed;
+                    if (value < target) {
+                        counter.innerText = Math.ceil(value + increment);
+                        setTimeout(update, 1);
+                    } else {
+                        counter.innerText = target.toLocaleString('en-US');
+                    }
+                };
+                update();
+            };
+
+            const counterObserver = new IntersectionObserver(entries => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        entry.target.classList.add('psc-anim-show');
-                    } else {
-                        // Opcional: Para re-animar al salir de la vista
-                        // entry.target.classList.remove('psc-anim-show');
+                        startCount(entry.target);
+                        counterObserver.unobserve(entry.target);
                     }
                 });
             }, {
-                threshold: 0.1 // Opcional, ajusta el porcentaje de visibilidad
+                threshold: 0.8
             });
 
-            document.querySelectorAll('.psc-anim-hidden').forEach(element => {
-                observer.observe(element);
-            });
-
-            // Código para el Floating Action Button (FAB)
-            const fabContainer = document.querySelector('.fab-container');
-            const fabMainButton = document.querySelector('.fab-main-button');
-            const fabOverlay = document.querySelector('.fab-screen-overlay');
-
-            fabMainButton.addEventListener('click', () => {
-                const isOpen = fabContainer.classList.toggle('open');
-                if (isOpen) {
-                    fabOverlay.classList.add('show');
-                } else {
-                    fabOverlay.classList.remove('show');
-                }
-            });
-
-            fabOverlay.addEventListener('click', () => {
-                fabContainer.classList.remove('open');
-                fabOverlay.classList.remove('show');
+            counters.forEach(counter => {
+                counterObserver.observe(counter);
             });
         });
     </script>
