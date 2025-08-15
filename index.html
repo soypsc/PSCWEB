@@ -13,6 +13,10 @@
             padding: 0;
             box-sizing: border-box;
         }
+        
+        html {
+            scroll-behavior: smooth;
+        }
 
         body {
             font-family: 'Poppins', sans-serif;
@@ -40,17 +44,30 @@
             --max-width: 1200px;
         }
 
-        /* HEADER */
+        /* ====================================================================== */
+        /* HEADER DINÁMICO
+        /* ====================================================================== */
         header {
             background: linear-gradient(135deg, var(--blue-1), var(--blue-2));
             color: white;
-            position: relative;
+            position: fixed; 
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             height: 140px;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 0 25px;
+            transition: height 0.3s ease, background-color 0.3s ease; 
+        }
+
+        header.scrolled {
+            height: 80px;
+            background: var(--blue-1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
 
         .header-inner {
@@ -68,6 +85,10 @@
             display: flex;
             align-items: center;
             flex-shrink: 0;
+            transition: height 0.3s ease;
+        }
+        header.scrolled .logo {
+            height: 120px;
         }
 
         .logo img {
@@ -76,6 +97,10 @@
             object-fit: contain;
             user-select: none;
             pointer-events: none;
+            transition: max-height 0.3s ease;
+        }
+        header.scrolled .logo img {
+            max-height: 180px;
         }
 
         nav {
@@ -131,6 +156,10 @@
             background-size: cover;
             z-index: 1;
             pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        header.scrolled .onda {
+            opacity: 0;
         }
 
         /* Dropdown */
@@ -165,6 +194,10 @@
 
         .dropdown:hover .dropdown-content {
             display: block;
+        }
+        
+        body {
+            padding-top: 140px; 
         }
 
         /* HERO Section */
@@ -403,11 +436,14 @@
 
         /* Media Queries (Diseño Responsivo) */
         @media (max-width: 900px) {
-            header {
+            header, header.scrolled {
                 height: auto;
-                padding: 25px;
+                padding: 15px 25px;
+                position: absolute; 
             }
-
+            body {
+                padding-top: 0; 
+            }
             .header-inner {
                 flex-wrap: wrap;
                 justify-content: space-between;
@@ -415,14 +451,14 @@
                 gap: 15px;
             }
 
-            .logo {
+            .logo, header.scrolled .logo {
                 height: auto;
                 width: auto;
                 margin-right: auto;
             }
 
-            .logo img {
-                max-height: 150px; /* --- MODIFICACIÓN: Logo aumentado a 150px --- */
+            .logo img, header.scrolled .logo img {
+                max-height: 150px; 
             }
 
             nav {
@@ -439,8 +475,8 @@
             }
             
             .btn-header {
-                padding: 4px 8px; /* --- MODIFICACIÓN: Botones más pequeños --- */
-                font-size: 10px; /* --- MODIFICACIÓN: Letra más pequeña --- */
+                padding: 4px 8px; 
+                font-size: 10px; 
             }
             
             .menu-toggle {
@@ -449,16 +485,13 @@
         }
 
         @media (min-width: 901px) {
-            .fab-container {
-                display: none;
-            }
-
+            /* ANOTACIÓN: Se eliminó la regla que ocultaba el .fab-container */
             .menu-toggle {
                 display: none;
             }
 
             header nav {
-                display: flex;
+                display: flex !important;
                 position: static;
                 box-shadow: none;
                 padding: 0;
@@ -473,6 +506,7 @@
             .hero {
                 flex-direction: column;
                 text-align: center;
+                margin-top: 100px; 
             }
 
             .hero-text {
@@ -496,21 +530,22 @@
             }
         }
 
-        /* Animaciones Generales */
-        .psc-anim-hidden {
+        /* ANIMACIONES Y DINAMISMO */
+        .anim-hidden {
             opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 800ms ease-out, transform 800ms ease-out;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
         }
 
-        .psc-anim-show {
+        .anim-show {
             opacity: 1;
-            transform: none;
+            transform: translateY(0);
         }
 
-        /* ====================================================================== */
-        /* FLOATING ACTION BUTTON (FAB) - Nuevo componente optimizado */
-        /* ====================================================================== */
+        .servicio:nth-child(2) { transition-delay: 150ms; }
+        .servicio:nth-child(3) { transition-delay: 300ms; }
+        
+        /* FLOATING ACTION BUTTON (FAB) */
         .fab-container {
             position: fixed;
             bottom: 20px;
@@ -542,7 +577,7 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background-color: red;;
+            background-color: red;
             color: white;
             border: none;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
@@ -602,19 +637,12 @@
             transform: translateX(0);
         }
 
-        /* Retrasos para una animación escalonada */
-        .fab-container.open .whatsapp-action {
-            transition-delay: 0.2s;
-        }
-        .fab-container.open .tracker-action {
-            transition-delay: 0.15s;
-        }
-        .fab-container.open .ml-action {
-            transition-delay: 0.10s;
-        }
-        .fab-container.open .quotes-action {
-            transition-delay: 0.05s;
-        }
+        /* ANOTACIÓN: Nuevos delays para la animación escalonada con la opción "Inicio" */
+        .fab-container.open .home-action { transition-delay: 0.25s; }
+        .fab-container.open .whatsapp-action { transition-delay: 0.2s; }
+        .fab-container.open .tracker-action { transition-delay: 0.15s; }
+        .fab-container.open .ml-action { transition-delay: 0.10s; }
+        .fab-container.open .quotes-action { transition-delay: 0.05s; }
 
         .fab-circular-button {
             width: 55px;
@@ -664,7 +692,7 @@
 </head>
 <body>
     
-    <header>
+    <header id="main-header">
         <div class="header-inner">
             <div class="logo">
                 <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
@@ -692,32 +720,32 @@
     </header>
 
     <section class="hero">
-        <div class="hero-text">
+        <div class="hero-text anim-hidden">
             <p class="hero-slogan">Tu conexión directo al mundo 🌍</p>
             <h1>¿Quieres un casillero?</h1>
             <p>En PSC, traemos tus paquetes de cualquier parte del mundo a todo Panamá. ¡Somos los más rápidos! ⚡</p>
             <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-azul">Regístrate Gratis →</a>
         </div>
-        <div class="hero-img">
+        <div class="hero-img anim-hidden">
             <img src="https://static.wixstatic.com/media/f7f5e1_b7d11b4129d84543b40acc639414a93c~mv2.png" alt="Imagen representativa del servicio de envío de paquetes">
         </div>
     </section>
 
     <section class="section">
-        <h2>NUESTROS SERVICIOS</h2>
-        <p style="margin-bottom: 40px;">Llevando tu logística al siguiente nivel</p>
+        <h2 class="anim-hidden">NUESTROS SERVICIOS</h2>
+        <p style="margin-bottom: 40px;" class="anim-hidden">Llevando tu logística al siguiente nivel</p>
         <div class="servicios">
-            <div class="servicio">
+            <div class="servicio anim-hidden">
                 <img src="https://img.icons8.com/ios/100/0000FF/shopping-cart.png" alt="Icono de carrito de compras" />
                 <h4>Compras por internet</h4>
                 <p>Adquiere tus productos en línea, incluso sin tarjeta. Nosotros nos encargamos de tu compra y envío.</p>
             </div>
-            <div class="servicio">
+            <div class="servicio anim-hidden">
                 <img src="https://img.icons8.com/ios/100/0000FF/warehouse.png" alt="Icono de almacén" />
                 <h4>Casilleros en Miami</h4>
                 <p>Recibe tus paquetes desde Miami en solo 2 a 5 días. Un servicio seguro y totalmente confiable.</p>
             </div>
-            <div class="servicio">
+            <div class="servicio anim-hidden">
                 <img src="https://img.icons8.com/ios/100/0000FF/customer-support.png" alt="Icono de soporte al cliente" />
                 <h4>Compras asistidas</h4>
                 <p>Obtén asesoría experta y soporte completo para tus compras, garantizando una experiencia sin complicaciones.</p>
@@ -725,22 +753,22 @@
         </div>
     </section>
 
-    <section class="section sucursales" aria-label="Nuestras Sucursales">
+    <section class="section sucursales anim-hidden" aria-label="Nuestras Sucursales">
         <h2>NUESTRAS SUCURSALES</h2>
         <p style="margin-bottom: 20px;">Visítanos en nuestras distintas ubicaciones en Panamá.</p>
         <img class="sucursal-img" src="https://static.wixstatic.com/media/f7f5e1_8607c401b2cd45cba61a671c3174c8fb~mv2.png" alt="Mapa de ubicaciones de sucursales">
     </section>
 
     <section class="experiencia">
-        <h2>NUESTRA EXPERIENCIA</h2>
-        <div class="stats">
+        <h2 class="anim-hidden">NUESTRA EXPERIENCIA</h2>
+        <div class="stats anim-hidden">
             <div class="stat"><span class="counter" data-target="10">0</span><br/><small>Años de servicio</small></div>
             <div class="stat"><span class="counter" data-target="15000">0</span><br/><small>Casilleros creados</small></div>
             <div class="stat"><span class="counter" data-target="10000">0</span><br/><small>Clientes satisfechos</small></div>
             <div class="stat"><span class="counter" data-target="1000000">0</span><br/><small>Paquetes entregados</small></div>
         </div>
 
-        <div class="experiencia-image">
+        <div class="experiencia-image anim-hidden">
             <img
                 src="https://static.wixstatic.com/media/f7f5e1_60e079b447f54853aa679ed6a92e1aa6~mv2.png"
                 alt="Imagen ilustrativa de la experiencia de la empresa"
@@ -784,6 +812,14 @@
         <div class="fab-screen-overlay"></div>
 
         <div class="fab-actions">
+            <a href="./" class="fab-action-item home-action">
+                <span class="fab-action-label">Inicio</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor" stroke="white" stroke-width="1">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                    </svg>
+                </button>
+            </a>
             <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener" class="fab-action-item whatsapp-action">
                 <span class="fab-action-label">WhatsApp</span>
                 <button class="fab-circular-button" style="background-color: #25D366;">
@@ -828,37 +864,62 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- Script para el FAB (Floating Action Button) ---
             const fabContainer = document.querySelector('.fab-container');
-            const mainFabButton = document.querySelector('.fab-main-button');
-            const overlay = document.querySelector('.fab-screen-overlay');
-            const fabActions = document.querySelector('.fab-actions');
-
-            function toggleFabMenu() {
-                const isOpen = fabContainer.classList.toggle('open');
-                overlay.classList.toggle('show', isOpen);
-
-                if (isOpen) {
-                    const actionItems = fabActions.querySelectorAll('.fab-action-item');
-                    actionItems.forEach((item, index) => {
-                        item.style.transitionDelay = `${(actionItems.length - 1 - index) * 0.05}s`;
-                    });
+            if (fabContainer) {
+                const mainFabButton = fabContainer.querySelector('.fab-main-button');
+                const overlay = fabContainer.querySelector('.fab-screen-overlay');
+                
+                function toggleFabMenu() {
+                    fabContainer.classList.toggle('open');
+                    overlay.classList.toggle('show');
                 }
+
+                mainFabButton.addEventListener('click', toggleFabMenu);
+                overlay.addEventListener('click', toggleFabMenu);
             }
 
-            mainFabButton.addEventListener('click', toggleFabMenu);
-            overlay.addEventListener('click', toggleFabMenu);
+            // --- Script para el Header Dinámico ---
+            const header = document.getElementById('main-header');
+            if(header) {
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 50) {
+                        header.classList.add('scrolled');
+                    } else {
+                        header.classList.remove('scrolled');
+                    }
+                });
+            }
 
+            // --- Script para Animaciones al Hacer Scroll ---
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('anim-show');
+                        observer.unobserve(entry.target); 
+                    }
+                });
+            }, {
+                threshold: 0.15 
+            });
+
+            const hiddenElements = document.querySelectorAll('.anim-hidden');
+            hiddenElements.forEach((el) => observer.observe(el));
+
+
+            // --- Script para el Contador Animado ---
             const counters = document.querySelectorAll('.counter');
             const speed = 200;
 
             const startCount = (counter) => {
                 const target = +counter.dataset.target;
                 const update = () => {
-                    const value = +counter.innerText;
+                    const value = +counter.innerText.replace(/,/g, '');
                     const increment = target / speed;
                     if (value < target) {
-                        counter.innerText = Math.ceil(value + increment);
-                        setTimeout(update, 1);
+                        counter.innerText = Math.ceil(value + increment).toLocaleString('en-US');
+                        setTimeout(update, 10);
                     } else {
                         counter.innerText = target.toLocaleString('en-US');
                     }
