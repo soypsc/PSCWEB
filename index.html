@@ -132,10 +132,10 @@
     .btn-header {
       background: var(--accent);
       color: var(--blue-1);
-      padding: 14px 28px; /* Aumentado el padding para botones más grandes */
+      padding: 8px 18px;
       border-radius: var(--radius); /* Bordes suaves y consistentes */
       font-weight: 600;
-      font-size: 16px; /* Aumentado el tamaño de fuente */
+      font-size: 13px;
       transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Animaciones para botones */
       box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra inicial */
     }
@@ -217,6 +217,7 @@
       color: var(--blue-1); /* Azul PSC */
       margin-bottom: 10px;
       line-height: 1.2;
+      font-weight: bold; /* ¡Texto más grueso! */
     }
 
     .hero-text h1 {
@@ -449,12 +450,15 @@
       }
       .header-inner {
         flex-wrap: wrap; /* Permite que los elementos se envuelvan */
-        justify-content: space-between; /* Empuja logo a la izquierda y botones a la derecha */
+        justify-content: space-between; /* Empuja el logo a la izquierda y los botones a la derecha */
         gap: 15px; /* Espacio entre el logo y los botones */
       }
       .logo {
         height: auto;
         max-height: 80px; /* Ajusta la altura máxima del logo en móvil */
+        width: auto; /* Permite que el logo ocupe su ancho natural */
+        margin-right: auto; /* Empuja el logo a la izquierda */
+        justify-content: flex-start; /* Alinea el logo a la izquierda (redundante con margin-right) */
       }
       .logo img {
         max-height: 70px; /* Ajusta el tamaño de la imagen del logo */
@@ -465,19 +469,28 @@
       /* Los botones del header ahora se muestran en móvil */
       .header-buttons {
         display: flex; /* Muestra los botones */
-        flex-wrap: wrap; /* Permite que los botones se envuelvan */
-        justify-content: flex-end; /* Alinea los botones a la derecha si no se envuelven */
+        flex-wrap: nowrap; /* Intenta mantener los botones en una fila */
+        justify-content: flex-end; /* Alinea los botones a la derecha */
         width: auto; /* Permite que los botones ocupen solo el espacio necesario */
         gap: 10px; /* Espacio entre los botones */
+        margin-left: auto; /* Empuja los botones a la derecha */
       }
-      /* Si la pantalla es muy pequeña y los botones se envuelven, centrarlos */
+      /* Si la pantalla es muy pequeña y los botones no caben, se envuelven y centran */
       @media (max-width: 480px) {
         .header-inner {
           justify-content: center; /* Centra logo y botones */
+          flex-direction: column; /* Apila logo y botones */
+          gap: 10px; /* Menor espacio cuando están apilados */
+        }
+        .logo {
+          width: 100%; /* El logo ocupa todo el ancho disponible */
+          justify-content: center; /* Centra el logo cuando se apila */
+          margin-right: 0; /* Elimina el margen para centrar */
         }
         .header-buttons {
           width: 100%; /* Ocupa todo el ancho si necesita envolverse debajo del logo */
           justify-content: center; /* Centra los botones cuando están envueltos */
+          margin-left: 0; /* Elimina el margen para centrar */
         }
       }
       .menu-toggle {
@@ -538,38 +551,19 @@
     }
 
     /* ====================================================================== */
-    /* FLOATING ACTION BUTTON (FAB) - Nuevo componente */
+    /* FLOATING ACTION BUTTON (FAB) - Nuevo componente (Social Media Style) */
     /* ====================================================================== */
     .fab-container {
       position: fixed;
       bottom: 20px;
-      right: 20px; /* Mantiene el FAB a la derecha */
-      z-index: 1000; /* Asegura que esté por encima del overlay */
-      display: flex;
-      flex-direction: column-reverse; /* Hace que los botones secundarios aparezcan hacia arriba */
-      align-items: flex-end; /* Alinea los botones secundarios a la derecha */
-      gap: 20px; /* AUMENTADO: Mayor espacio entre los botones cuando se expanden */
+      right: 20px;
+      z-index: 1000;
+      /* Define un tamaño para el contenedor que pueda albergar el menú expandido */
+      width: 250px;
+      height: 250px;
+      /* No es un flex container aquí, los elementos se posicionan absolutamente */
+      display: block; 
     }
-
-    /* Overlay que aparece al abrir el FAB */
-    .fab-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.4); /* Negro con 40% de transparencia */
-      z-index: 999; /* Detrás del FAB, pero encima del contenido */
-      opacity: 0; /* Inicialmente oculto */
-      pointer-events: none; /* No interactuable cuando oculto */
-      transition: opacity 0.3s ease;
-    }
-
-    .fab-overlay.show {
-      opacity: 1;
-      pointer-events: auto; /* Se vuelve interactuable cuando se muestra */
-    }
-
 
     /* Ocultar el FAB por defecto en escritorio y mostrarlo solo en móvil */
     @media (min-width: 901px) {
@@ -578,11 +572,15 @@
       }
     }
 
+    /* Estilos para el botón principal del FAB ("Nuestras Redes Sociales") */
     .fab-main-button {
-      width: 55px;
+      position: absolute; /* Posicionado absolutamente dentro de .fab-container */
+      bottom: 0;
+      right: 0;
+      width: auto; /* Ancho se ajustará al contenido */
       height: 55px;
-      border-radius: 50%;
-      background-color: #0000FF; /* Azul del botón */
+      border-radius: 27.5px; /* Para forma de píldora */
+      background-color: #ff0000; /* Rojo vibrante */
       color: white;
       border: none;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -590,111 +588,144 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 24px;
-      transition: transform 0.3s ease, background-color 0.3s ease;
-      z-index: 1000; /* Asegura que el botón principal esté sobre el overlay */
-    }
-    /* El botón principal vuelve a ser sólido, la transparencia es para el overlay */
-    .fab-container.open .fab-main-button {
-      background-color: #0000FF; /* Mantiene el color sólido al abrirse */
+      font-size: 14px;
+      font-weight: 500;
+      padding: 0 15px; /* Padding horizontal para el texto */
+      transition: transform 0.3s ease, background-color 0.3s ease, width 0.3s ease, opacity 0.3s ease;
+      z-index: 1001; /* Asegura que esté por encima de los botones de acción y el overlay */
+      gap: 8px; /* Espacio entre el ícono y el texto */
+      white-space: nowrap; /* Evita que el texto se rompa */
+      min-width: 55px; /* Asegura que el botón sea circular cuando no está expandido */
     }
 
-
-    .fab-main-button svg {
+    .fab-main-button .close-icon {
       transition: transform 0.3s ease; /* Transición para la rotación de la 'X' */
     }
 
+    /* Estado del botón principal cuando el FAB está abierto */
+    .fab-container.open .fab-main-button {
+      background-color: rgba(255, 0, 0, 0.7); /* Rojo con transparencia */
+      transform: none; /* Elimina cualquier transformación adicional */
+      width: 180px; /* Ancho expandido para mostrar el texto completo */
+    }
+
     /* Rotar la 'X' cuando el menú está abierto */
-    .fab-container.open .fab-main-button svg {
+    .fab-container.open .fab-main-button .close-icon {
       transform: rotate(45deg);
     }
 
-    .fab-action-button {
-      width: auto; /* Ancho automático para el texto */
-      min-width: 160px; /* AUMENTADO: Ancho mínimo para el botón completo (ícono + texto) */
-      height: 40px; /* Alto fijo de 40px */
-      border-radius: 20px; /* Bordes redondeados para forma de píldora */
-      background-color: #f2f2f2; /* Gris claro, tirando a blanco */
-      color: white; /* Color del texto - AHORA ES BLANCO */
-      border: 1px solid rgba(0,0,0,0.05); /* Borde muy sutil */
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1); /* Sombra suave para elegancia */
+    /* Contenedor para cada botón de acción social y su etiqueta */
+    .fab-action-item {
+      position: absolute; /* Posicionado absolutamente dentro de .fab-container */
       display: flex;
-      flex-direction: row; /* Ícono y texto 'al lado' */
-      align-items: center; /* Centra verticalmente los elementos */
-      justify-content: flex-start; /* Alinea los elementos a la izquierda */
-      cursor: pointer;
-      font-size: 13px; /* Tamaño de fuente para el texto del botón */
-      opacity: 0; /* Inicialmente oculto */
-      transform: translateY(10px) scale(0.5); /* Inicialmente encogido y desplazado */
-      transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
-      position: absolute; /* Para controlar la posición escalonada */
-      pointer-events: none; /* No interactuable cuando oculto */
-      padding: 0 15px 0 5px; /* Padding horizontal: más a la derecha, menos a la izquierda para el icono */
-      text-align: left; /* Alinea el texto a la izquierda dentro del botón */
-      gap: 8px; /* Espacio entre ícono y texto */
-      white-space: nowrap; /* Evita que el texto se envuelva */
-      z-index: 1001; /* Asegura que los botones de acción estén sobre el botón principal */
+      flex-direction: row-reverse; /* Ícono a la derecha, etiqueta a la izquierda */
+      align-items: center;
+      gap: 10px; /* Espacio entre etiqueta y botón circular */
+      opacity: 0; /* Oculto por defecto */
+      pointer-events: none; /* No interactuable cuando está oculto */
+      transition: opacity 0.3s ease, transform 0.3s ease; /* Animaciones generales */
+      z-index: 999; /* Por debajo del botón principal, por encima del overlay */
+      white-space: nowrap; /* Evita que el texto se rompa */
+
+      /* Valores iniciales (ocultos, escalados pequeños y en la posición del botón principal) */
+      transform: translate(0, 0) scale(0.1); 
     }
 
-    .fab-action-button:hover {
-      background-color: #e6e6e6; /* Ligeramente más oscuro al pasar el cursor */
-      transform: translateY(0) scale(1.05); /* Ligeramente más grande al pasar el cursor */
-      box-shadow: 0 5px 12px rgba(0,0,0,0.15); /* Sombra ligeramente más pronunciada */
-    }
+    /* Posicionamiento específico para cada botón de acción (radialmente) */
+    /* Estos valores son relativos a la esquina inferior derecha de .fab-container (0,0) */
+    /* El botón principal FAB está en (bottom:0, right:0) */
+    .fab-action-item.whatsapp-item { bottom: 70px; right: 0px; } /* Más cercano, arriba-derecha */
+    .fab-action-item.facebook-item { bottom: 120px; right: 50px; } /* Un poco más lejos, arriba-izquierda */
+    .fab-action-item.twitter-item { bottom: 170px; right: 100px; } /* Más lejos */
+    .fab-action-item.instagram-item { bottom: 220px; right: 150px; } /* El más alejado */
 
-    .fab-container.open .fab-action-button {
+
+    /* Estado de los botones de acción cuando el FAB está abierto */
+    .fab-container.open .fab-action-item {
       opacity: 1;
-      transform: translateY(0) scale(1); /* Vuelve a su tamaño y posición normal */
-      pointer-events: auto; /* Se vuelve interactuable */
+      pointer-events: auto;
+      transform: translate(0, 0) scale(1); /* Vuelve a su tamaño y posición definida por bottom/right */
+    }
+    .fab-container.open .fab-action-item.whatsapp-item { transition-delay: 0.05s; }
+    .fab-container.open .fab-action-item.facebook-item { transition-delay: 0.10s; }
+    .fab-container.open .fab-action-item.twitter-item { transition-delay: 0.15s; }
+    .fab-container.open .fab-action-item.instagram-item { transition-delay: 0.20s; }
+
+
+    /* Estilos para el botón circular dentro de cada item de acción */
+    .fab-circular-button {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%; /* Circular */
+      background-color: var(--blue-1); /* Azul PSC */
+      color: white; /* Color de los íconos */
+      border: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0; /* Evita que el botón se encoja */
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .fab-circular-button:hover {
+      background-color: var(--blue-2); /* Azul más oscuro al pasar el cursor */
+      transform: scale(1.05); /* Ligeramente más grande al pasar el cursor */
     }
 
-    /* Posiciones escalonadas para los botones de acción al abrirse */
-    .fab-container.open .fab-action-button:nth-child(1) { /* WhatsApp */
-      transform: translateY(-75px) scale(1); /* AUMENTADO: Más espacio */
-      transition-delay: 0.05s;
-    }
-    .fab-container.open .fab-action-button:nth-child(2) { /* Rastreador */
-      transform: translateY(-150px) scale(1); /* AUMENTADO: Más espacio */
-      transition-delay: 0.10s;
-    }
-    .fab-container.open .fab-action-button:nth-child(3) { /* Mal Identificado */
-      transform: translateY(-225px) scale(1); /* AUMENTADO: Más espacio */
-      transition-delay: 0.15s;
-    }
-    .fab-container.open .fab-action-button:nth-child(4) { /* Cotizar Artículos */
-      transform: translateY(-300px) scale(1); /* AUMENTADO: Más espacio */
-      transition-delay: 0.20s;
-    }
-
-    .fab-icon-wrapper { /* Nuevo wrapper para el ícono redondo y azul */
-        width: 32px; /* Tamaño del círculo azul */
-        height: 32px;
-        border-radius: 50%;
-        background-color: var(--blue-1); /* Fondo azul */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0; /* Evita que se encoja */
-    }
-
-    .fab-action-button svg {
-      width: 20px; /* Tamaño del ícono SVG dentro del círculo */
-      height: 20px;
-      fill: white; /* Color del ícono SVG - AHORA ES BLANCO */
-    }
-
-    .fab-action-button img { /* Estilo específico para la imagen de WhatsApp */
-      width: 28px; /* Ajusta el tamaño de la imagen */
-      height: 28px;
-      border-radius: 50%; /* Asegura que la imagen sea circular si es necesario */
+    /* Estilos para los íconos SVG e imágenes dentro de los botones circulares */
+    .fab-circular-button img, .fab-circular-button svg {
+      width: 30px; /* Tamaño del ícono */
+      height: 30px;
+      border-radius: 50%; /* Para WhatsApp si la imagen no es redonda */
       flex-shrink: 0;
+      fill: currentColor; /* Asegura que los SVGs tomen el color blanco del padre */
+    }
+
+    /* Estilos para las etiquetas de texto al lado de los botones circulares */
+    .fab-action-label {
+      background-color: rgba(0,0,0,0.7); /* Fondo oscuro semi-transparente */
+      color: white;
+      padding: 8px 12px;
+      border-radius: 18px; /* Forma de píldora para la etiqueta */
+      font-size: 12px;
+      font-weight: 500;
+      opacity: 0; /* Oculto por defecto */
+      pointer-events: none; /* No interactuable cuando oculto */
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      /* Posición inicial para la animación de la etiqueta */
+      transform: translateX(10px); /* Ligeramente desplazado a la derecha */
+    }
+
+    /* Estado de la etiqueta cuando el FAB está abierto */
+    .fab-container.open .fab-action-item .fab-action-label {
+      opacity: 1;
+      transform: translateX(0); /* Vuelve a su posición normal */
+      transition-delay: 0.1s; /* Retraso para que aparezca después del botón */
+    }
+
+    /* Overlay de pantalla completa para el FAB */
+    .fab-screen-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(35, 37, 212, 0.5); /* Color azul PSC con 50% de transparencia */
+      z-index: 998; /* Debe estar por debajo del FAB (z-index: 1000) */
+      opacity: 0;
+      pointer-events: none; /* Permite clicks a través cuando está oculto */
+      transition: opacity 0.3s ease; /* Animación de aparición/desaparición */
+    }
+
+    .fab-screen-overlay.show {
+      opacity: 1;
+      pointer-events: auto; /* Bloquea clicks cuando está visible */
     }
     
   </style>
 </head>
 <body>
-  <!-- Overlay que se activa con el FAB -->
-  <div class="fab-overlay"></div>
 
   <!-- ==================================================================== -->
   <!-- HEADER SECTION -->
@@ -837,41 +868,47 @@
   </footer>
 
   <!-- ==================================================================== -->
-  <!-- FLOATING ACTION BUTTON (FAB) - NUEVO COMPONENTE -->
+  <!-- FLOATING ACTION BUTTON (FAB) - NUEVO COMPONENTE SOCIAL MEDIA -->
   <!-- ==================================================================== -->
   <div class="fab-container">
-    <button class="fab-action-button" onclick="location.href='https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion'">
-      <div class="fab-icon-wrapper">
-        <!-- WhatsApp Icon - ahora dentro del wrapper azul -->
-        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp Icon" />
-      </div>
-      WhatsApp
-    </button>
-    <button class="fab-action-button" onclick="location.href='Rastreo/'">
-      <div class="fab-icon-wrapper">
-        <!-- Rastreador de Paquetes Icon (Magnifying Glass) -->
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-      </div>
-      Rastreador
-    </button>
-    <button class="fab-action-button" onclick="location.href='ML/'">
-      <div class="fab-icon-wrapper">
-        <!-- Solicitar ML Icon (Alert / Exclamation) -->
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2V8h2v6z"/></svg>
-      </div>
-      Mal Identificado
-    </button>
-    <button class="fab-action-button" onclick="location.href='Cotizador/'">
-      <div class="fab-icon-wrapper">
-        <!-- Cotizador Icon (Calculator) -->
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 5h14v14H5V5zm2 5h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2zM7 14h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/></svg>
-      </div>
-      Cotizar Artículos
-    </button>
+    <!-- Botones de acción social con sus etiquetas -->
+    <div class="fab-action-item whatsapp-item">
+      <span class="fab-action-label">WhatsApp</span>
+      <button class="fab-circular-button" onclick="location.href='https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion'">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Icono de WhatsApp" />
+      </button>
+    </div>
+
+    <div class="fab-action-item facebook-item">
+      <span class="fab-action-label">Facebook</span>
+      <button class="fab-circular-button" onclick="window.open('https://www.facebook.com/PanamaShippingCo/', '_blank')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.04C6.51 2.04 2 6.55 2 12.04c0 4.84 3.56 8.87 8.21 9.77V14.04h-2.54V11.5h2.54V9.58c0-2.5 1.51-3.87 3.76-3.87 1.09 0 2.24.19 2.24.19v2.47h-1.26c-1.24 0-1.62.77-1.62 1.56v1.86h2.75l-.44 2.54h-2.31V21.8C18.44 20.91 22 16.88 22 12.04 22 6.55 17.49 2.04 12 2.04z"/></svg>
+      </button>
+    </div>
+
+    <div class="fab-action-item twitter-item">
+      <span class="fab-action-label">Twitter</span>
+      <button class="fab-circular-button" onclick="window.open('https://twitter.com/', '_blank')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.37-.83.49-1.74.83-2.72 1.02-2.12-2.13-5.5-2.12-7.61.02-1.04 1.05-1.6 2.4-1.6 3.86 0 .31.03.62.08.92-4.52-.22-8.52-2.39-11.21-5.69-.47.81-.74 1.77-.74 2.79 0 1.9.97 3.57 2.45 4.56-.9.03-1.74-.27-2.47-.64v.03c0 2.65 1.89 4.88 4.39 5.39-.43.12-.88.18-1.34.18-.33 0-.66-.03-.97-.1C7.8 19.06 10.45 20.04 13.3 20.04c-1.9 1.48-4.27 2.37-6.7 2.37-1.08 0-2.15-.06-3.19-.18 2.57 1.65 5.62 2.62 8.89 2.62 7.74 0 11.96-6.4 11.96-11.97 0-.19-.01-.38-.01-.56.82-.59 1.53-1.33 2.1-2.18z"/></svg>
+      </button>
+    </div>
+
+    <div class="fab-action-item instagram-item">
+      <span class="fab-action-label">Instagram</span>
+      <button class="fab-circular-button" onclick="window.open('https://www.instagram.com/soypsc/', '_blank')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4c0 3.2-2.6 5.8-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8C2 4.6 4.6 2 7.8 2zm-.2 2A2.02 2.02 0 0 0 4 6.2v8.4c0 1.13.9 2.02 2.02 2.02h8.4A2.02 2.02 0 0 0 18 16.2V7.8A2.02 2.02 0 0 0 15.78 4H7.6zM12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5zm4.8-10.4c.66 0 1.2.54 1.2 1.2s-.54 1.2-1.2 1.2-1.2-.54-1.2-1.2.54-1.2 1.2-1.2z"/></svg>
+      </button>
+    </div>
+
+    <!-- Botón principal de activación/desactivación del FAB -->
     <button class="fab-main-button" id="fabMainBtn">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      <span>Nuestras Redes Sociales</span>
     </button>
   </div>
+
+  <!-- Overlay de pantalla completa para el FAB -->
+  <div class="fab-screen-overlay"></div>
 
 
   <!-- ==================================================================== -->
@@ -918,7 +955,7 @@
                 obs.unobserve(experienciaEl); // Deja de observar una vez que la animación se activa
               }
             });
-          }, { threshold: 0.35 }); // Se activa cuando el 35% del elemento es visible
+          }, { threshold: 0.35 }); // Se activa cuando el 35% de la sección es visible
           observer.observe(experienciaEl);
         } else {
           // Fallback si la sección .experiencia no existe (poco probable pero seguro)
@@ -986,7 +1023,7 @@
       const fabContainer = document.querySelector('.fab-container');
       const fabMainBtn = document.getElementById('fabMainBtn');
       const nav = document.querySelector('header nav'); // Obtener el elemento nav
-      const fabOverlay = document.querySelector('.fab-overlay'); // Obtener el overlay
+      const fabOverlay = document.querySelector('.fab-screen-overlay'); // Obtener el overlay
 
       if (!fabContainer || !fabMainBtn || !nav || !fabOverlay) {
         console.warn('FAB or navigation elements not found. Some features might not work.');
@@ -999,9 +1036,8 @@
         fabOverlay.classList.toggle('show'); // Muestra/oculta el overlay
       });
 
-      // Cierra el FAB y el overlay si se hace clic fuera de ellos (solo en móvil)
+      // Cierra el FAB y el overlay cuando se hace clic fuera de él (solo en móvil)
       document.addEventListener('click', (e) => {
-        // Asegurarse de que solo se aplique en móvil
         if (window.innerWidth <= 900) {
           if (!fabContainer.contains(e.target) && fabContainer.classList.contains('open')) {
             fabContainer.classList.remove('open');
@@ -1010,7 +1046,7 @@
         }
       });
 
-      // Cierra el FAB y el overlay si la ventana se redimensiona a escritorio
+      // Asegura que el FAB y el overlay se cierren si la ventana se redimensiona a escritorio
       window.addEventListener('resize', () => {
         if (window.innerWidth > 900) {
           fabContainer.classList.remove('open');
