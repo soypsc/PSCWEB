@@ -3,42 +3,72 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panama Shipping Co. - Historial de Seguimiento</title>
+  <title>Panama Shipping Co.</title>
+  <!-- Enlaces a fuentes de Google Fonts -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
 
   <style>
-    /* ====== LAYOUT ORIGINAL (SIN CAMBIOS VISUALES) ====== */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* ====================================================================== */
+    /* Estilos Globales y Reseteo */
+    /* ====================================================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Poppins', sans-serif;
       background-color: #fff;
       color: #000;
       line-height: 1.6;
+      overflow-x: hidden; /* Evita el scroll horizontal causado por animaciones */
     }
-    a { text-decoration: none; color: inherit; }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ====================================================================== */
+    /* Variables CSS (Colores, etc.) */
+    /* ====================================================================== */
+    /* Puedes definir variables aquí si quieres un control centralizado de colores, etc. */
+    /* Por ejemplo: --color-primary: #2325d4; --color-secondary: #ffec00; */
+
+
+    /* ====================================================================== */
+    /* HEADER (Encabezado principal y navegación superior) */
+    /* ====================================================================== */
     header {
       background: linear-gradient(135deg, #2325d4, #1a1cb3);
       color: white;
       position: relative;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Sombra más pronunciada para profundidad */
       height: 140px;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0 25px;
     }
+
     .header-inner {
       max-width: 1200px;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      position: relative;
+      z-index: 2; /* Asegura que el contenido esté por encima de la onda */
     }
+
     .logo {
       height: 180px;
       display: flex;
       align-items: center;
     }
+
     .logo img {
       max-height: 225px;
       width: auto;
@@ -46,20 +76,28 @@
       user-select: none;
       pointer-events: none;
     }
+
     nav {
       display: flex;
       gap: 20px;
       align-items: center;
       flex-wrap: wrap;
     }
+
     nav a {
       color: white;
       font-weight: 500;
       font-size: 14px;
       position: relative;
-      transition: color 0.3s ease;
+      transition: color 0.3s ease, transform 0.2s ease; /* Transiciones para color y movimiento */
+      will-change: color, transform; /* Optimización de rendimiento para animaciones */
     }
-    nav a:hover { color: #ffec00; }
+
+    nav a:hover {
+      color: #ffec00;
+      transform: translateY(-2px); /* Pequeño levantamiento al pasar el cursor */
+    }
+
     nav a::after {
       content: "";
       position: absolute;
@@ -68,23 +106,35 @@
       width: 0%;
       height: 2px;
       background: #ffec00;
-      transition: 0.3s;
+      transition: width 0.3s ease; /* Animación de subrayado */
     }
-    nav a:hover::after { width: 100%; }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
     .header-buttons {
       display: flex;
       gap: 10px;
     }
+
     .btn-header {
       background: #ffec00;
       color: #2325d4;
-      padding: 6px 14px;
-      border-radius: 8px;
+      padding: 8px 18px;
+      border-radius: 12px; /* Bordes suaves y consistentes */
       font-weight: 600;
       font-size: 13px;
-      transition: background 0.3s;
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Animaciones para botones */
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra inicial */
     }
-    .btn-header:hover { background: #e6d800; }
+
+    .btn-header:hover {
+      background: #e6d800;
+      transform: translateY(-2px); /* Levantamiento al pasar el cursor */
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2); /* Sombra más grande al pasar el cursor */
+    }
+
     .onda {
       position: absolute;
       bottom: -20px;
@@ -93,304 +143,439 @@
       height: 40px;
       background: url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;
       background-size: cover;
-    }
-    .menu-toggle {
-      display: none;
-      font-size: 26px;
-      cursor: pointer;
-      color: white;
-    }
-    @media (max-width: 900px) {
-      nav {
-        display: none;
-        flex-direction: column;
-        width: 100%;
-        background: #2325d4;
-        padding: 10px 0;
-      }
-      nav.show { display: flex; }
-      .header-buttons { display: none; }
-      .menu-toggle { display: block; }
+      z-index: 1; /* Asegura que la onda esté debajo del contenido del header */
+      pointer-events: none; /* No interfiere con clics */
     }
 
-    /* Contenido */
-    .content {
+    /* ====================================================================== */
+    /* Dropdown (Menú desplegable) */
+    /* ====================================================================== */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #2325d4;
+      min-width: 200px;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.25); /* Sombra definida */
+      border-radius: 8px; /* Bordes suaves */
+      z-index: 1;
+      overflow: hidden; /* Asegura que los bordes redondeados se apliquen */
+    }
+
+    .dropdown-content a {
+      color: white;
+      padding: 10px 16px;
+      display: block;
+      font-size: 14px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #1a1cb3;
+      color: #ffec00;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    /* ====================================================================== */
+    /* HERO Section (Sección principal de bienvenida) */
+    /* ====================================================================== */
+    .hero {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 50px 20px;
       max-width: 1200px;
-      margin: 50px auto;
+      margin: auto;
+    }
+
+    .hero-text {
+      flex: 1;
       padding: 20px;
     }
 
-    /* Footer */
+    .hero-slogan { /* Estilo para la frase "Tu conexión directo al mundo" */
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.2rem;
+      color: #2325d4; /* Azul PSC */
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    .hero-text h1 {
+      font-size: 2.2rem;
+      margin-bottom: 15px;
+    }
+
+    .hero-text p {
+      margin-bottom: 20px;
+    }
+
+    .btn-azul {
+      background-color: #0000FF;
+      color: white;
+      padding: 10px 24px;
+      border-radius: 12px; /* Bordes suaves y consistentes */
+      font-weight: bold;
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Animaciones para botones */
+      box-shadow: 0 4px 8px rgba(0,0,255,0.2); /* Sombra inicial */
+    }
+
+    .btn-azul:hover {
+      background-color: #0000cc;
+      transform: translateY(-3px); /* Levantamiento al pasar el cursor */
+      box-shadow: 0 8px 16px rgba(0,0,255,0.3); /* Sombra más grande al pasar el cursor */
+    }
+
+    .hero-img {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .hero-img img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 18px; /* Bordes más suaves para la imagen */
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15); /* Sombra para la imagen */
+    }
+
+    /* ====================================================================== */
+    /* SECTIONS (Estilos generales para secciones de contenido) */
+    /* ====================================================================== */
+    .section {
+      padding: 50px 20px;
+      max-width: 1200px;
+      margin: auto;
+      text-align: center;
+    }
+
+    .section h2 {
+      font-size: 1.8rem;
+      color: #0000FF;
+      margin-bottom: 8px;
+    }
+
+    /* ====================================================================== */
+    /* SERVICIOS (Tarjetas de servicios) */
+    /* ====================================================================== */
+    .servicios {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+    }
+
+    .servicio {
+      flex: 1;
+      min-width: 240px;
+      background-color: #f9f9f9; /* Fondo suave para la tarjeta */
+      padding: 25px;
+      border-radius: 16px; /* Bordes más suaves para las tarjetas */
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08); /* Sombra para las tarjetas */
+      transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animación al pasar el cursor */
+    }
+
+    .servicio:hover {
+      transform: translateY(-8px); /* Elevamiento al pasar el cursor */
+      box-shadow: 0 12px 30px rgba(0,0,0,0.15); /* Sombra más intensa al pasar el cursor */
+    }
+
+    .servicio img {
+      height: 60px; /* Tamaño de ícono ligeramente más grande */
+      margin-bottom: 15px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,255,0.2)); /* Sombra al ícono */
+    }
+
+    .servicio h4 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      color: #2325d4; /* Color del título de servicio */
+    }
+
+    /* ====================================================================== */
+    /* SUCURSALES (Sección con imagen de mapa/ubicación) */
+    /* ====================================================================== */
+    .sucursales .sucursal-img {
+      max-width: 80%;
+      height: auto;
+      border-radius: 18px; /* Bordes más suaves para la imagen de sucursal */
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      display: block;
+      margin: 16px auto 0 auto;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sucursales .sucursal-img:hover {
+      transform: translateY(-6px) scale(1.01); /* Pequeño levantamiento y escala */
+      box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+    }
+
+    /* ====================================================================== */
+    /* EXPERIENCIA (Sección de estadísticas y contadores) */
+    /* ====================================================================== */
+    .testimonios, .experiencia {
+      color: white;
+      padding: 50px 20px;
+      text-align: center;
+    }
+
+    .testimonios {
+      background-color: #0000FF;
+    }
+
+    .experiencia {
+      background-color: #000;
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+      margin-top: 25px;
+    }
+
+    .stat {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #ffec00; /* Color amarillo para los números */
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3); /* Sombra al texto del número */
+    }
+
+    .stat small {
+      display: block;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.8); /* Texto explicativo más suave */
+      margin-top: 5px;
+    }
+
+    .experiencia-image img {
+      margin-top: 30px;
+      max-width: 80%;
+      max-height: 240px;
+      object-fit: contain;
+      margin: 0 auto;
+      display: block;
+      border-radius: 18px; /* Bordes suaves para la imagen */
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25); /* Sombra para la imagen */
+    }
+
+    /* ====================================================================== */
+    /* FOOTER (Pie de página) */
+    /* ====================================================================== */
     footer {
       background: #fff;
       color: #000;
-      padding: 30px 20px;
-      margin-top: 40px;
+      padding: 40px 20px; /* Más padding para más "aire" */
+      margin-top: 50px; /* Más espacio superior */
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.08); /* Sombra sutil y más prominente */
     }
+
     .footer-container {
       max-width: 1200px;
       margin: auto;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 25px;
+      gap: 30px; /* Más espacio entre columnas */
     }
+
     .footer-col h3 {
-      font-size: 18px;
-      margin-bottom: 8px;
-      color: #2325d4;
+      font-size: 1.2rem; /* Tamaño ajustado para elegancia */
+      margin-bottom: 12px; /* Más espacio debajo del título */
+      color: #333; /* Color gris oscuro para encabezados */
     }
+
     .footer-col p, .footer-col a {
-      font-size: 13px;
-      color: #333;
+      font-size: 14px; /* Tamaño ligeramente ajustado para legibilidad */
+      color: #555; /* Color gris suave para texto normal */
+      transition: color 0.3s ease; /* Transición para enlaces */
     }
-    .footer-col a:hover { color: #2325d4; }
-    .social-icons { display: flex; flex-direction: column; gap: 6px; }
+
+    .footer-col a:hover {
+      color: #2325d4; /* Color azul PSC al pasar el cursor */
+    }
+
+    .social-icons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px; /* Más espacio entre iconos sociales */
+    }
+
     .footer-bottom {
       text-align: center;
-      margin-top: 20px;
-      font-size: 11px;
-      color: #555;
+      margin-top: 30px; /* Más espacio superior */
+      font-size: 12px; /* Tamaño ligeramente ajustado */
+      color: #777;
       border-top: 1px solid rgba(0,0,0,0.1);
-      padding-top: 10px;
+      padding-top: 15px; /* Más padding superior */
     }
+
     .footer-links {
       display: flex;
       justify-content: center;
-      gap: 15px;
-      margin-top: 5px;
+      gap: 20px; /* Más espacio entre enlaces del footer-bottom */
+      margin-top: 10px; /* Más espacio */
     }
+
     .footer-links a {
       color: #2325d4;
-      font-size: 11px;
+      font-size: 12px;
     }
 
-    /* WhatsApp flotante */
+    /* ====================================================================== */
+    /* WhatsApp Flotante */
+    /* ====================================================================== */
     .whatsapp-float {
       position: fixed;
-      bottom: 15px;
-      right: 15px;
+      bottom: 20px;
+      right: 20px;
       z-index: 999;
+      transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animación */
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Sombra inicial */
+      border-radius: 50%; /* Asegura que la sombra se vea bien en el círculo */
     }
-    .whatsapp-float img { width: 45px; height: 45px; border-radius: 50%; }
 
-    /* Dropdown básico (para que el "Más ▾" funcione) */
-    .dropdown { position: relative; }
-    .dropdown > a { color:#fff; }
-    .dropdown-content {
-      display:none; position:absolute; top:100%; left:0; background:#2325d4;
-      padding:8px 0; border-radius:8px; min-width:220px; box-shadow:0 8px 24px rgba(0,0,0,.15);
+    .whatsapp-float:hover {
+      transform: scale(1.05) translateY(-2px); /* Pequeña escala y levantamiento */
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3); /* Sombra más grande */
     }
-    .dropdown-content a { display:block; color:#fff; padding:8px 14px; font-size:13px; }
-    .dropdown:hover .dropdown-content { display:block; }
+
+    .whatsapp-float img {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+    }
+
+    /* ====================================================================== */
+    /* Media Queries (Diseño Responsivo) */
+    /* ====================================================================== */
+    @media (max-width: 900px) {
+      header {
+        height: auto; /* Altura auto para el menú desplegado */
+      }
+      .header-buttons {
+        display: none;
+      }
+      .menu-toggle {
+        display: block;
+        font-size: 26px;
+        cursor: pointer;
+        color: white;
+        position: relative;
+        z-index: 10001; /* Asegura que el toggle esté por encima del menú móvil */
+        user-select: none;
+      }
+      header nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 20px;
+        background: #2325d4;
+        flex-direction: column;
+        gap: 8px;
+        padding: 14px;
+        border-radius: 12px;
+        box-shadow: 0 12px 24px rgba(0,0,0,.25);
+        z-index: 10000;
+        width: max-content;
+        min-width: 220px;
+      }
+      header nav.show {
+        display: flex;
+      }
+      /* Dropdown dentro del panel móvil (se comporta como un elemento normal) */
+      header .dropdown:hover .dropdown-content {
+        display: none; /* Deshabilita hover en móvil para evitar conflictos */
+      }
+      header .dropdown .dropdown-content {
+        position: relative;
+        top: auto;
+        left: auto;
+        background: #1a1cb3;
+        box-shadow: none;
+        min-width: 220px;
+      }
+    }
+
+    @media (min-width: 901px){
+      .menu-toggle{
+        display:none;
+      }
+      header nav{
+        display:flex !important;
+        position:static;
+        box-shadow:none;
+        padding:0;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero {
+        flex-direction: column;
+        text-align: center;
+      }
+      .hero-text {
+        padding: 10px;
+      }
+      .hero-img {
+        padding: 10px;
+      }
+      .servicios {
+        flex-direction: column;
+      }
+      .stats {
+        flex-direction: column;
+      }
+      .servicio {
+        margin-bottom: 20px; /* Espacio entre servicios en móvil */
+      }
+    }
+
+    /* ====================================================================== */
+    /* Animaciones Generales (on-scroll animations) */
+    /* ====================================================================== */
+    .psc-anim-hidden {
+      opacity: 0;
+      transform: translateY(20px); /* Empieza un poco más abajo */
+      transition: opacity 800ms ease-out, transform 800ms ease-out; /* Transición más suave */
+    }
+
+    .psc-anim-show {
+      opacity: 1 !important;
+      transform: none !important;
+    }
   </style>
-
-  <!-- ====== MÓDULO DE HISTORIAL – CSS ENCAPSULADO ====== -->
-  <style>
-    /* Contenedor raíz del módulo */
-    .psc-embed{
-      --bg:#ffffff;
-      --card:#fbfbfd;
-      --ink:#1c1c1e;
-      --muted:#6e6e73;
-      --line:#e7e7ed;
-      --accent:#0a84ff;
-      --warn:#ffd60a;
-      --orange:#ff9500;
-      --blue:#007aff;
-      --ok:#34c759;
-      --err:#ff3b30;
-      --shadow:0 1px 2px rgba(0,0,0,.06), 0 8px 30px rgba(0,0,0,.04);
-      --radius:16px;
-      --chip:#f5f5f7;
-      --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-      color:var(--ink);
-    }
-    .psc-wrap{max-width:1100px;margin:0 auto;padding:12px 12px 20px}
-    .psc-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-
-    /* Header del módulo */
-    .psc-head{
-      display:grid;
-      grid-template-columns:minmax(320px,1fr) 260px;
-      gap:16px;
-      align-items:start;
-      padding:18px;
-      border-bottom:1px solid var(--line);
-      background:#fff;
-      font-family:var(--font);
-    }
-    @media (max-width:900px){ .psc-head{grid-template-columns:1fr} .psc-qsum{text-align:left} }
-
-    .psc-searchBox{position:relative;max-width:660px}
-    .psc-searchBox label{display:block;font-size:18px;color:var(--ink);font-weight:800;margin-bottom:10px}
-    .psc-inputRow{position:relative}
-    .psc-input{
-      width:100%;
-      appearance:none;-webkit-appearance:none;
-      border:1px solid var(--line);
-      background:#fff;color:var(--ink);
-      border-radius:14px;
-      padding:14px 160px 14px 16px;
-      outline:none;
-      transition:border .2s ease, box-shadow .2s ease;
-      font-size:16px; height:54px;
-    }
-    .psc-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(10,132,255,.12)}
-    .psc-btn{
-      position:absolute;top:50%;right:10px;transform:translateY(-50%);
-      height:46px;padding:0 20px;border:none;border-radius:999px;
-      background:#111;color:#fff;font-weight:700;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.12)
-    }
-    .psc-help{font-size:12px;color:var(--muted);margin-top:6px}
-
-    /* Resumen derecha */
-    .psc-qsum{display:grid;grid-template-columns:1fr;gap:6px;align-content:start;text-align:right;font-family:var(--font)}
-    .psc-qrow{display:flex;gap:8px;align-items:center;justify-content:space-between;font-size:14px}
-    .psc-qrow span{color:var(--muted);min-width:90px}
-    .psc-qrow b{font-weight:700}
-
-    /* Estado */
-    .psc-state{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px dashed var(--line);background:#fff}
-    .psc-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--line)}
-    .psc-dot.ok{background:var(--ok);border-color:var(--ok)}
-    .psc-dot.err{background:var(--err);border-color:var(--err)}
-    .psc-dot.warn{background:var(--accent);border-color:var(--accent)}
-    .psc-spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--ink);animation:psc-spin 1s linear infinite}
-    @keyframes psc-spin{to{transform:rotate(360deg)}}
-
-    /* Grid */
-    .psc-grid{display:grid;grid-template-columns:1fr;gap:18px;padding:18px;background:linear-gradient(#fff,#fafafa)}
-
-    /* Panel */
-    .psc-panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 14px 16px}
-    .psc-titleRow{display:flex;justify-content:space-between;align-items:center;margin:4px 6px 12px}
-    .psc-titleRow h3{margin:0;font-size:16px}
-    .psc-pill{background:var(--chip);border:1px solid var(--line);padding:6px 10px;border-radius:999px;font-size:12px;color:#000}
-
-    /* Timeline */
-    .psc-timeline{position:relative;padding-left:22px}
-    .psc-timeline::before{content:"";position:absolute;left:10px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#e9e9ee,#dcdcde)}
-    .psc-event{position:relative;margin:0 0 14px 0;padding:12px 12px 12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:0 0 0 rgba(0,0,0,0);transition:box-shadow .2s ease, background .2s ease}
-    .psc-event:hover{background:#fafafa;box-shadow:0 4px 16px rgba(0,0,0,.05)}
-    .psc-event::before{content:"";position:absolute;left:-6px;top:18px;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--line)}
-    .psc-desc{font-weight:700;margin-bottom:6px}
-    .psc-meta{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:12px;flex-wrap:wrap}
-    .psc-icon{display:inline-flex;width:18px;height:18px;border-radius:6px;align-items:center;justify-content:center;border:1px solid var(--line);background:#fff}
-    .psc-src-pn .psc-icon{border-color:rgba(255,149,0,.35);background:rgba(255,149,0,.10)}
-    .psc-src-fz .psc-icon{border-color:rgba(255,214,10,.45);background:rgba(255,214,10,.16)}
-    .psc-src-psc .psc-icon{border-color:rgba(10,132,255,.35);background:rgba(10,132,255,.12)}
-    .psc-src-pn{border-left:3px solid var(--orange)}
-    .psc-src-fz{border-left:3px solid var(--warn)}
-    .psc-src-psc{border-left:3px solid var(--blue)}
-    .psc-event.psc-src-pn::before{background:var(--orange);border-color:var(--orange)}
-    .psc-event.psc-src-fz::before{background:var(--warn);border-color:var(--warn)}
-    .psc-event.psc-src-psc::before{background:var(--blue);border-color:var(--blue)}
-
-    .psc-more{display:flex;justify-content:center;margin-top:8px}
-    .psc-more button{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
-  </style>
-
-<style id="psc_nav_mobile_fix2">
-@media (max-width: 900px){
-  header { height: auto; }
-  .header-inner{ position: relative; min-height: 80px; }
-  header .menu-toggle{ display:block; color:#fff; font-size:26px; cursor:pointer; user-select:none; z-index:10001; position:relative; }
-  header nav{
-    display:none; position:absolute; top:100%; right:20px;
-    background:#2325d4; flex-direction:column; gap:8px; padding:14px;
-    border-radius:12px; box-shadow:0 12px 24px rgba(0,0,0,.25);
-    z-index:10000; width: max-content; min-width: 220px;
-  }
-  header nav.show{ display:flex; }
-  header .header-buttons{ display:none; }
-  /* Dropdown usable en móvil */
-  header .dropdown:hover .dropdown-content{ display:none; }
-  header .dropdown .dropdown-content{ position:relative; top:auto; left:auto; background:#1a1cb3; box-shadow:none; min-width:220px; }
-}
-@media (min-width: 901px){
-  header .menu-toggle{ display:none; }
-  header nav{ display:flex !important; position:static; box-shadow:none; padding:0; }
-}
-</style>
-
-
-<style id="psc_rastreo_nav_fix">
-/* Ensure dropdown sits above the wave and mobile nav behaves correctly */
-header { position: relative; }
-.header-inner { position: relative; z-index: 2; }
-.onda { z-index: 1; }
-.dropdown-content { z-index: 3; }
-
-@media (max-width: 900px){
-  header { height: auto; }
-  .header-inner{ position: relative; min-height: 88px; }
-  header .menu-toggle{ display:block; color:#fff; font-size:26px; cursor:pointer; user-select:none; z-index:10001; position:relative; }
-  header nav{
-    display:none; position:absolute; top:100%; right:20px;
-    background:#2325d4; flex-direction:column; gap:8px; padding:14px;
-    border-radius:12px; box-shadow:0 12px 24px rgba(0,0,0,.25);
-    z-index:10000; width:max-content; min-width:220px;
-  }
-  header nav.show{ display:flex; }
-  header .header-buttons{ display:none; }
-  /* Dropdown in mobile inside panel */
-  header .dropdown:hover .dropdown-content{ display:none; }
-  header .dropdown .dropdown-content{ position:relative; top:auto; left:auto; background:#1a1cb3; box-shadow:none; min-width:220px; }
-}
-@media (min-width: 901px){
-  header nav{ display:flex !important; position:static; box-shadow:none; padding:0; }
-  header .menu-toggle{ display:none; }
-}
-</style>
-
-
-<style id="psc_nav_force">
-header { position: relative; }
-.header-inner { position: relative; z-index: 2; }
-.onda { z-index: 0 !important; pointer-events: none; }
-.dropdown-content { z-index: 99999; }
-
-@media (max-width: 900px){
-  header { height: auto !important; }
-  .header-inner{ min-height: 88px; }
-  header .menu-toggle{ display:block !important; color:#fff; font-size:26px; cursor:pointer; user-select:none; z-index:100001; position:relative; }
-  header nav{
-    display:none; position:absolute !important; top:100% !important; right:20px !important;
-    background:#2325d4; flex-direction:column; gap:10px; padding:14px;
-    border-radius:12px; box-shadow:0 12px 24px rgba(0,0,0,.25);
-    z-index:100000; width:max-content; min-width:240px;
-  }
-  header nav.show{ display:flex !important; }
-  header .header-buttons{ display:none !important; }
-  header .dropdown:hover .dropdown-content{ display:none !important; }
-  header .dropdown .dropdown-content{ position:relative !important; top:auto; left:auto; background:#1a1cb3; box-shadow:none; min-width:220px; }
-}
-@media (min-width: 901px){
-  header .menu-toggle{ display:none !important; }
-  header nav{ display:flex !important; position:static !important; box-shadow:none; padding:0; }
-}
-</style>
-
 </head>
 <body>
 
-  <!-- HEADER -->
+  <!-- ==================================================================== -->
+  <!-- HEADER SECTION -->
+  <!-- ==================================================================== -->
   <header>
     <div class="header-inner">
       <div class="logo">
-        <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo" >
+        <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
       </div>
       <div class="menu-toggle" onclick="document.querySelector('nav').classList.toggle('show')">☰</div>
       <nav>
-        <a href="../index.html">Inicio</a>
-        <a href="../Rastreo/">Rastreador de Paquetes</a>
-        <a href="../Cotizador/">Cotiza tus Compras</a>
-        <a href="../ML/">Solicitar ML</a>
+        <!-- Rutas actualizadas a rutas relativas a la raíz -->
+        <a href="/">Inicio</a>
+        <a href="/Rastreo/">Rastreador de Paquetes</a>
+        <a href="/Cotizador/">Cotiza tus Compras</a>
+        <a href="/ML/">Solicitar ML</a>
+        
+        <!-- Menú desplegable "Más" -->
         <div class="dropdown">
           <a href="#">Más ▾</a>
           <div class="dropdown-content">
-            <a href="../DG/">Mercancía Peligrosa</a>
-            <a href="../Politicas/">Términos y Condiciones</a>
+            <a href="/DG/">Mercancía Peligrosa</a>
+            <a href="/Politicas/">Términos y Condiciones</a>
           </div>
         </div>
       </nav>
@@ -402,72 +587,98 @@ header { position: relative; }
     <div class="onda"></div>
   </header>
 
-  <!-- CONTENIDO: MÓDULO INCRUSTADO -->
-  <main class="content">
-    <section id="psc-embed" class="psc-embed">
-      <div class="psc-wrap">
-        <div class="psc-card">
+  <!-- ==================================================================== -->
+  <!-- HERO SECTION -->
+  <!-- ==================================================================== -->
+  <section class="hero">
+    <div class="hero-text">
+      <p class="hero-slogan">Tu conexión directo al mundo</p>
+      <h1>¿Quieres un casillero?</h1>
+      <p>En PSC, traemos tus paquetes de cualquier parte del mundo a todo Panamá. ¡Somos los más rápidos! ⚡</p>
+      <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-azul">Regístrate Gratis →</a>
+    </div>
+    <div class="hero-img">
+      <img src="https://static.wixstatic.com/media/f7f5e1_b7d11b4129d84543b40acc639414a93c~mv2.png" alt="Imagen representativa del servicio de envío de paquetes">
+    </div>
+  </section>
 
-          <!-- Head -->
-          <div class="psc-head">
-            <div class="psc-searchBox">
-              <label>Ingrese Tracking</label>
-              <div class="psc-inputRow">
-                <input id="psc_trk" class="psc-input" type="text" placeholder="Ej. 1Z48537W0441418748" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" />
-                <button id="psc_go" class="psc-btn">BUSCAR</button>
-              </div>
-              <div class="psc-help">Seguimiento en vivo de tus paquetes.</div>
-            </div>
-            <div class="psc-qsum">
-              <div class="psc-qrow"><span>Tracking:</span><b id="psc_qsTracking">—</b></div>
-              <div class="psc-qrow"><span>Status:</span><b id="psc_qsStatus">—</b></div>
-              <div class="psc-qrow"><span>Courier:</span><b id="psc_qsCourier">—</b></div>
-              <div class="psc-qrow"><span>Peso:</span><b id="psc_qsPeso">—</b></div>
-            </div>
-          </div>
-
-          <!-- State -->
-          <div class="psc-state">
-            <div id="psc_stateDot" class="psc-dot"></div>
-            <div id="psc_stateSpin" class="psc-spin" style="display:none"></div>
-            <div id="psc_stateMsg">Listo.</div>
-          </div>
-
-          <!-- Panel -->
-          <div class="psc-grid">
-            <div class="psc-panel">
-              <div class="psc-titleRow">
-                <h3>Historial de seguimiento</h3>
-                <span class="psc-pill">Eventos: <b id="psc_evCount">0</b></span>
-              </div>
-              <div class="psc-timeline" id="psc_events"></div>
-              <div class="psc-more"><button id="psc_toggleMore" style="display:none">Mostrar más</button></div>
-            </div>
-          </div>
-
-          <div style="text-align:center;color:var(--muted);font-size:12px;margin:18px 0">PSC - Panama Shipping Co.</div>
-        </div>
+  <!-- ==================================================================== -->
+  <!-- SERVICIOS SECTION -->
+  <!-- ==================================================================== -->
+  <section class="section">
+    <h2>NUESTROS SERVICIOS</h2>
+    <p style="margin-bottom: 40px;">Llevando tu logística al siguiente nivel</p>
+    <div class="servicios">
+      <div class="servicio">
+        <img src="https://img.icons8.com/ios/100/0000FF/shopping-cart.png" alt="Icono de carrito de compras" />
+        <h4>Compras por internet</h4>
+        <p>Adquiere tus productos en línea, incluso sin tarjeta. Nosotros nos encargamos de tu compra y envío.</p>
       </div>
-    </section>
-  </main>
+      <div class="servicio">
+        <img src="https://img.icons8.com/ios/100/0000FF/warehouse.png" alt="Icono de almacén" />
+        <h4>Casilleros en Miami</h4>
+        <p>Recibe tus paquetes desde Miami en solo 2 a 5 días. Un servicio seguro y totalmente confiable.</p>
+      </div>
+      <div class="servicio">
+        <img src="https://img.icons8.com/ios/100/0000FF/customer-support.png" alt="Icono de soporte al cliente" />
+        <h4>Compras asistidas</h4>
+        <p>Obtén asesoría experta y soporte completo para tus compras, garantizando una experiencia sin complicaciones.</p>
+      </div>
+    </div>
+  </section>
 
-  <!-- FOOTER -->
+  <!-- ==================================================================== -->
+  <!-- SUCURSALES SECTION -->
+  <!-- ==================================================================== -->
+  <section class="section sucursales" aria-label="Nuestras Sucursales">
+    <h2>NUESTRAS SUCURSALES</h2>
+    <p style="margin-bottom: 20px;">Visítanos en nuestras distintas ubicaciones en Panamá.</p>
+    <img class="sucursal-img" src="https://static.wixstatic.com/media/f7f5e1_8607c401b2cd45cba61a671c3174c8fb~mv2.png" alt="Mapa de ubicaciones de sucursales">
+  </section>
+
+  <!-- ==================================================================== -->
+  <!-- EXPERIENCIA SECTION -->
+  <!-- ==================================================================== -->
+  <section class="experiencia">
+    <h2>NUESTRA EXPERIENCIA</h2>
+    <div class="stats">
+      <div class="stat"><span class="counter" data-target="10">0</span><br/><small>Años de servicio</small></div>
+      <div class="stat"><span class="counter" data-target="15000">0</span><br/><small>Casilleros creados</small></div>
+      <div class="stat"><span class="counter" data-target="10000">0</span><br/><small>Clientes satisfechos</small></div>
+      <div class="stat"><span class="counter" data-target="1000000">0</span><br/><small>Paquetes entregados</small></div>
+    </div>
+
+    <div class="experiencia-image">
+      <img
+        src="https://static.wixstatic.com/media/f7f5e1_60e079b447f54853aa679ed6a92e1aa6~mv2.png"
+        alt="Imagen ilustrativa de la experiencia de la empresa"
+      >
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <!-- FOOTER SECTION -->
+  <!-- ==================================================================== -->
   <footer>
     <div class="footer-container">
       <div class="footer-col">
         <h3>Contacto</h3>
         <p>Asistencia personalizada</p>
         <div class="social-icons">
-          <a href="#">📸 Instagram</a>
-          <a href="tel:+50767906781">📞 +507 67906781</a>
+          <!-- Enlace de Instagram actualizado -->
+          <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
+          <!-- Enlace de WhatsApp para el número de teléfono -->
+          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
           <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
-          <a href="#">💬 WhatsApp</a>
+          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">💬 WhatsApp</a>
         </div>
       </div>
       <div class="footer-col">
         <h3>Enlaces Rápidos</h3>
-        <a href="#">Términos y Condiciones</a><br>
-        <a href="#">Mercancía Restringida</a>
+        <!-- Enlace "Términos y Condiciones" ahora apunta a "Politicas/" -->
+        <a href="Politicas/">Términos y Condiciones</a><br>
+        <!-- Enlace "Mercancía Restringida" ahora apunta a "DG/" -->
+        <a href="DG/">Mercancía Restringida</a>
       </div>
       <div class="footer-col">
         <h3>Sobre Nosotros</h3>
@@ -483,258 +694,148 @@ header { position: relative; }
     </div>
   </footer>
 
-  <!-- WHATSAPP -->
+  <!-- ==================================================================== -->
+  <!-- WHATSAPP FLOATING BUTTON -->
+  <!-- ==================================================================== -->
   <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" 
      class="whatsapp-float" target="_blank" rel="noopener">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" />
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Icono de WhatsApp" />
   </a>
 
+  <!-- ==================================================================== -->
+  <!-- JAVASCRIPT SECTION -->
+  <!-- ==================================================================== -->
   <script>
-    // Menú responsivo
+    // Script para el toggle del menú responsivo (original del layout)
     document.querySelector('.menu-toggle').addEventListener('click', () => {
       document.querySelector('nav').classList.toggle('show');
     });
 
-    // ====== SCRIPT DEL MÓDULO (ADAPTADO Y ENCAPSULADO) ======
+    // Script para cerrar el menú si se hace clic fuera del header o al redimensionar
     (function(){
-      const root = document.getElementById('psc-embed');
+      var header = document.querySelector('header');
+      if(!header) return;
+      var nav = header.querySelector('nav');
+      if(!nav) return;
 
-      // Config por querystring o localStorage
-      const params = new URLSearchParams(location.search);
-      const PARAM_ENDPOINT = params.get('endpoint');
-      const PARAM_ANON = params.get('anon');
-      const ENDPOINT = (PARAM_ENDPOINT || localStorage.getItem('psc:url') || "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/track_v2").trim();
-      const ANON_KEY = (PARAM_ANON || localStorage.getItem('psc:anon') || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0ZGtheGJncG9ndWR0cmRnemljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NDE2MDYsImV4cCI6MjA3MDQxNzYwNn0.mpjY5nWiS48O0DAUkCL7Jl6agF6LurNGeaY8d1u70Po").trim();
-
-      // Atajos al DOM dentro del módulo
-      const $ = (sel)=> root.querySelector(sel);
-      const trk = $('#psc_trk');
-      const go = $('#psc_go');
-      const dot = $('#psc_stateDot');
-      const spin = $('#psc_stateSpin');
-      const msg = $('#psc_stateMsg');
-      const eventsEl = $('#psc_events');
-      const evCountEl = $('#psc_evCount');
-      const qsTracking = $('#psc_qsTracking');
-      const qsStatus = $('#psc_qsStatus');
-      const qsCourier = $('#psc_qsCourier');
-      const qsPeso = $('#psc_qsPeso');
-      const toggleMoreBtn = $('#psc_toggleMore');
-
-      
-
-      function setState(kind, text, loading=false){
-        dot.className = 'psc-dot ' + (kind||'');
-        msg.textContent = text || '';
-        spin.style.display = loading ? 'inline-block' : 'none';
-        try{ go.disabled = !!loading; }catch{}
-      }
-      function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return new Intl.DateTimeFormat(undefined,{year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(d); }
-      function esc(s){ return String(s??'').replace(/[<>&]/g, m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m])) }
-
-      function iconSVG(kind){
-        if(kind==='pn') return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7l9-4 9 4-9 4-9-4z" stroke="#a64f00"/><path d="M3 7v10l9 4 9-4V7" stroke="#a64f00"/></svg>';
-        if(kind==='fz') return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 10h18v8H3z" stroke="#7a5c00"/><path d="M7 10V6h10v4" stroke="#7a5c00"/></svg>';
-        return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 16h11v-6H3v6z" stroke="#0752a0"/><path d="M14 14h4l3 3v-7h-7v4z" stroke="#0752a0"/><circle cx="7" cy="19" r="2" stroke="#0752a0"/><circle cx="18" cy="19" r="2" stroke="#0752a0"/></svg>';
-      }
-
-      // Helpers de UI (respetan posibles respuestas con summary_ui)
-      function hasUI(r){ return !!(r && (r.summary_ui || r.events_ui)); }
-      function renderAll(r){ if(hasUI(r)) renderAllUI(r); else { renderTopSummary(r); renderTimeline(r); } }
-      function renderAllUI(r){
-        const su = r.summary_ui || {};
-        qsTracking.textContent = su.tracking || r.tracking || '—';
-        qsStatus.textContent   = su.status_ui || '—';
-        qsCourier.textContent  = su.courier || r.detected_courier || r.courier_detected || '—';
-        qsPeso.textContent     = su.peso_ui || (r.weight_lbs ? `${r.weight_lbs} lbs` : '—');
-
-        eventsEl.innerHTML='';
-        const list = (Array.isArray(r.events_ui) ? r.events_ui : []);
-        evCountEl.textContent = list.length || 0;
-        if(!list.length){
-          const empty=document.createElement('div'); empty.style.color='var(--muted)';
-          empty.textContent='Sin eventos.'; eventsEl.appendChild(empty);
-          toggleMoreBtn.style.display='none'; return;
+      document.addEventListener('click', function(e){
+        // Cierra el menú si el clic no fue dentro del encabezado
+        if(!header.contains(e.target)){
+          nav.classList.remove('show');
         }
-        const MAX=5;
-        list.forEach((ev,idx)=>{
-          const src = (ev.src==='psc'||ev.src==='fz'||ev.src==='pn') ? ev.src : 'pn';
-          const item=document.createElement('div');
-          item.className=`psc-event psc-src-${src}` + (idx>=MAX?' hiddenEvt':'');
-          const desc = (ev.desc_ui || ev.description || '');
-          const loc  = (ev.location || '—');
-          const when = fmtDate(ev.time_iso);
-          item.innerHTML=`<div class="psc-desc">${esc(desc)}</div><div class="psc-meta"><span class="psc-icon">${iconSVG(src)}</span><span>${esc(loc)}</span><span>•</span><span>${when}</span></div>`;
-          if(idx>=MAX) item.style.display='none';
-          eventsEl.appendChild(item);
+      });
+
+      window.addEventListener('resize', function(){
+        // Cierra el menú si la ventana es redimensionada a un tamaño de escritorio
+        if(window.innerWidth > 900){
+          nav.classList.remove('show');
+        }
+      });
+    })();
+
+    // Lógica para los contadores dinámicos al entrar en la vista (IntersectionObserver)
+    (function () {
+      const counters = document.querySelectorAll('.counter');
+      let started = false;
+
+      function startCounters() {
+        if (started) return; // Evita que los contadores se reinicien
+        started = true;
+
+        counters.forEach(counter => {
+          counter.innerText = '0'; // Reinicia a 0 visualmente
+          const target = +counter.getAttribute('data-target'); // Obtiene el valor final
+
+          const updateCounter = () => {
+            let current = +counter.innerText.toString().replace(/,/g, ''); // Elimina comas para cálculo
+            const increment = Math.max(1, Math.floor(target / 200)); // Calcula incremento, mínimo 1
+            
+            if (current < target) {
+              current = Math.min(target, Math.ceil(current + increment)); // Incrementa y asegura no pasar el target
+              counter.innerText = current.toLocaleString(); // Formatea con comas
+              setTimeout(updateCounter, 10); // Llama recursivamente para animación
+            } else {
+              counter.innerText = target.toLocaleString(); // Asegura que el número final sea exacto
+            }
+          };
+          updateCounter();
         });
-        const hidden=eventsEl.querySelectorAll('.hiddenEvt');
-        toggleMoreBtn.style.display = hidden.length ? 'inline-block' : 'none';
-        toggleMoreBtn.textContent = 'Mostrar más';
       }
 
-      // Lógica fallback
-      function eventSource(ev, resp){
-        try{
-          if((ev.location||'').toUpperCase()==='DB') return 'psc';
-          const fz = resp.sources && resp.sources.fuzion && Array.isArray(resp.sources.fuzion.events) ? resp.sources.fuzion.events : [];
-          const matchFz = fz.some((e)=> e.time_iso===ev.time_iso && e.description===ev.description && (e.location||'')===(ev.location||''));
-          return matchFz ? 'fz' : 'pn';
-        }catch{ return 'pn' }
-      }
-      function transformDesc(src, ev, resp){
-        let d = String(ev.description||'');
-        if(src==='fz'){
-          const low = d.toLowerCase().trim();
-          if(low==='miami') d='Doral - Miami';
-          if(low==='panama' || low==='panamá') d='Aduanas - Panama City';
+      // Observador para la sección de experiencia
+      if ('IntersectionObserver' in window) {
+        const experienciaEl = document.querySelector('.experiencia');
+        if (experienciaEl) {
+          const observer = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                startCounters();
+                obs.unobserve(experienciaEl); // Deja de observar una vez que la animación se activa
+              }
+            });
+          }, { threshold: 0.35 }); // Se activa cuando el 35% de la sección es visible
+          observer.observe(experienciaEl);
+        } else {
+          // Fallback si la sección .experiencia no existe (poco probable pero seguro)
+          window.addEventListener('load', startCounters);
         }
-        if(src==='psc'){
-          const m = d.match(/peso\s*=?\s*(\d+(?:\.\d+)?)\s*lb/i);
-          const lbs = m ? m[1] : (resp && resp.weight_lbs ? resp.weight_lbs : null);
-          d = 'Centro de Dist. PSC - Peso(Aprox.)' + (lbs?` ${lbs} lbs`:'');
-        }
-        return d;
+      } else {
+        // Fallback para navegadores antiguos que no soportan IntersectionObserver
+        window.addEventListener('load', startCounters);
       }
-      function computeOrderedList(r){
-        const all = Array.isArray(r.events) ? r.events : [];
-        const groups = { psc: [], fz: [], pn: [] };
-        for(const ev of all){
-          const s = eventSource(ev, r);
-          if(s==='psc') groups.psc.push(ev); else if(s==='fz') groups.fz.push(ev); else groups.pn.push(ev);
-        }
-        groups.pn.sort((a,b)=> String(b.time_iso||'').localeCompare(String(a.time_iso||'')));
-        return [...groups.psc, ...groups.fz, ...groups.pn];
-      }
-      function renderTopSummary(r){
-        qsTracking.textContent = r.tracking || '—';
-        const list = computeOrderedList(r);
-        const chosen = list[0];
-        if(chosen){
-          const src = eventSource(chosen, r);
-          let label='';
-          if(src==='psc') label='Centro de Dist. PSC';
-          else if(src==='fz'){
-            const td = transformDesc(src, chosen, r);
-            label = /Aduanas - Panama City/i.test(td) ? 'Aduanas' : td;
-          } else {
-            const d = String(chosen.description||'');
-            label = /delivered/i.test(d) ? 'Delivered' : 'In transit';
-          }
-          qsStatus.textContent = label || '—';
-        } else { qsStatus.textContent = '—'; }
-        qsCourier.textContent = r.detected_courier || r.courier_detected || '—';
-        qsPeso.textContent = r.weight_lbs ? `${r.weight_lbs} lbs` : '—';
-      }
-      function renderTimeline(r){
-        eventsEl.innerHTML='';
-        const list = computeOrderedList(r);
-        evCountEl.textContent = list.length || 0;
-        if(!list.length){
-          const empty=document.createElement('div'); empty.style.color='var(--muted)';
-          empty.textContent='Sin eventos.'; eventsEl.appendChild(empty); return;
-        }
-        const MAX=5;
-        list.forEach((ev,idx)=>{
-          const src = eventSource(ev,r);
-          const item=document.createElement('div');
-          item.className=`psc-event psc-src-${src}` + (idx>=MAX?' hiddenEvt':'');
-          const desc=transformDesc(src,ev,r);
-          const loc=(ev.location||'—');
-          const when=fmtDate(ev.time_iso);
-          item.innerHTML=`<div class="psc-desc">${esc(desc)}</div><div class="psc-meta"><span class="psc-icon">${iconSVG(src==='pn'?'pn':src==='fz'?'fz':'psc')}</span><span>${esc(loc)}</span><span>•</span><span>${when}</span></div>`;
-          if(idx>=MAX) item.style.display='none';
-          eventsEl.appendChild(item);
-        });
-        const hidden=eventsEl.querySelectorAll('.hiddenEvt');
-        toggleMoreBtn.style.display = hidden.length ? 'inline-block' : 'none';
-        toggleMoreBtn.textContent = 'Mostrar más';
-      }
+    })();
 
-      async function doSearch(){
-        
-        const code = trk.value.trim();
-        if(!code){ setState('err','Ingresa un tracking.'); return; }
-        const endpoint = ENDPOINT;
-        const token = ANON_KEY;
-        setState('warn','Buscando…',true);
-        try{
-          const res = await fetch(endpoint,{
-            method:'POST', mode:'cors', cache:'no-store',
-            headers:{ 'Content-Type':'application/json', 'Accept':'application/json', Authorization:`Bearer ${token}`, apikey: token },
-            body: JSON.stringify({ tracking: code })
+    // Lógica para animaciones al aparecer en la vista (on-scroll animations)
+    (function(){
+      document.addEventListener('DOMContentLoaded', function(){
+        // Selectores de los elementos que se animarán. Añade o quita según sea necesario.
+        const selectorsToAnimate = [
+          '.hero-text',
+          '.hero-img',
+          '.servicio',
+          '.sucursales .sucursal-img',
+          '.experiencia-image img',
+          '.section h2',
+          '.section p',
+          '.stat small'
+        ];
+
+        // Recopila todos los elementos únicos para animar
+        const elementsToObserve = [];
+        selectorsToAnimate.forEach(selector => {
+          document.querySelectorAll(selector).forEach(el => {
+            if (!elementsToObserve.includes(el)) {
+              elementsToObserve.push(el);
+            }
           });
-          if(!res.ok){ setState('err',`Error HTTP ${res.status}`); return; }
-          const data = await res.json();
-          setState('ok','Listo.');
-          renderAll(data);
-        }catch(e){ console.error(e); setState('err','Fallo de red o CORS.'); }
-      }
+        });
 
-      go.addEventListener('click', doSearch);
-      trk.addEventListener('keydown', e=>{ if(e.key==='Enter') doSearch(); });
+        // Añade la clase inicial para ocultar los elementos con transición
+        elementsToObserve.forEach(el => el.classList.add('psc-anim-hidden'));
 
-      toggleMoreBtn.addEventListener('click', ()=>{
-        const hidden = eventsEl.querySelectorAll('.hiddenEvt');
-        const expanding = hidden.length && hidden[0].style.display==='none';
-        hidden.forEach(el=> el.style.display = expanding ? 'block' : 'none');
-        toggleMoreBtn.textContent = expanding ? 'Mostrar menos' : 'Mostrar más';
+        // Usa IntersectionObserver para detectar cuando los elementos entran en la vista
+        if ('IntersectionObserver' in window) {
+          const observer = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('psc-anim-show');
+                entry.target.classList.remove('psc-anim-hidden');
+                obs.unobserve(entry.target); // Deja de observar el elemento una vez animado
+              }
+            });
+          }, { threshold: 0.12 }); // Se activa cuando el 12% del elemento es visible
+
+          elementsToObserve.forEach(el => observer.observe(el));
+        } else {
+          // Fallback para navegadores antiguos: muestra todos los elementos inmediatamente
+          elementsToObserve.forEach(el => {
+            el.classList.add('psc-anim-show');
+            el.classList.remove('psc-anim-hidden');
+          });
+        }
       });
     })();
   </script>
-
-<script id="nav_close_outside">
-document.addEventListener('click', function(e){
-  var header = document.querySelector('header');
-  var nav = document.querySelector('nav');
-  var toggle = document.querySelector('.menu-toggle');
-  if(!header || !nav || !toggle) return;
-  // If click outside header and nav is open, close it
-  if(!header.contains(e.target)) nav.classList.remove('show');
-});
-window.addEventListener('resize', function(){
-  var nav = document.querySelector('nav');
-  if(window.innerWidth>900 && nav) nav.classList.remove('show');
-});
-</script>
-
-
-<script id="psc_nav_outside_close">
-(function(){
-  var header = document.querySelector('header');
-  if(!header) return;
-  var nav = header.querySelector('nav');
-  var toggle = header.querySelector('.menu-toggle');
-  if(!nav || !toggle) return;
-  // close on outside click
-  document.addEventListener('click', function(e){
-    if(!header.contains(e.target)){ nav.classList.remove('show'); }
-  });
-  // close on resize to desktop
-  window.addEventListener('resize', function(){
-    if(window.innerWidth > 900){ nav.classList.remove('show'); }
-  });
-})();
-</script>
-
-
-<script id="psc_nav_toggle">
-(function(){
-  var header = document.querySelector('header');
-  if(!header) return;
-  var nav = header.querySelector('nav');
-  var toggle = header.querySelector('.menu-toggle');
-  if(!nav || !toggle) return;
-  function openNav(open){
-    if(open){ nav.classList.add('show'); toggle.setAttribute('aria-expanded','true'); }
-    else { nav.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); }
-  }
-  toggle.addEventListener('click', function(e){ e.stopPropagation(); openNav(!nav.classList.contains('show')); });
-  toggle.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openNav(!nav.classList.contains('show')); }});
-  document.addEventListener('click', function(e){ if(!header.contains(e.target)){ openNav(false); } });
-  window.addEventListener('resize', function(){ if(window.innerWidth>900){ openNav(false); } });
-})();
-</script>
 
 </body>
 </html>
