@@ -331,6 +331,32 @@
         .psc-more{display:flex;justify-content:center;margin-top:8px}
         .psc-more button{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
         
+        /* ✅ INICIO: ESTILOS PARA EL BOTÓN 'SOLICITAR AQUÍ' */
+        .psc-btn-link {
+            /* Apariencia del botón */
+            display: inline-block;
+            background-color: var(--warn); /* Usamos el color amarillo de advertencia */
+            color: var(--ink); /* Texto oscuro para contraste */
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            text-decoration: none; /* Quitamos el subrayado del enlace */
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+
+            /* Transición suave para el efecto hover */
+            transition: all 0.2s ease-in-out;
+        }
+
+        .psc-btn-link:hover {
+            /* Efecto al pasar el mouse */
+            transform: translateY(-2px); /* Eleva un poco el botón */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra más pronunciada */
+            filter: brightness(1.05); /* Lo hace un poco más brillante */
+        }
+        /* ✅ FIN: ESTILOS PARA EL BOTÓN */
+
         /* ====================================================================== */
         /* FOOTER (Plantilla PSC) */
         /* ====================================================================== */
@@ -769,7 +795,7 @@
                     const desc = (ev.desc_ui || ev.description || '');
                     const loc  = (ev.location || '—');
                     const when = fmtDate(ev.time_iso);
-                    item.innerHTML=`<div class="psc-desc">${esc(desc)}</div><div class="psc-meta"><span class="psc-icon">${iconSVG(src)}</span><span>${esc(loc)}</span><span>•</span><span>${when}</span></div>`;
+                    item.innerHTML=`<div class="psc-desc">${desc}</div><div class="psc-meta"><span class="psc-icon">${iconSVG(src)}</span><span>${esc(loc)}</span><span>•</span><span>${when}</span></div>`;
                     if(idx>=MAX) item.style.display='none';
                     eventsEl.appendChild(item);
                 });
@@ -791,7 +817,7 @@
                 if(src==='fz'){
                     const low = d.toLowerCase().trim();
                     if(low==='miami') d='Doral - Miami';
-                    if(low==='mal') d='Mal Identificado - <a href="https://www.soypsc.com/ml/" target="_blank" rel="noopener noreferrer">Solicitar aquí</a>';
+                    if(low==='mal') d='Mal Identificado - <a href="https://www.soypsc.com/ml/" class="psc-btn-link" target="_blank" rel="noopener noreferrer">Solicitar aquí</a>';
                     if(low==='panama' || low==='panamá') d='Aduanas - Panama City';
                 }
                 if(src==='psc'){
@@ -847,7 +873,7 @@
                     const desc=transformDesc(src,ev,r);
                     const loc=(ev.location||'—');
                     const when=fmtDate(ev.time_iso);
-                    item.innerHTML=`<div class="psc-desc">${esc(desc)}</div><div class="psc-meta"><span class="psc-icon">${iconSVG(src==='pn'?'pn':src==='fz'?'fz':'psc')}</span><span>${esc(loc)}</span><span>•</span><span>${when}</span></div>`;
+                    item.innerHTML=`<div class="psc-desc">${desc}</div><div class="psc-meta"><span class="psc-icon">${iconSVG(src==='pn'?'pn':src==='fz'?'fz':'psc')}</span><span>${esc(loc)}</span><span>•</span><span>${when}</span></div>`;
                     if(idx>=MAX) item.style.display='none';
                     eventsEl.appendChild(item);
                 });
