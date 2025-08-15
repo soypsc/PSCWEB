@@ -3,13 +3,37 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Código Y+ — Calculadora de Compras (Mejorada)</title>
+  <title>Panama Shipping Co. - Calculadora de Compras (Mejorada)</title>
   <meta name="robots" content="noindex">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap"> <!-- Asegúrate de que esta fuente esté aquí si se usa en el header -->
+
   <style>
-    /* ======================
-       Código Y+ - CSS unificado
-       ====================== */
+    /* ====================================================================== */
+    /* Estilos Globales y Reseteo */
+    /* ====================================================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #fff;
+      color: #000;
+      line-height: 1.6;
+      overflow-x: hidden; /* Evita el scroll horizontal causado por animaciones */
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ====================================================================== */
+    /* Variables CSS (Colores, etc.) */
+    /* ====================================================================== */
     :root{
       --blue-1:#2325d4;
       --blue-2:#1a1cb3;
@@ -21,47 +45,218 @@
       --radius:12px;
       --max-width:1200px;
     }
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{
-      font-family:'Poppins',sans-serif;
-      background:var(--bg);
-      color:#111;
-      line-height:1.5;
-      padding: 0;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-     margin: 0;}
 
-    /* Header */
+    /* ====================================================================== */
+    /* HEADER (Encabezado principal y navegación superior) - COPIADO DE homepage_enhanced_design */
+    /* ====================================================================== */
     header {
-    background: linear-gradient(135deg, var(--blue-1), var(--blue-2));
-    color: #fff;
-    position: relative;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-    padding: 0 20px;
-    border-radius: 0;
-    width: 100vw; /* ocupa todo el ancho de la ventana */
-    margin: 0;    /* elimina posibles márgenes */
-}
-    .header-inner{
-      max-width:var(--max-width);
-      margin:0 auto;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      height:140px;
+      background: linear-gradient(135deg, #2325d4, #1a1cb3);
+      color: white;
+      position: relative;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Sombra más pronunciada para profundidad */
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 25px;
     }
-    .logo img{max-height:180px; object-fit:contain}
-    nav{display:flex;gap:18px;align-items:center}
-    nav a{color:#fff;text-decoration:none;font-weight:500;font-size:14px;position:relative}
-    nav a:hover{color:var(--accent)}
-    nav a::after{content:"";position:absolute;left:0;bottom:-4px;width:0;height:2px;background:var(--accent);transition:0.22s}
-    nav a:hover::after{width:100%}
-    .header-buttons{display:flex;gap:10px}
-    .btn-header{background:var(--accent);color:var(--blue-1);padding:8px 14px;border-radius:8px;font-weight:600;text-decoration:none}
-    .onda{position:absolute;bottom:-20px;left:0;width:100%;height:40px;background:url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;background-size:cover}
 
-    /* Card wrapper */
+    .header-inner {
+      max-width: 1200px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 2; /* Asegura que el contenido esté por encima de la onda */
+    }
+
+    .logo {
+      height: 180px;
+      display: flex;
+      align-items: center;
+    }
+
+    .logo img {
+      max-height: 225px;
+      width: auto;
+      object-fit: contain;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    nav {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: white;
+      font-weight: 500;
+      font-size: 14px;
+      position: relative;
+      transition: color 0.3s ease, transform 0.2s ease; /* Transiciones para color y movimiento */
+      will-change: color, transform; /* Optimización de rendimiento para animaciones */
+    }
+
+    nav a:hover {
+      color: #ffec00;
+      transform: translateY(-2px); /* Pequeño levantamiento al pasar el cursor */
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -3px;
+      width: 0%;
+      height: 2px;
+      background: #ffec00;
+      transition: width 0.3s ease; /* Animación de subrayado */
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-header {
+      background: #ffec00;
+      color: #2325d4;
+      padding: 8px 18px;
+      border-radius: 12px; /* Bordes suaves y consistentes */
+      font-weight: 600;
+      font-size: 13px;
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Animaciones para botones */
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra inicial */
+    }
+
+    .btn-header:hover {
+      background: #e6d800;
+      transform: translateY(-2px); /* Levantamiento al pasar el cursor */
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2); /* Sombra más grande al pasar el cursor */
+    }
+
+    .onda {
+      position: absolute;
+      bottom: -20px;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      background: url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;
+      background-size: cover;
+      z-index: 1; /* Asegura que la onda esté debajo del contenido del header */
+      pointer-events: none; /* No interfiere con clics */
+    }
+
+    /* ====================================================================== */
+    /* Dropdown (Menú desplegable) - COPIADO DE homepage_enhanced_design */
+    /* ====================================================================== */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #2325d4;
+      min-width: 200px;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.25); /* Sombra definida */
+      border-radius: 8px; /* Bordes suaves */
+      z-index: 10002; /* ¡Z-index ajustado para asegurar visibilidad! */
+      overflow: hidden; /* Asegura que los bordes redondeados se apliquen */
+    }
+
+    .dropdown-content a {
+      color: white;
+      padding: 10px 16px;
+      display: block;
+      font-size: 14px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #1a1cb3;
+      color: #ffec00;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    /* ====================================================================== */
+    /* Media Queries (Diseño Responsivo) - COPIADO DE homepage_enhanced_design */
+    /* ====================================================================== */
+    @media (max-width: 900px) {
+      header {
+        height: auto; /* Altura auto para el menú desplegado */
+      }
+      .header-buttons {
+        display: none;
+      }
+      .menu-toggle {
+        display: block;
+        font-size: 26px;
+        cursor: pointer;
+        color: white;
+        position: relative;
+        z-index: 10001; /* Asegura que el toggle esté por encima del menú móvil */
+        user-select: none;
+      }
+      header nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 20px;
+        background: #2325d4;
+        flex-direction: column;
+        gap: 8px;
+        padding: 14px;
+        border-radius: 12px;
+        box-shadow: 0 12px 24px rgba(0,0,0,.25);
+        z-index: 10000;
+        width: max-content;
+        min-width: 220px;
+      }
+      header nav.show {
+        display: flex;
+      }
+      /* Dropdown dentro del panel móvil (se comporta como un elemento normal) */
+      header .dropdown:hover .dropdown-content {
+        display: none; /* Deshabilita hover en móvil para evitar conflictos */
+      }
+      header .dropdown .dropdown-content {
+        position: relative;
+        top: auto;
+        left: auto;
+        background: #1a1cb3;
+        box-shadow: none;
+        min-width: 220px;
+      }
+    }
+
+    @media (min-width: 901px){
+      .menu-toggle{
+        display:none;
+      }
+      header nav{
+        display:flex !important;
+        position:static;
+        box-shadow:none;
+        padding:0;
+      }
+    }
+
+    /* ====================================================================== */
+    /* Estilos Específicos de la Página de Calculadora - Manteniendo los originales relevantes */
+    /* ====================================================================== */
     main.wrapper{max-width:var(--max-width);margin:40px auto 18px; padding: 0;
       padding:1.6rem;
       border-radius:1rem;
@@ -102,178 +297,157 @@
     .spinner{display:inline-block;width:20px;height:20px;border:3px solid #ccc;border-top-color:#000;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* Footer */
-    footer{background:#fff;padding:26px 16px;margin-top:28px}
-    .footer-container{max-width:var(--max-width);margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
-    .footer-col h3{color:var(--blue-1);margin-bottom:8px}
-    .footer-bottom{text-align:center;margin-top:12px;color:#555;border-top:1px solid rgba(0,0,0,0.08);padding-top:8px}
-
-    /* WhatsApp float */
-    .whatsapp-float{position:fixed;right:18px;bottom:18px;width:60px;height:60px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;box-shadow:0 6px 18px rgba(0,0,0,0.12);z-index:999}
-    .whatsapp-float:active{transform:scale(.98)}
-
-    /* Responsive tweaks */
-    @media (max-width:900px){
-      .header-inner{flex-direction:column;gap:8px;height:auto;padding:10px 0}
-      nav{flex-wrap:wrap;justify-content:center}
-      .card{padding:1.1rem}
+    /* ====================================================================== */
+    /* FOOTER (Pie de página) - COPIADO DE homepage_enhanced_design */
+    /* ====================================================================== */
+    footer {
+      background: #fff;
+      color: #000;
+      padding: 40px 20px; /* Más padding para más "aire" */
+      margin-top: 50px; /* Más espacio superior */
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.08); /* Sombra sutil y más prominente */
     }
 
-    /* ===== Impresión: forzar a una sola página y estilo corporativo ===== */
-    @media print {
-      @page { size: A4; margin: 10mm; }
-      html, body {
-        height: 297mm;
-        width: 210mm;
-       margin: 0; padding: 0;}
-      /* Reduce un poco el zoom para que quepa en una sola página; ajusta si hace falta */
-      body { zoom: 0.85; -webkit-print-color-adjust: exact;  margin: 0; padding: 0;}
-      .no-print { display: none !important; }
-      .print-hero {
-        background: linear-gradient(135deg,var(--blue-1),var(--blue-2));
-        color: #fff;
-        padding: 10px;
-        border-radius: 6px;
-        margin-bottom: 10px;
-      }
-      .print-logo { max-width: 140px; display:inline-block; vertical-align: middle; margin-right:12px; }
-      .print-meta { display:inline-block; vertical-align: middle; font-size:12px; color:#fff }
-      .option-block { page-break-inside: avoid; }
+    .footer-container {
+      max-width: 1200px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px; /* Más espacio entre columnas */
     }
-  
-/* Dropdown */
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
 
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #2325d4;
-  min-width: 200px;
-  box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-  z-index: 1;
-}
+    .footer-col h3 {
+      font-size: 1.2rem; /* Tamaño ajustado para elegancia */
+      margin-bottom: 12px; /* Más espacio debajo del título */
+      color: #333; /* Color gris oscuro para encabezados */
+    }
 
-.dropdown-content a {
-  color: white;
-  padding: 10px 16px;
-  display: block;
-  font-size: 14px;
-}
+    .footer-col p, .footer-col a {
+      font-size: 14px; /* Tamaño ligeramente ajustado para legibilidad */
+      color: #555; /* Color gris suave para texto normal */
+      transition: color 0.3s ease; /* Transición para enlaces */
+    }
 
-.dropdown-content a:hover {
-  background-color: #1a1cb3;
-  color: #ffec00;
-}
+    .footer-col a:hover {
+      color: #2325d4; /* Color azul PSC al pasar el cursor */
+    }
 
-.dropdown:hover .dropdown-content {
-  display: block;
-}
+    .social-icons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px; /* Más espacio entre iconos sociales */
+    }
 
-</style>
-<style>.whatsapp-float img{width:50px;height:50px;border-radius:50%;}</style>
-<style>
-/* ===== Mobile-friendly adjustments (iPhone & Android) ===== */
-html { -webkit-text-size-adjust: 100%; }
-html, body { margin: 0; padding: 0; overflow-x: hidden; }
-* { box-sizing: border-box; }
+    .footer-bottom {
+      text-align: center;
+      margin-top: 30px; /* Más espacio superior */
+      font-size: 12px; /* Tamaño ligeramente ajustado */
+      color: #777;
+      border-top: 1px solid rgba(0,0,0,0.1);
+      padding-top: 15px; /* Más padding superior */
+    }
 
-/* Use device safe areas (notch, home indicator) */
-:root {
-  --safe-top: env(safe-area-inset-top);
-  --safe-right: env(safe-area-inset-right);
-  --safe-bottom: env(safe-area-inset-bottom);
-  --safe-left: env(safe-area-inset-left);
-}
-body {
-  padding-left: max(0px, var(--safe-left));
-  padding-right: max(0px, var(--safe-right));
-  padding-bottom: max(0px, var(--safe-bottom));
-}
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px; /* Más espacio entre enlaces del footer-bottom */
+      margin-top: 10px; /* Más espacio */
+    }
 
-/* Prevent iOS zoom on focus by ensuring >=16px */
-input, select, textarea { font-size: 16px; }
+    .footer-links a {
+      color: #2325d4;
+      font-size: 12px;
+    }
 
-/* Comfortable tap targets */
-button, .btn, input[type="button"], input[type="submit"] { min-height: 44px; touch-action: manipulation; }
+    /* ====================================================================== */
+    /* WhatsApp Flotante - COPIADO DE homepage_enhanced_design */
+    /* ====================================================================== */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 999;
+      transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animación */
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Sombra inicial */
+      border-radius: 50%; /* Asegura que la sombra se vea bien en el círculo */
+    }
 
-/* WhatsApp floating button safe position */
-.whatsapp-float {
-  position: fixed;
-  right: calc(16px + var(--safe-right));
-  bottom: calc(16px + var(--safe-bottom));
-  z-index: 1000;
-}
-.whatsapp-float img {
-  width: 50px; height: 50px; border-radius: 50%;
-}
+    .whatsapp-float:hover {
+      transform: scale(1.05) translateY(-2px); /* Pequeña escala y levantamiento */
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3); /* Sombra más grande */
+    }
 
-/* Images responsive */
-img, svg, video, canvas { max-width: 100%; height: auto; }
+    .whatsapp-float img {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+    }
 
-/* Reduce outer paddings on small screens */
-@media (max-width: 640px) {
-  .nav { padding: .5rem .75rem; }
-  .nav__links { gap: .5rem; }
-  .container, .wrapper, .card { padding-left: 0; padding-right: 0; }
-}
-</style>
+    /* Mobile-friendly adjustments (iPhone & Android) */
+    html { -webkit-text-size-adjust: 100%; }
+    html, body { margin: 0; padding: 0; overflow-x: hidden; }
+    * { box-sizing: border-box; }
 
-<style id="psc_cot_nav_mobile">
-@media (max-width: 900px){
-  header .menu-toggle{ display:block; color:#fff; font-size:26px; cursor:pointer; user-select:none; }
-  header nav{
-    display:none; position:absolute; top:100%; right:20px;
-    background:#1a1cb3; flex-direction:column; gap:8px; padding:14px;
-    border-radius:12px; box-shadow:0 12px 24px rgba(0,0,0,.25); z-index:9999;
-  }
-  header nav.show{ display:flex; }
-  header .header-buttons{ display:none; }
-  /* Dropdown usable en móvil */
-  header .dropdown:hover .dropdown-content{ display:none; }
-  header .dropdown .dropdown-content{ position:relative; top:auto; left:auto; background:#1a1cb3; box-shadow:none; min-width:220px; }
-}
-@media (min-width: 901px){
-  header .menu-toggle{ display:none; }
-  header nav{ display:flex !important; position:static; box-shadow:none; padding:0; }
-}
-</style>
+    /* Use device safe areas (notch, home indicator) */
+    :root {
+      --safe-top: env(safe-area-inset-top);
+      --safe-right: env(safe-area-inset-right);
+      --safe-bottom: env(safe-area-inset-bottom);
+      --safe-left: env(safe-area-inset-left);
+    }
+    body {
+      padding-left: max(0px, var(--safe-left));
+      padding-right: max(0px, var(--safe-right));
+      padding-bottom: max(0px, var(--safe-bottom));
+    }
+
+    /* Prevent iOS zoom on focus by ensuring >=16px */
+    input, select, textarea { font-size: 16px; }
+
+    /* Comfortable tap targets */
+    button, .btn, input[type="button"], input[type="submit"] { min-height: 44px; touch-action: manipulation; }
+
+    /* Images responsive */
+    img, svg, video, canvas { max-width: 100%; height: auto; }
+
+    /* Reduce outer paddings on small screens */
+    @media (max-width: 640px) {
+      .nav { padding: .5rem .75rem; }
+      .nav__links { gap: .5rem; }
+      .container, .wrapper, .card { padding-left: 0; padding-right: 0; }
+    }
+  </style>
 
 </head>
 <body>
 
-  <!-- HEADER -->
+  <!-- HEADER - Contenido copiado de homepage_enhanced_design -->
   <header class="no-print">
     <div class="header-inner">
       <div class="logo">
-        <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo PSC">
+        <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
       </div>
-
-      <div class="menu-toggle" aria-label="Abrir menú" aria-expanded="false" role="button" tabindex="0">☰</div>
-            <nav>
+      <div class="menu-toggle">☰</div>
+      <nav>
         <a href="../index.html">Inicio</a>
         <a href="../Rastreo/">Rastreador de Paquetes</a>
         <a href="../Cotizador/">Cotiza tus Compras</a>
-        <a href="../ML/">Solicitar ML</a> <!-- ← AÑADIDO -->
+        <a href="../ML/">Solicitar ML</a>
         
-  <!-- Menú desplegable -->
-  <div class="dropdown">
-    <a href="#">Más ▾</a>
-    <div class="dropdown-content">
-      <a href="../DG/">Mercancía Peligrosa</a>
-      <a href="../Politicas/">Términos y Condiciones</a>
-    </div>
-  </div>
-
+        <!-- Menú desplegable "Más" -->
+        <div class="dropdown">
+          <a href="#">Más ▾</a>
+          <div class="dropdown-content">
+            <a href="../DG/">Mercancía Peligrosa</a>
+            <a href="../Politicas/">Términos y Condiciones</a>
+          </div>
+        </div>
       </nav>
       <div class="header-buttons">
         <a href="https://psc.e-rmez.com/zonacliente/" class="btn-header">Zona de Clientes</a>
         <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-header">Regístrate</a>
       </div>
     </div>
-
     <div class="onda" aria-hidden="true"></div>
   </header>
 
@@ -340,22 +514,26 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
     </section>
   </main>
 
-  <!-- FOOTER -->
+  <!-- FOOTER - Contenido copiado de homepage_enhanced_design -->
   <footer class="no-print">
     <div class="footer-container">
       <div class="footer-col">
         <h3>Contacto</h3>
         <p>Asistencia personalizada</p>
         <div class="social-icons">
-          <a href="#">📸 Instagram</a><br>
-          <a href="tel:+50767906781">📞 +507 67906781</a><br>
-          <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a><br>
-          <a href="#">💬 WhatsApp</a>
+          <!-- Enlace de Instagram actualizado -->
+          <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
+          <!-- Enlace de WhatsApp para el número de teléfono -->
+          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
+          <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
+          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">💬 WhatsApp</a>
         </div>
       </div>
       <div class="footer-col">
         <h3>Enlaces Rápidos</h3>
+        <!-- Enlace "Términos y Condiciones" ahora apunta a "Politicas/" -->
         <a href="../Politicas/">Términos y Condiciones</a><br>
+        <!-- Enlace "Mercancía Restringida" ahora apunta a "DG/" -->
         <a href="../DG/">Mercancía Restringida</a>
       </div>
       <div class="footer-col">
@@ -363,22 +541,29 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
         <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p>
       </div>
     </div>
-    <div class="footer-bottom">&copy; 2023 Panama Shipping Co. Todos los derechos reservados.</div>
+    <div class="footer-bottom">
+      &copy; 2023 Panama Shipping Co. Todos los derechos reservados.
+      <div class="footer-links">
+        <a href="#">Términos</a>
+        <a href="#">Privacidad</a>
+      </div>
+    </div>
   </footer>
 
-  <!-- WHATSAPP -->
-<a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" 
-   class="whatsapp-float" target="_blank" rel="noopener">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" />
-</a>
+  <!-- WHATSAPP FLOATING BUTTON - Contenido copiado de homepage_enhanced_design -->
+  <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" 
+     class="whatsapp-float" target="_blank" rel="noopener">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Icono de WhatsApp" />
+  </a>
+
 <script>
   /* ============================================================
-     Código Y+ - JavaScript optimizado y modular (todas las funciones)
-     - Soporta búsqueda en Amazon (ScraperAPI) y MercadoLibre
-     - Calculadora de costo/abono/peso
-     - Funciones de imprimir y limpiar
-     - Impresión: incluye imagen, header azul, fecha/hora, y fuerza a una sola página
-     ============================================================ */
+    Código Y+ - JavaScript optimizado y modular (todas las funciones)
+    - Soporta búsqueda en Amazon (ScraperAPI) y MercadoLibre
+    - Calculadora de costo/abono/peso
+    - Funciones de imprimir y limpiar
+    - Impresión: incluye imagen, header azul, fecha/hora, y fuerza a una sola página
+    ============================================================ */
   (function(){
     // -----------------------
     // Config / Helpers
@@ -524,7 +709,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
       }
 
       // OTROS
-      cont.innerHTML = `<p>⚠️ Solo se hace scrapping automático de Amazon y búsqueda directa de MercadoLibre. Puedes ingresar datos manualmente abajo.</p>`;
+      cont.innerHTML = `<p>⚠️ Sólo se hace scrapping automático de Amazon y búsqueda directa de MercadoLibre. Puedes ingresar datos manualmente abajo.</p>`;
       el("link").value = link;
       mostrarCalculadora();
       boton.disabled = false;
@@ -540,8 +725,11 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
       const abono = abonoRaw ? parseFloat(abonoRaw) : null;
       const peso = parseFloat(el("peso").value) || 0;
 
+      // Reemplazado alert() con un modal básico o un mensaje en pantalla
       if(isNaN(costo) || costo <= 0){
-        alert("Por favor ingresa un costo válido.");
+        const resultBox = el("resultadoCalc");
+        resultBox.style.display = "block";
+        resultBox.innerHTML = `<div style="color:#c33; padding:10px; border:1px solid #ffdddd; background:#fffafa; border-radius:8px;">Por favor ingresa un costo válido.</div>`;
         return;
       }
 
@@ -648,39 +836,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
             @media print {
               html,body{zoom:0.95 margin: 0; padding: 0;}
             }
-          
-/* Dropdown */
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #2325d4;
-  min-width: 200px;
-  box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-  z-index: 1;
-}
-
-.dropdown-content a {
-  color: white;
-  padding: 10px 16px;
-  display: block;
-  font-size: 14px;
-}
-
-.dropdown-content a:hover {
-  background-color: #1a1cb3;
-  color: #ffec00;
-}
-
-.dropdown:hover .dropdown-content {
-  display: block;
-}
-
-</style>
+          </style>
         </head>
         <body>
           <div class="header">
@@ -708,26 +864,7 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
 
             <p style="margin-top:12px;font-size:12px;color:#555">* Esta cotización es referencial y sujeta a cambios. Fecha y hora mostradas corresponden al momento de la generación del documento.</p>
           </div>
-        
-<script id="psc_cot_nav_js">
-(function(){
-  var header = document.querySelector('header');
-  if(!header) return;
-  var toggle = header.querySelector('.menu-toggle');
-  var nav = header.querySelector('nav');
-  if(!toggle || !nav) return;
-  function openNav(open){
-    if(open){ nav.classList.add('show'); toggle.setAttribute('aria-expanded','true'); }
-    else { nav.classList.remove('show'); toggle.setAttribute('aria-expanded','false'); }
-  }
-  toggle.addEventListener('click', function(e){ e.stopPropagation(); openNav(!nav.classList.contains('show')); });
-  toggle.addEventListener('keydown', function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openNav(!nav.classList.contains('show')); }});
-  document.addEventListener('click', function(e){ if(!header.contains(e.target)){ openNav(false); } });
-  window.addEventListener('resize', function(){ if(window.innerWidth>900){ openNav(false); } });
-})();
-<\/script>
-
-</body>
+        </body>
         </html>
       `;
 
@@ -801,6 +938,49 @@ img, svg, video, canvas { max-width: 100%; height: auto; }
     window._codigoYplus = { buscarProducto, calcular, imprimirCotizacion, limpiarTodo, mostrarCalculadoraDirecto };
 
   })();
-  </script>
+
+  // Lógica principal para el menú responsivo (botón de hamburguesa)
+  (function(){
+    const header = document.querySelector('header');
+    const nav = header ? header.querySelector('nav') : null;
+    const menuToggle = header ? header.querySelector('.menu-toggle') : null;
+
+    if (!header || !nav || !menuToggle) {
+      // console.warn('Elementos de navegación no encontrados. El menú de hamburguesa podría no funcionar.');
+      return; // Salir si los elementos no existen
+    }
+
+    // Función para abrir/cerrar el menú
+    function toggleMenu(show) {
+      if (show) {
+        nav.classList.add('show');
+        menuToggle.setAttribute('aria-expanded', 'true');
+      } else {
+        nav.classList.remove('show');
+        menuToggle.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    // Evento de clic en el botón de hamburguesa
+    menuToggle.addEventListener('click', (e) => {
+      e.stopPropagation(); // Evita que el clic se propague al documento
+      toggleMenu(!nav.classList.contains('show'));
+    });
+
+    // Cierra el menú cuando se hace clic fuera del encabezado
+    document.addEventListener('click', (e) => {
+      if (!header.contains(e.target)) {
+        toggleMenu(false);
+      }
+    });
+
+    // Cierra el menú cuando se redimensiona a un tamaño de escritorio
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 900) {
+        toggleMenu(false);
+      }
+    });
+  })();
+</script>
 </body>
 </html>
