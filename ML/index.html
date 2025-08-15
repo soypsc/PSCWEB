@@ -20,6 +20,9 @@
             color: #000;
             line-height: 1.6;
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         a {
@@ -51,6 +54,7 @@
             align-items: center;
             justify-content: center;
             padding: 0 25px;
+            flex-shrink: 0;
         }
 
         .header-inner {
@@ -172,8 +176,9 @@
             background: var(--bg);
             color: #000;
             padding: 40px 20px;
-            margin-top: 50px;
+            margin-top: auto;
             box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08);
+            flex-shrink: 0;
         }
 
         .footer-container {
@@ -275,10 +280,7 @@
         }
 
         @media (min-width: 901px) {
-            .fab-container {
-                display: none;
-            }
-
+            /* --- MODIFICACIÓN: Se eliminó la regla que ocultaba el FAB en PC --- */
             .menu-toggle {
                 display: none;
             }
@@ -595,17 +597,18 @@
             <div class="logo">
                 <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
             </div>
+            <div class="menu-toggle" style="display:none;">☰</div>
             <nav>
-                <a href="./">Inicio</a>
-                <a href="Rastreo/">Rastreador de Paquetes</a>
-                <a href="Cotizador/">Cotiza tus Compras</a>
-                <a href="ML/">Solicitar ML</a>
+                <a href="/">Inicio</a>
+                <a href="/Rastreo/">Rastreador de Paquetes</a>
+                <a href="/Cotizador/">Cotiza tus Compras</a>
+                <a href="/ML/">Solicitar ML</a>
                 
                 <div class="dropdown">
                     <a href="#">Más ▾</a>
                     <div class="dropdown-content">
-                        <a href="DG/">Mercancía Peligrosa</a>
-                        <a href="Politicas/">Términos y Condiciones</a>
+                        <a href="/DG/">Mercancía Peligrosa</a>
+                        <a href="/Politicas/">Términos y Condiciones</a>
                     </div>
                 </div>
             </nav>
@@ -655,7 +658,7 @@
           >
         </div>
         <div id="noMsg" class="hint">
-          Si no sale información intente Buscar nuevamente o Contactarse con PSC.
+          Si no sale información intente Buscar nuevamente o contactarse con PSC.
         </div>
 
         <div class="form" id="mlForm">
@@ -685,8 +688,8 @@
             </div>
             <div class="footer-col">
                 <h3>Enlaces Rápidos</h3>
-                <a href="Politicas/">Términos y Condiciones</a><br>
-                <a href="DG/">Mercancía Restringida</a>
+                <a href="/Politicas/">Términos y Condiciones</a><br>
+                <a href="/DG/">Mercancía Restringida</a>
             </div>
             <div class="footer-col">
                 <h3>Sobre Nosotros</h3>
@@ -713,7 +716,7 @@
                     </svg>
                 </button>
             </a>
-            <a href="Rastreo/" class="fab-action-item tracker-action">
+            <a href="/Rastreo/" class="fab-action-item tracker-action">
                 <span class="fab-action-label">Rastreador</span>
                 <button class="fab-circular-button">
                     <svg viewBox="0 0 24 24" fill="currentColor">
@@ -721,7 +724,7 @@
                     </svg>
                 </button>
             </a>
-            <a href="ML/" class="fab-action-item ml-action">
+            <a href="/ML/" class="fab-action-item ml-action">
                 <span class="fab-action-label">Solicitar ML</span>
                 <button class="fab-circular-button">
                     <svg viewBox="0 0 24 24" fill="currentColor">
@@ -729,7 +732,7 @@
                     </svg>
                 </button>
             </a>
-            <a href="Cotizador/" class="fab-action-item quotes-action">
+            <a href="/Cotizador/" class="fab-action-item quotes-action">
                 <span class="fab-action-label">Cotizador</span>
                 <button class="fab-circular-button">
                     <svg viewBox="0 0 24 24" fill="currentColor">
@@ -1053,4 +1056,5 @@
     </script>
 </body>
 </html>
+
 
