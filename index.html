@@ -34,15 +34,24 @@
     /* ====================================================================== */
     /* Variables CSS (Colores, etc.) */
     /* ====================================================================== */
-    /* Puedes definir variables aquí si quieres un control centralizado de colores, etc. */
-    /* Por ejemplo: --color-primary: #2325d4; --color-secondary: #ffec00; */
+    :root {
+      --blue-1:#2325d4;
+      --blue-2:#1a1cb3;
+      --accent:#ffec00;
+      --bg:#fff;
+      --muted:#777;
+      --card-border:#e6e6ee;
+      --shadow: 0 6px 30px rgba(0,0,0,0.06);
+      --radius:12px;
+      --max-width:1200px;
+    }
 
 
     /* ====================================================================== */
     /* HEADER (Encabezado principal y navegación superior) */
     /* ====================================================================== */
     header {
-      background: linear-gradient(135deg, #2325d4, #1a1cb3);
+      background: linear-gradient(135deg, var(--blue-1), var(--blue-2));
       color: white;
       position: relative;
       box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Sombra más pronunciada para profundidad */
@@ -54,7 +63,7 @@
     }
 
     .header-inner {
-      max-width: 1200px;
+      max-width: var(--max-width);
       width: 100%;
       display: flex;
       align-items: center;
@@ -94,7 +103,7 @@
     }
 
     nav a:hover {
-      color: #ffec00;
+      color: var(--accent);
       transform: translateY(-2px); /* Pequeño levantamiento al pasar el cursor */
     }
 
@@ -105,7 +114,7 @@
       bottom: -3px;
       width: 0%;
       height: 2px;
-      background: #ffec00;
+      background: var(--accent);
       transition: width 0.3s ease; /* Animación de subrayado */
     }
 
@@ -119,10 +128,10 @@
     }
 
     .btn-header {
-      background: #ffec00;
-      color: #2325d4;
+      background: var(--accent);
+      color: var(--blue-1);
       padding: 8px 18px;
-      border-radius: 12px; /* Bordes suaves y consistentes */
+      border-radius: var(--radius); /* Bordes suaves y consistentes */
       font-weight: 600;
       font-size: 13px;
       transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Animaciones para botones */
@@ -130,7 +139,7 @@
     }
 
     .btn-header:hover {
-      background: #e6d800;
+      background: #e6d800; /* Tono más oscuro de accent */
       transform: translateY(-2px); /* Levantamiento al pasar el cursor */
       box-shadow: 0 6px 12px rgba(0,0,0,0.2); /* Sombra más grande al pasar el cursor */
     }
@@ -158,10 +167,10 @@
     .dropdown-content {
       display: none;
       position: absolute;
-      background-color: #2325d4;
+      background-color: var(--blue-1);
       min-width: 200px;
       box-shadow: 0px 8px 16px rgba(0,0,0,0.25); /* Sombra definida */
-      border-radius: 8px; /* Bordes suaves */
+      border-radius: var(--radius); /* Bordes suaves */
       z-index: 10002; /* ¡Z-index ajustado para asegurar visibilidad! */
       overflow: hidden; /* Asegura que los bordes redondeados se apliquen */
     }
@@ -175,8 +184,8 @@
     }
 
     .dropdown-content a:hover {
-      background-color: #1a1cb3;
-      color: #ffec00;
+      background-color: var(--blue-2);
+      color: var(--accent);
     }
 
     .dropdown:hover .dropdown-content {
@@ -191,7 +200,7 @@
       flex-wrap: wrap;
       align-items: center;
       padding: 50px 20px;
-      max-width: 1200px;
+      max-width: var(--max-width);
       margin: auto;
     }
 
@@ -203,7 +212,7 @@
     .hero-slogan { /* Estilo para la frase "Tu conexión directo al mundo" */
       font-family: 'Dancing Script', cursive;
       font-size: 2.2rem;
-      color: #2325d4; /* Azul PSC */
+      color: var(--blue-1); /* Azul PSC */
       margin-bottom: 10px;
       line-height: 1.2;
     }
@@ -221,7 +230,7 @@
       background-color: #0000FF;
       color: white;
       padding: 10px 24px;
-      border-radius: 12px; /* Bordes suaves y consistentes */
+      border-radius: var(--radius); /* Bordes suaves y consistentes */
       font-weight: bold;
       transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Animaciones para botones */
       box-shadow: 0 4px 8px rgba(0,0,255,0.2); /* Sombra inicial */
@@ -250,7 +259,7 @@
     /* ====================================================================== */
     .section {
       padding: 50px 20px;
-      max-width: 1200px;
+      max-width: var(--max-width);
       margin: auto;
       text-align: center;
     }
@@ -295,7 +304,7 @@
     .servicio h4 {
       font-size: 1.1rem;
       margin-bottom: 10px;
-      color: #2325d4; /* Color del título de servicio */
+      color: var(--blue-1); /* Color del título de servicio */
     }
 
     /* ====================================================================== */
@@ -344,7 +353,7 @@
     .stat {
       font-size: 1.6rem;
       font-weight: bold;
-      color: #ffec00; /* Color amarillo para los números */
+      color: var(--accent); /* Color amarillo para los números */
       text-shadow: 0 1px 3px rgba(0,0,0,0.3); /* Sombra al texto del número */
     }
 
@@ -370,7 +379,7 @@
     /* FOOTER (Pie de página) */
     /* ====================================================================== */
     footer {
-      background: #fff;
+      background: var(--bg);
       color: #000;
       padding: 40px 20px; /* Más padding para más "aire" */
       margin-top: 50px; /* Más espacio superior */
@@ -378,7 +387,7 @@
     }
 
     .footer-container {
-      max-width: 1200px;
+      max-width: var(--max-width);
       margin: auto;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -398,7 +407,7 @@
     }
 
     .footer-col a:hover {
-      color: #2325d4; /* Color azul PSC al pasar el cursor */
+      color: var(--blue-1); /* Color azul PSC al pasar el cursor */
     }
 
     .social-icons {
@@ -411,7 +420,7 @@
       text-align: center;
       margin-top: 30px; /* Más espacio superior */
       font-size: 12px; /* Tamaño ligeramente ajustado */
-      color: #777;
+      color: var(--muted);
       border-top: 1px solid rgba(0,0,0,0.1);
       padding-top: 15px; /* Más padding superior */
     }
@@ -424,32 +433,8 @@
     }
 
     .footer-links a {
-      color: #2325d4;
+      color: var(--blue-1);
       font-size: 12px;
-    }
-
-    /* ====================================================================== */
-    /* WhatsApp Flotante */
-    /* ====================================================================== */
-    .whatsapp-float {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 999;
-      transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animación */
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Sombra inicial */
-      border-radius: 50%; /* Asegura que la sombra se vea bien en el círculo */
-    }
-
-    .whatsapp-float:hover {
-      transform: scale(1.05) translateY(-2px); /* Pequeña escala y levantamiento */
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3); /* Sombra más grande */
-    }
-
-    .whatsapp-float img {
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
     }
 
     /* ====================================================================== */
@@ -463,43 +448,12 @@
         display: none;
       }
       .menu-toggle {
-        display: block;
-        font-size: 26px;
-        cursor: pointer;
-        color: white;
-        position: relative;
-        z-index: 10001; /* Asegura que el toggle esté por encima del menú móvil */
-        user-select: none;
+        /* Oculta el botón de hamburguesa tradicional en móviles */
+        display: none;
       }
       header nav {
-        display: none;
-        position: absolute;
-        top: 100%;
-        right: 20px;
-        background: #2325d4;
-        flex-direction: column;
-        gap: 8px;
-        padding: 14px;
-        border-radius: 12px;
-        box-shadow: 0 12px 24px rgba(0,0,0,.25);
-        z-index: 10000;
-        width: max-content;
-        min-width: 220px;
-      }
-      header nav.show {
-        display: flex;
-      }
-      /* Dropdown dentro del panel móvil (se comporta como un elemento normal) */
-      header .dropdown:hover .dropdown-content {
-        display: none; /* Deshabilita hover en móvil para evitar conflictos */
-      }
-      header .dropdown .dropdown-content {
-        position: relative;
-        top: auto;
-        left: auto;
-        background: #1a1cb3;
-        box-shadow: none;
-        min-width: 220px;
+        /* Oculta la navegación tradicional en móviles */
+        display: none !important;
       }
     }
 
@@ -550,6 +504,108 @@
       opacity: 1 !important;
       transform: none !important;
     }
+
+    /* ====================================================================== */
+    /* FLOATING ACTION BUTTON (FAB) - Nuevo componente */
+    /* ====================================================================== */
+    .fab-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column-reverse; /* Hace que los botones secundarios aparezcan hacia arriba */
+      align-items: center; /* Centra los botones secundarios */
+      gap: 10px; /* Espacio entre los botones cuando se expanden */
+    }
+
+    /* Ocultar el FAB por defecto en escritorio y mostrarlo solo en móvil */
+    @media (min-width: 901px) {
+      .fab-container {
+        display: none;
+      }
+    }
+
+    .fab-main-button {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      background-color: #0000FF; /* Azul del botón */
+      color: white;
+      border: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 24px;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+    .fab-main-button svg {
+      transition: transform 0.3s ease; /* Transición para la rotación de la 'X' */
+    }
+
+    /* Rotar la 'X' cuando el menú está abierto */
+    .fab-container.open .fab-main-button svg {
+      transform: rotate(45deg);
+    }
+
+    .fab-action-button {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: white;
+      color: var(--blue-1); /* Color del ícono */
+      border: 1px solid rgba(0,0,0,0.1);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 20px;
+      opacity: 0; /* Inicialmente oculto */
+      transform: translateY(10px) scale(0.5); /* Inicialmente encogido y desplazado */
+      transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+      position: absolute; /* Para controlar la posición con JS si se desea radial */
+      pointer-events: none; /* No interactuable cuando oculto */
+    }
+
+    .fab-action-button:hover {
+      background-color: #f0f0f0;
+      transform: translateY(0) scale(1.05); /* Ligeramente más grande al pasar el cursor */
+    }
+
+    .fab-container.open .fab-action-button {
+      opacity: 1;
+      transform: translateY(0) scale(1); /* Vuelve a su tamaño y posición normal */
+      pointer-events: auto; /* Se vuelve interactuable */
+    }
+
+    /* Posiciones escalonadas para los botones de acción al abrirse (simulando un "fan" hacia arriba) */
+    .fab-container.open .fab-action-button:nth-child(2) { /* Primer botón secundario (el más cercano al principal) */
+      transform: translateY(-70px) scale(1); /* Ajusta este valor para el espaciado vertical */
+      transition-delay: 0.05s;
+    }
+    .fab-container.open .fab-action-button:nth-child(3) {
+      transform: translateY(-130px) scale(1);
+      transition-delay: 0.10s;
+    }
+    .fab-container.open .fab-action-button:nth-child(4) {
+      transform: translateY(-190px) scale(1);
+      transition-delay: 0.15s;
+    }
+    .fab-container.open .fab-action-button:nth-child(5) {
+      transform: translateY(-250px) scale(1);
+      transition-delay: 0.20s;
+    }
+
+    .fab-action-button svg {
+      width: 24px; /* Tamaño del ícono dentro del botón */
+      height: 24px;
+      fill: currentColor; /* Usa el color de texto del botón */
+    }
+    
   </style>
 </head>
 <body>
@@ -562,8 +618,7 @@
       <div class="logo">
         <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
       </div>
-      <!-- Eliminado onclick directo, manejado por JS -->
-      <div class="menu-toggle">☰</div>
+      <!-- El botón de hamburguesa se elimina de aquí en móviles y se usa el FAB -->
       <nav>
         <a href="./">Inicio</a>
         <a href="Rastreo/">Rastreador de Paquetes</a>
@@ -695,60 +750,44 @@
   </footer>
 
   <!-- ==================================================================== -->
-  <!-- WHATSAPP FLOATING BUTTON -->
+  <!-- FLOATING ACTION BUTTON (FAB) - NUEVO COMPONENTE -->
   <!-- ==================================================================== -->
-  <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" 
-     class="whatsapp-float" target="_blank" rel="noopener">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Icono de WhatsApp" />
-  </a>
+  <div class="fab-container">
+    <button class="fab-action-button" onclick="location.href='https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion'">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.42 1.3 4.87L2.05 22l5.06-1.35c1.45.84 3.12 1.3 4.87 1.3 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm3.62 14.15c-.17.3-.5.4-.8.21-.9-.51-2.07-1.26-2.58-1.46-.22-.09-.4-.1-.58.07-.18.17-.67.79-.82.95-.15.17-.29.17-.55.09-.94-.32-1.92-.72-2.73-1.63-.64-.71-1.07-1.57-1.42-2.31-.35-.74-.04-1.15.22-1.39.19-.19.4-.28.58-.46.19-.19.26-.35.35-.55.09-.17.03-.31-.03-.43-.07-.12-.58-1.39-.82-1.89-.23-.5-.47-.41-.65-.41-.18 0-.37 0-.57.03-.2.03-.51.13-.77.38-.26.26-.98.96-.98 2.34s1.01 2.71 1.15 2.9C6.98 16.59 10.95 18 15.12 17.58c1.3-.13 2.14-1.09 2.51-1.63.38-.54.42-1.03.25-1.33z"/></svg>
+    </button>
+    <button class="fab-action-button" onclick="location.href='Rastreo/'">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.93-1.62L13 11.5V9h-1V6.15c-1.32-.4-2.75-.17-3.86.64L5.3 4.56C7.03 3.29 9.42 2.5 12 2.5c4.73 0 8.79 3.09 10.08 7.42-.9.5-2.14.77-3.37.77-1.71 0-3.32-.47-4.63-1.29L17.93 18.31zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
+    </button>
+    <button class="fab-action-button" onclick="location.href='ML/'">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
+    </button>
+    <button class="fab-action-button" onclick="location.href='Cotizador/'">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17.21 9L12 3.81 6.79 9H2.21L12 1.05 21.79 9h-4.58zM4 10h16v11H4V10zM15 14v-2h-3v2H9v2h3v2h-3v2h3v-2h3v2h3v-2h-3v-2h3z"/></svg>
+    </button>
+    <button class="fab-main-button" id="fabMainBtn">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
+  </div>
+
 
   <!-- ==================================================================== -->
   <!-- JAVASCRIPT SECTION -->
   <!-- ==================================================================== -->
   <script>
-    // Lógica principal para el menú responsivo (botón de hamburguesa)
+    // Lógica principal para el menú responsivo (gestionado ahora por el FAB)
     (function(){
       const header = document.querySelector('header');
       const nav = header ? header.querySelector('nav') : null;
-      const menuToggle = header ? header.querySelector('.menu-toggle') : null;
+      // const menuToggle = header ? header.querySelector('.menu-toggle') : null; // Ya no necesario
 
-      if (!header || !nav || !menuToggle) {
-        // console.warn('Elementos de navegación no encontrados. El menú de hamburguesa podría no funcionar.');
-        return; // Salir si los elementos no existen
+      // Ocultar la navegación de escritorio en móviles si no hay FAB
+      // Aunque el FAB la reemplaza, estas líneas aseguran que no aparezca.
+      if (window.innerWidth <= 900) {
+        if (nav) nav.style.display = 'none';
+        // if (menuToggle) menuToggle.style.display = 'none'; // Ya no necesario
       }
-
-      // Función para abrir/cerrar el menú
-      function toggleMenu(show) {
-        if (show) {
-          nav.classList.add('show');
-          menuToggle.setAttribute('aria-expanded', 'true');
-        } else {
-          nav.classList.remove('show');
-          menuToggle.setAttribute('aria-expanded', 'false');
-        }
-      }
-
-      // Evento de clic en el botón de hamburguesa
-      menuToggle.addEventListener('click', (e) => {
-        e.stopPropagation(); // Evita que el clic se propague al documento
-        toggleMenu(!nav.classList.contains('show'));
-      });
-
-      // Cierra el menú cuando se hace clic fuera del encabezado
-      document.addEventListener('click', (e) => {
-        if (!header.contains(e.target)) {
-          toggleMenu(false);
-        }
-      });
-
-      // Cierra el menú cuando se redimensiona a un tamaño de escritorio
-      window.addEventListener('resize', () => {
-        if (window.innerWidth > 900) {
-          toggleMenu(false);
-        }
-      });
     })();
-
 
     // Lógica para los contadores dinámicos al entrar en la vista (IntersectionObserver)
     (function () {
@@ -852,8 +891,39 @@
         }
       });
     })();
+
+    // Lógica del nuevo FAB
+    (function(){
+      const fabContainer = document.querySelector('.fab-container');
+      const fabMainBtn = document.getElementById('fabMainBtn');
+
+      if (!fabContainer || !fabMainBtn) {
+        console.warn('FAB elements not found. Floating action button might not work.');
+        return;
+      }
+
+      fabMainBtn.addEventListener('click', () => {
+        fabContainer.classList.toggle('open');
+      });
+
+      // Cierra el FAB si se hace clic fuera de él (solo en móvil)
+      document.addEventListener('click', (e) => {
+        // Asegurarse de que solo se aplique en móvil
+        if (window.innerWidth <= 900) {
+          if (!fabContainer.contains(e.target) && fabContainer.classList.contains('open')) {
+            fabContainer.classList.remove('open');
+          }
+        }
+      });
+
+      // Asegura que el FAB se cierre si la ventana se redimensiona a escritorio
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 900) {
+          fabContainer.classList.remove('open');
+        }
+      });
+    })();
   </script>
 
 </body>
 </html>
-
