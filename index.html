@@ -1,1075 +1,899 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panama Shipping Co.</title>
-  <!-- Enlaces a fuentes de Google Fonts -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
-
-  <style>
-    /* ====================================================================== */
-    /* Estilos Globales y Reseteo */
-    /* ====================================================================== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #fff;
-      color: #000;
-      line-height: 1.6;
-      overflow-x: hidden; /* Evita el scroll horizontal causado por animaciones */
-    }
-
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-
-    /* ====================================================================== */
-    /* Variables CSS (Colores, etc.) */
-    /* ====================================================================== */
-    :root {
-      --blue-1:#2325d4;
-      --blue-2:#1a1cb3;
-      --accent:#ffec00;
-      --bg:#fff;
-      --muted:#777;
-      --card-border:#e6e6ee;
-      --shadow: 0 6px 30px rgba(0,0,0,0.06);
-      --radius:12px;
-      --max-width:1200px;
-    }
-
-
-    /* ====================================================================== */
-    /* HEADER (Encabezado principal y navegación superior) */
-    /* ====================================================================== */
-    header {
-      background: linear-gradient(135deg, var(--blue-1), var(--blue-2));
-      color: white;
-      position: relative;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Sombra más pronunciada para profundidad */
-      height: 140px; /* Altura original para escritorio */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 25px;
-    }
-
-    .header-inner {
-      max-width: var(--max-width);
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between; /* Empuja logo a la izquierda y botones a la derecha */
-      position: relative;
-      z-index: 2; /* Asegura que el contenido esté por encima de la onda */
-    }
-
-    .logo {
-      height: 180px; /* Altura original para escritorio */
-      display: flex;
-      align-items: center;
-      flex-shrink: 0; /* Evita que el logo se encoja */
-    }
-
-    .logo img {
-      max-height: 225px; /* Altura original para escritorio */
-      width: auto;
-      object-fit: contain;
-      user-select: none;
-      pointer-events: none;
-    }
-
-    nav {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    nav a {
-      color: white;
-      font-weight: 500;
-      font-size: 14px;
-      position: relative;
-      transition: color 0.3s ease, transform 0.2s ease; /* Transiciones para color y movimiento */
-      will-change: color, transform; /* Optimización de rendimiento para animaciones */
-    }
-
-    nav a:hover {
-      color: var(--accent);
-      transform: translateY(-2px); /* Pequeño levantamiento al pasar el cursor */
-    }
-
-    nav a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -3px;
-      width: 0%;
-      height: 2px;
-      background: var(--accent);
-      transition: width 0.3s ease; /* Animación de subrayado */
-    }
-
-    nav a:hover::after {
-      width: 100%;
-    }
-
-    .header-buttons {
-      display: flex;
-      gap: 10px;
-      flex-shrink: 0; /* Evita que los botones se encoja */
-    }
-
-    .btn-header {
-      background: var(--accent);
-      color: var(--blue-1);
-      padding: 8px 18px;
-      border-radius: var(--radius); /* Bordes suaves y consistentes */
-      font-weight: 600;
-      font-size: 13px;
-      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Animaciones para botones */
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra inicial */
-    }
-
-    .btn-header:hover {
-      background: #e6d800; /* Tono más oscuro de accent */
-      transform: translateY(-2px); /* Levantamiento al pasar el cursor */
-      box-shadow: 0 6px 12px rgba(0,0,0,0.2); /* Sombra más grande al pasar el cursor */
-    }
-
-    .onda {
-      position: absolute;
-      bottom: -20px;
-      left: 0;
-      width: 100%;
-      height: 40px;
-      background: url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;
-      background-size: cover;
-      z-index: 1; /* Asegura que la onda esté debajo del contenido del header */
-      pointer-events: none; /* No interfiere con clics */
-    }
-
-    /* ====================================================================== */
-    /* Dropdown (Menú desplegable) */
-    /* ====================================================================== */
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
-
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: var(--blue-1);
-      min-width: 200px;
-      box-shadow: 0px 8px 16px rgba(0,0,0,0.25); /* Sombra definida */
-      border-radius: var(--radius); /* Bordes suaves */
-      z-index: 10002; /* ¡Z-index ajustado para asegurar visibilidad! */
-      overflow: hidden; /* Asegura que los bordes redondeados se apliquen */
-    }
-
-    .dropdown-content a {
-      color: white;
-      padding: 10px 16px;
-      display: block;
-      font-size: 14px;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-
-    .dropdown-content a:hover {
-      background-color: var(--blue-2);
-      color: var(--accent);
-    }
-
-    .dropdown:hover .dropdown-content {
-      display: block;
-    }
-
-    /* ====================================================================== */
-    /* HERO Section (Sección principal de bienvenida) */
-    /* ====================================================================== */
-    .hero {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      padding: 50px 20px;
-      max-width: var(--max-width);
-      margin: auto;
-    }
-
-    .hero-text {
-      flex: 1;
-      padding: 20px;
-    }
-
-    .hero-slogan { /* Estilo para la frase "Tu conexión directo al mundo" */
-      font-family: 'Dancing Script', cursive;
-      font-size: 2.2rem;
-      color: var(--blue-1); /* Azul PSC */
-      margin-bottom: 10px;
-      line-height: 1.2;
-      font-weight: bold; /* ¡Texto más grueso! */
-    }
-
-    .hero-text h1 {
-      font-size: 2.2rem;
-      margin-bottom: 15px;
-    }
-
-    .hero-text p {
-      margin-bottom: 20px;
-    }
-
-    .btn-azul {
-      background-color: #0000FF;
-      color: white;
-      padding: 10px 24px;
-      border-radius: var(--radius); /* Bordes suaves y consistentes */
-      font-weight: bold;
-      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Animaciones para botones */
-      box-shadow: 0 4px 8px rgba(0,0,255,0.2); /* Sombra inicial */
-    }
-
-    .btn-azul:hover {
-      background-color: #0000cc;
-      transform: translateY(-3px); /* Levantamiento al pasar el cursor */
-      box-shadow: 0 8px 16px rgba(0,0,255,0.3); /* Sombra más grande al pasar el cursor */
-    }
-
-    .hero-img {
-      flex: 1;
-      padding: 20px;
-    }
-
-    .hero-img img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 18px; /* Bordes más suaves para la imagen */
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15); /* Sombra para la imagen */
-    }
-
-    /* ====================================================================== */
-    /* SECTIONS (Estilos generales para secciones de contenido) */
-    /* ====================================================================== */
-    .section {
-      padding: 50px 20px;
-      max-width: var(--max-width);
-      margin: auto;
-      text-align: center;
-    }
-
-    .section h2 {
-      font-size: 1.8rem;
-      color: #0000FF;
-      margin-bottom: 8px;
-    }
-
-    /* ====================================================================== */
-    /* SERVICIOS (Tarjetas de servicios) */
-    /* ====================================================================== */
-    .servicios {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 30px;
-      justify-content: center;
-    }
-
-    .servicio {
-      flex: 1;
-      min-width: 240px;
-      background-color: #f9f9f9; /* Fondo suave para la tarjeta */
-      padding: 25px;
-      border-radius: 16px; /* Bordes más suaves para las tarjetas */
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08); /* Sombra para las tarjetas */
-      transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animación al pasar el cursor */
-    }
-
-    .servicio:hover {
-      transform: translateY(-8px); /* Elevamiento al pasar el cursor */
-      box-shadow: 0 12px 30px rgba(0,0,0,0.15); /* Sombra más intensa al pasar el cursor */
-    }
-
-    .servicio img {
-      height: 60px; /* Tamaño de ícono ligeramente más grande */
-      margin-bottom: 15px;
-      filter: drop-shadow(0 2px 4px rgba(0,0,255,0.2)); /* Sombra al ícono */
-    }
-
-    .servicio h4 {
-      font-size: 1.1rem;
-      margin-bottom: 10px;
-      color: var(--blue-1); /* Color del título de servicio */
-    }
-
-    /* ====================================================================== */
-    /* SUCURSALES (Sección con imagen de mapa/ubicación) */
-    /* ====================================================================== */
-    .sucursales .sucursal-img {
-      max-width: 80%;
-      height: auto;
-      border-radius: 18px; /* Bordes más suaves para la imagen de sucursal */
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-      display: block;
-      margin: 16px auto 0 auto;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .sucursales .sucursal-img:hover {
-      transform: translateY(-6px) scale(1.01); /* Pequeño levantamiento y escala */
-      box-shadow: 0 18px 40px rgba(0,0,0,0.12);
-    }
-
-    /* ====================================================================== */
-    /* EXPERIENCIA (Sección de estadísticas y contadores) */
-    /* ====================================================================== */
-    .testimonios, .experiencia {
-      color: white;
-      padding: 50px 20px;
-      text-align: center;
-    }
-
-    .testimonios {
-      background-color: #0000FF;
-    }
-
-    .experiencia {
-      background-color: #000;
-    }
-
-    .stats {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 30px;
-      justify-content: center;
-      margin-top: 25px;
-    }
-
-    .stat {
-      font-size: 1.6rem;
-      font-weight: bold;
-      color: var(--accent); /* Color amarillo para los números */
-      text-shadow: 0 1px 3px rgba(0,0,0,0.3); /* Sombra al texto del número */
-    }
-
-    .stat small {
-      display: block;
-      font-size: 0.9rem;
-      color: rgba(255,255,255,0.8); /* Texto explicativo más suave */
-      margin-top: 5px;
-    }
-
-    .experiencia-image img {
-      margin-top: 30px;
-      max-width: 80%;
-      max-height: 240px;
-      object-fit: contain;
-      margin: 0 auto;
-      display: block;
-      border-radius: 18px; /* Bordes suaves para la imagen */
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25); /* Sombra para la imagen */
-    }
-
-    /* ====================================================================== */
-    /* FOOTER (Pie de página) */
-    /* ====================================================================== */
-    footer {
-      background: var(--bg);
-      color: #000;
-      padding: 40px 20px; /* Más padding para más "aire" */
-      margin-top: 50px; /* Más espacio superior */
-      box-shadow: 0 -4px 15px rgba(0,0,0,0.08); /* Sombra sutil y más prominente */
-    }
-
-    .footer-container {
-      max-width: var(--max-width);
-      margin: auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 30px; /* Más espacio entre columnas */
-    }
-
-    .footer-col h3 {
-      font-size: 1.2rem; /* Tamaño ajustado para elegancia */
-      margin-bottom: 12px; /* Más espacio debajo del título */
-      color: #333; /* Color gris oscuro para encabezados */
-    }
-
-    .footer-col p, .footer-col a {
-      font-size: 14px; /* Tamaño ligeramente ajustado para legibilidad */
-      color: #555; /* Color gris suave para texto normal */
-      transition: color 0.3s ease; /* Transición para enlaces */
-    }
-
-    .footer-col a:hover {
-      color: var(--blue-1); /* Color azul PSC al pasar el cursor */
-    }
-
-    .social-icons {
-      display: flex;
-      flex-direction: column;
-      gap: 8px; /* Más espacio entre iconos sociales */
-    }
-
-    .footer-bottom {
-      text-align: center;
-      margin-top: 30px; /* Más espacio superior */
-      font-size: 12px;
-      color: var(--muted);
-      border-top: 1px solid rgba(0,0,0,0.1);
-      padding-top: 15px; /* Más padding superior */
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 20px; /* Más espacio entre enlaces del footer-bottom */
-      margin-top: 10px; /* Más espacio */
-    }
-
-    .footer-links a {
-      color: var(--blue-1);
-      font-size: 12px;
-    }
-
-    /* ====================================================================== */
-    /* Media Queries (Diseño Responsivo) */
-    /* ====================================================================== */
-    @media (max-width: 900px) {
-      header {
-        height: auto; /* Altura auto para el header en móvil */
-        padding: 15px 25px; /* Padding vertical para el header en móvil */
-      }
-      .header-inner {
-        flex-wrap: wrap; /* Permite que los elementos se envuelvan */
-        justify-content: space-between; /* Empuja el logo a la izquierda y los botones a la derecha */
-        gap: 15px; /* Espacio entre el logo y los botones */
-      }
-      .logo {
-        height: auto;
-        max-height: 80px; /* Ajusta la altura máxima del logo en móvil */
-        width: auto; /* Permite que el logo ocupe su ancho natural */
-        margin-right: auto; /* Empuja el logo a la izquierda */
-        justify-content: flex-start; /* Alinea el logo a la izquierda (redundante con margin-right) */
-      }
-      .logo img {
-        max-height: 70px; /* Ajusta el tamaño de la imagen del logo */
-      }
-      nav {
-        display: none !important; /* Oculta la navegación principal en móvil */
-      }
-      /* Los botones del header ahora se muestran en móvil */
-      .header-buttons {
-        display: flex; /* Muestra los botones */
-        flex-wrap: nowrap; /* Intenta mantener los botones en una fila */
-        justify-content: flex-end; /* Alinea los botones a la derecha */
-        width: auto; /* Permite que los botones ocupen solo el espacio necesario */
-        gap: 10px; /* Espacio entre los botones */
-        margin-left: auto; /* Empuja los botones a la derecha */
-      }
-      /* Si la pantalla es muy pequeña y los botones no caben, se envuelven y centran */
-      @media (max-width: 480px) {
-        .header-inner {
-          justify-content: center; /* Centra logo y botones */
-          flex-direction: column; /* Apila logo y botones */
-          gap: 10px; /* Menor espacio cuando están apilados */
-        }
-        .logo {
-          width: 100%; /* El logo ocupa todo el ancho disponible */
-          justify-content: center; /* Centra el logo cuando se apila */
-          margin-right: 0; /* Elimina el margen para centrar */
-        }
-        .header-buttons {
-          width: 100%; /* Ocupa todo el ancho si necesita envolverse debajo del logo */
-          justify-content: center; /* Centra los botones cuando están envueltos */
-          margin-left: 0; /* Elimina el margen para centrar */
-        }
-      }
-      .menu-toggle {
-        display: none; /* Asegura que el antiguo botón de hamburguesa esté oculto */
-      }
-    }
-
-    @media (min-width: 901px){
-      .menu-toggle{
-        display:none;
-      }
-      header nav{
-        display:flex !important;
-        position:static;
-        box-shadow:none;
-        padding:0;
-      }
-      /* Asegura que los botones del header se alineen a la derecha en escritorio */
-      .header-buttons {
-        display: flex;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .hero {
-        flex-direction: column;
-        text-align: center;
-      }
-      .hero-text {
-        padding: 10px;
-      }
-      .hero-img {
-        padding: 10px;
-      }
-      .servicios {
-        flex-direction: column;
-      }
-      .stats {
-        flex-direction: column;
-      }
-      .servicio {
-        margin-bottom: 20px; /* Espacio entre servicios en móvil */
-      }
-    }
-
-    /* ====================================================================== */
-    /* Animaciones Generales (on-scroll animations) */
-    /* ====================================================================== */
-    .psc-anim-hidden {
-      opacity: 0;
-      transform: translateY(20px); /* Empieza un poco más abajo */
-      transition: opacity 800ms ease-out, transform 800ms ease-out; /* Transición más suave */
-    }
-
-    .psc-anim-show {
-      opacity: 1 !important;
-      transform: none !important;
-    }
-
-    /* ====================================================================== */
-    /* FLOATING ACTION BUTTON (FAB) - Nuevo componente (Social Media Style) */
-    /* ====================================================================== */
-    .fab-container {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1000;
-      /* Define un tamaño para el contenedor que pueda albergar el menú expandido */
-      width: 250px;
-      height: 250px;
-      /* No es un flex container aquí, los elementos se posicionan absolutamente */
-      display: block; 
-    }
-
-    /* Ocultar el FAB por defecto en escritorio y mostrarlo solo en móvil */
-    @media (min-width: 901px) {
-      .fab-container {
-        display: none;
-      }
-    }
-
-    /* Estilos para el botón principal del FAB ("Nuestras Redes Sociales") */
-    .fab-main-button {
-      position: absolute; /* Posicionado absolutamente dentro de .fab-container */
-      bottom: 0;
-      right: 0;
-      width: auto; /* Ancho se ajustará al contenido */
-      height: 55px;
-      border-radius: 27.5px; /* Para forma de píldora */
-      background-color: #ff0000; /* Rojo vibrante */
-      color: white;
-      border: none;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      padding: 0 15px; /* Padding horizontal para el texto */
-      transition: transform 0.3s ease, background-color 0.3s ease, width 0.3s ease, opacity 0.3s ease;
-      z-index: 1001; /* Asegura que esté por encima de los botones de acción y el overlay */
-      gap: 8px; /* Espacio entre el ícono y el texto */
-      white-space: nowrap; /* Evita que el texto se rompa */
-      min-width: 55px; /* Asegura que el botón sea circular cuando no está expandido */
-    }
-
-    .fab-main-button .close-icon {
-      transition: transform 0.3s ease; /* Transición para la rotación de la 'X' */
-    }
-
-    /* Estado del botón principal cuando el FAB está abierto */
-    .fab-container.open .fab-main-button {
-      background-color: rgba(255, 0, 0, 0.7); /* Rojo con transparencia */
-      transform: none; /* Elimina cualquier transformación adicional */
-      width: 180px; /* Ancho expandido para mostrar el texto completo */
-    }
-
-    /* Rotar la 'X' cuando el menú está abierto */
-    .fab-container.open .fab-main-button .close-icon {
-      transform: rotate(45deg);
-    }
-
-    /* Contenedor para cada botón de acción social y su etiqueta */
-    .fab-action-item {
-      position: absolute; /* Posicionado absolutamente dentro de .fab-container */
-      display: flex;
-      flex-direction: row-reverse; /* Ícono a la derecha, etiqueta a la izquierda */
-      align-items: center;
-      gap: 10px; /* Espacio entre etiqueta y botón circular */
-      opacity: 0; /* Oculto por defecto */
-      pointer-events: none; /* No interactuable cuando está oculto */
-      transition: opacity 0.3s ease, transform 0.3s ease; /* Animaciones generales */
-      z-index: 999; /* Por debajo del botón principal, por encima del overlay */
-      white-space: nowrap; /* Evita que el texto se rompa */
-
-      /* Valores iniciales (ocultos, escalados pequeños y en la posición del botón principal) */
-      transform: translate(0, 0) scale(0.1); 
-    }
-
-    /* Posicionamiento específico para cada botón de acción (radialmente) */
-    /* Estos valores son relativos a la esquina inferior derecha de .fab-container (0,0) */
-    /* El botón principal FAB está en (bottom:0, right:0) */
-    /* Ajustes para el despliegue radial más suave y legible de 4 elementos */
-    .fab-action-item.whatsapp-action { bottom: 70px; right: 0px; }
-    .fab-action-item.tracker-action { bottom: 120px; right: 20px; } /* Ligeramente más hacia la izquierda */
-    .fab-action-item.ml-action { bottom: 170px; right: 50px; } /* Más hacia la izquierda */
-    .fab-action-item.quotes-action { bottom: 220px; right: 80px; } /* El más alejado y a la izquierda */
-
-
-    /* Estado de los botones de acción cuando el FAB está abierto */
-    .fab-container.open .fab-action-item {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translate(0, 0) scale(1); /* Vuelve a su tamaño y posición definida por bottom/right */
-    }
-    .fab-container.open .fab-action-item.whatsapp-action { transition-delay: 0.05s; }
-    .fab-container.open .fab-action-item.tracker-action { transition-delay: 0.10s; }
-    .fab-container.open .fab-action-item.ml-action { transition-delay: 0.15s; }
-    .fab-container.open .fab-action-item.quotes-action { transition-delay: 0.20s; }
-
-
-    /* Estilos para el botón circular dentro de cada item de acción */
-    .fab-circular-button {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%; /* Circular */
-      background-color: var(--blue-1); /* Azul PSC */
-      color: white; /* Color de los íconos */
-      border: none;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      flex-shrink: 0; /* Evita que el botón se encoja */
-      transition: background-color 0.2s ease, transform 0.2s ease;
-    }
-    .fab-circular-button:hover {
-      background-color: var(--blue-2); /* Azul más oscuro al pasar el cursor */
-      transform: scale(1.05); /* Ligeramente más grande al pasar el cursor */
-    }
-
-    /* Estilos para los íconos SVG e imágenes dentro de los botones circulares */
-    .fab-circular-button img, .fab-circular-button svg {
-      width: 30px; /* Tamaño del ícono */
-      height: 30px;
-      border-radius: 50%; /* Para WhatsApp si la imagen no es redonda */
-      flex-shrink: 0;
-      fill: currentColor; /* Asegura que los SVGs tomen el color blanco del padre */
-    }
-
-    /* Estilos para las etiquetas de texto al lado de los botones circulares */
-    .fab-action-label {
-      background-color: rgba(0,0,0,0.7); /* Fondo oscuro semi-transparente */
-      color: white;
-      padding: 8px 12px;
-      border-radius: 18px; /* Forma de píldora para la etiqueta */
-      font-size: 12px;
-      font-weight: 500;
-      opacity: 0; /* Oculto por defecto */
-      pointer-events: none; /* No interactuable cuando oculto */
-      transition: opacity 0.3s ease, transform 0.3s ease;
-      /* Posición inicial para la animación de la etiqueta */
-      transform: translateX(10px); /* Ligeramente desplazado a la derecha */
-    }
-
-    /* Estado de la etiqueta cuando el FAB está abierto */
-    .fab-container.open .fab-action-item .fab-action-label {
-      opacity: 1;
-      transform: translateX(0); /* Vuelve a su posición normal */
-      transition-delay: 0.1s; /* Retraso para que aparezca después del botón */
-    }
-
-    /* Overlay de pantalla completa para el FAB */
-    .fab-screen-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(35, 37, 212, 0.5); /* Color azul PSC con 50% de transparencia */
-      z-index: 998; /* Debe estar por debajo del FAB (z-index: 1000) */
-      opacity: 0;
-      pointer-events: none; /* Permite clicks a través cuando está oculto */
-      transition: opacity 0.3s ease; /* Animación de aparición/desaparición */
-    }
-
-    .fab-screen-overlay.show {
-      opacity: 1;
-      pointer-events: auto; /* Bloquea clicks cuando está visible */
-    }
-    
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panama Shipping Co.</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
+
+  <style>
+    /* ====================================================================== */
+    /* Estilos Globales y Reseteo */
+    /* ====================================================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #fff;
+      color: #000;
+      line-height: 1.6;
+      overflow-x: hidden; /* Evita el scroll horizontal causado por animaciones */
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ====================================================================== */
+    /* Variables CSS (Colores, etc.) */
+    /* ====================================================================== */
+    :root {
+      --blue-1:#2325d4;
+      --blue-2:#1a1cb3;
+      --accent:#ffec00;
+      --bg:#fff;
+      --muted:#777;
+      --card-border:#e6e6ee;
+      --shadow: 0 6px 30px rgba(0,0,0,0.06);
+      --radius:12px;
+      --max-width:1200px;
+    }
+
+
+    /* ====================================================================== */
+    /* HEADER (Encabezado principal y navegación superior) */
+    /* ====================================================================== */
+    header {
+      background: linear-gradient(135deg, var(--blue-1), var(--blue-2));
+      color: white;
+      position: relative;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Sombra más pronunciada para profundidad */
+      height: 140px; /* Altura original para escritorio */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 25px;
+    }
+
+    .header-inner {
+      max-width: var(--max-width);
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between; /* Empuja logo a la izquierda y botones a la derecha */
+      position: relative;
+      z-index: 2; /* Asegura que el contenido esté por encima de la onda */
+    }
+
+    .logo {
+      height: 180px; /* Altura original para escritorio */
+      display: flex;
+      align-items: center;
+      flex-shrink: 0; /* Evita que el logo se encoja */
+    }
+
+    .logo img {
+      max-height: 225px; /* Altura original para escritorio */
+      width: auto;
+      object-fit: contain;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    nav {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: white;
+      font-weight: 500;
+      font-size: 14px;
+      position: relative;
+      transition: color 0.3s ease, transform 0.2s ease; /* Transiciones para color y movimiento */
+      will-change: color, transform; /* Optimización de rendimiento para animaciones */
+    }
+
+    nav a:hover {
+      color: var(--accent);
+      transform: translateY(-2px); /* Pequeño levantamiento al pasar el cursor */
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -3px;
+      width: 0%;
+      height: 2px;
+      background: var(--accent);
+      transition: width 0.3s ease; /* Animación de subrayado */
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0; /* Evita que los botones se encoja */
+    }
+
+    .btn-header {
+      background: var(--accent);
+      color: var(--blue-1);
+      padding: 8px 18px;
+      border-radius: var(--radius); /* Bordes suaves y consistentes */
+      font-weight: 600;
+      font-size: 13px;
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Animaciones para botones */
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra inicial */
+    }
+
+    .btn-header:hover {
+      background: #e6d800; /* Tono más oscuro de accent */
+      transform: translateY(-2px); /* Levantamiento al pasar el cursor */
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2); /* Sombra más grande al pasar el cursor */
+    }
+
+    .onda {
+      position: absolute;
+      bottom: -20px;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      background: url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;
+      background-size: cover;
+      z-index: 1; /* Asegura que la onda esté debajo del contenido del header */
+      pointer-events: none; /* No interfiere con clics */
+    }
+
+    /* ====================================================================== */
+    /* Dropdown (Menú desplegable) */
+    /* ====================================================================== */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: var(--blue-1);
+      min-width: 200px;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.25); /* Sombra definida */
+      border-radius: var(--radius); /* Bordes suaves */
+      z-index: 10002; /* ¡Z-index ajustado para asegurar visibilidad! */
+      overflow: hidden; /* Asegura que los bordes redondeados se apliquen */
+    }
+
+    .dropdown-content a {
+      color: white;
+      padding: 10px 16px;
+      display: block;
+      font-size: 14px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .dropdown-content a:hover {
+      background-color: var(--blue-2);
+      color: var(--accent);
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    /* ====================================================================== */
+    /* HERO Section (Sección principal de bienvenida) */
+    /* ====================================================================== */
+    .hero {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 50px 20px;
+      max-width: var(--max-width);
+      margin: auto;
+    }
+
+    .hero-text {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .hero-slogan { /* Estilo para la frase "Tu conexión directo al mundo" */
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.2rem;
+      color: var(--blue-1); /* Azul PSC */
+      margin-bottom: 10px;
+      line-height: 1.2;
+      font-weight: bold; /* ¡Texto más grueso! */
+    }
+
+    .hero-text h1 {
+      font-size: 2.2rem;
+      margin-bottom: 15px;
+    }
+
+    .hero-text p {
+      margin-bottom: 20px;
+    }
+
+    .btn-azul {
+      background-color: #0000FF;
+      color: white;
+      padding: 10px 24px;
+      border-radius: var(--radius); /* Bordes suaves y consistentes */
+      font-weight: bold;
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Animaciones para botones */
+      box-shadow: 0 4px 8px rgba(0,0,255,0.2); /* Sombra inicial */
+    }
+
+    .btn-azul:hover {
+      background-color: #0000cc;
+      transform: translateY(-3px); /* Levantamiento al pasar el cursor */
+      box-shadow: 0 8px 16px rgba(0,0,255,0.3); /* Sombra más grande al pasar el cursor */
+    }
+
+    .hero-img {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .hero-img img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 18px; /* Bordes más suaves para la imagen */
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15); /* Sombra para la imagen */
+    }
+
+    /* ====================================================================== */
+    /* SECTIONS (Estilos generales para secciones de contenido) */
+    /* ====================================================================== */
+    .section {
+      padding: 50px 20px;
+      max-width: var(--max-width);
+      margin: auto;
+      text-align: center;
+    }
+
+    .section h2 {
+      font-size: 1.8rem;
+      color: #0000FF;
+      margin-bottom: 8px;
+    }
+
+    /* ====================================================================== */
+    /* SERVICIOS (Tarjetas de servicios) */
+    /* ====================================================================== */
+    .servicios {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+    }
+
+    .servicio {
+      flex: 1;
+      min-width: 240px;
+      background-color: #f9f9f9; /* Fondo suave para la tarjeta */
+      padding: 25px;
+      border-radius: 16px; /* Bordes más suaves para las tarjetas */
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08); /* Sombra para las tarjetas */
+      transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animación al pasar el cursor */
+    }
+
+    .servicio:hover {
+      transform: translateY(-8px); /* Elevamiento al pasar el cursor */
+      box-shadow: 0 12px 30px rgba(0,0,0,0.15); /* Sombra más intensa al pasar el cursor */
+    }
+
+    .servicio img {
+      height: 60px; /* Tamaño de ícono ligeramente más grande */
+      margin-bottom: 15px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,255,0.2)); /* Sombra al ícono */
+    }
+
+    .servicio h4 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      color: var(--blue-1); /* Color del título de servicio */
+    }
+
+    /* ====================================================================== */
+    /* SUCURSALES (Sección con imagen de mapa/ubicación) */
+    /* ====================================================================== */
+    .sucursales .sucursal-img {
+      max-width: 80%;
+      height: auto;
+      border-radius: 18px; /* Bordes más suaves para la imagen de sucursal */
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      display: block;
+      margin: 16px auto 0 auto;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sucursales .sucursal-img:hover {
+      transform: translateY(-6px) scale(1.01); /* Pequeño levantamiento y escala */
+      box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+    }
+
+    /* ====================================================================== */
+    /* EXPERIENCIA (Sección de estadísticas y contadores) */
+    /* ====================================================================== */
+    .testimonios, .experiencia {
+      color: white;
+      padding: 50px 20px;
+      text-align: center;
+    }
+
+    .testimonios {
+      background-color: #0000FF;
+    }
+
+    .experiencia {
+      background-color: #000;
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+      margin-top: 25px;
+    }
+
+    .stat {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: var(--accent); /* Color amarillo para los números */
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3); /* Sombra al texto del número */
+    }
+
+    .stat small {
+      display: block;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.8); /* Texto explicativo más suave */
+      margin-top: 5px;
+    }
+
+    .experiencia-image img {
+      margin-top: 30px;
+      max-width: 80%;
+      max-height: 240px;
+      object-fit: contain;
+      margin: 0 auto;
+      display: block;
+      border-radius: 18px; /* Bordes suaves para la imagen */
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25); /* Sombra para la imagen */
+    }
+
+    /* ====================================================================== */
+    /* FOOTER (Pie de página) */
+    /* ====================================================================== */
+    footer {
+      background: var(--bg);
+      color: #000;
+      padding: 40px 20px; /* Más padding para más "aire" */
+      margin-top: 50px; /* Más espacio superior */
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.08); /* Sombra sutil y más prominente */
+    }
+
+    .footer-container {
+      max-width: var(--max-width);
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px; /* Más espacio entre columnas */
+    }
+
+    .footer-col h3 {
+      font-size: 1.2rem; /* Tamaño ajustado para elegancia */
+      margin-bottom: 12px; /* Más espacio debajo del título */
+      color: #333; /* Color gris oscuro para encabezados */
+    }
+
+    .footer-col p, .footer-col a {
+      font-size: 14px; /* Tamaño ligeramente ajustado para legibilidad */
+      color: #555; /* Color gris suave para texto normal */
+      transition: color 0.3s ease; /* Transición para enlaces */
+    }
+
+    .footer-col a:hover {
+      color: var(--blue-1); /* Color azul PSC al pasar el cursor */
+    }
+
+    .social-icons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px; /* Más espacio entre iconos sociales */
+    }
+
+    .footer-bottom {
+      text-align: center;
+      margin-top: 30px; /* Más espacio superior */
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid rgba(0,0,0,0.1);
+      padding-top: 15px; /* Más padding superior */
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px; /* Más espacio entre enlaces del footer-bottom */
+      margin-top: 10px; /* Más espacio */
+    }
+
+    .footer-links a {
+      color: var(--blue-1);
+      font-size: 12px;
+    }
+
+    /* ====================================================================== */
+    /* Media Queries (Diseño Responsivo) */
+    /* ====================================================================== */
+    @media (max-width: 900px) {
+      header {
+        height: auto; /* Altura auto para el header en móvil */
+        padding: 15px 25px; /* Padding vertical para el header en móvil */
+      }
+      .header-inner {
+        flex-wrap: wrap; /* Permite que los elementos se envuelvan */
+        justify-content: space-between; /* Empuja el logo a la izquierda y los botones a la derecha */
+        gap: 15px; /* Espacio entre el logo y los botones */
+      }
+      .logo {
+        height: auto;
+        max-height: 80px; /* Ajusta la altura máxima del logo en móvil */
+        width: auto; /* Permite que el logo ocupe su ancho natural */
+        margin-right: auto; /* Empuja el logo a la izquierda */
+        justify-content: flex-start; /* Alinea el logo a la izquierda (redundante con margin-right) */
+      }
+      .logo img {
+        max-height: 70px; /* Ajusta el tamaño de la imagen del logo */
+      }
+      nav {
+        display: none !important; /* Oculta la navegación principal en móvil */
+      }
+      /* Los botones del header ahora se muestran en móvil */
+      .header-buttons {
+        display: flex; /* Muestra los botones */
+        flex-wrap: nowrap; /* Intenta mantener los botones en una fila */
+        justify-content: flex-end; /* Alinea los botones a la derecha */
+        width: auto; /* Permite que los botones ocupen solo el espacio necesario */
+        gap: 10px; /* Espacio entre los botones */
+        margin-left: auto; /* Empuja los botones a la derecha */
+      }
+      /* Si la pantalla es muy pequeña y los botones no caben, se envuelven y centran */
+      @media (max-width: 480px) {
+        .header-inner {
+          justify-content: center; /* Centra logo y botones */
+          flex-direction: column; /* Apila logo y botones */
+          gap: 10px; /* Menor espacio cuando están apilados */
+        }
+        .logo {
+          width: 100%; /* El logo ocupa todo el ancho disponible */
+          justify-content: center; /* Centra el logo cuando se apila */
+          margin-right: 0; /* Elimina el margen para centrar */
+        }
+        .header-buttons {
+          width: 100%; /* Ocupa todo el ancho si necesita envolverse debajo del logo */
+          justify-content: center; /* Centra los botones cuando están envueltos */
+          margin-left: 0; /* Elimina el margen para centrar */
+        }
+      }
+      .menu-toggle {
+        display: none; /* Asegura que el antiguo botón de hamburguesa esté oculto */
+      }
+    }
+
+    @media (min-width: 901px){
+      .menu-toggle{
+        display:none;
+      }
+      header nav{
+        display:flex !important;
+        position:static;
+        box-shadow:none;
+        padding:0;
+      }
+      /* Asegura que los botones del header se alineen a la derecha en escritorio */
+      .header-buttons {
+        display: flex;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero {
+        flex-direction: column;
+        text-align: center;
+      }
+      .hero-text {
+        padding: 10px;
+      }
+      .hero-img {
+        padding: 10px;
+      }
+      .servicios {
+        flex-direction: column;
+      }
+      .stats {
+        flex-direction: column;
+      }
+      .servicio {
+        margin-bottom: 20px; /* Espacio entre servicios en móvil */
+      }
+    }
+
+    /* ====================================================================== */
+    /* Animaciones Generales (on-scroll animations) */
+    /* ====================================================================== */
+    .psc-anim-hidden {
+      opacity: 0;
+      transform: translateY(20px); /* Empieza un poco más abajo */
+      transition: opacity 800ms ease-out, transform 800ms ease-out; /* Transición más suave */
+    }
+
+    .psc-anim-show {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    /* ====================================================================== */
+    /* FLOATING ACTION BUTTON (FAB) - Nuevo componente mejorado */
+    /* ====================================================================== */
+    .fab-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      width: 250px;
+      height: 250px;
+      display: block;
+    }
+
+    @media (min-width: 901px) {
+      .fab-container {
+        display: none;
+      }
+    }
+
+    .fab-main-button {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 60px; /* Tamaño del botón principal */
+      height: 60px;
+      border-radius: 50%;
+      background-color: #ff0000; /* Rojo vibrante */
+      color: white;
+      border: none;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), background-color 0.3s ease, box-shadow 0.3s ease;
+      z-index: 1001;
+    }
+
+    .fab-main-button:hover {
+      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+      transform: scale(1.05);
+    }
+
+    .fab-main-button .plus-icon {
+      width: 30px;
+      height: 30px;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .fab-container.open .fab-main-button .plus-icon {
+      transform: rotate(45deg);
+    }
+
+    .fab-action-item {
+      position: absolute;
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+      z-index: 999;
+      white-space: nowrap;
+      transform: translateY(0px) translateX(0px) scale(0.5);
+    }
+
+    .fab-container.open .fab-action-item {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) translateX(0) scale(1);
+    }
+
+    /* Posicionamiento específico con animaciones radiales más elegantes */
+    .fab-container.open .fab-action-item.whatsapp-action { transform: translateY(-70px) scale(1); transition-delay: 0.05s; }
+    .fab-container.open .fab-action-item.tracker-action { transform: translateY(-130px) scale(1); transition-delay: 0.10s; }
+    .fab-container.open .fab-action-item.ml-action { transform: translateY(-190px) scale(1); transition-delay: 0.15s; }
+    .fab-container.open .fab-action-item.quotes-action { transform: translateY(-250px) scale(1); transition-delay: 0.20s; }
+
+    .fab-circular-button {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: var(--blue-1);
+      color: white;
+      border: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .fab-circular-button:hover {
+      background-color: var(--blue-2);
+      transform: scale(1.1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    }
+
+    .fab-circular-button svg {
+      width: 28px;
+      height: 28px;
+      fill: currentColor;
+    }
+
+    .fab-action-label {
+      background-color: white;
+      color: var(--blue-1);
+      padding: 8px 12px;
+      border-radius: 18px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(20px);
+      transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+    }
+
+    .fab-container.open .fab-action-item .fab-action-label {
+      opacity: 1;
+      transform: translateX(0);
+      transition-delay: 0.1s;
+    }
+
+    .fab-screen-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(35, 37, 212, 0.5);
+      z-index: 998;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .fab-screen-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+  </style>
 </head>
 <body>
 
-  <!-- ==================================================================== -->
-  <!-- HEADER SECTION -->
-  <!-- ==================================================================== -->
-  <header>
-    <div class="header-inner">
-      <div class="logo">
-        <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
-      </div>
-      <!-- La navegación principal de escritorio se oculta en móvil vía CSS -->
-      <nav>
-        <a href="./">Inicio</a>
-        <a href="Rastreo/">Rastreador de Paquetes</a>
-        <a href="Cotizador/">Cotiza tus Compras</a>
-        <a href="ML/">Solicitar ML</a>
-        
-        <!-- Menú desplegable "Más" -->
-        <div class="dropdown">
-          <a href="#">Más ▾</a>
-          <div class="dropdown-content">
-            <a href="DG/">Mercancía Peligrosa</a>
-            <a href="Politicas/">Términos y Condiciones</a>
-          </div>
-        </div>
-      </nav>
-      <!-- Los botones de encabezado se muestran ahora también en móvil -->
-      <div class="header-buttons">
-        <a href="https://psc.e-rmez.com/zonacliente/" class="btn-header">Zona de Clientes</a>
-        <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-header">Regístrate</a>
-      </div>
-    </div>
-    <div class="onda"></div>
-  </header>
+        <header>
+    <div class="header-inner">
+      <div class="logo">
+        <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
+      </div>
+            <nav>
+        <a href="./">Inicio</a>
+        <a href="Rastreo/">Rastreador de Paquetes</a>
+        <a href="Cotizador/">Cotiza tus Compras</a>
+        <a href="ML/">Solicitar ML</a>
+        
+                <div class="dropdown">
+          <a href="#">Más ▾</a>
+          <div class="dropdown-content">
+            <a href="DG/">Mercancía Peligrosa</a>
+            <a href="Politicas/">Términos y Condiciones</a>
+          </div>
+        </div>
+      </nav>
+            <div class="header-buttons">
+        <a href="https://psc.e-rmez.com/zonacliente/" class="btn-header">Zona de Clientes</a>
+        <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-header">Regístrate</a>
+      </div>
+    </div>
+    <div class="onda"></div>
+  </header>
 
-  <!-- ==================================================================== -->
-  <!-- HERO SECTION -->
-  <!-- ==================================================================== -->
-  <section class="hero">
-    <div class="hero-text">
-      <p class="hero-slogan">Tu conexión directo al mundo</p>
-      <h1>¿Quieres un casillero?</h1>
-      <p>En PSC, traemos tus paquetes de cualquier parte del mundo a todo Panamá. ¡Somos los más rápidos! ⚡</p>
-      <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-azul">Regístrate Gratis →</a>
-    </div>
-    <div class="hero-img">
-      <img src="https://static.wixstatic.com/media/f7f5e1_b7d11b4129d84543b40acc639414a93c~mv2.png" alt="Imagen representativa del servicio de envío de paquetes">
-    </div>
-  </section>
+        <section class="hero">
+    <div class="hero-text">
+      <p class="hero-slogan">Tu conexión directo al mundo</p>
+      <h1>¿Quieres un casillero?</h1>
+      <p>En PSC, traemos tus paquetes de cualquier parte del mundo a todo Panamá. ¡Somos los más rápidos! ⚡</p>
+      <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-azul">Regístrate Gratis →</a>
+    </div>
+    <div class="hero-img">
+      <img src="https://static.wixstatic.com/media/f7f5e1_b7d11b4129d84543b40acc639414a93c~mv2.png" alt="Imagen representativa del servicio de envío de paquetes">
+    </div>
+  </section>
 
-  <!-- ==================================================================== -->
-  <!-- SERVICIOS SECTION -->
-  <!-- ==================================================================== -->
-  <section class="section">
-    <h2>NUESTROS SERVICIOS</h2>
-    <p style="margin-bottom: 40px;">Llevando tu logística al siguiente nivel</p>
-    <div class="servicios">
-      <div class="servicio">
-        <img src="https://img.icons8.com/ios/100/0000FF/shopping-cart.png" alt="Icono de carrito de compras" />
-        <h4>Compras por internet</h4>
-        <p>Adquiere tus productos en línea, incluso sin tarjeta. Nosotros nos encargamos de tu compra y envío.</p>
-      </div>
-      <div class="servicio">
-        <img src="https://img.icons8.com/ios/100/0000FF/warehouse.png" alt="Icono de almacén" />
-        <h4>Casilleros en Miami</h4>
-        <p>Recibe tus paquetes desde Miami en solo 2 a 5 días. Un servicio seguro y totalmente confiable.</p>
-      </div>
-      <div class="servicio">
-        <img src="https://img.icons8.com/ios/100/0000FF/customer-support.png" alt="Icono de soporte al cliente" />
-        <h4>Compras asistidas</h4>
-        <p>Obtén asesoría experta y soporte completo para tus compras, garantizando una experiencia sin complicaciones.</p>
-      </div>
-    </div>
-  </section>
+        <section class="section">
+    <h2>NUESTROS SERVICIOS</h2>
+    <p style="margin-bottom: 40px;">Llevando tu logística al siguiente nivel</p>
+    <div class="servicios">
+      <div class="servicio">
+        <img src="https://img.icons8.com/ios/100/0000FF/shopping-cart.png" alt="Icono de carrito de compras" />
+        <h4>Compras por internet</h4>
+        <p>Adquiere tus productos en línea, incluso sin tarjeta. Nosotros nos encargamos de tu compra y envío.</p>
+      </div>
+      <div class="servicio">
+        <img src="https://img.icons8.com/ios/100/0000FF/warehouse.png" alt="Icono de almacén" />
+        <h4>Casilleros en Miami</h4>
+        <p>Recibe tus paquetes desde Miami en solo 2 a 5 días. Un servicio seguro y totalmente confiable.</p>
+      </div>
+      <div class="servicio">
+        <img src="https://img.icons8.com/ios/100/0000FF/customer-support.png" alt="Icono de soporte al cliente" />
+        <h4>Compras asistidas</h4>
+        <p>Obtén asesoría experta y soporte completo para tus compras, garantizando una experiencia sin complicaciones.</p>
+      </div>
+    </div>
+  </section>
 
-  <!-- ==================================================================== -->
-  <!-- SUCURSALES SECTION -->
-  <!-- ==================================================================== -->
-  <section class="section sucursales" aria-label="Nuestras Sucursales">
-    <h2>NUESTRAS SUCURSALES</h2>
-    <p style="margin-bottom: 20px;">Visítanos en nuestras distintas ubicaciones en Panamá.</p>
-    <img class="sucursal-img" src="https://static.wixstatic.com/media/f7f5e1_8607c401b2cd45cba61a671c3174c8fb~mv2.png" alt="Mapa de ubicaciones de sucursales">
-  </section>
+        <section class="section sucursales" aria-label="Nuestras Sucursales">
+    <h2>NUESTRAS SUCURSALES</h2>
+    <p style="margin-bottom: 20px;">Visítanos en nuestras distintas ubicaciones en Panamá.</p>
+    <img class="sucursal-img" src="https://static.wixstatic.com/media/f7f5e1_8607c401b2cd45cba61a671c3174c8fb~mv2.png" alt="Mapa de ubicaciones de sucursales">
+  </section>
 
-  <!-- ==================================================================== -->
-  <!-- EXPERIENCIA SECTION -->
-  <!-- ==================================================================== -->
-  <section class="experiencia">
-    <h2>NUESTRA EXPERIENCIA</h2>
-    <div class="stats">
-      <div class="stat"><span class="counter" data-target="10">0</span><br/><small>Años de servicio</small></div>
-      <div class="stat"><span class="counter" data-target="15000">0</span><br/><small>Casilleros creados</small></div>
-      <div class="stat"><span class="counter" data-target="10000">0</span><br/><small>Clientes satisfechos</small></div>
-      <div class="stat"><span class="counter" data-target="1000000">0</span><br/><small>Paquetes entregados</small></div>
-    </div>
+        <section class="experiencia">
+    <h2>NUESTRA EXPERIENCIA</h2>
+    <div class="stats">
+      <div class="stat"><span class="counter" data-target="10">0</span><br/><small>Años de servicio</small></div>
+      <div class="stat"><span class="counter" data-target="15000">0</span><br/><small>Casilleros creados</small></div>
+      <div class="stat"><span class="counter" data-target="10000">0</span><br/><small>Clientes satisfechos</small></div>
+      <div class="stat"><span class="counter" data-target="1000000">0</span><br/><small>Paquetes entregados</small></div>
+    </div>
 
-    <div class="experiencia-image">
-      <img
-        src="https://static.wixstatic.com/media/f7f5e1_60e079b447f54853aa679ed6a92e1aa6~mv2.png"
-        alt="Imagen ilustrativa de la experiencia de la empresa"
-      >
-    </div>
-  </section>
+    <div class="experiencia-image">
+      <img
+        src="https://static.wixstatic.com/media/f7f5e1_60e079b447f54853aa679ed6a92e1aa6~mv2.png"
+        alt="Imagen ilustrativa de la experiencia de la empresa"
+      >
+    </div>
+  </section>
 
-  <!-- ==================================================================== -->
-  <!-- FOOTER SECTION -->
-  <!-- ==================================================================== -->
-  <footer>
-    <div class="footer-container">
-      <div class="footer-col">
-        <h3>Contacto</h3>
-        <p>Asistencia personalizada</p>
-        <div class="social-icons">
-          <!-- Enlace de Instagram actualizado -->
-          <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
-          <!-- Enlace de WhatsApp para el número de teléfono -->
-          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
-          <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
-          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">💬 WhatsApp</a>
-        </div>
-      </div>
-      <div class="footer-col">
-        <h3>Enlaces Rápidos</h3>
-        <!-- Enlace "Términos y Condiciones" ahora apunta a "Politicas/" -->
-        <a href="Politicas/">Términos y Condiciones</a><br>
-        <!-- Enlace "Mercancía Restringida" ahora apunta a "DG/" -->
-        <a href="DG/">Mercancía Restringida</a>
-      </div>
-      <div class="footer-col">
-        <h3>Sobre Nosotros</h3>
-        <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      &copy; 2023 Panama Shipping Co. Todos los derechos reservados.
-      <div class="footer-links">
-        <a href="#">Términos</a>
-        <a href="#">Privacidad</a>
-      </div>
-    </div>
-  </footer>
+        <footer>
+    <div class="footer-container">
+      <div class="footer-col">
+        <h3>Contacto</h3>
+        <p>Asistencia personalizada</p>
+        <div class="social-icons">
+                    <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
+                    <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
+          <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
+          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">💬 WhatsApp</a>
+        </div>
+        
+      </div>
+      <div class="footer-col">
+        <h3>Enlaces Rápidos</h3>
+                <a href="Politicas/">Términos y Condiciones</a><br>
+                <a href="DG/">Mercancía Restringida</a>
+      </div>
+      <div class="footer-col">
+        <h3>Sobre Nosotros</h3>
+        <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2023 Panama Shipping Co. Todos los derechos reservados.
+      <div class="footer-links">
+        <a href="#">Términos</a>
+        <a href="#">Privacidad</a>
+      </div>
+      </div>
+  </footer>
 
-  <!-- ==================================================================== -->
-  <!-- FLOATING ACTION BUTTON (FAB) - NUEVO COMPONENTE SOCIAL MEDIA -->
-  <!-- ==================================================================== -->
-  <div class="fab-container">
-    <!-- Botones de acción social con sus etiquetas -->
-    <div class="fab-action-item whatsapp-action">
-      <span class="fab-action-label">WhatsApp</span>
-      <button class="fab-circular-button" onclick="location.href='https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion'">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Icono de WhatsApp" />
-      </button>
-    </div>
+        <div class="fab-container">
+    <div class="fab-screen-overlay"></div>
 
-    <div class="fab-action-item tracker-action">
-      <span class="fab-action-label">Rastreador</span>
-      <button class="fab-circular-button" onclick="location.href='Rastreo/'">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M22 9h-4V7c0-.55-.45-1-1-1H9c-.55 0-1 .45-1 1v3H4c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h2c0 1.66 1.34 3 3 3s3-1.34 3-3h4c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5c0-.55-.45-1-1-1zM9 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm9 0c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm3-7l-3 4H9V7h7.21l1.79 3.09L21 11.01z"/></svg>
-      </button>
-    </div>
+        <div class="fab-action-item whatsapp-action">
+      <span class="fab-action-label">WhatsApp</span>
+      <button class="fab-circular-button" onclick="location.href='https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion'">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.176 13.916c-.234.34-.847.41-1.285.394-.616-.017-1.127-.183-1.637-.417-.51-.234-1.02-.51-1.554-.834-1.144-.694-2.115-1.748-2.615-2.628-.093-.166-.182-.32-.267-.468-.135-.224-.225-.49-.24-.766-.02-.38.167-.7.424-.916.142-.116.326-.18.52-.224.23-.05.46-.08.694-.094.22-.014.436.002.62.062.24.08.48.21.68.4.15.138.28.32.39.53.078.14.135.29.176.44.02.09.03.18.03.26-.002.32-.234.56-.566.67-.34.11-.69.07-.98.02-.27-.05-.54-.15-.8-.22-.05-.014-.1-.03-.15-.04l-.06-.017c-.126-.03-.252-.06-.37-.06-.118 0-.236.01-.35.03l-.06.014c-.2.064-.4.2-.59.39-.1.1-.19.2-.28.31-.22.28-.4.6-.5.95-.1.35-.12.7-.06 1.05.1.58.38 1.13.78 1.63.4.5.9.96 1.48 1.34 1.5.97 3.32 1.67 5.09 1.95.27.04.54.06.81.06.33 0 .65-.01.97-.04.48-.04.97-.13 1.42-.28.2-.07.4-.17.59-.28.16-.1.3-.23.42-.37.2-.2.3-.43.34-.69.04-.26.02-.5-.04-.75-.06-.25-.15-.49-.25-.72-.1-.23-.23-.46-.37-.67l-.02-.03z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="fab-action-item tracker-action">
+      <span class="fab-action-label">Rastreador</span>
+      <button class="fab-circular-button" onclick="location.href='Rastreo/'">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="fab-action-item ml-action">
+      <span class="fab-action-label">Solicitar ML</span>
+      <button class="fab-circular-button" onclick="location.href='ML/'">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-6h-2v6zm0-8h2V7h-2v2z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="fab-action-item quotes-action">
+      <span class="fab-action-label">Cotizador</span>
+      <button class="fab-circular-button" onclick="location.href='Cotizador/'">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 15h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+        </svg>
+      </button>
+    </div>
 
-    <div class="fab-action-item ml-action">
-      <span class="fab-action-label">Solicitar ML</span>
-      <button class="fab-circular-button" onclick="location.href='ML/'">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 12h-2v3h-3v2h5v-5zM7 9h3V7H5v5h2V9zm14-6H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg>
-      </button>
-    </div>
+        <button class="fab-main-button">
+      <svg class="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+    </button>
+  </div>
+ 
+    <script>
+    const fabContainer = document.querySelector('.fab-container');
+    const mainFabButton = document.querySelector('.fab-main-button');
+    const overlay = document.querySelector('.fab-screen-overlay');
 
-    <div class="fab-action-item quotes-action">
-      <span class="fab-action-label">Cotizar Compras</span>
-      <button class="fab-circular-button" onclick="location.href='Cotizador/'">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 5h14v14H5V5zm2 5h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2zM7 14h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/></svg>
-      </button>
-    </div>
+    function toggleFabMenu() {
+      const isOpen = fabContainer.classList.toggle('open');
+      if (isOpen) {
+        overlay.classList.add('show');
+      } else {
+        overlay.classList.remove('show');
+      }
+    }
 
-    <!-- Botón principal de activación/desactivación del FAB -->
-    <button class="fab-main-button" id="fabMainBtn">
-      <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-      <span>Acciones Rápidas</span>
-    </button>
-  </div>
+    mainFabButton.addEventListener('click', toggleFabMenu);
+    overlay.addEventListener('click', toggleFabMenu);
 
-  <!-- Overlay de pantalla completa para el FAB -->
-  <div class="fab-screen-overlay"></div>
+    // JavaScript para las animaciones al hacer scroll
+    const animElements = document.querySelectorAll('.psc-anim-hidden');
 
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('psc-anim-show');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.1
+    });
 
-  <!-- ==================================================================== -->
-  <!-- JAVASCRIPT SECTION -->
-  <!-- ==================================================================== -->
-  <script>
-    // Lógica para los contadores dinámicos al entrar en la vista (IntersectionObserver)
-    (function () {
-      const counters = document.querySelectorAll('.counter');
-      let started = false;
+    animElements.forEach(el => {
+      observer.observe(el);
+    });
 
-      function startCounters() {
-        if (started) return; // Evita que los contadores se reinicien
-        started = true;
-
-        counters.forEach(counter => {
-          counter.innerText = '0'; // Reinicia a 0 visualmente
-          const target = +counter.getAttribute('data-target'); // Obtiene el valor final
-
-          const updateCounter = () => {
-            let current = +counter.innerText.toString().replace(/,/g, ''); // Elimina comas para cálculo
-            const increment = Math.max(1, Math.floor(target / 200)); // Calcula incremento, mínimo 1
-            
-            if (current < target) {
-              current = Math.min(target, Math.ceil(current + increment)); // Incrementa y asegura no pasar el target
-              counter.innerText = current.toLocaleString(); // Formatea con comas
-              setTimeout(updateCounter, 10); // Llama recursivamente para animación
-            } else {
-              counter.innerText = target.toLocaleString(); // Asegura que el número final sea exacto
-            }
-          };
-          updateCounter();
-        });
-      }
-
-      // Observador para la sección de experiencia
-      if ('IntersectionObserver' in window) {
-        const experienciaEl = document.querySelector('.experiencia');
-        if (experienciaEl) {
-          const observer = new IntersectionObserver((entries, obs) => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                startCounters();
-                obs.unobserve(experienciaEl); // Deja de observar una vez que la animación se activa
-              }
-            });
-          }, { threshold: 0.35 }); // Se activa cuando el 35% de la sección es visible
-          observer.observe(experienciaEl);
-        } else {
-          // Fallback si la sección .experiencia no existe (poco probable pero seguro)
-          window.addEventListener('load', startCounters);
-        }
-      } else {
-        // Fallback para navegadores antiguos que no soportan IntersectionObserver
-        window.addEventListener('load', startCounters);
-      }
-    })();
-
-    // Lógica para animaciones al aparecer en la vista (on-scroll animations)
-    (function(){
-      document.addEventListener('DOMContentLoaded', function(){
-        // Selectores de los elementos que se animarán. Añade o quita según sea necesario.
-        const selectorsToAnimate = [
-          '.hero-text',
-          '.hero-img',
-          '.servicio',
-          '.sucursales .sucursal-img',
-          '.experiencia-image img',
-          '.section h2',
-          '.section p',
-          '.stat small'
-        ];
-
-        // Recopila todos los elementos únicos para animar
-        const elementsToObserve = [];
-        selectorsToAnimate.forEach(selector => {
-          document.querySelectorAll(selector).forEach(el => {
-            if (!elementsToObserve.includes(el)) {
-              elementsToObserve.push(el);
-            }
-          });
-        });
-
-        // Añade la clase inicial para ocultar los elementos con transición
-        elementsToObserve.forEach(el => el.classList.add('psc-anim-hidden'));
-
-        // Usa IntersectionObserver para detectar cuando los elementos entran en la vista
-        if ('IntersectionObserver' in window) {
-          const observer = new IntersectionObserver((entries, obs) => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add('psc-anim-show');
-                entry.target.classList.remove('psc-anim-hidden');
-                obs.unobserve(entry.target); // Deja de observar el elemento una vez animado
-              }
-            });
-          }, { threshold: 0.12 }); // Se activa cuando el 12% del elemento es visible
-
-          elementsToObserve.forEach(el => observer.observe(el));
-        } else {
-          // Fallback para navegadores antiguos: muestra todos los elementos inmediatamente
-          elementsToObserve.forEach(el => {
-            el.classList.add('psc-anim-show');
-            el.classList.remove('psc-anim-hidden');
-          });
-        }
-      });
-    })();
-
-    // Lógica del nuevo FAB
-    (function(){
-      const fabContainer = document.querySelector('.fab-container');
-      const fabMainBtn = document.getElementById('fabMainBtn');
-      const nav = document.querySelector('header nav'); // Obtener el elemento nav
-      const fabOverlay = document.querySelector('.fab-screen-overlay'); // Obtener el overlay
-
-      if (!fabContainer || !fabMainBtn || !nav || !fabOverlay) {
-        console.warn('FAB or navigation elements not found. Some features might not work.');
-        return;
-      }
-
-      fabMainBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // Evita que el clic se propague al documento
-        fabContainer.classList.toggle('open');
-        fabOverlay.classList.toggle('show'); // Muestra/oculta el overlay
-      });
-
-      // Cierra el FAB y el overlay cuando se hace clic fuera de él (solo en móvil)
-      document.addEventListener('click', (e) => {
-        if (window.innerWidth <= 900) {
-          if (!fabContainer.contains(e.target) && fabContainer.classList.contains('open')) {
-            fabContainer.classList.remove('open');
-            fabOverlay.classList.remove('show'); // Oculta el overlay
-          }
-        }
-      });
-
-      // Asegura que el FAB y el overlay se cierren si la ventana se redimensiona a escritorio
-      window.addEventListener('resize', () => {
-        if (window.innerWidth > 900) {
-          fabContainer.classList.remove('open');
-          fabOverlay.classList.remove('show'); // Oculta el overlay
-          // Asegura que la navegación de escritorio se muestre si se redimensiona a escritorio
-          nav.style.display = 'flex';
-        } else {
-          // Asegura que la navegación de escritorio se oculte si se redimensiona a móvil
-          nav.style.display = 'none';
-        }
-      });
-
-      // Inicializar estado del nav al cargar la página (para mobile)
-      if (window.innerWidth <= 900) {
-        nav.style.display = 'none';
-      } else {
-        nav.style.display = 'flex';
-      }
-
-    })();
-  </script>
+  </script>
 
 </body>
 </html>
-
