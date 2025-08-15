@@ -396,85 +396,40 @@
             color: var(--blue-1);
             font-size: 12px;
         }
-
+        
         /* MEDIA QUERIES (Diseño Responsivo) */
         @media (max-width: 900px) {
             header {
-                height: auto !important;
-                padding: 15px 25px !important;
-            }
-
-            .header-inner {
-                flex-wrap: nowrap !important;
-                justify-content: space-between !important;
-                gap: 15px !important;
-                flex-direction: row !important;
-            }
-
-            .logo {
-                height: auto !important;
-                max-height: 80px !important;
-                width: auto !important;
-                margin-right: auto !important;
+                height: auto;
+                padding: 15px;
             }
 
             .logo img {
-                max-height: 70px !important;
+                max-height: 70px;
+            }
+            
+            nav {
+                display: none; /* Oculta la navegación en móviles y tablets */
             }
 
-            nav {
-                display: none !important;
+            .header-inner {
+                flex-wrap: nowrap;
+                gap: 15px;
             }
 
             .header-buttons {
-                display: flex !important;
-                flex-wrap: nowrap !important;
-                justify-content: flex-end !important;
-                width: auto !important;
-                gap: 5px !important;
-                margin-left: auto !important;
+                gap: 5px;
             }
 
             .btn-header {
-                padding: 6px 14px !important;
-                font-size: 12px !important;
-            }
-
-            @media (max-width: 480px) {
-                .header-inner {
-                    justify-content: center !important;
-                    flex-direction: column !important;
-                    gap: 10px !important;
-                }
-
-                .logo {
-                    width: 100% !important;
-                    justify-content: center !important;
-                    margin-right: 0 !important;
-                }
-
-                .header-buttons {
-                    width: 100% !important;
-                    justify-content: center !important;
-                    margin-left: 0 !important;
-                }
+                padding: 6px 14px;
+                font-size: 12px;
             }
         }
 
         @media (min-width: 901px) {
             .fab-container {
-                display: none !important;
-            }
-
-            header nav {
-                display: flex !important;
-                position: static !important;
-                box-shadow: none !important;
-                padding: 0 !important;
-            }
-
-            .header-buttons {
-                display: flex !important;
+                display: none;
             }
         }
 
@@ -667,8 +622,8 @@
                 </div>
             </nav>
             <div class="header-buttons">
-                <a href="#" class="btn-header">Cotiza</a>
-                <a href="#" class="btn-header">WhatsApp</a>
+                <a href="#" class="btn-header">Zona de Cliente</a>
+                <a href="#" class="btn-header">Regístrate</a>
             </div>
         </div>
         <div class="onda"></div>
@@ -809,7 +764,7 @@
             <div class="fab-action-item ml-action">
                 <span class="fab-action-label">Machine Learning</span>
                 <button class="fab-circular-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M472 256c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24zM88 256c0-13.3 10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24s-24-10.7-24-24zM240 88c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24zM240 424c0-13.3 10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24s-24-10.7-24-24zM400 400c0-13.3 10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24s-24-10.7-24-24zM112 112c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24zM400 112c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24zM112 400c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24zM256 192c-35.3 0-64 28.7-64 64s28.7 64 64 64s64-28.7 64-64s-28.7-64-64-64zm0-64c-70.7 0-128 57.3-128 128s57.3 128 128 128s128-57.3 128-128s-57.3-128-128-128zM392 256c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24z" fill="white"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M472 256c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24zM88 256c0-13.3 10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24s-24-10.7-24-24zM240 88c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24zM240 424c0-13.3 10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24s-24-10.7-24-24zM400 400c0-13.3 10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24s-24-10.7-24-400zM112 112c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24zM400 112c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24zM112 400c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24zM256 192c-35.3 0-64 28.7-64 64s28.7 64 64 64s64-28.7 64-64s-28.7-64-64-64zm0-64c-70.7 0-128 57.3-128 128s57.3 128 128 128s128-57.3 128-128s-57.3-128-128-128zM392 256c0 13.3-10.7 24-24 24s-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24z" fill="white"/></svg>
                 </button>
             </div>
             <div class="fab-action-item quotes-action">
