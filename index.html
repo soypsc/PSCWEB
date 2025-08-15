@@ -162,7 +162,7 @@
       min-width: 200px;
       box-shadow: 0px 8px 16px rgba(0,0,0,0.25); /* Sombra definida */
       border-radius: 8px; /* Bordes suaves */
-      z-index: 1;
+      z-index: 10002; /* ¡Z-index ajustado para asegurar visibilidad! */
       overflow: hidden; /* Asegura que los bordes redondeados se apliquen */
     }
 
@@ -562,9 +562,9 @@
       <div class="logo">
         <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
       </div>
-      <div class="menu-toggle" onclick="document.querySelector('nav').classList.toggle('show')">☰</div>
+      <!-- Eliminado onclick directo, manejado por JS -->
+      <div class="menu-toggle">☰</div>
       <nav>
-        <!-- Rutas revertidas a rutas relativas sin el slash inicial -->
         <a href="./">Inicio</a>
         <a href="Rastreo/">Rastreador de Paquetes</a>
         <a href="Cotizador/">Cotiza tus Compras</a>
@@ -706,32 +706,49 @@
   <!-- JAVASCRIPT SECTION -->
   <!-- ==================================================================== -->
   <script>
-    // Script para el toggle del menú responsivo (original del layout)
-    document.querySelector('.menu-toggle').addEventListener('click', () => {
-      document.querySelector('nav').classList.toggle('show');
-    });
-
-    // Script para cerrar el menú si se hace clic fuera del header o al redimensionar
+    // Lógica principal para el menú responsivo (botón de hamburguesa)
     (function(){
-      var header = document.querySelector('header');
-      if(!header) return;
-      var nav = header.querySelector('nav');
-      if(!nav) return;
+      const header = document.querySelector('header');
+      const nav = header ? header.querySelector('nav') : null;
+      const menuToggle = header ? header.querySelector('.menu-toggle') : null;
 
-      document.addEventListener('click', function(e){
-        // Cierra el menú si el clic no fue dentro del encabezado
-        if(!header.contains(e.target)){
+      if (!header || !nav || !menuToggle) {
+        // console.warn('Elementos de navegación no encontrados. El menú de hamburguesa podría no funcionar.');
+        return; // Salir si los elementos no existen
+      }
+
+      // Función para abrir/cerrar el menú
+      function toggleMenu(show) {
+        if (show) {
+          nav.classList.add('show');
+          menuToggle.setAttribute('aria-expanded', 'true');
+        } else {
           nav.classList.remove('show');
+          menuToggle.setAttribute('aria-expanded', 'false');
+        }
+      }
+
+      // Evento de clic en el botón de hamburguesa
+      menuToggle.addEventListener('click', (e) => {
+        e.stopPropagation(); // Evita que el clic se propague al documento
+        toggleMenu(!nav.classList.contains('show'));
+      });
+
+      // Cierra el menú cuando se hace clic fuera del encabezado
+      document.addEventListener('click', (e) => {
+        if (!header.contains(e.target)) {
+          toggleMenu(false);
         }
       });
 
-      window.addEventListener('resize', function(){
-        // Cierra el menú si la ventana es redimensionada a un tamaño de escritorio
-        if(window.innerWidth > 900){
-          nav.classList.remove('show');
+      // Cierra el menú cuando se redimensiona a un tamaño de escritorio
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 900) {
+          toggleMenu(false);
         }
       });
     })();
+
 
     // Lógica para los contadores dinámicos al entrar en la vista (IntersectionObserver)
     (function () {
@@ -839,3 +856,4 @@
 
 </body>
 </html>
+
