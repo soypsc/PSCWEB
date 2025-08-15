@@ -4,40 +4,96 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Panama Shipping Co. - Buscar Mal Identificados</title>
+  <!-- Enlaces a fuentes de Google Fonts -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
+
   <style>
-    /* Estilos del layout principal (originales) */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* ====================================================================== */
+    /* Estilos Globales y Reseteo */
+    /* ====================================================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Ajuste para footer fijo: body como flex container */
+    html, body {
+      height: 100%; /* Asegura que html y body ocupen toda la altura de la ventana */
+    }
+
     body {
       font-family: 'Poppins', sans-serif;
       background-color: #fff;
       color: #000;
       line-height: 1.6;
+      overflow-x: hidden; /* Evita el scroll horizontal causado por animaciones */
+      display: flex; /* Habilita Flexbox */
+      flex-direction: column; /* Organiza los hijos en columna */
+      min-height: 100vh; /* Asegura que el body tenga al menos la altura de la ventana */
     }
-    a { text-decoration: none; color: inherit; }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ====================================================================== */
+    /* Variables CSS (Colores, etc.) */
+    /* ====================================================================== */
+    :root{
+      --blue-1:#2325d4;
+      --blue-2:#1a1cb3;
+      --accent:#ffec00;
+      --bg:#fff;
+      --muted:#777;
+      --card-border:#e6e6ee;
+      --shadow: 0 6px 30px rgba(0,0,0,0.06);
+      --radius:12px;
+      --max-width:1200px;
+
+      /* Variables específicas del módulo "Buscar Mal Identificados" */
+      --fg: #111;
+      --ok: #16a34a;
+      --err: #ff0000;
+      --warn: #ff0000;
+      --card: #fff;
+      --border: #e5e7eb;
+    }
+
+    /* ====================================================================== */
+    /* HEADER (Encabezado principal y navegación superior) - COPIADO DE homepage_enhanced_design */
+    /* ====================================================================== */
     header {
       background: linear-gradient(135deg, #2325d4, #1a1cb3);
       color: white;
       position: relative;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Sombra más pronunciada para profundidad */
       height: 140px;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0 25px;
+      flex-shrink: 0; /* Evita que el header se encoja */
     }
+
     .header-inner {
       max-width: 1200px;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      position: relative;
+      z-index: 2; /* Asegura que el contenido esté por encima de la onda */
     }
+
     .logo {
       height: 180px;
       display: flex;
       align-items: center;
     }
+
     .logo img {
       max-height: 225px;
       width: auto;
@@ -45,20 +101,28 @@
       user-select: none;
       pointer-events: none;
     }
+
     nav {
       display: flex;
       gap: 20px;
       align-items: center;
       flex-wrap: wrap;
     }
+
     nav a {
       color: white;
       font-weight: 500;
       font-size: 14px;
       position: relative;
-      transition: color 0.3s ease;
+      transition: color 0.3s ease, transform 0.2s ease; /* Transiciones para color y movimiento */
+      will-change: color, transform; /* Optimización de rendimiento para animaciones */
     }
-    nav a:hover { color: #ffec00; }
+
+    nav a:hover {
+      color: #ffec00;
+      transform: translateY(-2px); /* Pequeño levantamiento al pasar el cursor */
+    }
+
     nav a::after {
       content: "";
       position: absolute;
@@ -67,23 +131,35 @@
       width: 0%;
       height: 2px;
       background: #ffec00;
-      transition: 0.3s;
+      transition: width 0.3s ease; /* Animación de subrayado */
     }
-    nav a:hover::after { width: 100%; }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
     .header-buttons {
       display: flex;
       gap: 10px;
     }
+
     .btn-header {
       background: #ffec00;
       color: #2325d4;
-      padding: 6px 14px;
-      border-radius: 8px;
+      padding: 8px 18px;
+      border-radius: 12px; /* Bordes suaves y consistentes */
       font-weight: 600;
       font-size: 13px;
-      transition: background 0.3s;
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Animaciones para botones */
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra inicial */
     }
-    .btn-header:hover { background: #e6d800; }
+
+    .btn-header:hover {
+      background: #e6d800;
+      transform: translateY(-2px); /* Levantamiento al pasar el cursor */
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2); /* Sombra más grande al pasar el cursor */
+    }
+
     .onda {
       position: absolute;
       bottom: -20px;
@@ -92,90 +168,13 @@
       height: 40px;
       background: url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;
       background-size: cover;
-    }
-    .menu-toggle {
-      display: none;
-      font-size: 26px;
-      cursor: pointer;
-      color: white;
-    }
-    @media (max-width: 900px) {
-      nav {
-        display: none;
-        flex-direction: column;
-        width: 100%;
-        background: #2325d4;
-        padding: 10px 0;
-      }
-      nav.show { display: flex; }
-      .header-buttons { display: none; }
-      .menu-toggle { display: block; }
-    }
-    /* Sección central (se adapta al contenido del formulario, sin border o min-height fijo del layout original) */
-    .content {
-      max-width: 1200px;
-      margin: 50px auto;
-      padding: 20px;
-      /* Eliminados: border, min-height, text-align para que el .wrap del formulario tome el control */
+      z-index: 1; /* Asegura que la onda esté debajo del contenido del header */
+      pointer-events: none; /* No interfiere con clics */
     }
 
-    /* Footer */
-    footer {
-      background: #fff;
-      color: #000;
-      padding: 30px 20px;
-      margin-top: 40px;
-    }
-    .footer-container {
-      max-width: 1200px;
-      margin: auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 25px;
-    }
-    .footer-col h3 {
-      font-size: 18px;
-      margin-bottom: 8px;
-      color: #2325d4;
-    }
-    .footer-col p, .footer-col a {
-      font-size: 13px;
-      color: #333;
-    }
-    .footer-col a:hover { color: #2325d4; }
-    .social-icons { display: flex; flex-direction: column; gap: 6px; }
-    .footer-bottom {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 11px;
-      color: #555;
-      border-top: 1px solid rgba(0,0,0,0.1);
-      padding-top: 10px;
-    }
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-top: 5px;
-    }
-    .footer-links a {
-      color: #2325d4;
-      font-size: 11px;
-    }
-    /* WhatsApp flotante */
-    .whatsapp-float {
-      position: fixed;
-      bottom: 15px;
-      right: 15px;
-      z-index: 999;
-    }
-    .whatsapp-float img {
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-    }
-
-    /* Dropdown */
+    /* ====================================================================== */
+    /* Dropdown (Menú desplegable) - COPIADO DE homepage_enhanced_design */
+    /* ====================================================================== */
     .dropdown {
       position: relative;
       display: inline-block;
@@ -186,8 +185,10 @@
       position: absolute;
       background-color: #2325d4;
       min-width: 200px;
-      box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-      z-index: 1;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.25); /* Sombra definida */
+      border-radius: 8px; /* Bordes suaves */
+      z-index: 10002; /* ¡Z-index ajustado para asegurar visibilidad! */
+      overflow: hidden; /* Asegura que los bordes redondeados se apliquen */
     }
 
     .dropdown-content a {
@@ -195,6 +196,7 @@
       padding: 10px 16px;
       display: block;
       font-size: 14px;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     .dropdown-content a:hover {
@@ -206,18 +208,77 @@
       display: block;
     }
 
-    /* Estilos del módulo "Buscar Mal Identificados" (fusionados y ajustados) */
-    /* Se han mantenido las variables CSS originales para los colores y tamaños específicos del módulo */
-    :root {
-      --fg: #111;
-      --bg: #fafafa; /* Nota: body.background-color prevalece si no se anula explícitamente en .wrap */
-      --muted: #6b7280;
-      --accent: #2325d4; /* Usando el color principal de tu sitio para botones primarios */
-      --ok: #16a34a;
-      --err: #ff0000;
-      --warn: #ff0000;
-      --card: #fff;
-      --border: #e5e7eb;
+    /* ====================================================================== */
+    /* Media Queries (Diseño Responsivo) - COPIADO DE homepage_enhanced_design */
+    /* ====================================================================== */
+    @media (max-width: 900px) {
+      header {
+        height: auto; /* Altura auto para el menú desplegado */
+      }
+      .header-buttons {
+        display: none;
+      }
+      .menu-toggle {
+        display: block;
+        font-size: 26px;
+        cursor: pointer;
+        color: white;
+        position: relative;
+        z-index: 10001; /* Asegura que el toggle esté por encima del menú móvil */
+        user-select: none;
+      }
+      header nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 20px;
+        background: #2325d4;
+        flex-direction: column;
+        gap: 8px;
+        padding: 14px;
+        border-radius: 12px;
+        box-shadow: 0 12px 24px rgba(0,0,0,.25);
+        z-index: 10000;
+        width: max-content;
+        min-width: 220px;
+      }
+      header nav.show {
+        display: flex;
+      }
+      /* Dropdown dentro del panel móvil (se comporta como un elemento normal) */
+      header .dropdown:hover .dropdown-content {
+        display: none; /* Deshabilita hover en móvil para evitar conflictos */
+      }
+      header .dropdown .dropdown-content {
+        position: relative;
+        top: auto;
+        left: auto;
+        background: #1a1cb3;
+        box-shadow: none;
+        min-width: 220px;
+      }
+    }
+
+    @media (min-width: 901px){
+      .menu-toggle{
+        display:none;
+      }
+      header nav{
+        display:flex !important;
+        position:static;
+        box-shadow:none;
+        padding:0;
+      }
+    }
+
+    /* ====================================================================== */
+    /* Estilos del Módulo "Buscar Mal Identificados" (originales, fusionados y ajustados) */
+    /* ====================================================================== */
+    main.content {
+      flex-grow: 1; /* Permite que el contenido principal se estire */
+      max-width: 1200px;
+      margin: 50px auto;
+      padding: 20px;
     }
     .wrap {
       width: 100%;
@@ -267,6 +328,11 @@
       padding: 10px 14px;
       font-weight: 700;
       cursor: pointer;
+    }
+    /* Estilo específico para el botón Buscar: negro */
+    #go {
+      background-color: #000 !important;
+      color: #fff !important;
     }
     .btn-primary {
       background: var(--accent); /* Usando el --accent de tu sitio */
@@ -365,29 +431,150 @@
     .toast.warn {
       color: var(--warn);
     }
+
+    /* ====================================================================== */
+    /* FOOTER (Pie de página) - COPIADO DE homepage_enhanced_design */
+    /* ====================================================================== */
+    footer {
+      background: #fff;
+      color: #000;
+      padding: 40px 20px; /* Más padding para más "aire" */
+      margin-top: 50px; /* Más espacio superior */
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.08); /* Sombra sutil y más prominente */
+      flex-shrink: 0; /* Evita que el footer se encoja */
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px; /* Más espacio entre columnas */
+    }
+
+    .footer-col h3 {
+      font-size: 1.2rem; /* Tamaño ajustado para elegancia */
+      margin-bottom: 12px; /* Más espacio debajo del título */
+      color: #333; /* Color gris oscuro para encabezados */
+    }
+
+    .footer-col p, .footer-col a {
+      font-size: 14px; /* Tamaño ligeramente ajustado para legibilidad */
+      color: #555; /* Color gris suave para texto normal */
+      transition: color 0.3s ease; /* Transición para enlaces */
+    }
+
+    .footer-col a:hover {
+      color: #2325d4; /* Color azul PSC al pasar el cursor */
+    }
+
+    .social-icons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px; /* Más espacio entre iconos sociales */
+    }
+
+    .footer-bottom {
+      text-align: center;
+      margin-top: 30px; /* Más espacio superior */
+      font-size: 12px; /* Tamaño ligeramente ajustado */
+      color: #777;
+      border-top: 1px solid rgba(0,0,0,0.1);
+      padding-top: 15px; /* Más padding superior */
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px; /* Más espacio entre enlaces del footer-bottom */
+      margin-top: 10px; /* Más espacio */
+    }
+
+    .footer-links a {
+      color: #2325d4;
+      font-size: 12px;
+    }
+
+    /* ====================================================================== */
+    /* WhatsApp Flotante - COPIADO DE homepage_enhanced_design */
+    /* ====================================================================== */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 999;
+      transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animación */
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Sombra inicial */
+      border-radius: 50%; /* Asegura que la sombra se vea bien en el círculo */
+    }
+
+    .whatsapp-float:hover {
+      transform: scale(1.05) translateY(-2px); /* Pequeña escala y levantamiento */
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3); /* Sombra más grande */
+    }
+
+    .whatsapp-float img {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+    }
+
+    /* Mobile-friendly adjustments (iPhone & Android) */
+    html { -webkit-text-size-adjust: 100%; }
+    /* body margin/padding handled by flexbox setup */
+    * { box-sizing: border-box; }
+
+    /* Use device safe areas (notch, home indicator) */
+    :root {
+      --safe-top: env(safe-area-inset-top);
+      --safe-right: env(safe-area-inset-right);
+      --safe-bottom: env(safe-area-inset-bottom);
+      --safe-left: env(safe-area-inset-left);
+    }
+    body {
+      padding-left: max(0px, var(--safe-left));
+      padding-right: max(0px, var(--safe-right));
+      padding-bottom: max(0px, var(--safe-bottom));
+    }
+
+    /* Prevent iOS zoom on focus by ensuring >=16px */
+    input, select, textarea { font-size: 16px; }
+
+    /* Comfortable tap targets */
+    button, .btn, input[type="button"], input[type="submit"] { min-height: 44px; touch-action: manipulation; }
+
+    /* Images responsive */
+    img, svg, video, canvas { max-width: 100%; height: auto; }
+
+    /* Reduce outer paddings on small screens */
+    @media (max-width: 640px) {
+      .nav { padding: .5rem .75rem; }
+      .nav__links { gap: .5rem; }
+      .container, .wrapper, .card { padding-left: 0; padding-right: 0; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
+  <!-- HEADER - Contenido copiado de homepage_enhanced_design -->
   <header>
     <div class="header-inner">
       <div class="logo">
-        <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo" >
+        <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
       </div>
-      <div class="menu-toggle" onclick="document.querySelector('nav').classList.toggle('show')">☰</div>
+      <div class="menu-toggle">☰</div>
       <nav>
-        <a href="file:///C:/Users/soyps/Desktop/web%20psc%20inicio.html">Inicio</a>
-        <a href="file:///C:/Users/soyps/Desktop/pag%20rastredor.html">Rastreador de Paquetes</a>
-        <a href="file:///C:/Users/soyps/Desktop/cotizar%20compra.html">Cotiza tus Compras</a>
-        <a href="file:///C:/Users/soyps/Desktop/solicitar%20ML.html">Solicitar ML</a>
+        <a href="../index.html">Inicio</a>
+        <a href="../Rastreo/">Rastreador de Paquetes</a>
+        <a href="../Cotizador/">Cotiza tus Compras</a>
+        <a href="../ML/">Solicitar ML</a>
         
-        <!-- Menú desplegable -->
+        <!-- Menú desplegable "Más" -->
         <div class="dropdown">
           <a href="#">Más ▾</a>
           <div class="dropdown-content">
-            <a href="file:///C:/Users/soyps/Desktop/Mercancia%20Peligrosa.html">Mercancía Peligrosa</a>
-            <a href="file:///C:/Users/soyps/Desktop/Terminos&condiciones.html">Términos y Condiciones</a>
+            <a href="../DG/">Mercancía Peligrosa</a>
+            <a href="../Politicas/">Términos y Condiciones</a>
           </div>
         </div>
       </nav>
@@ -396,10 +583,10 @@
         <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-header">Regístrate</a>
       </div>
     </div>
-    <div class="onda"></div>
+    <div class="onda" aria-hidden="true"></div>
   </header>
 
-  <!-- SECCIÓN CENTRAL (Aquí se integra el código de "Buscar Mal Identificados") -->
+  <!-- SECCIÓN CENTRAL (Aquí se mantiene el código de "Buscar Mal Identificados") -->
   <main class="content">
     <div class="wrap">
       <h1>Buscar Mal Identificados</h1>
@@ -455,23 +642,27 @@
     </div>
   </main>
 
-  <!-- FOOTER -->
+  <!-- FOOTER - Contenido copiado de homepage_enhanced_design -->
   <footer>
     <div class="footer-container">
       <div class="footer-col">
         <h3>Contacto</h3>
         <p>Asistencia personalizada</p>
         <div class="social-icons">
-          <a href="#">📸 Instagram</a>
-          <a href="tel:+50767906781">📞 +507 67906781</a>
+          <!-- Enlace de Instagram actualizado -->
+          <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
+          <!-- Enlace de WhatsApp para el número de teléfono -->
+          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
           <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
-          <a href="#">💬 WhatsApp</a>
+          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">💬 WhatsApp</a>
         </div>
       </div>
       <div class="footer-col">
         <h3>Enlaces Rápidos</h3>
-        <a href="#">Términos y Condiciones</a><br>
-        <a href="#">Mercancía Restringida</a>
+        <!-- Enlace "Términos y Condiciones" ahora apunta a "Politicas/" -->
+        <a href="../Politicas/">Términos y Condiciones</a><br>
+        <!-- Enlace "Mercancía Restringida" ahora apunta a "DG/" -->
+        <a href="../DG/">Mercancía Restringida</a>
       </div>
       <div class="footer-col">
         <h3>Sobre Nosotros</h3>
@@ -487,19 +678,58 @@
     </div>
   </footer>
 
-  <!-- WHATSAPP -->
-<a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" 
-   class="whatsapp-float" target="_blank" rel="noopener">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp" />
-</a>
+  <!-- WHATSAPP FLOATING BUTTON - Contenido copiado de homepage_enhanced_design -->
+  <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" 
+     class="whatsapp-float" target="_blank" rel="noopener">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Icono de WhatsApp" />
+  </a>
 
   <script>
-    // Script para menú responsivo toggle
-    document.querySelector('.menu-toggle').addEventListener('click', () => {
-      document.querySelector('nav').classList.toggle('show');
-    });
+    // Lógica principal para el menú responsivo (botón de hamburguesa) - COPIADO DE homepage_enhanced_design
+    (function(){
+      const header = document.querySelector('header');
+      const nav = header ? header.querySelector('nav') : null;
+      const menuToggle = header ? header.querySelector('.menu-toggle') : null;
 
-    // JavaScript del módulo "Buscar Mal Identificados" (original, fusionado aquí)
+      if (!header || !nav || !menuToggle) {
+        // console.warn('Elementos de navegación no encontrados. El menú de hamburguesa podría no funcionar.');
+        return; // Salir si los elementos no existen
+      }
+
+      // Función para abrir/cerrar el menú
+      function toggleMenu(show) {
+        if (show) {
+          nav.classList.add('show');
+          menuToggle.setAttribute('aria-expanded', 'true');
+        } else {
+          nav.classList.remove('show');
+          menuToggle.setAttribute('aria-expanded', 'false');
+        }
+      }
+
+      // Evento de clic en el botón de hamburguesa
+      menuToggle.addEventListener('click', (e) => {
+        e.stopPropagation(); // Evita que el clic se propague al documento
+        toggleMenu(!nav.classList.contains('show'));
+      });
+
+      // Cierra el menú cuando se hace clic fuera del encabezado
+      document.addEventListener('click', (e) => {
+        if (!header.contains(e.target)) {
+          toggleMenu(false);
+        }
+      });
+
+      // Cierra el menú cuando se redimensiona a un tamaño de escritorio
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 900) {
+          toggleMenu(false);
+        }
+      });
+    })();
+
+
+    // JavaScript del módulo "Buscar Mal Identificados" (original)
     (function () {
       // --- Endpoints ---
       const SCRAPER_DEFAULT =
