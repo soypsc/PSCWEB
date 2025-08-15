@@ -126,16 +126,16 @@
     .header-buttons {
       display: flex;
       gap: 10px;
-      flex-shrink: 0; /* Evita que los botones se encojan */
+      flex-shrink: 0; /* Evita que los botones se encoja */
     }
 
     .btn-header {
       background: var(--accent);
       color: var(--blue-1);
-      padding: 12px 24px; /* Aumentado el padding para botones más grandes */
+      padding: 14px 28px; /* Aumentado el padding para botones más grandes */
       border-radius: var(--radius); /* Bordes suaves y consistentes */
       font-weight: 600;
-      font-size: 15px; /* Aumentado el tamaño de fuente */
+      font-size: 16px; /* Aumentado el tamaño de fuente */
       transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Animaciones para botones */
       box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra inicial */
     }
@@ -543,12 +543,12 @@
     .fab-container {
       position: fixed;
       bottom: 20px;
-      right: 20px;
+      right: 20px; /* Mantiene el FAB a la derecha */
       z-index: 1000; /* Asegura que esté por encima del overlay */
       display: flex;
       flex-direction: column-reverse; /* Hace que los botones secundarios aparezcan hacia arriba */
       align-items: flex-end; /* Alinea los botones secundarios a la derecha */
-      gap: 15px; /* Aumenta el espacio entre los botones cuando se expanden */
+      gap: 20px; /* AUMENTADO: Mayor espacio entre los botones cuando se expanden */
     }
 
     /* Overlay que aparece al abrir el FAB */
@@ -558,7 +558,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.4); /* Gris oscuro con 40% de transparencia */
+      background-color: rgba(0, 0, 0, 0.4); /* Negro con 40% de transparencia */
       z-index: 999; /* Detrás del FAB, pero encima del contenido */
       opacity: 0; /* Inicialmente oculto */
       pointer-events: none; /* No interactuable cuando oculto */
@@ -592,6 +592,7 @@
       cursor: pointer;
       font-size: 24px;
       transition: transform 0.3s ease, background-color 0.3s ease;
+      z-index: 1000; /* Asegura que el botón principal esté sobre el overlay */
     }
     /* El botón principal vuelve a ser sólido, la transparencia es para el overlay */
     .fab-container.open .fab-main-button {
@@ -610,7 +611,7 @@
 
     .fab-action-button {
       width: auto; /* Ancho automático para el texto */
-      min-width: 140px; /* Ancho mínimo para el botón completo (ícono + texto) */
+      min-width: 160px; /* AUMENTADO: Ancho mínimo para el botón completo (ícono + texto) */
       height: 40px; /* Alto fijo de 40px */
       border-radius: 20px; /* Bordes redondeados para forma de píldora */
       background-color: #f2f2f2; /* Gris claro, tirando a blanco */
@@ -632,6 +633,7 @@
       text-align: left; /* Alinea el texto a la izquierda dentro del botón */
       gap: 8px; /* Espacio entre ícono y texto */
       white-space: nowrap; /* Evita que el texto se envuelva */
+      z-index: 1001; /* Asegura que los botones de acción estén sobre el botón principal */
     }
 
     .fab-action-button:hover {
@@ -648,19 +650,19 @@
 
     /* Posiciones escalonadas para los botones de acción al abrirse */
     .fab-container.open .fab-action-button:nth-child(1) { /* WhatsApp */
-      transform: translateY(-60px) scale(1);
+      transform: translateY(-75px) scale(1); /* AUMENTADO: Más espacio */
       transition-delay: 0.05s;
     }
     .fab-container.open .fab-action-button:nth-child(2) { /* Rastreador */
-      transform: translateY(-115px) scale(1); /* Aumentado el espaciado */
+      transform: translateY(-150px) scale(1); /* AUMENTADO: Más espacio */
       transition-delay: 0.10s;
     }
     .fab-container.open .fab-action-button:nth-child(3) { /* Mal Identificado */
-      transform: translateY(-170px) scale(1); /* Aumentado el espaciado */
+      transform: translateY(-225px) scale(1); /* AUMENTADO: Más espacio */
       transition-delay: 0.15s;
     }
     .fab-container.open .fab-action-button:nth-child(4) { /* Cotizar Artículos */
-      transform: translateY(-225px) scale(1); /* Aumentado el espaciado */
+      transform: translateY(-300px) scale(1); /* AUMENTADO: Más espacio */
       transition-delay: 0.20s;
     }
 
@@ -1033,3 +1035,4 @@
 
 </body>
 </html>
+
