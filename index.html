@@ -544,12 +544,32 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      z-index: 1000;
+      z-index: 1000; /* Asegura que esté por encima del overlay */
       display: flex;
       flex-direction: column-reverse; /* Hace que los botones secundarios aparezcan hacia arriba */
       align-items: center; /* Centra los botones secundarios */
       gap: 10px; /* Espacio entre los botones cuando se expanden */
     }
+
+    /* Overlay que aparece al abrir el FAB */
+    .fab-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(242, 242, 242, 0.4); /* Gris claro con 40% de transparencia */
+      z-index: 999; /* Detrás del FAB, pero encima del contenido */
+      opacity: 0; /* Inicialmente oculto */
+      pointer-events: none; /* No interactuable cuando oculto */
+      transition: opacity 0.3s ease;
+    }
+
+    .fab-overlay.show {
+      opacity: 1;
+      pointer-events: auto; /* Se vuelve interactuable cuando se muestra */
+    }
+
 
     /* Ocultar el FAB por defecto en escritorio y mostrarlo solo en móvil */
     @media (min-width: 901px) {
@@ -573,9 +593,9 @@
       font-size: 24px;
       transition: transform 0.3s ease, background-color 0.3s ease;
     }
-    /* Estilo para el fondo transparente cuando el FAB principal está abierto */
+    /* El botón principal vuelve a ser sólido, la transparencia es para el overlay */
     .fab-container.open .fab-main-button {
-      background-color: rgba(0, 0, 255, 0.7); /* Azul con transparencia */
+      background-color: #0000FF; /* Mantiene el color sólido al abrirse */
     }
 
 
@@ -589,27 +609,29 @@
     }
 
     .fab-action-button {
-      width: 40px; /* Ancho para el círculo */
-      height: 40px; /* Alto para el círculo */
-      border-radius: 50%;
+      width: auto; /* Ancho automático para el texto */
+      min-width: 120px; /* Ancho mínimo para que se vean bien */
+      height: 40px; /* Alto fijo de 40px */
+      border-radius: 20px; /* Bordes redondeados para forma de píldora */
       background-color: #f2f2f2; /* Gris claro, tirando a blanco */
       color: var(--blue-1); /* Color del ícono y texto */
       border: 1px solid rgba(0,0,0,0.05); /* Borde muy sutil */
       box-shadow: 0 3px 8px rgba(0,0,0,0.1); /* Sombra suave para elegancia */
       display: flex;
-      flex-direction: column; /* Apila el ícono y el texto */
-      align-items: center; /* Centra verticalmente */
-      justify-content: center; /* Centra horizontalmente */
+      flex-direction: row; /* Ícono y texto 'al lado' */
+      align-items: center; /* Centra verticalmente los elementos */
+      justify-content: flex-start; /* Alinea los elementos a la izquierda */
       cursor: pointer;
-      font-size: 9px; /* Tamaño de fuente más pequeño para el texto del botón */
+      font-size: 13px; /* Tamaño de fuente para el texto del botón */
       opacity: 0; /* Inicialmente oculto */
       transform: translateY(10px) scale(0.5); /* Inicialmente encogido y desplazado */
       transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
-      position: absolute; /* Para controlar la posición con JS si se desea radial */
+      position: absolute; /* Para controlar la posición escalonada */
       pointer-events: none; /* No interactuable cuando oculto */
-      padding: 3px; /* Añade un poco de padding para el contenido */
-      text-align: center; /* Centra el texto */
-      line-height: 1.1; /* Ajusta la altura de línea para textos pequeños */
+      padding: 0 15px; /* Padding horizontal para el contenido */
+      text-align: left; /* Alinea el texto a la izquierda dentro del botón */
+      gap: 8px; /* Espacio entre ícono y texto */
+      white-space: nowrap; /* Evita que el texto se envuelva */
     }
 
     .fab-action-button:hover {
@@ -625,40 +647,42 @@
     }
 
     /* Posiciones escalonadas para los botones de acción al abrirse (simulando un "fan" hacia arriba) */
-    .fab-container.open .fab-action-button:nth-child(2) { /* Primer botón secundario (el más cercano al principal) */
-      transform: translateY(-60px) scale(1); /* Ajusta este valor para el espaciado vertical */
+    .fab-container.open .fab-action-button:nth-child(1) { /* WhatsApp - el primero en el HTML */
+      transform: translateY(-50px) scale(1); /* Ajusta este valor para el espaciado vertical */
       transition-delay: 0.05s;
     }
-    .fab-container.open .fab-action-button:nth-child(3) {
-      transform: translateY(-110px) scale(1);
+    .fab-container.open .fab-action-button:nth-child(2) { /* Rastreador */
+      transform: translateY(-100px) scale(1);
       transition-delay: 0.10s;
     }
-    .fab-container.open .fab-action-button:nth-child(4) {
-      transform: translateY(-160px) scale(1);
+    .fab-container.open .fab-action-button:nth-child(3) { /* Mal Identificado */
+      transform: translateY(-150px) scale(1);
       transition-delay: 0.15s;
     }
-    .fab-container.open .fab-action-button:nth-child(5) {
-      transform: translateY(-210px) scale(1);
+    .fab-container.open .fab-action-button:nth-child(4) { /* Cotizar Artículos */
+      transform: translateY(-200px) scale(1);
       transition-delay: 0.20s;
     }
 
     .fab-action-button svg {
-      width: 24px; /* Tamaño del ícono SVG dentro del botón */
-      height: 24px;
+      width: 20px; /* Tamaño del ícono SVG dentro del botón */
+      height: 20px;
       fill: currentColor; /* Usa el color de texto del botón */
-      margin-bottom: 2px; /* Espacio entre el ícono y el texto */
+      flex-shrink: 0; /* Evita que el ícono se encoja si el texto es largo */
     }
 
     .fab-action-button img { /* Estilo específico para la imagen de WhatsApp */
-      width: 28px; /* Ajusta el tamaño de la imagen */
-      height: 28px;
+      width: 24px; /* Ajusta el tamaño de la imagen */
+      height: 24px;
       border-radius: 50%; /* Asegura que la imagen sea circular si es necesario */
-      margin-bottom: 2px;
+      flex-shrink: 0;
     }
     
   </style>
 </head>
 <body>
+  <!-- Overlay que se activa con el FAB -->
+  <div class="fab-overlay"></div>
 
   <!-- ==================================================================== -->
   <!-- HEADER SECTION -->
@@ -942,8 +966,9 @@
       const fabContainer = document.querySelector('.fab-container');
       const fabMainBtn = document.getElementById('fabMainBtn');
       const nav = document.querySelector('header nav'); // Obtener el elemento nav
+      const fabOverlay = document.querySelector('.fab-overlay'); // Obtener el overlay
 
-      if (!fabContainer || !fabMainBtn || !nav) {
+      if (!fabContainer || !fabMainBtn || !nav || !fabOverlay) {
         console.warn('FAB or navigation elements not found. Some features might not work.');
         return;
       }
@@ -951,22 +976,25 @@
       fabMainBtn.addEventListener('click', (e) => {
         e.stopPropagation(); // Evita que el clic se propague al documento
         fabContainer.classList.toggle('open');
+        fabOverlay.classList.toggle('show'); // Muestra/oculta el overlay
       });
 
-      // Cierra el FAB si se hace clic fuera de él (solo en móvil)
+      // Cierra el FAB y el overlay si se hace clic fuera de ellos (solo en móvil)
       document.addEventListener('click', (e) => {
         // Asegurarse de que solo se aplique en móvil
         if (window.innerWidth <= 900) {
           if (!fabContainer.contains(e.target) && fabContainer.classList.contains('open')) {
             fabContainer.classList.remove('open');
+            fabOverlay.classList.remove('show'); // Oculta el overlay
           }
         }
       });
 
-      // Asegura que el FAB se cierre si la ventana se redimensiona a escritorio
+      // Cierra el FAB y el overlay si la ventana se redimensiona a escritorio
       window.addEventListener('resize', () => {
         if (window.innerWidth > 900) {
           fabContainer.classList.remove('open');
+          fabOverlay.classList.remove('show'); // Oculta el overlay
           // Asegura que la navegación de escritorio se muestre si se redimensiona a escritorio
           nav.style.display = 'flex';
         } else {
