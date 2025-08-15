@@ -530,10 +530,30 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            z-index: 1000;
+            z-index: 1000; 
+        }
+        
+        .fab-screen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(240, 240, 240, 0.8);
+            z-index: 999; /* Z-index menor que el del FAB para que se quede detrás */
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .fab-screen-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .fab-main-button {
+            position: relative; 
+            z-index: 1002; /* Poner el botón principal por encima de todo */
             width: 60px;
             height: 60px;
             border-radius: 50%;
@@ -574,6 +594,7 @@
             transform: scale(0);
             transform-origin: bottom right;
             transition: transform 0.3s ease-out;
+            z-index: 1001; /* Asegura que los botones de acción estén por encima del overlay */
         }
 
         .fab-container.open .fab-actions {
@@ -629,12 +650,6 @@
             fill: currentColor;
         }
 
-        .fab-whatsapp-icon {
-            color: #25D366; /* Color verde de WhatsApp */
-            width: 32px;
-            height: 32px;
-        }
-
         .fab-action-label {
             background-color: white;
             color: var(--blue-1);
@@ -650,24 +665,6 @@
         .fab-action-label:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .fab-screen-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(240, 240, 240, 0.8); /* Gris claro transparente */
-            z-index: 998;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .fab-screen-overlay.show {
-            opacity: 1;
-            pointer-events: auto;
         }
     </style>
 </head>
