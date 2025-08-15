@@ -1,986 +1,908 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Panama Shipping Co. - Calculadora de Compras (Mejorada)</title>
-  <meta name="robots" content="noindex">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap"> <!-- Asegúrate de que esta fuente esté aquí si se usa en el header -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Panama Shipping Co. - Calculadora de Compras (Mejorada)</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
 
-  <style>
-    /* ====================================================================== */
-    /* Estilos Globales y Reseteo */
-    /* ====================================================================== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+  <style>
+    /* ====================================================================== */
+    /* Estilos Globales y Reseteo */
+    /* ====================================================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #fff;
-      color: #000;
-      line-height: 1.6;
-      overflow-x: hidden; /* Evita el scroll horizontal causado por animaciones */
-    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #fff;
+      color: #000;
+      line-height: 1.6;
+      overflow-x: hidden; /* Evita el scroll horizontal causado por animaciones */
+    }
 
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
 
-    /* ====================================================================== */
-    /* Variables CSS (Colores, etc.) */
-    /* ====================================================================== */
-    :root{
-      --blue-1:#2325d4;
-      --blue-2:#1a1cb3;
-      --accent:#ffec00;
-      --bg:#fff;
-      --muted:#777;
-      --card-border:#e6e6ee;
-      --shadow: 0 6px 30px rgba(0,0,0,0.06);
-      --radius:12px;
-      --max-width:1200px;
-    }
+    /* ====================================================================== */
+    /* Variables CSS (Colores, etc.) */
+    /* ====================================================================== */
+    :root{
+      --blue-1:#2325d4;
+      --blue-2:#1a1cb3;
+      --accent:#ffec00;
+      --bg:#fff;
+      --muted:#777;
+      --card-border:#e6e6ee;
+      --shadow: 0 6px 30px rgba(0,0,0,0.06);
+      --radius:12px;
+      --max-width:1200px;
+    }
 
-    /* ====================================================================== */
-    /* HEADER (Encabezado principal y navegación superior) - COPIADO DE homepage_enhanced_design */
-    /* ====================================================================== */
-    header {
-      background: linear-gradient(135deg, #2325d4, #1a1cb3);
-      color: white;
-      position: relative;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Sombra más pronunciada para profundidad */
-      height: 140px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 25px;
-    }
+    /* ====================================================================== */
+    /* HEADER (Encabezado principal y navegación superior) - COPIADO DE homepage_enhanced_design */
+    /* ====================================================================== */
+    header {
+      background: linear-gradient(135deg, #2325d4, #1a1cb3);
+      color: white;
+      position: relative;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Sombra más pronunciada para profundidad */
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 25px;
+    }
 
-    .header-inner {
-      max-width: 1200px;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
-      z-index: 2; /* Asegura que el contenido esté por encima de la onda */
-    }
+    .header-inner {
+      max-width: 1200px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 2; /* Asegura que el contenido esté por encima de la onda */
+    }
 
-    .logo {
-      height: 180px;
-      display: flex;
-      align-items: center;
-    }
+    .logo {
+      height: 180px;
+      display: flex;
+      align-items: center;
+    }
 
-    .logo img {
-      max-height: 225px;
-      width: auto;
-      object-fit: contain;
-      user-select: none;
-      pointer-events: none;
-    }
+    .logo img {
+      max-height: 225px;
+      width: auto;
+      object-fit: contain;
+      user-select: none;
+      pointer-events: none;
+    }
 
-    nav {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
+    nav {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
 
-    nav a {
-      color: white;
-      font-weight: 500;
-      font-size: 14px;
-      position: relative;
-      transition: color 0.3s ease, transform 0.2s ease; /* Transiciones para color y movimiento */
-      will-change: color, transform; /* Optimización de rendimiento para animaciones */
-    }
+    nav a {
+      color: white;
+      font-weight: 500;
+      font-size: 14px;
+      position: relative;
+      transition: color 0.3s ease, transform 0.2s ease; /* Transiciones para color y movimiento */
+      will-change: color, transform; /* Optimización de rendimiento para animaciones */
+    }
 
-    nav a:hover {
-      color: #ffec00;
-      transform: translateY(-2px); /* Pequeño levantamiento al pasar el cursor */
-    }
+    nav a:hover {
+      color: #ffec00;
+      transform: translateY(-2px); /* Pequeño levantamiento al pasar el cursor */
+    }
 
-    nav a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -3px;
-      width: 0%;
-      height: 2px;
-      background: #ffec00;
-      transition: width 0.3s ease; /* Animación de subrayado */
-    }
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -3px;
+      width: 0%;
+      height: 2px;
+      background: #ffec00;
+      transition: width 0.3s ease; /* Animación de subrayado */
+    }
 
-    nav a:hover::after {
-      width: 100%;
-    }
+    nav a:hover::after {
+      width: 100%;
+    }
 
-    .header-buttons {
-      display: flex;
-      gap: 10px;
-    }
+    .header-buttons {
+      display: flex;
+      gap: 10px;
+    }
 
-    .btn-header {
-      background: #ffec00;
-      color: #2325d4;
-      padding: 8px 18px;
-      border-radius: 12px; /* Bordes suaves y consistentes */
-      font-weight: 600;
-      font-size: 13px;
-      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Animaciones para botones */
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra inicial */
-    }
+    .btn-header {
+      background: #ffec00;
+      color: #2325d4;
+      padding: 8px 18px;
+      border-radius: 12px; /* Bordes suaves y consistentes */
+      font-weight: 600;
+      font-size: 13px;
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Animaciones para botones */
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra inicial */
+    }
 
-    .btn-header:hover {
-      background: #e6d800;
-      transform: translateY(-2px); /* Levantamiento al pasar el cursor */
-      box-shadow: 0 6px 12px rgba(0,0,0,0.2); /* Sombra más grande al pasar el cursor */
-    }
+    .btn-header:hover {
+      background: #e6d800;
+      transform: translateY(-2px); /* Levantamiento al pasar el cursor */
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2); /* Sombra más grande al pasar el cursor */
+    }
 
-    .onda {
-      position: absolute;
-      bottom: -20px;
-      left: 0;
-      width: 100%;
-      height: 40px;
-      background: url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;
-      background-size: cover;
-      z-index: 1; /* Asegura que la onda esté debajo del contenido del header */
-      pointer-events: none; /* No interfiere con clics */
-    }
+    .onda {
+      position: absolute;
+      bottom: -20px;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      background: url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;
+      background-size: cover;
+      z-index: 1; /* Asegura que la onda esté debajo del contenido del header */
+      pointer-events: none; /* No interfiere con clics */
+    }
 
-    /* ====================================================================== */
-    /* Dropdown (Menú desplegable) - COPIADO DE homepage_enhanced_design */
-    /* ====================================================================== */
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
+    /* ====================================================================== */
+    /* Dropdown (Menú desplegable) - COPIADO DE homepage_enhanced_design */
+    /* ====================================================================== */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
 
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #2325d4;
-      min-width: 200px;
-      box-shadow: 0px 8px 16px rgba(0,0,0,0.25); /* Sombra definida */
-      border-radius: 8px; /* Bordes suaves */
-      z-index: 10002; /* ¡Z-index ajustado para asegurar visibilidad! */
-      overflow: hidden; /* Asegura que los bordes redondeados se apliquen */
-    }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #2325d4;
+      min-width: 200px;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.25); /* Sombra definida */
+      border-radius: 8px; /* Bordes suaves */
+      z-index: 10002; /* ¡Z-index ajustado para asegurar visibilidad! */
+      overflow: hidden; /* Asegura que los bordes redondeados se apliquen */
+    }
 
-    .dropdown-content a {
-      color: white;
-      padding: 10px 16px;
-      display: block;
-      font-size: 14px;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
+    .dropdown-content a {
+      color: white;
+      padding: 10px 16px;
+      display: block;
+      font-size: 14px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
 
-    .dropdown-content a:hover {
-      background-color: #1a1cb3;
-      color: #ffec00;
-    }
+    .dropdown-content a:hover {
+      background-color: #1a1cb3;
+      color: #ffec00;
+    }
 
-    .dropdown:hover .dropdown-content {
-      display: block;
-    }
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
 
-    /* ====================================================================== */
-    /* Media Queries (Diseño Responsivo) - COPIADO DE homepage_enhanced_design */
-    /* ====================================================================== */
-    @media (max-width: 900px) {
-      header {
-        height: auto; /* Altura auto para el menú desplegado */
-      }
-      .header-buttons {
-        display: none;
-      }
-      .menu-toggle {
-        display: block;
-        font-size: 26px;
-        cursor: pointer;
-        color: white;
-        position: relative;
-        z-index: 10001; /* Asegura que el toggle esté por encima del menú móvil */
-        user-select: none;
-      }
-      header nav {
-        display: none;
-        position: absolute;
-        top: 100%;
-        right: 20px;
-        background: #2325d4;
-        flex-direction: column;
-        gap: 8px;
-        padding: 14px;
-        border-radius: 12px;
-        box-shadow: 0 12px 24px rgba(0,0,0,.25);
-        z-index: 10000;
-        width: max-content;
-        min-width: 220px;
-      }
-      header nav.show {
-        display: flex;
-      }
-      /* Dropdown dentro del panel móvil (se comporta como un elemento normal) */
-      header .dropdown:hover .dropdown-content {
-        display: none; /* Deshabilita hover en móvil para evitar conflictos */
-      }
-      header .dropdown .dropdown-content {
-        position: relative;
-        top: auto;
-        left: auto;
-        background: #1a1cb3;
-        box-shadow: none;
-        min-width: 220px;
-      }
-    }
+    /* ====================================================================== */
+    /* Media Queries (Diseño Responsivo) - COPIADO DE homepage_enhanced_design */
+    /* ====================================================================== */
+    @media (max-width: 900px) {
+      header {
+        height: auto; /* Altura auto para el menú desplegado */
+      }
+      .header-buttons {
+        display: none;
+      }
+      .menu-toggle {
+        display: block;
+        font-size: 26px;
+        cursor: pointer;
+        color: white;
+        position: relative;
+        z-index: 10001; /* Asegura que el toggle esté por encima del menú móvil */
+        user-select: none;
+      }
+      header nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 20px;
+        background: #2325d4;
+        flex-direction: column;
+        gap: 8px;
+        padding: 14px;
+        border-radius: 12px;
+        box-shadow: 0 12px 24px rgba(0,0,0,.25);
+        z-index: 10000;
+        width: max-content;
+        min-width: 220px;
+      }
+      header nav.show {
+        display: flex;
+      }
+      /* Dropdown dentro del panel móvil (se comporta como un elemento normal) */
+      header .dropdown:hover .dropdown-content {
+        display: none; /* Deshabilita hover en móvil para evitar conflictos */
+      }
+      header .dropdown .dropdown-content {
+        position: relative;
+        top: auto;
+        left: auto;
+        background: #1a1cb3;
+        box-shadow: none;
+        min-width: 220px;
+      }
+    }
 
-    @media (min-width: 901px){
-      .menu-toggle{
-        display:none;
-      }
-      header nav{
-        display:flex !important;
-        position:static;
-        box-shadow:none;
-        padding:0;
-      }
-    }
+    @media (min-width: 901px){
+      .menu-toggle{
+        display:none;
+      }
+      header nav{
+        display:flex !important;
+        position:static;
+        box-shadow:none;
+        padding:0;
+      }
+    }
 
-    /* ====================================================================== */
-    /* Estilos Específicos de la Página de Calculadora - Manteniendo los originales relevantes */
-    /* ====================================================================== */
-    main.wrapper{max-width:var(--max-width);margin:40px auto 18px; padding: 0;
-      padding:1.6rem;
-      border-radius:1rem;
-      border:1px solid var(--card-border);
-      box-shadow:var(--shadow);
-    }
+    /* ====================================================================== */
+    /* Estilos Específicos de la Página de Calculadora - Manteniendo los originales relevantes */
+    /* ====================================================================== */
+    main.wrapper{max-width:var(--max-width);margin:40px auto 18px; padding: 0;
+      padding:1.6rem;
+      border-radius:1rem;
+      border:1px solid var(--card-border);
+      box-shadow:var(--shadow);
+    }
 
-    h2{color:var(--blue-1);margin-bottom:12px}
+    h2{color:var(--blue-1);margin-bottom:12px}
 
-    /* Inputs & buttons */
-    input[type="text"], input[type="url"], input[type="number"], button, select, textarea {
-      width:100%;
-      font-size:1rem;
-      padding:0.85rem 1rem;
-      border-radius:.75rem;
-      margin-bottom:1rem;
-      border:1px solid #d1d1d6;
-    }
-    button{background:#000;color:#fff;cursor:pointer;font-weight:600}
-    button.secondary{background:#f5f5f5;color:#111;border:1px solid #ddd}
-    .row{display:flex;gap:10px}
-    .row > *{flex:1}
+    /* Inputs & buttons */
+    input[type="text"], input[type="url"], input[type="number"], button, select, textarea {
+      width:100%;
+      font-size:1rem;
+      padding:0.85rem 1rem;
+      border-radius:.75rem;
+      margin-bottom:1rem;
+      border:1px solid #d1d1d6;
+    }
+    button{background:#000;color:#fff;cursor:pointer;font-weight:600}
+    button.secondary{background:#f5f5f5;color:#111;border:1px solid #ddd}
+    .row{display:flex;gap:10px}
+    .row > *{flex:1}
 
-    /* Resultados / producto */
-    .result-box{margin-top:12px}
-    .producto{display:flex;gap:12px;align-items:center}
-    .producto img{max-width:160px;border-radius:10px;border:1px solid #eee;object-fit:contain}
-    .producto h3{font-size:1.05rem;margin-bottom:6px}
-    .producto .precio{font-weight:700;font-size:1.1rem}
+    /* Resultados / producto */
+    .result-box{margin-top:12px}
+    .producto{display:flex;gap:12px;align-items:center}
+    .producto img{max-width:160px;border-radius:10px;border:1px solid #eee;object-fit:contain}
+    .producto h3{font-size:1.05rem;margin-bottom:6px}
+    .producto .precio{font-weight:700;font-size:1.1rem}
 
-    /* Option blocks */
-    .option-block{border:1px solid #ececec;border-radius:.6rem;padding:12px;background:#fbfbfb;margin-bottom:12px}
-    .option-header{display:flex;justify-content:space-between;font-weight:700;margin-bottom:8px}
-    .field{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0}
-    .field:last-child{border-bottom:none}
-    .subtle{font-size:.85rem;color:var(--muted)}
+    /* Option blocks */
+    .option-block{border:1px solid #ececec;border-radius:.6rem;padding:12px;background:#fbfbfb;margin-bottom:12px}
+    .option-header{display:flex;justify-content:space-between;font-weight:700;margin-bottom:8px}
+    .field{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0}
+    .field:last-child{border-bottom:none}
+    .subtle{font-size:.85rem;color:var(--muted)}
 
-    .spinner{display:inline-block;width:20px;height:20px;border:3px solid #ccc;border-top-color:#000;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px}
-    @keyframes spin{to{transform:rotate(360deg)}}
+    .spinner{display:inline-block;width:20px;height:20px;border:3px solid #ccc;border-top-color:#000;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* ====================================================================== */
-    /* FOOTER (Pie de página) - COPIADO DE homepage_enhanced_design */
-    /* ====================================================================== */
-    footer {
-      background: #fff;
-      color: #000;
-      padding: 40px 20px; /* Más padding para más "aire" */
-      margin-top: 50px; /* Más espacio superior */
-      box-shadow: 0 -4px 15px rgba(0,0,0,0.08); /* Sombra sutil y más prominente */
-    }
+    /* ====================================================================== */
+    /* FOOTER (Pie de página) - COPIADO DE homepage_enhanced_design */
+    /* ====================================================================== */
+    footer {
+      background: #fff;
+      color: #000;
+      padding: 40px 20px; /* Más padding para más "aire" */
+      margin-top: 50px; /* Más espacio superior */
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.08); /* Sombra sutil y más prominente */
+    }
 
-    .footer-container {
-      max-width: 1200px;
-      margin: auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 30px; /* Más espacio entre columnas */
-    }
+    .footer-container {
+      max-width: 1200px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px; /* Más espacio entre columnas */
+    }
 
-    .footer-col h3 {
-      font-size: 1.2rem; /* Tamaño ajustado para elegancia */
-      margin-bottom: 12px; /* Más espacio debajo del título */
-      color: #333; /* Color gris oscuro para encabezados */
-    }
+    .footer-col h3 {
+      font-size: 1.2rem; /* Tamaño ajustado para elegancia */
+      margin-bottom: 12px; /* Más espacio debajo del título */
+      color: #333; /* Color gris oscuro para encabezados */
+    }
 
-    .footer-col p, .footer-col a {
-      font-size: 14px; /* Tamaño ligeramente ajustado para legibilidad */
-      color: #555; /* Color gris suave para texto normal */
-      transition: color 0.3s ease; /* Transición para enlaces */
-    }
+    .footer-col p, .footer-col a {
+      font-size: 14px; /* Tamaño ligeramente ajustado para legibilidad */
+      color: #555; /* Color gris suave para texto normal */
+      transition: color 0.3s ease; /* Transición para enlaces */
+    }
 
-    .footer-col a:hover {
-      color: #2325d4; /* Color azul PSC al pasar el cursor */
-    }
+    .footer-col a:hover {
+      color: #2325d4; /* Color azul PSC al pasar el cursor */
+    }
 
-    .social-icons {
-      display: flex;
-      flex-direction: column;
-      gap: 8px; /* Más espacio entre iconos sociales */
-    }
+    .social-icons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px; /* Más espacio entre iconos sociales */
+    }
 
-    .footer-bottom {
-      text-align: center;
-      margin-top: 30px; /* Más espacio superior */
-      font-size: 12px; /* Tamaño ligeramente ajustado */
-      color: #777;
-      border-top: 1px solid rgba(0,0,0,0.1);
-      padding-top: 15px; /* Más padding superior */
-    }
+    .footer-bottom {
+      text-align: center;
+      margin-top: 30px; /* Más espacio superior */
+      font-size: 12px; /* Tamaño ligeramente ajustado */
+      color: #777;
+      border-top: 1px solid rgba(0,0,0,0.1);
+      padding-top: 15px; /* Más padding superior */
+    }
 
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 20px; /* Más espacio entre enlaces del footer-bottom */
-      margin-top: 10px; /* Más espacio */
-    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px; /* Más espacio entre enlaces del footer-bottom */
+      margin-top: 10px; /* Más espacio */
+    }
 
-    .footer-links a {
-      color: #2325d4;
-      font-size: 12px;
-    }
+    .footer-links a {
+      color: #2325d4;
+      font-size: 12px;
+    }
 
-    /* ====================================================================== */
-    /* WhatsApp Flotante - COPIADO DE homepage_enhanced_design */
-    /* ====================================================================== */
-    .whatsapp-float {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 999;
-      transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animación */
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Sombra inicial */
-      border-radius: 50%; /* Asegura que la sombra se vea bien en el círculo */
-    }
+    /* ====================================================================== */
+    /* WhatsApp Flotante - COPIADO DE homepage_enhanced_design */
+    /* ====================================================================== */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 999;
+      transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animación */
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Sombra inicial */
+      border-radius: 50%; /* Asegura que la sombra se vea bien en el círculo */
+    }
 
-    .whatsapp-float:hover {
-      transform: scale(1.05) translateY(-2px); /* Pequeña escala y levantamiento */
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3); /* Sombra más grande */
-    }
+    .whatsapp-float:hover {
+      transform: scale(1.05) translateY(-2px); /* Pequeña escala y levantamiento */
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3); /* Sombra más grande */
+    }
 
-    .whatsapp-float img {
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-    }
+    .whatsapp-float img {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+    }
 
-    /* Mobile-friendly adjustments (iPhone & Android) */
-    html { -webkit-text-size-adjust: 100%; }
-    html, body { margin: 0; padding: 0; overflow-x: hidden; }
-    * { box-sizing: border-box; }
+    /* Mobile-friendly adjustments (iPhone & Android) */
+    html { -webkit-text-size-adjust: 100%; }
+    html, body { margin: 0; padding: 0; overflow-x: hidden; }
+    * { box-sizing: border-box; }
 
-    /* Use device safe areas (notch, home indicator) */
-    :root {
-      --safe-top: env(safe-area-inset-top);
-      --safe-right: env(safe-area-inset-right);
-      --safe-bottom: env(safe-area-inset-bottom);
-      --safe-left: env(safe-area-inset-left);
-    }
-    body {
-      padding-left: max(0px, var(--safe-left));
-      padding-right: max(0px, var(--safe-right));
-      padding-bottom: max(0px, var(--safe-bottom));
-    }
+    /* Use device safe areas (notch, home indicator) */
+    :root {
+      --safe-top: env(safe-area-inset-top);
+      --safe-right: env(safe-area-inset-right);
+      --safe-bottom: env(safe-area-inset-bottom);
+      --safe-left: env(safe-area-inset-left);
+    }
+    body {
+      padding-left: max(0px, var(--safe-left));
+      padding-right: max(0px, var(--safe-right));
+      padding-bottom: max(0px, var(--safe-bottom));
+    }
 
-    /* Prevent iOS zoom on focus by ensuring >=16px */
-    input, select, textarea { font-size: 16px; }
+    /* Prevent iOS zoom on focus by ensuring >=16px */
+    input, select, textarea { font-size: 16px; }
 
-    /* Comfortable tap targets */
-    button, .btn, input[type="button"], input[type="submit"] { min-height: 44px; touch-action: manipulation; }
+    /* Comfortable tap targets */
+    button, .btn, input[type="button"], input[type="submit"] { min-height: 44px; touch-action: manipulation; }
 
-    /* Images responsive */
-    img, svg, video, canvas { max-width: 100%; height: auto; }
+    /* Images responsive */
+    img, svg, video, canvas { max-width: 100%; height: auto; }
 
-    /* Reduce outer paddings on small screens */
-    @media (max-width: 640px) {
-      .nav { padding: .5rem .75rem; }
-      .nav__links { gap: .5rem; }
-      .container, .wrapper, .card { padding-left: 0; padding-right: 0; }
-    }
-  </style>
+    /* Reduce outer paddings on small screens */
+    @media (max-width: 640px) {
+      .nav { padding: .5rem .75rem; }
+      .nav__links { gap: .5rem; }
+      .container, .wrapper, .card { padding-left: 0; padding-right: 0; }
+    }
+  </style>
 
 </head>
 <body>
 
-  <!-- HEADER - Contenido copiado de homepage_enhanced_design -->
-  <header class="no-print">
-    <div class="header-inner">
-      <div class="logo">
-        <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
-      </div>
-      <div class="menu-toggle">☰</div>
-      <nav>
-        <a href="../index.html">Inicio</a>
-        <a href="../Rastreo/">Rastreador de Paquetes</a>
-        <a href="../Cotizador/">Cotiza tus Compras</a>
-        <a href="../ML/">Solicitar ML</a>
-        
-        <!-- Menú desplegable "Más" -->
-        <div class="dropdown">
-          <a href="#">Más ▾</a>
-          <div class="dropdown-content">
-            <a href="../DG/">Mercancía Peligrosa</a>
-            <a href="../Politicas/">Términos y Condiciones</a>
-          </div>
-        </div>
-      </nav>
-      <div class="header-buttons">
-        <a href="https://psc.e-rmez.com/zonacliente/" class="btn-header">Zona de Clientes</a>
-        <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-header">Regístrate</a>
-      </div>
-    </div>
-    <div class="onda" aria-hidden="true"></div>
-  </header>
+    <header class="no-print">
+    <div class="header-inner">
+      <div class="logo">
+        <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
+      </div>
+      <div class="menu-toggle">☰</div>
+      <nav>
+        <a href="index.html">Inicio</a>
+        <a href="Rastreo/index.html">Rastreador de Paquetes</a>
+        <a href="Cotizador/index.html">Cotiza tus Compras</a>
+        <a href="ML/index.html">Solicitar ML</a>
+        
+                <div class="dropdown">
+          <a href="#">Más ▾</a>
+          <div class="dropdown-content">
+            <a href="DG/index.html">Mercancía Peligrosa</a>
+            <a href="Politicas/index.html">Términos y Condiciones</a>
+          </div>
+        </div>
+      </nav>
+      <div class="header-buttons">
+        <a href="https://psc.e-rmez.com/zonacliente/" class="btn-header">Zona de Clientes</a>
+        <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-header">Regístrate</a>
+      </div>
+    </div>
+    <div class="onda" aria-hidden="true"></div>
+  </header>
 
-  <!-- MAIN -->
-  <main class="wrapper">
-    <section class="card" aria-labelledby="titulo-card">
-      <h2 id="titulo-card">Buscador y Calculadora de Compras</h2>
+    <main class="wrapper">
+    <section class="card" aria-labelledby="titulo-card">
+      <h2 id="titulo-card">Buscador y Calculadora de Compras</h2>
 
-      <!-- BUSCADOR -->
-      <div id="buscador">
-        <label for="linkBuscar">Buscar Producto (Amazon)</label>
-        <input id="linkBuscar" type="text" placeholder="🔗 Pega el link del producto (ej. amazon.com)" autocomplete="off" />
-        <div class="row">
-          <button id="btnBuscar" type="button">Buscar</button>
-          <button id="btnSaltar" class="secondary" type="button">Saltar</button>
-        </div>
+            <div id="buscador">
+        <label for="linkBuscar">Buscar Producto (Amazon)</label>
+        <input id="linkBuscar" type="text" placeholder="🔗 Pega el link del producto (ej. amazon.com)" autocomplete="off" />
+        <div class="row">
+          <button id="btnBuscar" type="button">Buscar</button>
+          <button id="btnSaltar" class="secondary" type="button">Saltar</button>
+        </div>
 
-        <div id="resultadoSearch" class="result-box" aria-live="polite"></div>
+        <div id="resultadoSearch" class="result-box" aria-live="polite"></div>
 
-        <!-- Info auxiliar (oculto, usado por impresión y guardado) -->
-        <div id="info-producto" style="display:none; margin-top:12px;">
-          <img id="imagen-producto" src="" alt="" style="display:none" />
-          <h3 id="titulo-producto" style="display:none"></h3>
-          <span id="precio-producto" style="display:none"></span>
-        </div>
-      </div>
+                <div id="info-producto" style="display:none; margin-top:12px;">
+          <img id="imagen-producto" src="" alt="" style="display:none" />
+          <h3 id="titulo-producto" style="display:none"></h3>
+          <span id="precio-producto" style="display:none"></span>
+        </div>
+      </div>
 
-      <!-- CALCULADORA -->
-      <div id="calculadora" style="display:none; margin-top:18px;">
-        <hr style="margin:18px 0" />
-        <h2>Calculadora</h2>
+            <div id="calculadora" style="display:none; margin-top:18px;">
+        <hr style="margin:18px 0" />
+        <h2>Calculadora</h2>
 
-        <label for="link">Link del producto</label>
-        <input id="link" type="url" placeholder="https://..." />
+        <label for="link">Link del producto</label>
+        <input id="link" type="url" placeholder="https://..." />
 
-        <label for="costo">Costo del producto ($)</label>
-        <input id="costo" type="number" step="0.01" min="0" />
+        <label for="costo">Costo del producto ($)</label>
+        <input id="costo" type="number" step="0.01" min="0" />
 
-        <label for="abono">Abono ($) (opcional)</label>
-        <input id="abono" type="number" step="0.01" min="0" />
+        <label for="abono">Abono ($) (opcional)</label>
+        <input id="abono" type="number" step="0.01" min="0" />
 
-        <label for="peso">Peso aproximado (libras)</label>
-        <input id="peso" type="number" step="0.01" min="0" />
+        <label for="peso">Peso aproximado (libras)</label>
+        <input id="peso" type="number" step="0.01" min="0" />
 
-        <div class="row">
-          <button id="btnCalcular" type="button">Calcular</button>
-          <button id="btnLimpiar" class="secondary" type="button">Limpiar</button>
-        </div>
+        <div class="row">
+          <button id="btnCalcular" type="button">Calcular</button>
+          <button id="btnLimpiar" class="secondary" type="button">Limpiar</button>
+        </div>
 
-        <div id="resultadoCalc" class="result-box" style="display:none"></div>
+        <div id="resultadoCalc" class="result-box" style="display:none"></div>
 
-        <div id="accionesCalc" style="display:none; margin-top:12px;">
-          <div class="row">
-            <button id="btnLimpiar2" class="secondary" type="button">Limpiar</button>
-            <button id="btnImprimir" type="button">Imprimir</button>
-          </div>
-        </div>
-      </div>
+        <div id="accionesCalc" style="display:none; margin-top:12px;">
+          <div class="row">
+            <button id="btnLimpiar2" class="secondary" type="button">Limpiar</button>
+            <button id="btnImprimir" type="button">Imprimir</button>
+          </div>
+        </div>
+      </div>
 
-      <div style="margin-top:18px;background:#f9f9f9;border:1px solid #e6e6e6;padding:12px;border-radius:10px;color:#333">
-        <strong>IMPORTANTE</strong><br>
-        EL PESO DEL PRODUCTO Y EL SALDO SE CANCELAN AL MOMENTO DE RETIRAR. ABONOS MENORES A EL 80% DEL VALOR DEL PRODUCTO TIENEN UN COSTO DE FINANCIAMIENTO DEL SALDO PENDIENTE.
-      </div>
-    </section>
-  </main>
+      <div style="margin-top:18px;background:#f9f9f9;border:1px solid #e6e6e6;padding:12px;border-radius:10px;color:#333">
+        <strong>IMPORTANTE</strong><br>
+        EL PESO DEL PRODUCTO Y EL SALDO SE CANCELAN AL MOMENTO DE RETIRAR. ABONOS MENORES A EL 80% DEL VALOR DEL PRODUCTO TIENEN UN COSTO DE FINANCIAMIENTO DEL SALDO PENDIENTE.
+      </div>
+    </section>
+  </main>
 
-  <!-- FOOTER - Contenido copiado de homepage_enhanced_design -->
-  <footer class="no-print">
-    <div class="footer-container">
-      <div class="footer-col">
-        <h3>Contacto</h3>
-        <p>Asistencia personalizada</p>
-        <div class="social-icons">
-          <!-- Enlace de Instagram actualizado -->
-          <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
-          <!-- Enlace de WhatsApp para el número de teléfono -->
-          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
-          <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
-          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">💬 WhatsApp</a>
-        </div>
-      </div>
-      <div class="footer-col">
-        <h3>Enlaces Rápidos</h3>
-        <!-- Enlace "Términos y Condiciones" ahora apunta a "Politicas/" -->
-        <a href="../Politicas/">Términos y Condiciones</a><br>
-        <!-- Enlace "Mercancía Restringida" ahora apunta a "DG/" -->
-        <a href="../DG/">Mercancía Restringida</a>
-      </div>
-      <div class="footer-col">
-        <h3>Sobre Nosotros</h3>
-        <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      &copy; 2023 Panama Shipping Co. Todos los derechos reservados.
-      <div class="footer-links">
-        <a href="#">Términos</a>
-        <a href="#">Privacidad</a>
-      </div>
-    </div>
-  </footer>
+    <footer class="no-print">
+    <div class="footer-container">
+      <div class="footer-col">
+        <h3>Contacto</h3>
+        <p>Asistencia personalizada</p>
+        <div class="social-icons">
+                    <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
+                    <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
+          <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
+          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">💬 WhatsApp</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h3>Enlaces Rápidos</h3>
+                <a href="Politicas/index.html">Términos y Condiciones</a><br>
+                <a href="DG/index.html">Mercancía Restringida</a>
+      </div>
+      <div class="footer-col">
+        <h3>Sobre Nosotros</h3>
+        <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2023 Panama Shipping Co. Todos los derechos reservados.
+      <div class="footer-links">
+        <a href="Politicas/index.html">Términos</a>
+        <a href="Politicas/index.html">Privacidad</a>
+      </div>
+    </div>
+  </footer>
 
-  <!-- WHATSAPP FLOATING BUTTON - Contenido copiado de homepage_enhanced_design -->
-  <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" 
-     class="whatsapp-float" target="_blank" rel="noopener">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Icono de WhatsApp" />
-  </a>
+    <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion"
+     class="whatsapp-float" target="_blank" rel="noopener">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Icono de WhatsApp" />
+  </a>
 
 <script>
-  /* ============================================================
-    Código Y+ - JavaScript optimizado y modular (todas las funciones)
-    - Soporta búsqueda en Amazon (ScraperAPI) y MercadoLibre
-    - Calculadora de costo/abono/peso
-    - Funciones de imprimir y limpiar
-    - Impresión: incluye imagen, header azul, fecha/hora, y fuerza a una sola página
-    ============================================================ */
-  (function(){
-    // -----------------------
-    // Config / Helpers
-    // -----------------------
-    const apiKey = "fcee4890ff2a9fd58e410400103b094d"; // tu ScraperAPI si quieres usar amazon
-    const el = id => document.getElementById(id);
-    const escapeHtml = t => t ? String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : "";
+  /* ============================================================
+    Código Y+ - JavaScript optimizado y modular (todas las funciones)
+    - Soporta búsqueda en Amazon (ScraperAPI) y MercadoLibre
+    - Calculadora de costo/abono/peso
+    - Funciones de imprimir y limpiar
+    - Impresión: incluye imagen, header azul, fecha/hora, y fuerza a una sola página
+    ============================================================ */
+  (function(){
+    // -----------------------
+    // Config / Helpers
+    // -----------------------
+    const apiKey = "fcee4890ff2a9fd58e410400103b094d"; // tu ScraperAPI si quieres usar amazon
+    const el = id => document.getElementById(id);
+    const escapeHtml = t => t ? String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : "";
 
-    // Estado del producto actual
-    let productoEstado = { titulo: "", precio: null, imagen: "", link: "" };
+    // Estado del producto actual
+    let productoEstado = { titulo: "", precio: null, imagen: "", link: "" };
 
-    // -----------------------
-    // Utils: extracción ID MercadoLibre
-    // -----------------------
-    function extraerIdMercadoLibre(url){
-      if(!url) return null;
-      let m = url.match(/\/items\/(MLA[-]?\d+)/i);
-      if(m) return m[1].replace(/-/g,"");
-      m = url.match(/(MLA[-]?\d+)/i);
-      if(m) return m[1].replace(/-/g,"");
-      m = url.match(/\/(\d+)(?:[/?]|$)/);
-      if(m) return m[1];
-      return null;
-    }
+    // -----------------------
+    // Utils: extracción ID MercadoLibre
+    // -----------------------
+    function extraerIdMercadoLibre(url){
+      if(!url) return null;
+      let m = url.match(/\/items\/(MLA[-]?\d+)/i);
+      if(m) return m[1].replace(/-/g,"");
+      m = url.match(/(MLA[-]?\d+)/i);
+      if(m) return m[1].replace(/-/g,"");
+      m = url.match(/\/(\d+)(?:[/?]|$)/);
+      if(m) return m[1];
+      return null;
+    }
 
-    // Mostrar calculadora (resetea resultados)
-    function mostrarCalculadora(){
-      el("calculadora").style.display = "block";
-      el("resultadoCalc").style.display = "none";
-      el("accionesCalc").style.display = "none";
-      el("resultadoCalc").innerHTML = "";
-    }
+    // Mostrar calculadora (resetea resultados)
+    function mostrarCalculadora(){
+      el("calculadora").style.display = "block";
+      el("resultadoCalc").style.display = "none";
+      el("accionesCalc").style.display = "none";
+      el("resultadoCalc").innerHTML = "";
+    }
 
-    // -----------------------
-    // BÚSQUEDA: Amazon (ScraperAPI) y MercadoLibre
-    // -----------------------
-    async function buscarProducto(){
-      const boton = el("btnBuscar");
-      const link = el("linkBuscar").value.trim();
-      const cont = el("resultadoSearch");
-      cont.innerHTML = "";
+    // -----------------------
+    // BÚSQUEDA: Amazon (ScraperAPI) y MercadoLibre
+    // -----------------------
+    async function buscarProducto(){
+      const boton = el("btnBuscar");
+      const link = el("linkBuscar").value.trim();
+      const cont = el("resultadoSearch");
+      cont.innerHTML = "";
 
-      if(!link){
-        cont.innerHTML = `<p style="color:#c33">⚠️ Ingresa un link para buscar.</p>`;
-        return;
-      }
+      if(!link){
+        cont.innerHTML = `<p style="color:#c33">⚠️ Ingresa un link para buscar.</p>`;
+        return;
+      }
 
-      boton.disabled = true;
-      boton.textContent = "Buscando...";
+      boton.disabled = true;
+      boton.textContent = "Buscando...";
 
-      // AMAZON
-      if(link.includes("amazon.")){
-        cont.innerHTML = `<p><span class="spinner"></span>Buscando producto en Amazon...</p>`;
-        try{
-          const scrapeUrl = `https://api.scraperapi.com?api_key=${apiKey}&url=${encodeURIComponent(link)}`;
-          const res = await fetch(scrapeUrl);
-          const html = await res.text();
-          const doc = new DOMParser().parseFromString(html, "text/html");
+      // AMAZON
+      if(link.includes("amazon.")){
+        cont.innerHTML = `<p><span class="spinner"></span>Buscando producto en Amazon...</p>`;
+        try{
+          const scrapeUrl = `https://api.scraperapi.com?api_key=${apiKey}&url=${encodeURIComponent(link)}`;
+          const res = await fetch(scrapeUrl);
+          const html = await res.text();
+          const doc = new DOMParser().parseFromString(html, "text/html");
 
-          const titulo = doc.querySelector("#productTitle")?.textContent?.trim() || doc.querySelector("span.a-size-large")?.textContent?.trim() || "Sin título";
-          const precioRaw = doc.querySelector("#priceblock_ourprice")?.textContent || doc.querySelector("#priceblock_dealprice")?.textContent || doc.querySelector(".a-price .a-offscreen")?.textContent || null;
-          const precio = precioRaw ? parseFloat(precioRaw.replace(/[^0-9.,]/g,"").replace(",", ".")) : null;
-          const img = doc.querySelector("#landingImage")?.src || doc.querySelector("#imgTagWrapperId img")?.src || doc.querySelector(".imgTagWrapper img")?.src || null;
+          const titulo = doc.querySelector("#productTitle")?.textContent?.trim() || doc.querySelector("span.a-size-large")?.textContent?.trim() || "Sin título";
+          const precioRaw = doc.querySelector("#priceblock_ourprice")?.textContent || doc.querySelector("#priceblock_dealprice")?.textContent || doc.querySelector(".a-price .a-offscreen")?.textContent || null;
+          const precio = precioRaw ? parseFloat(precioRaw.replace(/[^0-9.,]/g,"").replace(",", ".")) : null;
+          const img = doc.querySelector("#landingImage")?.src || doc.querySelector("#imgTagWrapperId img")?.src || doc.querySelector(".imgTagWrapper img")?.src || null;
 
-          productoEstado = { titulo, precio, imagen: img || "", link };
+          productoEstado = { titulo, precio, imagen: img || "", link };
 
-          if(precio){
-            const imgHtml = img ? `<img src="${img}" alt="Producto">` : "";
-            cont.innerHTML = `<div class="producto">${imgHtml}<div><h3>${escapeHtml(titulo)}</h3><div class="precio">$${precio.toFixed(2)}</div></div></div>`;
-            el("link").value = link;
-            el("costo").value = precio.toFixed(2);
-            mostrarCalculadora();
-            // llenar info oculto para impresión
-            el("imagen-producto").src = img || "";
-            el("imagen-producto").style.display = img ? "block" : "none";
-            el("titulo-producto").textContent = titulo;
-            el("precio-producto").textContent = precio ? `$${precio.toFixed(2)}` : "";
-          } else {
-            cont.innerHTML = `<p>⚠️ No se encontró el precio automáticamente. Puedes ingresarlo manualmente.</p>`;
-            el("link").value = link;
-            mostrarCalculadora();
-          }
-        } catch(err){
-          console.error("Amazon search error:", err);
-          cont.innerHTML = `<p>❌ Error al buscar en Amazon. Ingresa el dato manualmente abajo.</p>`;
-          el("link").value = link;
-          mostrarCalculadora();
-        } finally {
-          boton.disabled = false;
-          boton.textContent = "Buscar";
-        }
-        return;
-      }
+          if(precio){
+            const imgHtml = img ? `<img src="${img}" alt="Producto">` : "";
+            cont.innerHTML = `<div class="producto">${imgHtml}<div><h3>${escapeHtml(titulo)}</h3><div class="precio">$${precio.toFixed(2)}</div></div></div>`;
+            el("link").value = link;
+            el("costo").value = precio.toFixed(2);
+            mostrarCalculadora();
+            // llenar info oculto para impresión
+            el("imagen-producto").src = img || "";
+            el("imagen-producto").style.display = img ? "block" : "none";
+            el("titulo-producto").textContent = titulo;
+            el("precio-producto").textContent = precio ? `$${precio.toFixed(2)}` : "";
+          } else {
+            cont.innerHTML = `<p>⚠️ No se encontró el precio automáticamente. Puedes ingresarlo manualmente.</p>`;
+            el("link").value = link;
+            mostrarCalculadora();
+          }
+        } catch(err){
+          console.error("Amazon search error:", err);
+          cont.innerHTML = `<p>❌ Error al buscar en Amazon. Ingresa el dato manualmente abajo.</p>`;
+          el("link").value = link;
+          mostrarCalculadora();
+        } finally {
+          boton.disabled = false;
+          boton.textContent = "Buscar";
+        }
+        return;
+      }
 
-      // MERCADOLIBRE
-      if(link.includes("mercadolibre") || link.match(/\/items\/|MLA/i) ){
-        cont.innerHTML = `<p><span class="spinner"></span>Buscando producto en MercadoLibre...</p>`;
-        const id = extraerIdMercadoLibre(link);
-        if(!id){
-          cont.innerHTML = `<p>⚠️ No se pudo extraer el ID de MercadoLibre. Ingresa el precio manualmente.</p>`;
-          el("link").value = link;
-          mostrarCalculadora();
-          boton.disabled = false;
-          boton.textContent = "Buscar";
-          return;
-        }
-        try{
-          const res = await fetch(`https://api.mercadolibre.com/items/${id}`);
-          const data = await res.json();
-          if(data && !data.error){
-            const titulo = data.title || "Sin título";
-            const precio = data.price || null;
-            const img = data.thumbnail || (data.pictures && data.pictures[0]?.secure_url) || null;
+      // MERCADOLIBRE
+      if(link.includes("mercadolibre") || link.match(/\/items\/|MLA/i) ){
+        cont.innerHTML = `<p><span class="spinner"></span>Buscando producto en MercadoLibre...</p>`;
+        const id = extraerIdMercadoLibre(link);
+        if(!id){
+          cont.innerHTML = `<p>⚠️ No se pudo extraer el ID de MercadoLibre. Ingresa el precio manualmente.</p>`;
+          el("link").value = link;
+          mostrarCalculadora();
+          boton.disabled = false;
+          boton.textContent = "Buscar";
+          return;
+        }
+        try{
+          const res = await fetch(`https://api.mercadolibre.com/items/${id}`);
+          const data = await res.json();
+          if(data && !data.error){
+            const titulo = data.title || "Sin título";
+            const precio = data.price || null;
+            const img = data.thumbnail || (data.pictures && data.pictures[0]?.secure_url) || null;
 
-            productoEstado = { titulo, precio, imagen: img || "", link };
+            productoEstado = { titulo, precio, imagen: img || "", link };
 
-            const imgHtml = img ? `<img src="${img}" alt="Producto">` : "";
-            cont.innerHTML = `<div class="producto">${imgHtml}<div><h3>${escapeHtml(titulo)}</h3><div class="precio">${precio ? "$"+parseFloat(precio).toFixed(2) : "—"}</div></div></div>`;
-            if(precio) el("costo").value = parseFloat(precio).toFixed(2);
-            el("link").value = link;
-            mostrarCalculadora();
+            const imgHtml = img ? `<img src="${img}" alt="Producto">` : "";
+            cont.innerHTML = `<div class="producto">${imgHtml}<div><h3>${escapeHtml(titulo)}</h3><div class="precio">${precio ? "$"+parseFloat(precio).toFixed(2) : "—"}</div></div></div>`;
+            if(precio) el("costo").value = parseFloat(precio).toFixed(2);
+            el("link").value = link;
+            mostrarCalculadora();
 
-            // llenar info oculto para impresión
-            el("imagen-producto").src = img || "";
-            el("imagen-producto").style.display = img ? "block" : "none";
-            el("titulo-producto").textContent = titulo;
-            el("precio-producto").textContent = precio ? `$${parseFloat(precio).toFixed(2)}` : "";
-          } else {
-            cont.innerHTML = `<p>⚠️ Producto no encontrado en MercadoLibre. Ingresa el precio manualmente.</p>`;
-            el("link").value = link;
-            mostrarCalculadora();
-          }
-        } catch(err){
-          console.error("MercadoLibre error:", err);
-          cont.innerHTML = `<p>❌ Error al consultar MercadoLibre. Ingresa el precio manualmente.</p>`;
-          el("link").value = link;
-          mostrarCalculadora();
-        } finally {
-          boton.disabled = false;
-          boton.textContent = "Buscar";
-        }
-        return;
-      }
+            // llenar info oculto para impresión
+            el("imagen-producto").src = img || "";
+            el("imagen-producto").style.display = img ? "block" : "none";
+            el("titulo-producto").textContent = titulo;
+            el("precio-producto").textContent = precio ? `$${parseFloat(precio).toFixed(2)}` : "";
+          } else {
+            cont.innerHTML = `<p>⚠️ Producto no encontrado en MercadoLibre. Ingresa el precio manualmente.</p>`;
+            el("link").value = link;
+            mostrarCalculadora();
+          }
+        } catch(err){
+          console.error("MercadoLibre error:", err);
+          cont.innerHTML = `<p>❌ Error al consultar MercadoLibre. Ingresa el precio manualmente.</p>`;
+          el("link").value = link;
+          mostrarCalculadora();
+        } finally {
+          boton.disabled = false;
+          boton.textContent = "Buscar";
+        }
+        return;
+      }
 
-      // OTROS
-      cont.innerHTML = `<p>⚠️ Sólo se hace scrapping automático de Amazon y búsqueda directa de MercadoLibre. Puedes ingresar datos manualmente abajo.</p>`;
-      el("link").value = link;
-      mostrarCalculadora();
-      boton.disabled = false;
-      boton.textContent = "Buscar";
-    }
+      // OTROS
+      cont.innerHTML = `<p>⚠️ Sólo se hace scrapping automático de Amazon y búsqueda directa de MercadoLibre. Puedes ingresar datos manualmente abajo.</p>`;
+      el("link").value = link;
+      mostrarCalculadora();
+      boton.disabled = false;
+      boton.textContent = "Buscar";
+    }
 
-    // -----------------------
-    // CALCULADORA
-    // -----------------------
-    function calcular(){
-      const costo = parseFloat(el("costo").value);
-      const abonoRaw = el("abono").value;
-      const abono = abonoRaw ? parseFloat(abonoRaw) : null;
-      const peso = parseFloat(el("peso").value) || 0;
+    // -----------------------
+    // CALCULADORA
+    // -----------------------
+    function calcular(){
+      const costo = parseFloat(el("costo").value);
+      const abonoRaw = el("abono").value;
+      const abono = abonoRaw ? parseFloat(abonoRaw) : null;
+      const peso = parseFloat(el("peso").value) || 0;
 
-      // Reemplazado alert() con un modal básico o un mensaje en pantalla
-      if(isNaN(costo) || costo <= 0){
-        const resultBox = el("resultadoCalc");
-        resultBox.style.display = "block";
-        resultBox.innerHTML = `<div style="color:#c33; padding:10px; border:1px solid #ffdddd; background:#fffafa; border-radius:8px;">Por favor ingresa un costo válido.</div>`;
-        return;
-      }
+      // Reemplazado alert() con un modal básico o un mensaje en pantalla
+      if(isNaN(costo) || costo <= 0){
+        const resultBox = el("resultadoCalc");
+        resultBox.style.display = "block";
+        resultBox.innerHTML = `<div style="color:#c33; padding:10px; border:1px solid #ffdddd; background:#fffafa; border-radius:8px;">Por favor ingresa un costo válido.</div>`;
+        return;
+      }
 
-      const cont = el("resultadoCalc");
-      cont.style.display = "block";
-      cont.innerHTML = "";
+      const cont = el("resultadoCalc");
+      cont.style.display = "block";
+      cont.innerHTML = "";
 
-      const pesoLb = Math.ceil(peso);
-      const costoPeso = pesoLb * 2.95;
-      const comision = costo < 20 ? 5 : costo * 0.2;
-      const tarifa = 2.75;
-      const totalBase = costo + comision + tarifa;
-      const porc80 = costo * 0.8;
+      const pesoLb = Math.ceil(peso);
+      const costoPeso = pesoLb * 2.95;
+      const comision = costo < 20 ? 5 : costo * 0.2;
+      const tarifa = 2.75;
+      const totalBase = costo + comision + tarifa;
+      const porc80 = costo * 0.8;
 
-      function calcularSaldo(abonoVal){
-        let saldo, totalFinal;
-        if(abonoVal >= totalBase){
-          saldo = 0;
-          totalFinal = abonoVal;
-        } else {
-          saldo = totalBase - abonoVal;
-          totalFinal = abonoVal + (abonoVal > porc80 ? saldo : saldo * 1.3);
-        }
-        return { totalFinal, abono: abonoVal, saldo };
-      }
+      function calcularSaldo(abonoVal){
+        let saldo, totalFinal;
+        if(abonoVal >= totalBase){
+          saldo = 0;
+          totalFinal = abonoVal;
+        } else {
+          saldo = totalBase - abonoVal;
+          totalFinal = abonoVal + (abonoVal > porc80 ? saldo : saldo * 1.3);
+        }
+        return { totalFinal, abono: abonoVal, saldo };
+      }
 
-      if(!abono){
-        const opciones = [{label:"Opción 1",pct:1.0},{label:"Opción 2",pct:0.6},{label:"Opción 3",pct:0.25}];
-        opciones.forEach(op=>{
-          const abonoVal = costo * op.pct;
-          const datos = calcularSaldo(abonoVal);
-          cont.innerHTML += `
-            <div class="option-block">
-              <div class="option-header"><div>${op.label}</div><div class="subtle">${Math.round(op.pct*100)}% del costo</div></div>
-              <div class="field"><div>Total de la compra:</div><div>$${datos.totalFinal.toFixed(2)}</div></div>
-              <div class="field"><div>Abono:</div><div>$${datos.abono.toFixed(2)}</div></div>
-              <div class="field"><div>Saldo a cancelar:</div><div>$${datos.saldo.toFixed(2)}</div></div>
-            </div>
-          `;
-        });
-      } else {
-        const datos = calcularSaldo(abono);
-        cont.innerHTML += `
-          <div class="option-block">
-            <div class="option-header"><div>Cotización personalizada</div><div class="subtle">Abono ingresado</div></div>
-            <div class="field"><div>Total de la compra:</div><div>$${datos.totalFinal.toFixed(2)}</div></div>
-            <div class="field"><div>Abono:</div><div>$${datos.abono.toFixed(2)}</div></div>
-            <div class="field"><div>Saldo a cancelar:</div><div>$${datos.saldo.toFixed(2)}</div></div>
-          </div>
-        `;
-      }
+      if(!abono){
+        const opciones = [{label:"Opción 1",pct:1.0},{label:"Opción 2",pct:0.6},{label:"Opción 3",pct:0.25}];
+        opciones.forEach(op=>{
+          const abonoVal = costo * op.pct;
+          const datos = calcularSaldo(abonoVal);
+          cont.innerHTML += `
+            <div class="option-block">
+              <div class="option-header"><div>${op.label}</div><div class="subtle">${Math.round(op.pct*100)}% del costo</div></div>
+              <div class="field"><div>Total de la compra:</div><div>$${datos.totalFinal.toFixed(2)}</div></div>
+              <div class="field"><div>Abono:</div><div>$${datos.abono.toFixed(2)}</div></div>
+              <div class="field"><div>Saldo a cancelar:</div><div>$${datos.saldo.toFixed(2)}</div></div>
+            </div>
+          `;
+        });
+      } else {
+        const datos = calcularSaldo(abono);
+        cont.innerHTML += `
+          <div class="option-block">
+            <div class="option-header"><div>Cotización personalizada</div><div class="subtle">Abono ingresado</div></div>
+            <div class="field"><div>Total de la compra:</div><div>$${datos.totalFinal.toFixed(2)}</div></div>
+            <div class="field"><div>Abono:</div><div>$${datos.abono.toFixed(2)}</div></div>
+            <div class="field"><div>Saldo a cancelar:</div><div>$${datos.saldo.toFixed(2)}</div></div>
+          </div>
+        `;
+      }
 
-      if(peso > 0){
-        cont.innerHTML += `
-          <div class="option-block">
-            <div class="option-header"><div>Peso estimado</div></div>
-            <div class="field"><div>Peso:</div><div>${pesoLb} lb</div></div>
-            <div class="field"><div>Costo estimado del peso:</div><div>$${costoPeso.toFixed(2)}</div></div>
-          </div>
-        `;
-      }
+      if(peso > 0){
+        cont.innerHTML += `
+          <div class="option-block">
+            <div class="option-header"><div>Peso estimado</div></div>
+            <div class="field"><div>Peso:</div><div>${pesoLb} lb</div></div>
+            <div class="field"><div>Costo estimado del peso:</div><div>$${costoPeso.toFixed(2)}</div></div>
+          </div>
+        `;
+      }
 
-      el("accionesCalc").style.display = "block";
-      // show imprimir button
-      el("btnImprimir").style.display = "inline-block";
-    }
+      el("accionesCalc").style.display = "block";
+      // show imprimir button
+      el("btnImprimir").style.display = "inline-block";
+    }
 
-    // -----------------------
-    // IMPRESION: incluir imagen, header azul, fecha/hora y forzar 1 página
-    // -----------------------
-    function imprimirCotizacion(){
-      const link = el("link").value || el("linkBuscar").value || "—";
-      const costo = el("costo").value || "—";
-      const abono = el("abono").value || "—";
-      const peso = el("peso").value || "—";
-      const contenido = el("resultadoCalc").innerHTML || "";
-      const imagenSrc = el("imagen-producto").src || productoEstado.imagen || "";
-      const titulo = el("titulo-producto").textContent || productoEstado.titulo || "";
-      const now = new Date();
-      const fecha = now.toLocaleDateString();
-      const hora = now.toLocaleTimeString();
+    // -----------------------
+    // IMPRESION: incluir imagen, header azul, fecha/hora y forzar 1 página
+    // -----------------------
+    function imprimirCotizacion(){
+      const link = el("link").value || el("linkBuscar").value || "—";
+      const costo = el("costo").value || "—";
+      const abono = el("abono").value || "—";
+      const peso = el("peso").value || "—";
+      const contenido = el("resultadoCalc").innerHTML || "";
+      const imagenSrc = el("imagen-producto").src || productoEstado.imagen || "";
+      const titulo = el("titulo-producto").textContent || productoEstado.titulo || "";
+      const now = new Date();
+      const fecha = now.toLocaleDateString();
+      const hora = now.toLocaleTimeString();
 
-      const printHTML = `
-        <!doctype html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <title>Cotización</title>
-          <style>
-            @page { size: A4; margin: 10mm; }
-            html,body{font-family:Arial,Helvetica,sans-serif;color:#111;margin:0;padding:0}
-            .header{background:linear-gradient(135deg, ${escapeHtml('#2325d4')}, ${escapeHtml('#1a1cb3')});color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px}
-            .logo { max-width:140px; }
-            .meta { font-size:13px; opacity:0.95 }
-            .container{padding:14px}
-            .producto{display:flex;gap:12px;align-items:center;margin-top:12px}
-            .producto img{max-width:160px;border-radius:8px;border:1px solid #eee}
-            h2{margin:0 0 6px 0}
-            .field{margin-bottom:8px}
-            .option-block{border:1px solid #eee;padding:8px;border-radius:8px;background:#fafafa;margin-bottom:8px}
-            /* evitar saltos de página en bloques importantes */
-            .option-block, .producto, .field { page-break-inside: avoid; }
-            /* ajustar escala si queda justo */
-            @media print {
-              html,body{zoom:0.95 margin: 0; padding: 0;}
-            }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <div class="logo"><img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" style="max-width:140px"></div>
-            <div class="meta">
-              <div style="font-weight:700;font-size:16px">Panama Shipping Co. — Cotización</div>
-              <div style="margin-top:6px">Fecha: ${escapeHtml(fecha)} &nbsp;&nbsp; Hora: ${escapeHtml(hora)}</div>
-            </div>
-          </div>
-          <div class="container">
-            <h2>${escapeHtml(titulo || 'Cotización del Producto')}</h2>
-            <div class="producto">
-              ${imagenSrc ? `<img src="${escapeHtml(imagenSrc)}" alt="Producto">` : ''}
-              <div>
-                <div class="field"><strong>Link:</strong> ${escapeHtml(link)}</div>
-                <div class="field"><strong>Costo:</strong> $${escapeHtml(costo)}</div>
-                <div class="field"><strong>Abono:</strong> $${escapeHtml(abono)}</div>
-                <div class="field"><strong>Peso:</strong> ${escapeHtml(peso)}</div>
-              </div>
-            </div>
+      const printHTML = `
+        <!doctype html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Cotización</title>
+          <style>
+            @page { size: A4; margin: 10mm; }
+            html,body{font-family:Arial,Helvetica,sans-serif;color:#111;margin:0;padding:0}
+            .header{background:linear-gradient(135deg, ${escapeHtml('#2325d4')}, ${escapeHtml('#1a1cb3')});color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px}
+            .logo { max-width:140px; }
+            .meta { font-size:13px; opacity:0.95 }
+            .container{padding:14px}
+            .producto{display:flex;gap:12px;align-items:center;margin-top:12px}
+            .producto img{max-width:160px;border-radius:8px;border:1px solid #eee}
+            h2{margin:0 0 6px 0}
+            .field{margin-bottom:8px}
+            .option-block{border:1px solid #eee;padding:8px;border-radius:8px;background:#fafafa;margin-bottom:8px}
+            /* evitar saltos de página en bloques importantes */
+            .option-block, .producto, .field { page-break-inside: avoid; }
+            /* ajustar escala si queda justo */
+            @media print {
+              html,body{zoom:0.95 margin: 0; padding: 0;}
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo Panama Shipping Co." class="logo" />
+            <div>
+              <h2>Cotización de Compra</h2>
+              <div class="meta">Fecha: ${fecha} | Hora: ${hora}</div>
+            </div>
+          </div>
+          <div class="container">
+            <h3 style="margin-top:20px;font-size:1.1em;">Detalles del Producto</h3>
+            <div class="producto">
+              ${imagenSrc ? `<img src="${imagenSrc}" alt="${escapeHtml(titulo)}" />` : ''}
+              <div>
+                <strong>Título:</strong> ${escapeHtml(titulo) || 'No especificado'}<br>
+                <strong>Link:</strong> <a href="${escapeHtml(link)}">${escapeHtml(link)}</a><br>
+                <strong>Costo:</strong> $${costo}<br>
+                <strong>Abono:</strong> $${abono}<br>
+                <strong>Peso:</strong> ${peso} lb
+              </div>
+            </div>
+            <h3 style="margin-top:20px;font-size:1.1em;">Resumen de la Cotización</h3>
+            ${contenido}
+          </div>
+        </body>
+        </html>
+      `;
 
-            <hr style="margin:12px 0">
+      const printWindow = window.open('', '', 'height=600,width=800');
+      printWindow.document.write(printHTML);
+      printWindow.document.close();
+      printWindow.onload = function(){
+        printWindow.focus();
+        printWindow.print();
+        // printWindow.close(); // Se comenta para que el usuario pueda guardar como PDF
+      }
+    }
 
-            ${contenido}
-
-            <p style="margin-top:12px;font-size:12px;color:#555">* Esta cotización es referencial y sujeta a cambios. Fecha y hora mostradas corresponden al momento de la generación del documento.</p>
-          </div>
-        </body>
-        </html>
-      `;
-
-      const w = window.open("","_blank","height=900,width=800");
-      w.document.write(printHTML);
-      w.document.close();
-      w.focus();
-      // Esperamos un poco a que las imágenes carguen, luego imprimimos
-      const tryPrint = () => {
-        try {
-          w.print();
-        } catch (e) {
-          console.warn("Print error, retrying...", e);
-          setTimeout(()=>{ tryPrint(); }, 500);
-        }
-      };
-      // esperar 700ms para asegurar recursos (ajustable)
-      setTimeout(()=>{ tryPrint(); }, 700);
-    }
-
-    // -----------------------
-    // LIMPIEZA
-    // -----------------------
-    function limpiarTodo(){
-      el("linkBuscar").value = "";
-      el("link").value = "";
-      el("costo").value = "";
-      el("abono").value = "";
-      el("peso").value = "";
-      el("resultadoSearch").innerHTML = "";
-      el("resultadoCalc").innerHTML = "";
-      el("resultadoCalc").style.display = "none";
-      el("calculadora").style.display = "none";
-      el("accionesCalc").style.display = "none";
-      productoEstado = { titulo:"", precio:null, imagen:"", link:"" };
-      el("linkBuscar").focus();
-    }
-
-    // Mostrar calculadora directo
-    function mostrarCalculadoraDirecto(){
-      mostrarCalculadora();
-      el("calculadora").style.display = "block";
-      el("accionesCalc").style.display = "none";
-      el("resultadoSearch").innerHTML = "";
-      el("imagen-producto").style.display = "none";
-      el("titulo-producto").style.display = "none";
-      el("precio-producto").style.display = "none";
-      el("btnImprimir").style.display = "none";
-    }
-
-    // -----------------------
-    // INIT & EVENTS
-    // -----------------------
-    function initEvents(){
-      el("btnBuscar").addEventListener("click", buscarProducto);
-      el("btnSaltar").addEventListener("click", mostrarCalculadoraDirecto);
-      el("btnCalcular").addEventListener("click", calcular);
-      el("btnImprimir").addEventListener("click", imprimirCotizacion);
-      el("btnLimpiar").addEventListener("click", limpiarTodo);
-      el("btnLimpiar2").addEventListener("click", limpiarTodo);
-
-      el("linkBuscar").addEventListener("keydown", function(e){ if(e.key === "Enter") buscarProducto(); });
-
-      el("linkBuscar").focus();
-    }
-
-    // Ejecutar init
-    initEvents();
-
-    // Export para debugging
-    window._codigoYplus = { buscarProducto, calcular, imprimirCotizacion, limpiarTodo, mostrarCalculadoraDirecto };
-
-  })();
-
-  // Lógica principal para el menú responsivo (botón de hamburguesa)
-  (function(){
-    const header = document.querySelector('header');
-    const nav = header ? header.querySelector('nav') : null;
-    const menuToggle = header ? header.querySelector('.menu-toggle') : null;
-
-    if (!header || !nav || !menuToggle) {
-      // console.warn('Elementos de navegación no encontrados. El menú de hamburguesa podría no funcionar.');
-      return; // Salir si los elementos no existen
-    }
-
-    // Función para abrir/cerrar el menú
-    function toggleMenu(show) {
-      if (show) {
-        nav.classList.add('show');
-        menuToggle.setAttribute('aria-expanded', 'true');
-      } else {
-        nav.classList.remove('show');
-        menuToggle.setAttribute('aria-expanded', 'false');
-      }
-    }
-
-    // Evento de clic en el botón de hamburguesa
-    menuToggle.addEventListener('click', (e) => {
-      e.stopPropagation(); // Evita que el clic se propague al documento
-      toggleMenu(!nav.classList.contains('show'));
-    });
-
-    // Cierra el menú cuando se hace clic fuera del encabezado
-    document.addEventListener('click', (e) => {
-      if (!header.contains(e.target)) {
-        toggleMenu(false);
-      }
-    });
-
-    // Cierra el menú cuando se redimensiona a un tamaño de escritorio
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 900) {
-        toggleMenu(false);
-      }
-    });
-  })();
+    // -----------------------
+    // EVENT LISTENERS
+    // -----------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      el("btnBuscar").addEventListener("click", buscarProducto);
+      el("btnSaltar").addEventListener("click", () => {
+        el("link").value = el("linkBuscar").value;
+        el("resultadoSearch").innerHTML = "";
+        el("calculadora").style.display = "block";
+      });
+      el("btnCalcular").addEventListener("click", calcular);
+      el("btnLimpiar").addEventListener("click", () => {
+        el("costo").value = "";
+        el("abono").value = "";
+        el("peso").value = "";
+        el("resultadoCalc").innerHTML = "";
+        el("resultadoCalc").style.display = "none";
+        el("accionesCalc").style.display = "none";
+      });
+      el("btnLimpiar2").addEventListener("click", () => {
+        el("costo").value = "";
+        el("abono").value = "";
+        el("peso").value = "";
+        el("resultadoCalc").innerHTML = "";
+        el("resultadoCalc").style.display = "none";
+        el("accionesCalc").style.display = "none";
+      });
+      el("btnImprimir").addEventListener("click", imprimirCotizacion);
+      
+      // Toggle del menú móvil
+      const menuToggle = el("menu-toggle");
+      const nav = document.querySelector("header nav");
+      if(menuToggle){
+        menuToggle.addEventListener('click', () => {
+          nav.classList.toggle('show');
+        });
+      }
+    });
+  })();
 </script>
+
 </body>
 </html>
