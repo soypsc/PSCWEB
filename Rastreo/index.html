@@ -337,7 +337,19 @@
         .psc-src-psc{border-left:3px solid var(--blue)}
         .psc-event.psc-src-pn::before{background:var(--orange);border-color:var(--orange)}
         .psc-event.psc-src-fz::before{background:var(--warn);border-color:var(--warn)}
-        .psc-event.psc-src-psc::before{background:var(--blue);border-color:var(--blue)}
+        
+        .psc-event.psc-src-psc::before {
+            width: 24px;
+            height: 24px;
+            left: -14px;
+            top: 10px;
+            background: #fff;
+            border-color: var(--blue);
+            background-image: url('https://static.wixstatic.com/media/f7f5e1_66b4f06d762d42dd83ca81d5b63ba450~mv2.png');
+            background-size: 22px 22px;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
 
         .psc-more{display:flex;justify-content:center;margin-top:8px}
         .psc-more button{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
