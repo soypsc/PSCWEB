@@ -634,10 +634,11 @@
     /* Posicionamiento específico para cada botón de acción (radialmente) */
     /* Estos valores son relativos a la esquina inferior derecha de .fab-container (0,0) */
     /* El botón principal FAB está en (bottom:0, right:0) */
-    .fab-action-item.whatsapp-item { bottom: 70px; right: 0px; } /* Más cercano, arriba-derecha */
-    .fab-action-item.facebook-item { bottom: 120px; right: 50px; } /* Un poco más lejos, arriba-izquierda */
-    .fab-action-item.twitter-item { bottom: 170px; right: 100px; } /* Más lejos */
-    .fab-action-item.instagram-item { bottom: 220px; right: 150px; } /* El más alejado */
+    /* Ajustes para el despliegue radial más suave y legible de 4 elementos */
+    .fab-action-item.whatsapp-action { bottom: 70px; right: 0px; }
+    .fab-action-item.tracker-action { bottom: 120px; right: 20px; } /* Ligeramente más hacia la izquierda */
+    .fab-action-item.ml-action { bottom: 170px; right: 50px; } /* Más hacia la izquierda */
+    .fab-action-item.quotes-action { bottom: 220px; right: 80px; } /* El más alejado y a la izquierda */
 
 
     /* Estado de los botones de acción cuando el FAB está abierto */
@@ -646,10 +647,10 @@
       pointer-events: auto;
       transform: translate(0, 0) scale(1); /* Vuelve a su tamaño y posición definida por bottom/right */
     }
-    .fab-container.open .fab-action-item.whatsapp-item { transition-delay: 0.05s; }
-    .fab-container.open .fab-action-item.facebook-item { transition-delay: 0.10s; }
-    .fab-container.open .fab-action-item.twitter-item { transition-delay: 0.15s; }
-    .fab-container.open .fab-action-item.instagram-item { transition-delay: 0.20s; }
+    .fab-container.open .fab-action-item.whatsapp-action { transition-delay: 0.05s; }
+    .fab-container.open .fab-action-item.tracker-action { transition-delay: 0.10s; }
+    .fab-container.open .fab-action-item.ml-action { transition-delay: 0.15s; }
+    .fab-container.open .fab-action-item.quotes-action { transition-delay: 0.20s; }
 
 
     /* Estilos para el botón circular dentro de cada item de acción */
@@ -872,38 +873,38 @@
   <!-- ==================================================================== -->
   <div class="fab-container">
     <!-- Botones de acción social con sus etiquetas -->
-    <div class="fab-action-item whatsapp-item">
+    <div class="fab-action-item whatsapp-action">
       <span class="fab-action-label">WhatsApp</span>
       <button class="fab-circular-button" onclick="location.href='https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion'">
         <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Icono de WhatsApp" />
       </button>
     </div>
 
-    <div class="fab-action-item facebook-item">
-      <span class="fab-action-label">Facebook</span>
-      <button class="fab-circular-button" onclick="window.open('https://www.facebook.com/PanamaShippingCo/', '_blank')">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.04C6.51 2.04 2 6.55 2 12.04c0 4.84 3.56 8.87 8.21 9.77V14.04h-2.54V11.5h2.54V9.58c0-2.5 1.51-3.87 3.76-3.87 1.09 0 2.24.19 2.24.19v2.47h-1.26c-1.24 0-1.62.77-1.62 1.56v1.86h2.75l-.44 2.54h-2.31V21.8C18.44 20.91 22 16.88 22 12.04 22 6.55 17.49 2.04 12 2.04z"/></svg>
+    <div class="fab-action-item tracker-action">
+      <span class="fab-action-label">Rastreador</span>
+      <button class="fab-circular-button" onclick="location.href='Rastreo/'">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M22 9h-4V7c0-.55-.45-1-1-1H9c-.55 0-1 .45-1 1v3H4c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h2c0 1.66 1.34 3 3 3s3-1.34 3-3h4c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5c0-.55-.45-1-1-1zM9 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm9 0c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm3-7l-3 4H9V7h7.21l1.79 3.09L21 11.01z"/></svg>
       </button>
     </div>
 
-    <div class="fab-action-item twitter-item">
-      <span class="fab-action-label">Twitter</span>
-      <button class="fab-circular-button" onclick="window.open('https://twitter.com/', '_blank')">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.37-.83.49-1.74.83-2.72 1.02-2.12-2.13-5.5-2.12-7.61.02-1.04 1.05-1.6 2.4-1.6 3.86 0 .31.03.62.08.92-4.52-.22-8.52-2.39-11.21-5.69-.47.81-.74 1.77-.74 2.79 0 1.9.97 3.57 2.45 4.56-.9.03-1.74-.27-2.47-.64v.03c0 2.65 1.89 4.88 4.39 5.39-.43.12-.88.18-1.34.18-.33 0-.66-.03-.97-.1C7.8 19.06 10.45 20.04 13.3 20.04c-1.9 1.48-4.27 2.37-6.7 2.37-1.08 0-2.15-.06-3.19-.18 2.57 1.65 5.62 2.62 8.89 2.62 7.74 0 11.96-6.4 11.96-11.97 0-.19-.01-.38-.01-.56.82-.59 1.53-1.33 2.1-2.18z"/></svg>
+    <div class="fab-action-item ml-action">
+      <span class="fab-action-label">Solicitar ML</span>
+      <button class="fab-circular-button" onclick="location.href='ML/'">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 12h-2v3h-3v2h5v-5zM7 9h3V7H5v5h2V9zm14-6H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14z"/></svg>
       </button>
     </div>
 
-    <div class="fab-action-item instagram-item">
-      <span class="fab-action-label">Instagram</span>
-      <button class="fab-circular-button" onclick="window.open('https://www.instagram.com/soypsc/', '_blank')">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4c0 3.2-2.6 5.8-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8C2 4.6 4.6 2 7.8 2zm-.2 2A2.02 2.02 0 0 0 4 6.2v8.4c0 1.13.9 2.02 2.02 2.02h8.4A2.02 2.02 0 0 0 18 16.2V7.8A2.02 2.02 0 0 0 15.78 4H7.6zM12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5zm4.8-10.4c.66 0 1.2.54 1.2 1.2s-.54 1.2-1.2 1.2-1.2-.54-1.2-1.2.54-1.2 1.2-1.2z"/></svg>
+    <div class="fab-action-item quotes-action">
+      <span class="fab-action-label">Cotizar Compras</span>
+      <button class="fab-circular-button" onclick="location.href='Cotizador/'">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 5h14v14H5V5zm2 5h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2zM7 14h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/></svg>
       </button>
     </div>
 
     <!-- Botón principal de activación/desactivación del FAB -->
     <button class="fab-main-button" id="fabMainBtn">
       <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-      <span>Nuestras Redes Sociales</span>
+      <span>Acciones Rápidas</span>
     </button>
   </div>
 
