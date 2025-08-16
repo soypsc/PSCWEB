@@ -326,6 +326,140 @@
             box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
         }
 
+        /* ========== SECCIÓN TARIFAS DE CARGA (ESTILO APPLE + PSC) ========== */
+        .rates-section {
+            background-color: #f5f5f7; /* Gris claro estilo Apple */
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .rates-section .section-header {
+            max-width: 720px;
+            margin: 0 auto 50px auto;
+        }
+
+        .rates-section h2 {
+            font-size: 2.5rem; /* 40px */
+            font-weight: 600;
+            color: #1d1d1f; /* Negro principal de Apple */
+            margin-bottom: 15px;
+        }
+
+        .rates-section .section-header p {
+            font-size: 1.125rem; /* 18px */
+            color: #515154; /* Gris secundario */
+            line-height: 1.6;
+        }
+
+        .rates-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            max-width: var(--max-width);
+            margin: 0 auto;
+        }
+
+        .rate-card {
+            background-color: #ffffff;
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            flex: 1;
+            min-width: 300px;
+            max-width: 450px;
+            text-align: left;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rate-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .rate-card .card-content {
+            padding: 40px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rate-card .rate-title {
+            font-size: 1.75rem; /* 28px */
+            font-weight: 600;
+            color: var(--blue-1); /* Color principal de PSC */
+            margin-bottom: 15px;
+        }
+
+        .rate-card .rate-description {
+            font-size: 1rem; /* 16px */
+            color: #515154;
+            line-height: 1.5;
+            margin-bottom: 10px; /* Reducido para acercar el nuevo texto */
+        }
+        
+        .rate-card .rate-sub-description {
+            font-size: 0.9rem;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 25px;
+        }
+
+        .rate-card .rate-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 30px 0;
+        }
+
+        .rate-card .rate-list li {
+            font-size: 1rem;
+            color: #333;
+            padding: 10px 0;
+            border-bottom: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .rate-card .rate-list li:last-child {
+            border-bottom: none;
+        }
+
+        .rate-card .rate-list li span {
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+        
+        .rate-card .rate-list li .price {
+            font-weight: 600;
+            color: var(--blue-2);
+        }
+        
+        .rate-card .rate-list li .price.soon {
+            font-weight: 500;
+            color: var(--muted);
+        }
+
+        .rate-card .cta-button {
+            display: inline-block;
+            background-color: var(--blue-1);
+            color: #ffffff;
+            padding: 12px 25px;
+            border-radius: 30px; /* Botón tipo píldora */
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            align-self: flex-start; /* Alinea el botón a la izquierda */
+            margin-top: auto; /* Empuja el botón al final */
+        }
+
+        .rate-card .cta-button:hover {
+            background-color: var(--blue-2);
+            transform: translateY(-2px);
+        }
+
         /* EXPERIENCIA */
         .testimonios, .experiencia {
             color: white;
@@ -485,7 +619,6 @@
         }
 
         @media (min-width: 901px) {
-            /* ANOTACIÓN: Se eliminó la regla que ocultaba el .fab-container */
             .menu-toggle {
                 display: none;
             }
@@ -544,6 +677,7 @@
 
         .servicio:nth-child(2) { transition-delay: 150ms; }
         .servicio:nth-child(3) { transition-delay: 300ms; }
+        .rate-card:nth-child(2) { transition-delay: 150ms; }
         
         /* FLOATING ACTION BUTTON (FAB) */
         .fab-container {
@@ -637,7 +771,6 @@
             transform: translateX(0);
         }
 
-        /* ANOTACIÓN: Nuevos delays para la animación escalonada con la opción "Inicio" */
         .fab-container.open .home-action { transition-delay: 0.25s; }
         .fab-container.open .whatsapp-action { transition-delay: 0.2s; }
         .fab-container.open .tracker-action { transition-delay: 0.15s; }
@@ -758,6 +891,43 @@
         <p style="margin-bottom: 20px;">Visítanos en nuestras distintas ubicaciones en Panamá.</p>
         <img class="sucursal-img" src="https://static.wixstatic.com/media/f7f5e1_8607c401b2cd45cba61a671c3174c8fb~mv2.png" alt="Mapa de ubicaciones de sucursales">
     </section>
+
+    <!-- ========== INICIO DE LA NUEVA SECCIÓN DE TARIFAS ========== -->
+    <section class="rates-section">
+        <div class="section-header anim-hidden">
+            <h2>Tarifas en Carga Aérea y Marítima</h2>
+            <p>Ofrecemos soluciones logísticas competitivas y adaptadas a tus necesidades. Explora nuestras tarifas base.</p>
+        </div>
+        <div class="rates-container">
+            <!-- Tarjeta para Carga Aérea -->
+            <div class="rate-card anim-hidden">
+                <div class="card-content">
+                    <h3 class="rate-title">Carga Aérea</h3>
+                    <p class="rate-description">Con vuelos diarios desde Miami, tus paquetes llegan a la sucursal de 2 a 4 días hábiles. ¡La solución más rápida para tus envíos urgentes!</p>
+                    <p class="rate-sub-description">Sin cobros ocultos ni por volumen, pagas solo por el peso del paquete.</p>
+                    <ul class="rate-list">
+                        <li><span>Miami (MIA)</span> <span class="price">$2.95 / lb real</span></li>
+                        <li><span>Colombia</span> <span class="price soon">Próximamente</span></li>
+                        <li><span>China</span> <span class="price soon">Próximamente</span></li>
+                    </ul>
+                    <a href="https://psc.e-rmez.com/casillero_register.php" class="cta-button">Regístrate</a>
+                </div>
+            </div>
+
+            <!-- Tarjeta para Carga Marítima -->
+            <div class="rate-card anim-hidden">
+                <div class="card-content">
+                    <h3 class="rate-title">Carga Marítima</h3>
+                    <p class="rate-description">La opción más económica para grandes volúmenes, con salidas semanales. Ideal para mercancía comercial y mudanzas.</p>
+                    <ul class="rate-list">
+                        <li><span>Carga Suelta (LCL)</span> <span class="price">Desde $9.50 / ft³</span></li>
+                    </ul>
+                    <a href="https://psc.e-rmez.com/casillero_register.php" class="cta-button">Regístrate</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- ========== FIN DE LA NUEVA SECCIÓN ========== -->
 
     <section class="experiencia">
         <h2 class="anim-hidden">NUESTRA EXPERIENCIA</h2>
@@ -945,3 +1115,4 @@
     </script>
 </body>
 </html>
+
