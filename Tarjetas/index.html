@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarjeta de Regalo - Panama Shipping Co.</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+    
+    <style>
+        /* Estilos globales y reseteo */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f5f7; /* Fondo gris claro para la página */
+            color: #000;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Variables CSS (Colores, etc.) */
+        :root {
+            --blue-1: #2325d4;
+            --blue-2: #1a1cb3;
+            --accent: #ffec00;
+            --save-green-bg: #e0f8e6;
+            --save-green-text: #1e8642;
+            --bg: #fff;
+            --muted: #777;
+            --card-border: #e6e6ee;
+            --shadow: 0 4px 25px rgba(0, 0, 0, 0.05); /* Sombra más sutil */
+            --radius: 12px; /* Bordes más rectangulares */
+            --max-width: 1200px;
+        }
+
+        /* ====================================================================== */
+        /* HEADER (Reutilizado de la página principal)
+        /* ====================================================================== */
+        header {
+            background: linear-gradient(135deg, var(--blue-1), var(--blue-2));
+            color: white;
+            position: fixed; 
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 25px;
+            transition: height 0.3s ease, background-color 0.3s ease; 
+        }
+
+        header.scrolled {
+            height: 80px;
+            background: var(--blue-1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .header-inner {
+            max-width: var(--max-width);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo {
+            height: 180px;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            transition: height 0.3s ease;
+        }
+        header.scrolled .logo {
+            height: 120px;
+        }
+
+        .logo img {
+            max-height: 260px;
+            width: auto;
+            object-fit: contain;
+            user-select: none;
+            pointer-events: none;
+            transition: max-height 0.3s ease;
+        }
+        header.scrolled .logo img {
+            max-height: 180px;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+            position: relative;
+            transition: color 0.3s ease, transform 0.2s ease;
+        }
+
+        nav a:hover {
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .btn-header {
+            background: var(--accent);
+            color: var(--blue-1);
+            padding: 8px 18px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 13px;
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-header:hover {
+            background: #e6d800;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .onda {
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23f5f5f7" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;
+            background-size: cover;
+            z-index: 1;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        header.scrolled .onda {
+            opacity: 0;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--blue-1);
+            min-width: 200px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.25);
+            border-radius: var(--radius);
+            z-index: 10002;
+            overflow: hidden;
+        }
+
+        .dropdown-content a {
+            color: white;
+            padding: 10px 16px;
+            display: block;
+            font-size: 14px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--blue-2);
+            color: var(--accent);
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        body {
+            padding-top: 140px; 
+        }
+
+        /* SECTIONS */
+        .section {
+            padding: 60px 20px;
+            max-width: var(--max-width);
+            margin: auto;
+            text-align: center;
+        }
+
+        /* ========== SECCIÓN DE TARJETAS DE REGALO ========== */
+        .page-header {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .page-header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #1d1d1f;
+            margin-bottom: 15px;
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            color: #515154;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .pricing-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 30px;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        .price-card {
+            background-color: var(--bg);
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid var(--card-border);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .price-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.08);
+        }
+        
+        .price-card .card-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bestseller-tag {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--blue-1);
+            color: white;
+            padding: 5px 20px;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 0 0 var(--radius) var(--radius);
+            text-transform: uppercase;
+        }
+        
+        .price-card.bestseller {
+            border-top: 3px solid var(--blue-1);
+            box-shadow: 0 10px 40px rgba(35, 37, 212, 0.15);
+        }
+        
+        .price-card.bestseller:hover {
+             transform: translateY(-8px);
+             box-shadow: 0 20px 50px rgba(35, 37, 212, 0.2);
+        }
+
+        .price-card h3 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 15px;
+        }
+        
+        .price-card.bestseller h3 {
+            margin-top: 30px;
+        }
+
+        .save-badge {
+            display: inline-block;
+            background-color: var(--save-green-bg);
+            color: var(--save-green-text);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin: 0 auto 25px auto;
+        }
+
+        .price-card .price {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--blue-1);
+            margin-bottom: 25px;
+            line-height: 1;
+        }
+        
+        .price-card .price small {
+            font-size: 2rem;
+            font-weight: 600;
+            vertical-align: top;
+        }
+
+        .price-card .cta-button {
+            background: var(--blue-1);
+            color: white;
+            padding: 14px 25px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: auto;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(35, 37, 212, 0.2);
+            border: none;
+        }
+
+        .price-card .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(35, 37, 212, 0.3);
+            background: var(--blue-2);
+        }
+        
+        /* FOOTER */
+        footer {
+            background: var(--bg);
+            color: #000;
+            padding: 40px 20px;
+            margin-top: 50px;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .footer-container {
+            max-width: var(--max-width);
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .footer-col h3 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .footer-col p, .footer-col a {
+            font-size: 14px;
+            color: #555;
+            transition: color 0.3s ease;
+        }
+
+        .footer-col a:hover {
+            color: var(--blue-1);
+        }
+
+        .social-icons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            padding-top: 15px;
+        }
+        
+        /* FLOATING ACTION BUTTON (FAB) */
+        .fab-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .fab-screen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(240, 240, 240, 0.8);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .fab-screen-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .fab-main-button {
+            position: relative;
+            z-index: 1002;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: red;
+            color: white;
+            border: none;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+
+        .fab-main-button:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+            transform: scale(1.05);
+            background-color: var(--blue-2);
+        }
+
+        .fab-main-button .plus-icon {
+            width: 30px;
+            height: 30px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .fab-container.open .fab-main-button .plus-icon {
+            transform: rotate(45deg);
+        }
+
+        .fab-actions {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-end;
+            transform: scale(0);
+            transform-origin: bottom right;
+            transition: transform 0.3s ease-out;
+            z-index: 1001;
+        }
+
+        .fab-container.open .fab-actions {
+            transform: scale(1);
+        }
+
+        .fab-action-item {
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            gap: 10px;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            opacity: 0;
+            transform: translateX(20px);
+        }
+
+        .fab-container.open .fab-action-item {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .fab-container.open .home-action { transition-delay: 0.25s; }
+        .fab-container.open .whatsapp-action { transition-delay: 0.2s; }
+        .fab-container.open .tracker-action { transition-delay: 0.15s; }
+        .fab-container.open .ml-action { transition-delay: 0.10s; }
+        .fab-container.open .quotes-action { transition-delay: 0.05s; }
+
+        .fab-circular-button {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background-color: var(--blue-1);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .fab-circular-button:hover {
+            background-color: var(--blue-2);
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+        }
+
+        .fab-circular-button svg {
+            width: 30px;
+            height: 30px;
+            fill: currentColor;
+        }
+
+        .fab-action-label {
+            background-color: white;
+            color: var(--blue-1);
+            padding: 8px 12px;
+            border-radius: 18px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .fab-action-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Media Queries */
+        @media (max-width: 900px) {
+            header, header.scrolled {
+                height: auto;
+                padding: 15px 25px;
+                position: absolute; 
+            }
+            body {
+                padding-top: 0; 
+            }
+            .header-inner {
+                flex-wrap: wrap;
+            }
+            nav {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 1100px) {
+            .price-card.bestseller {
+                transform: scale(1);
+            }
+             .price-card.bestseller:hover {
+                transform: translateY(-10px);
+            }
+        }
+
+    </style>
+</head>
+<body>
+    
+    <header id="main-header">
+        <div class="header-inner">
+            <div class="logo">
+                <a href="/"><img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co."></a>
+            </div>
+            <nav>
+                <a href="/">Inicio</a>
+                <a href="/Rastreo/">Rastreador de Paquetes</a>
+                <a href="/Cotizador/">Cotiza tus Compras</a>
+                <a href="/ML/">Mal identificado</a>
+                <div class="dropdown">
+                    <a href="#">Más ▾</a>
+                    <div class="dropdown-content">
+                        <a href="/DG/">Mercancía Peligrosa</a>
+                        <a href="/Politicas/">Términos y Condiciones</a>
+                    </div>
+                </div>
+            </nav>
+            <div class="header-buttons">
+                <a href="https://psc.e-rmez.com/zonacliente/" class="btn-header">Zona de Clientes</a>
+                <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-header">Regístrate</a>
+            </div>
+        </div>
+        <div class="onda"></div>
+    </header>
+
+    <main>
+        <div class="page-header">
+            <h1>Tarjetas de Regalo PSC</h1>
+            <p>El regalo perfecto para los amantes de las compras en línea. Recarga libras y ahorra en cada envío.</p>
+        </div>
+
+        <section class="section">
+            <div class="pricing-container">
+                
+                <!-- Tarjeta 1: 20 lbs -->
+                <div class="price-card">
+                    <div class="card-content">
+                        <h3>20 lbs</h3>
+                        <div class="save-badge">Ahorra $4.00</div>
+                        <div class="price"><small>$</small>55.00</div>
+                        <a href="https://api.whatsapp.com/send?phone=50767906781&text=Estoy%20interesado%20en%20la%20tarjeta%20de%20regalo%20de%2020%20lbs." class="cta-button" target="_blank">Recargar</a>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 2: 30 lbs (Más vendido) -->
+                <div class="price-card bestseller">
+                    <div class="bestseller-tag">Más vendido</div>
+                    <div class="card-content">
+                        <h3>30 lbs</h3>
+                        <div class="save-badge">Ahorra $13.50</div>
+                        <div class="price"><small>$</small>75.00</div>
+                        <a href="https://api.whatsapp.com/send?phone=50767906781&text=Estoy%20interesado%20en%20la%20tarjeta%20de%20regalo%20de%2030%20lbs." class="cta-button" target="_blank">Recargar</a>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 3: 40 lbs -->
+                <div class="price-card">
+                    <div class="card-content">
+                        <h3>40 lbs</h3>
+                        <div class="save-badge">Ahorra $18.00</div>
+                        <div class="price"><small>$</small>100.00</div>
+                        <a href="https://api.whatsapp.com/send?phone=50767906781&text=Estoy%20interesado%20en%20la%20tarjeta%20de%20regalo%20de%2040%20lbs." class="cta-button" target="_blank">Recargar</a>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 4: 60 lbs -->
+                <div class="price-card">
+                    <div class="card-content">
+                        <h3>60 lbs</h3>
+                        <div class="save-badge">Ahorra $32.00</div>
+                        <div class="price"><small>$</small>145.00</div>
+                        <a href="https://api.whatsapp.com/send?phone=50767906781&text=Estoy%20interesado%20en%20la%20tarjeta%20de%20regalo%20de%2060%20lbs." class="cta-button" target="_blank">Recargar</a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-col">
+                <h3>Contacto</h3>
+                <p>Asistencia personalizada</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
+                    <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
+                    <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Enlaces Rápidos</h3>
+                <a href="/Politicas/">Términos y Condiciones</a><br>
+                <a href="/DG/">Mercancía Restringida</a>
+            </div>
+            <div class="footer-col">
+                <h3>Sobre Nosotros</h3>
+                <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2024 Panama Shipping Co. Todos los derechos reservados.
+        </div>
+    </footer>
+    
+    <div class="fab-container">
+        <div class="fab-screen-overlay"></div>
+
+        <div class="fab-actions">
+            <a href="/" class="fab-action-item home-action">
+                <span class="fab-action-label">Inicio</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor" stroke="white" stroke-width="1">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                    </svg>
+                </button>
+            </a>
+            <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener" class="fab-action-item whatsapp-action">
+                <span class="fab-action-label">WhatsApp</span>
+                <button class="fab-circular-button" style="background-color: #25D366;">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01s-.52.074-.792.372c-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.289.173-1.414z"/>
+                    </svg>
+                </button>
+            </a>
+            <a href="/Rastreo/" class="fab-action-item tracker-action">
+                <span class="fab-action-label">Rastreador</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </button>
+            </a>
+            <a href="/ML/" class="fab-action-item ml-action">
+                <span class="fab-action-label">Mal Identificado</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                </button>
+            </a>
+            <a href="/Cotizador/" class="fab-action-item quotes-action">
+                <span class="fab-action-label">Cotizador</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7V8h10v7zm-5-3c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
+                    </svg>
+                </button>
+            </a>
+        </div>
+
+        <button class="fab-main-button">
+            <svg class="plus-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Script original de la página para el header y el FAB -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const header = document.getElementById('main-header');
+            if(header) {
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 50) {
+                        header.classList.add('scrolled');
+                    } else {
+                        header.classList.remove('scrolled');
+                    }
+                });
+            }
+            
+            const fabContainer = document.querySelector('.fab-container');
+            if (fabContainer) {
+                const mainFabButton = fabContainer.querySelector('.fab-main-button');
+                const overlay = fabContainer.querySelector('.fab-screen-overlay');
+                
+                function toggleFabMenu() {
+                    fabContainer.classList.toggle('open');
+                    overlay.classList.toggle('show');
+                }
+
+                mainFabButton.addEventListener('click', toggleFabMenu);
+                overlay.addEventListener('click', toggleFabMenu);
+            }
+        });
+    </script>
+
+</body>
+</html>
