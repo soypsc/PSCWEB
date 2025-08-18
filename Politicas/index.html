@@ -1,622 +1,635 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panama Shipping Co. - Términos y Condiciones</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Panama Shipping Co. - Términos y Condiciones</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
 
-  <style>
-    /* ====================================================================== */
-    /* Estilos Globales y Reseteo */
-    /* ====================================================================== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <style>
+        /* ====================================================================== */
+        /* Estilos Globales y Reseteo */
+        /* ====================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    /* Ajuste para footer fijo: body como flex container */
-    html, body {
-      height: 100%; /* Asegura que html y body ocupen toda la altura de la ventana */
-    }
+        html, body {
+            height: 100%;
+        }
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #fff;
-      color: #000;
-      line-height: 1.6;
-      overflow-x: hidden; /* Evita el scroll horizontal causado por animaciones */
-      display: flex; /* Habilita Flexbox */
-      flex-direction: column; /* Organiza los hijos en columna */
-      min-height: 100vh; /* Asegura que el body tenga al menos la altura de la ventana */
-    }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #fff;
+            color: #000;
+            line-height: 1.6;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
 
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
 
-    /* ====================================================================== */
-    /* Variables CSS (Colores, etc.) */
-    /* ====================================================================== */
-    :root{
-      --blue-1:#2325d4;
-      --blue-2:#1a1cb3;
-      --accent:#ffec00;
-      --bg:#fff;
-      --muted:#777;
-      --card-border:#e6e6ee;
-      --shadow: 0 6px 30px rgba(0,0,0,0.06);
-      --radius:12px;
-      --max-width:1200px;
-    }
+        /* ====================================================================== */
+        /* Variables CSS (Colores, etc.) */
+        /* ====================================================================== */
+        :root{
+            --blue-1:#2325d4;
+            --blue-2:#1a1cb3;
+            --accent:#ffec00;
+            --bg:#fff;
+            --muted:#777;
+            --card-border:#e6e6ee;
+            --shadow: 0 6px 30px rgba(0,0,0,0.06);
+            --radius:12px;
+            --max-width:1200px;
+        }
 
-    /* ====================================================================== */
-    /* HEADER (Encabezado principal y navegación superior) - COPIADO DE homepage_enhanced_design */
-    /* ====================================================================== */
-    header {
-      background: linear-gradient(135deg, #2325d4, #1a1cb3);
-      color: white;
-      position: relative;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Sombra más pronunciada para profundidad */
-      height: 140px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 25px;
-      flex-shrink: 0; /* Evita que el header se encoja */
-    }
+        /* ====================================================================== */
+        /* INICIO: ESTILOS INTEGRADOS PARA HEADER Y FAB                           */
+        /* ====================================================================== */
 
-    .header-inner {
-      max-width: 1200px;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: relative;
-      z-index: 2; /* Asegura que el contenido esté por encima de la onda */
-    }
+        /* --- Estilos del Header --- */
+        header {
+            background: linear-gradient(135deg, var(--blue-1), var(--blue-2));
+            color: white;
+            position: fixed; /* CAMBIO: De relative a fixed */
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 25px;
+            transition: height 0.3s ease, background-color 0.3s ease;
+        }
 
-    .logo {
-      height: 180px;
-      display: flex;
-      align-items: center;
-    }
+        header.scrolled {
+            height: 80px;
+            background: var(--blue-1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
 
-    .logo img {
-      max-height: 225px;
-      width: auto;
-      object-fit: contain;
-      user-select: none;
-      pointer-events: none;
-    }
+        .header-inner {
+            max-width: var(--max-width);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-    nav {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
+        .logo {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
 
-    nav a {
-      color: white;
-      font-weight: 500;
-      font-size: 14px;
-      position: relative;
-      transition: color 0.3s ease, transform 0.2s ease; /* Transiciones para color y movimiento */
-      will-change: color, transform; /* Optimización de rendimiento para animaciones */
-    }
+        .logo img {
+            max-height: 180px;
+            width: auto;
+            object-fit: contain;
+            user-select: none;
+            pointer-events: none;
+            transition: max-height 0.3s ease;
+        }
 
-    nav a:hover {
-      color: #ffec00;
-      transform: translateY(-2px); /* Pequeño levantamiento al pasar el cursor */
-    }
+        header.scrolled .logo img {
+            max-height: 140px;
+        }
 
-    nav a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -3px;
-      width: 0%;
-      height: 2px;
-      background: #ffec00;
-      transition: width 0.3s ease; /* Animación de subrayado */
-    }
+        .desktop-nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
 
-    nav a:hover::after {
-      width: 100%;
-    }
+        .desktop-nav a {
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+            position: relative;
+            transition: color 0.3s ease, transform 0.2s ease;
+        }
 
-    .header-buttons {
-      display: flex;
-      gap: 10px;
-    }
+        .desktop-nav a:hover {
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
 
-    .btn-header {
-      background: #ffec00;
-      color: #2325d4;
-      padding: 8px 18px;
-      border-radius: 12px; /* Bordes suaves y consistentes */
-      font-weight: 600;
-      font-size: 13px;
-      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Animaciones para botones */
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra inicial */
-    }
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
 
-    .btn-header:hover {
-      background: #e6d800;
-      transform: translateY(-2px); /* Levantamiento al pasar el cursor */
-      box-shadow: 0 6px 12px rgba(0,0,0,0.2); /* Sombra más grande al pasar el cursor */
-    }
+        .btn-header {
+            background: var(--accent);
+            color: var(--blue-1);
+            padding: 8px 18px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+        }
 
-    .onda {
-      position: absolute;
-      bottom: -20px;
-      left: 0;
-      width: 100%;
-      height: 40px;
-      background: url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;
-      background-size: cover;
-      z-index: 1; /* Asegura que la onda esté debajo del contenido del header */
-      pointer-events: none; /* No interfiere con clics */
-    }
+        .btn-header:hover {
+            background: #e6d800;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
 
-    /* ====================================================================== */
-    /* Dropdown (Menú desplegable) - COPIADO DE homepage_enhanced_design */
-    /* ====================================================================== */
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
+        .onda {
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg width="100%" height="20" viewBox="0 0 1440 20" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0,10 C360,20 720,0 1440,10 L1440,20 L0,20 Z" /></svg>') no-repeat bottom;
+            background-size: cover;
+            z-index: -1;
+            transition: opacity 0.3s ease;
+        }
 
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #2325d4;
-      min-width: 200px;
-      box-shadow: 0px 8px 16px rgba(0,0,0,0.25); /* Sombra definida */
-      border-radius: 8px; /* Bordes suaves */
-      z-index: 10002; /* ¡Z-index ajustado para asegurar visibilidad! */
-      overflow: hidden; /* Asegura que los bordes redondeados se apliquen */
-    }
+        header.scrolled .onda {
+            opacity: 0;
+        }
 
-    .dropdown-content a {
-      color: white;
-      padding: 10px 16px;
-      display: block;
-      font-size: 14px;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
 
-    .dropdown-content a:hover {
-      background-color: #1a1cb3;
-      color: #ffec00;
-    }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--blue-1);
+            min-width: 200px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.25);
+            border-radius: var(--radius);
+            z-index: 10002;
+            overflow: hidden;
+            margin-top: 10px;
+        }
 
-    .dropdown:hover .dropdown-content {
-      display: block;
-    }
+        .dropdown-content a {
+            color: white;
+            padding: 10px 16px;
+            display: block;
+            font-size: 14px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
 
-    /* ====================================================================== */
-    /* Media Queries (Diseño Responsivo) - COPIADO DE homepage_enhanced_design */
-    /* ====================================================================== */
-    @media (max-width: 900px) {
-      header {
-        height: auto; /* Altura auto para el menú desplegado */
-      }
-      .header-buttons {
-        display: none;
-      }
-      .menu-toggle {
-        display: block;
-        font-size: 26px;
-        cursor: pointer;
-        color: white;
-        position: relative;
-        z-index: 10001; /* Asegura que el toggle esté por encima del menú móvil */
-        user-select: none;
-      }
-      header nav {
-        display: none;
-        position: absolute;
-        top: 100%;
-        right: 20px;
-        background: #2325d4;
-        flex-direction: column;
-        gap: 8px;
-        padding: 14px;
-        border-radius: 12px;
-        box-shadow: 0 12px 24px rgba(0,0,0,.25);
-        z-index: 10000;
-        width: max-content;
-        min-width: 220px;
-      }
-      header nav.show {
-        display: flex;
-      }
-      /* Dropdown dentro del panel móvil (se comporta como un elemento normal) */
-      header .dropdown:hover .dropdown-content {
-        display: none; /* Deshabilita hover en móvil para evitar conflictos */
-      }
-      header .dropdown .dropdown-content {
-        position: relative;
-        top: auto;
-        left: auto;
-        background: #1a1cb3;
-        box-shadow: none;
-        min-width: 220px;
-      }
-    }
+        .dropdown-content a:hover {
+            background-color: var(--blue-2);
+            color: var(--accent);
+        }
 
-    @media (min-width: 901px){
-      .menu-toggle{
-        display:none;
-      }
-      header nav{
-        display:flex !important;
-        position:static;
-        box-shadow:none;
-        padding:0;
-      }
-    }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
 
-    /* ====================================================================== */
-    /* Estilos del Contenido Principal (Términos y Condiciones) */
-    /* ====================================================================== */
-    main.content {
-      flex-grow: 1; /* Permite que el contenido principal se estire */
-      max-width: 1200px;
-      margin: 50px auto;
-      min-height: 300px; /* Mínima altura si no hay contenido */
-      padding: 20px;
-      color: #000; /* Color de texto más neutral para contenido */
-      border-radius: 12px;
-      text-align: left; /* Alineación de texto a la izquierda para mejor lectura */
-      overflow-y: auto; /* Habilita el scroll vertical */
-      max-height: 60vh; /* Altura máxima del contenido antes de que aparezca el scroll */
-    }
+        body {
+            padding-top: 100px; /* AJUSTE: Para que el contenido no quede debajo del header fijo */
+        }
 
-    main.content p {
-      margin-bottom: 1em; /* Espacio entre párrafos para legibilidad */
-      font-size: 0.95rem; /* Tamaño de fuente ligeramente más grande para lectura fácil */
-      line-height: 1.7; /* Mayor interlineado */
-    }
+        /* --- Estilos del FAB --- */
+        .fab-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .fab-screen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(240, 240, 240, 0.8);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .fab-screen-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .fab-main-button {
+            position: relative;
+            z-index: 1002;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: red;
+            color: white;
+            border: none;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+        .fab-main-button:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+            transform: scale(1.05);
+            background-color: var(--blue-2);
+        }
+        .fab-main-button .plus-icon {
+            width: 30px;
+            height: 30px;
+            transition: transform 0.3s ease-in-out;
+        }
+        .fab-container.open .fab-main-button .plus-icon {
+            transform: rotate(45deg);
+        }
+        .fab-actions {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-end;
+            transform: scale(0);
+            transform-origin: bottom right;
+            transition: transform 0.3s ease-out;
+            z-index: 1001;
+        }
+        .fab-container.open .fab-actions {
+            transform: scale(1);
+        }
+        .fab-action-item {
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            gap: 10px;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        .fab-container.open .fab-action-item {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .fab-container.open .home-action { transition-delay: 0.30s; }
+        .fab-container.open .giftcard-action { transition-delay: 0.25s; }
+        .fab-container.open .whatsapp-action { transition-delay: 0.20s; }
+        .fab-container.open .tracker-action { transition-delay: 0.15s; }
+        .fab-container.open .ml-action { transition-delay: 0.10s; }
+        .fab-container.open .quotes-action { transition-delay: 0.05s; }
 
-    main.content strong {
-        color: #2325d4; /* Color azul para resaltar los títulos de las secciones */
-    }
+        .fab-circular-button {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background-color: var(--blue-1);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .fab-circular-button:hover {
+            background-color: var(--blue-2);
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+        }
+        .fab-circular-button svg {
+            width: 30px;
+            height: 30px;
+            fill: currentColor;
+        }
+        .fab-action-label {
+            background-color: white;
+            color: var(--blue-1);
+            padding: 8px 12px;
+            border-radius: 18px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            white-space: nowrap;
+        }
+        .fab-action-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
 
-    /* ====================================================================== */
-    /* FOOTER (Pie de página) - COPIADO DE homepage_enhanced_design */
-    /* ====================================================================== */
-    footer {
-      background: #fff;
-      color: #000;
-      padding: 40px 20px; /* Más padding para más "aire" */
-      margin-top: 50px; /* Más espacio superior */
-      box-shadow: 0 -4px 15px rgba(0,0,0,0.08); /* Sombra sutil y más prominente */
-      flex-shrink: 0; /* Evita que el footer se encoja */
-    }
+        /* --- Media Queries para Responsive --- */
+        @media (max-width: 900px) {
+            .desktop-nav {
+                display: none;
+            }
+            header, header.scrolled {
+                height: 90px;
+            }
+            body {
+                padding-top: 90px;
+            }
+            .logo img {
+                max-height: 160px;
+            }
+            header.scrolled .logo img {
+                max-height: 120px;
+            }
+            .btn-header {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
 
-    .footer-container {
-      max-width: 1200px;
-      margin: auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 30px; /* Más espacio entre columnas */
-    }
+        /* ====================================================================== */
+        /* FIN: ESTILOS INTEGRADOS PARA HEADER Y FAB                              */
+        /* ====================================================================== */
 
-    .footer-col h3 {
-      font-size: 1.2rem; /* Tamaño ajustado para elegancia */
-      margin-bottom: 12px; /* Más espacio debajo del título */
-      color: #333; /* Color gris oscuro para encabezados */
-    }
+        /* ====================================================================== */
+        /* Estilos del Contenido Principal (Términos y Condiciones) */
+        /* ====================================================================== */
+        main.content {
+            flex-grow: 1;
+            max-width: 1200px;
+            margin: 50px auto;
+            min-height: 300px;
+            padding: 20px;
+            color: #000;
+            border-radius: 12px;
+            text-align: left;
+            overflow-y: auto;
+            max-height: 60vh;
+        }
 
-    .footer-col p, .footer-col a {
-      font-size: 14px; /* Tamaño ligeramente ajustado para legibilidad */
-      color: #555; /* Color gris suave para texto normal */
-      transition: color 0.3s ease; /* Transición para enlaces */
-    }
+        main.content p {
+            margin-bottom: 1em;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
 
-    .footer-col a:hover {
-      color: #2325d4; /* Color azul PSC al pasar el cursor */
-    }
+        main.content strong {
+            color: #2325d4;
+        }
 
-    .social-icons {
-      display: flex;
-      flex-direction: column;
-      gap: 8px; /* Más espacio entre iconos sociales */
-    }
+        /* ====================================================================== */
+        /* FOOTER (Pie de página) */
+        /* ====================================================================== */
+        footer {
+            background: #fff;
+            color: #000;
+            padding: 40px 20px;
+            margin-top: auto;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
+            flex-shrink: 0;
+        }
 
-    .footer-bottom {
-      text-align: center;
-      margin-top: 30px; /* Más espacio superior */
-      font-size: 12px; /* Tamaño ligeramente ajustado */
-      color: #777;
-      border-top: 1px solid rgba(0,0,0,0.1);
-      padding-top: 15px; /* Más padding superior */
-    }
+        .footer-container {
+            max-width: 1200px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
 
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 20px; /* Más espacio entre enlaces del footer-bottom */
-      margin-top: 10px; /* Más espacio */
-    }
+        .footer-col h3 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: #333;
+        }
 
-    .footer-links a {
-      color: #2325d4;
-      font-size: 12px;
-    }
+        .footer-col p, .footer-col a {
+            font-size: 14px;
+            color: #555;
+            transition: color 0.3s ease;
+        }
 
-    /* ====================================================================== */
-    /* WhatsApp Flotante - COPIADO DE homepage_enhanced_design */
-    /* ====================================================================== */
-    .whatsapp-float {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 999;
-      transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animación */
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* Sombra inicial */
-      border-radius: 50%; /* Asegura que la sombra se vea bien en el círculo */
-    }
+        .footer-col a:hover {
+            color: #2325d4;
+        }
 
-    .whatsapp-float:hover {
-      transform: scale(1.05) translateY(-2px); /* Pequeña escala y levantamiento */
-      box-shadow: 0 6px 15px rgba(0,0,0,0.3); /* Sombra más grande */
-    }
+        .social-icons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
 
-    .whatsapp-float img {
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-    }
-
-    /* Mobile-friendly adjustments (iPhone & Android) */
-    html { -webkit-text-size-adjust: 100%; }
-    /* body margin/padding handled by flexbox setup */
-    * { box-sizing: border-box; }
-
-    /* Use device safe areas (notch, home indicator) */
-    :root {
-      --safe-top: env(safe-area-inset-top);
-      --safe-right: env(safe-area-inset-right);
-      --safe-bottom: env(safe-area-inset-bottom);
-      --safe-left: env(safe-area-inset-left);
-    }
-    body {
-      padding-left: max(0px, var(--safe-left));
-      padding-right: max(0px, var(--safe-right));
-      padding-bottom: max(0px, var(--safe-bottom));
-    }
-
-    /* Prevent iOS zoom on focus by ensuring >=16px */
-    input, select, textarea { font-size: 16px; }
-
-    /* Comfortable tap targets */
-    button, .btn, input[type="button"], input[type="submit"] { min-height: 44px; touch-action: manipulation; }
-
-    /* Images responsive */
-    img, svg, video, canvas { max-width: 100%; height: auto; }
-
-    /* Reduce outer paddings on small screens */
-    @media (max-width: 640px) {
-      .nav { padding: .5rem .75rem; }
-      .nav__links { gap: .5rem; }
-      .container, .wrapper, .card { padding-left: 0; padding-right: 0; }
-    }
-  </style>
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: #777;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            padding-top: 15px;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- HEADER - Contenido copiado de homepage_enhanced_design -->
-  <header>
-    <div class="header-inner">
-      <div class="logo">
-        <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
-      </div>
-      <div class="menu-toggle">☰</div>
-      <nav>
-        <a href="../index.html">Inicio</a>
-        <a href="../Rastreo/">Rastreador de Paquetes</a>
-        <a href="../Cotizador/">Cotiza tus Compras</a>
-        <a href="../ML/">Mal Identificado</a>
-        
-        <!-- Menú desplegable "Más" -->
-        <div class="dropdown">
-          <a href="#">Más ▾</a>
-          <div class="dropdown-content">
-            <a href="../DG/">Mercancía Peligrosa</a>
-            <a href="./">Términos y Condiciones</a>
-          </div>
+    <!-- ====================================================================== -->
+    <!-- INICIO: CÓDIGO DEL HEADER DE REFERENCIA INTEGRADO -->
+    <!-- ====================================================================== -->
+    <header id="main-header">
+        <div class="header-inner">
+            <div class="logo">
+                <a href="/"><img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co."></a>
+            </div>
+            <nav class="desktop-nav">
+                <a href="/">Inicio</a>
+                <a href="/Rastreo/">Rastreador de Paquetes</a>
+                <a href="/Cotizador/">Cotiza tus Compras</a>
+                <a href="/ML/">Mal identificado</a>
+                <div class="dropdown">
+                    <a href="#">Más ▾</a>
+                    <div class="dropdown-content">
+                        <a href="/Tarjetas/">Tarjetas de Regalo</a>
+                        <a href="/DG/">Mercancía Peligrosa</a>
+                        <a href="/Politicas/">Términos y Condiciones</a>
+                    </div>
+                </div>
+            </nav>
+            <div class="header-buttons">
+                <a href="https://psc.e-rmez.com/zonacliente/" class="btn-header">Zona de Clientes</a>
+                <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-header">Regístrate</a>
+            </div>
         </div>
-      </nav>
-      <div class="header-buttons">
-        <a href="https://psc.e-rmez.com/zonacliente/" class="btn-header">Zona de Clientes</a>
-        <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-header">Regístrate</a>
-      </div>
-    </div>
-    <div class="onda" aria-hidden="true"></div>
-  </header>
+        <div class="onda"></div>
+    </header>
+    <!-- ====================================================================== -->
+    <!-- FIN: CÓDIGO DEL HEADER DE REFERENCIA -->
+    <!-- ====================================================================== -->
 
-  <!-- CONTENIDO PRINCIPAL - Área vacía para pegar el contenido -->
-  <main class="content">
-    <p><strong>Al Registrame Doy por ACEPTADAS las siguientes condiciones:</strong></p>
-    <!-- Aquí iría TODO el texto legal completo tal como me lo diste -->
-    <p>PSC se compromete a prestar a EL CLIENTE los servicios de transporte aéreo y marítimo...</p>
-    <p>PSC se compromete a prestar a EL CLIENTE los servicios de transporte aéreo y marítimo de cargas, paquetes, documentos de Miami a Panamá bajo las tarifas estipuladas en el tarifario vigente.</p>
+    <main class="content">
+        <p><strong>Al Registrame Doy por ACEPTADAS las siguientes condiciones:</strong></p>
+        <p>PSC se compromete a prestar a EL CLIENTE los servicios de transporte aéreo y marítimo de cargas, paquetes, documentos de Miami a Panamá bajo las tarifas estipuladas en el tarifario vigente.</p>
+        <p>Soy responsable y admito cancelar todas las transacciones generadas por mi o por las personas que utilicen mi cuenta.</p>
+        <p>Comprendo que las compras realizadas por medio de PSC pueden ser retiradas de tres maneras:</p>
+        <p>Entregada en sucursales. Expresadas en medios de comunicación de PSC (Email, Página Web, redes sociales).</p>
+        <p>Entregadas a domicilio en el área metropolitana por un costo adicional establecido de acuerdo a la distancia del punto de entrega y las características de mis paquetes o cargas.</p>
+        <p>Entregas a el resto de las provincias por medio de transporte, por un costo adicional a establecer por la empresa de transporte que elija, el cual es el responsable de cualquier inconveniente que pueda suceder en el tránsito luego de PSC realizar el despacho.</p>
+        <p>Entiendo que PSC, no se hará responsable por pérdidas, robos o daños de los artículos enviados en estas empresas de transporte.</p>
+        <p>Cancelaré los servicios de PANAMA SHIPPING CO. a través de la tarjeta de crédito o débito que especifiqué sumando sus cargos por transacción; caso contrario pagaré todo cargo contra entrega, utilizando como medio de pago el efectivo, cheques, transferencias bancarias y/o los medios proporcionados por la empresa.</p>
+        <p>Entiendo que PANAMA SHIPPING CO. solo acepta depósitos bancarios en efectivo.</p>
+        <p>Entiendo que PANAMA SHIPPING CO. se reservará el derecho de aceptar o no los cheques que desee utilizar para pagar los servicios.</p>
+        <p>Todo cargo debe ser pagado de contado.</p>
+        <p>Recibiré por correo electrónico información supervisada y/o generada por PANAMA SHIPPING CO. en los cuales seré comunicado sobre promociones y eventos organizados por PANAMA SHIPPING CO. individualmente o en conjunto con patrocinadores o patrocinados.</p>
+        <p>El correo y/o paquetería recibida a mi cuenta que no sea retirada, por motivos a mí imputables, después de cien días serán destruidos o tomados como abandonado sin responsabilidad alguna para PANAMA SHIPPING CO.</p>
+        <p>Que antes de los cien días para mis cargas aéreas, que pagaré los siguientes cargos en concepto de recargo por almacenaje o falta de pago: de 30 a 51 días (15%) / de 60 a 90 días (30%) de 91 hasta 100 días (100%).</p>
+        <p>Que para mis cargas marítimas tendré derecho a 5 días laborales luego de notificada la disponibilidad y/o factura, que pagaré 0.50 Centavos de Dólar Americanos por cada CFT o pie cúbico por cada día calendario en concepto del uso de almacenaje en cualquiera de las localidades de PANAMA SHIPPING CO.</p>
+        <p>Para todos los casos que apliquen, se liquidarán los impuestos correspondientes al valor de la factura que el cliente nos proporciona y/o de la factura que envía el proveedor con la mercancía. No se devolverá bajo ningún concepto el pago de los impuestos y aranceles aduanales. Bajo ningún concepto se evitará ni se dejará de pagar los impuestos y aranceles aduaneros aplicables. A su vez el Cliente es responsable de la información que nos brinda en tanto contenido y descripción de la carga, como valor declarado y facturado para efectos de pago de impuestos o cualquier otro trámite que la Autoridad Nacional de Aduanas de Panamá indique.</p>
+        <p>Mercancías con valor CIF menor a $100.00 cien dólares americanos no pagan impuestos de introducción al país.</p>
+        <p>PANAMA SHIPPING CO. desalmacenará y pagará impuestos de todos los paquetes que vengan a mi cuenta cuyo valor no exceda $1000,00 sin previa notificación. Acepto que cancelaré estos montos en cuanto me sean facturados.</p>
+        <p>Admito que es política de PANAMA SHIPPING CO. no desalmacenar paquetes que hayan permanecido más de 25 días en el Almacén Fiscal.</p>
+        <p>Libero a PANAMA SHIPPING CO. de toda responsabilidad si alguno de mis proveedores entrega embarques mezclados, incorrectos o no consigna mi dirección correctamente, incluyendo la imprescindible indicación del PASC ó PAD, PPN, PST, y PCH y número de cuenta (Código de casillero o cliente).</p>
+        <p>En caso de recibir paquetes o correo que no sean de mi propiedad o de los autorizados en mi casillero acepto informarlo y devolverlo(s) de inmediato en las mismas condiciones en que lo(s) recibí. Ante la eventualidad de abrirlo, utilizarlo o dañarlo me comprometo a cancelar su valor, impuestos y transporte.</p>
+        <p>PANAMA SHIPPING CO. no acepta responsabilidad alguna por paquetes o correo cuyo comprobante de entrega no cuente con la firma de uno de nuestros trabajadores y colaboradores en Miami.</p>
+        <p>PANAMA SHIPPING CO. no se hace responsables por paquetes entregados por USPS, entiendo que este comete con frecuencia errores en las entregas y que esto puede llevar a la pérdida de mi artículo comprado.</p>
+        <p>Entiendo que cualquier reclamo por destrucción de bienes asegurados deberá ser presentado a PANAMA SHIPPING CO. durante los 100 días naturales posteriores al momento en que el paquete esté disponible para ser entregado.</p>
+        <p>Entiendo que cualquier reclamo por pérdida de bienes asegurados deberá ser presentado a PANAMA SHIPPING CO. durante los 7 días laborales posteriores al momento en que el paquete haya sido entregado y deberá ser cubierto al 100% por PANAMA SHIPPING CO.</p>
+        <p>Es de mi conocimiento que el propósito del seguro de mercancías es garantizar la cobertura de riesgos producidos por situaciones accidentales durante su manejo y transporte desde Estados Unidos a Panamá. Que se basa en transferir los riesgos a una aseguradora, que se encarga de indemnizar todo o parte del perjuicio según el caso.</p>
+        <p>Entiendo que PANAMA SHIPPING CO. que en el caso de no asegurar mis compras u órdenes de compras, PANAMA SHIPPING CO. asumirá el valor máximo de cien dólares americanos.</p>
+        <p>Para artículos personales o comerciales que excedan los cien dólares estadounidenses, el cliente deberá pre-alertar la factura de los artículos obtenidos a nuestras vías de comunicación informando su deseo de asegurar sus bienes. Este tendrá un valor del 1.5% del valor CIF y será cobrado al contado en la factura del servicio.</p>
+        <p>PANAMA SHIPPING CO. no asegura ni se hace responsable por paquetes que contengan estampillas, joyas, gemas o metales preciosos sin procesar, cheques, manuscritos, acciones, boletos o pasajes de viaje de cualquier clase, automóviles, modelos de barcos, aviones o modelos arquitectónicos (maquetas), perecederos de toda clase, avisos de neón, antigüedades, televisores plasma, LCD o artículos tecnológicos similares; si lo envío o me es enviado, lo es bajo mi exclusivo y propio riesgo.</p>
+        <p>PANAMA SHIPPING CO. no acepta transportar dinero o cualquier otro documento que represente un valor económico y pueda ser cambiado por el portador.</p>
+        <p>PANAMA SHIPPING CO. por ninguna razón permite el ingreso o envío dinero a través de sus servicios y expresamente comunica a sus clientes que éste accionar podría constituirse en un delito perseguido por las autoridades locales, razón por la cual es política de la Empresa denunciar a quienes permitan o utilicen nuestros servicios para esos efectos.</p>
+        <p>Entiendo que los tiempos en tránsito publicados por PANAMA SHIPPING CO., no son prometidos ni obligatorios, ya que su servicio está sujeto a empresas, entidades gubernamentales y factores externos que podrían hacer que el tiempo de entrega se extienda.</p>
+        <p>PANAMA SHIPPING CO. por ninguna razón acepta cancelarle al cliente multas o indemnizaciones de ningún tipo por llegadas tardías de correo o paquetes.</p>
+        <p>Acepto conocer que toda importación que ingrese al territorio nacional está sujeta al pago de impuestos, los que serán determinados con base en el valor de la mercancía, su seguro y el flete (CIF).</p>
+        <p>Toda indemnización producto de la responsabilidad probada de PANAMA SHIPPING CO. por la pérdida o daños sufridos en la mercancía no asegurada, tiene un límite máximo de cien dólares estadounidenses contra factura original del bien.</p>
+        <p>Admito que es potestad de PANAMA SHIPPING CO. rescindir inmediata y unilateralmente este contrato por justa causa, si incurro personalmente o cualquiera de los autorizados en mi cuenta en las siguientes acciones:</p>
+        <p>Utilizar indebidamente el servicio, sea por contravenir la ética, la moral y/o la legislación estadounidense o panameña.</p>
+        <p>Si profiriéramos, individual o conjuntamente, ofensas o insultos en contra de los representantes y/o trabajadores de PANAMA SHIPPING CO. en forma corporal, verbal o escrita.</p>
+        <p>Si de acuerdo a mis exigencias o necesidades individuales, éstas resultan en imposibilidad material de cumplimiento para PANAMA SHIPPING CO. conforme a los estándares de servicios informados al cliente.</p>
+        <p>PANAMA SHIPPING CO. tendrá la potestad de modificar sus tarifas de servicios cuando lo considere necesario, previa notificación a sus usuarios en cualquiera de sus vías de comunicación.</p>
+        <p>Entiendo que PANAMA SHIPPING CO. trabaja conforme a las normas internacionales definidas por la IATA (International Air Transport Association ó Asociación de Transporte Aéreo Internacional), quienes indican que todas las cargas, cualquiera que fuese su forma, mantiene dos características que son libras reales y/o libras volumétricas, y que para efectos de facturación de carga aérea se considerará la libra mayor entre ambas como el peso facturable.</p>
+    </main>
 
-    <p>Soy responsable y admito cancelar todas las transacciones generadas por mi o por las personas que utilicen mi cuenta.</p>
-
-<p>Comprendo que las compras realizadas por medio de PSC pueden ser retiradas de tres maneras:</p>
-
-<p>Entregada en sucursales. Expresadas en medios de comunicación de PSC (Email, Página Web, redes sociales).</p>
-
-<p>Entregadas a domicilio en el área metropolitana por un costo adicional establecido de acuerdo a la distancia del punto de entrega y las características de mis paquetes o cargas.</p>
-
-<p>Entregas a el resto de las provincias por medio de transporte, por un costo adicional a establecer por la empresa de transporte que elija, el cual es el responsable de cualquier inconveniente que pueda suceder en el tránsito luego de PSC realizar el despacho.</p>
-
-<p>Entiendo que PSC, no se hará responsable por pérdidas, robos o daños de los artículos enviados en estas empresas de transporte.</p>
-
-<p>Cancelaré los servicios de PANAMA SHIPPING CO. a través de la tarjeta de crédito o débito que especifiqué sumando sus cargos por transacción; caso contrario pagaré todo cargo contra entrega, utilizando como medio de pago el efectivo, cheques, transferencias bancarias y/o los medios proporcionados por la empresa.</p>
-
-<p>Entiendo que PANAMA SHIPPING CO. solo acepta depósitos bancarios en efectivo.</p>
-
-<p>Entiendo que PANAMA SHIPPING CO. se reservará el derecho de aceptar o no los cheques que desee utilizar para pagar los servicios.</p>
-
-<p>Todo cargo debe ser pagado de contado.</p>
-
-<p>Recibiré por correo electrónico información supervisada y/o generada por PANAMA SHIPPING CO. en los cuales seré comunicado sobre promociones y eventos organizados por PANAMA SHIPPING CO. individualmente o en conjunto con patrocinadores o patrocinados.</p>
-
-<p>El correo y/o paquetería recibida a mi cuenta que no sea retirada, por motivos a mí imputables, después de cien días serán destruidos o tomados como abandonado sin responsabilidad alguna para PANAMA SHIPPING CO.</p>
-
-<p>Que antes de los cien días para mis cargas aéreas, que pagaré los siguientes cargos en concepto de recargo por almacenaje o falta de pago: de 30 a 51 días (15%) / de 60 a 90 días (30%) de 91 hasta 100 días (100%).</p>
-
-<p>Que para mis cargas marítimas tendré derecho a 5 días laborales luego de notificada la disponibilidad y/o factura, que pagaré 0.50 Centavos de Dólar Americanos por cada CFT o pie cúbico por cada día calendario en concepto del uso de almacenaje en cualquiera de las localidades de PANAMA SHIPPING CO.</p>
-
-<p>Para todos los casos que apliquen, se liquidarán los impuestos correspondientes al valor de la factura que el cliente nos proporciona y/o de la factura que envía el proveedor con la mercancía. No se devolverá bajo ningún concepto el pago de los impuestos y aranceles aduanales. Bajo ningún concepto se evitará ni se dejará de pagar los impuestos y aranceles aduaneros aplicables. A su vez el Cliente es responsable de la información que nos brinda en tanto contenido y descripción de la carga, como valor declarado y facturado para efectos de pago de impuestos o cualquier otro trámite que la Autoridad Nacional de Aduanas de Panamá indique.</p>
-
-<p>Mercancías con valor CIF menor a $100.00 cien dólares americanos no pagan impuestos de introducción al país.</p>
-
-<p>PANAMA SHIPPING CO. desalmacenará y pagará impuestos de todos los paquetes que vengan a mi cuenta cuyo valor no exceda $1000,00 sin previa notificación. Acepto que cancelaré estos montos en cuanto me sean facturados.</p>
-
-<p>Admito que es política de PANAMA SHIPPING CO. no desalmacenar paquetes que hayan permanecido más de 25 días en el Almacén Fiscal.</p>
-
-<p>Libero a PANAMA SHIPPING CO. de toda responsabilidad si alguno de mis proveedores entrega embarques mezclados, incorrectos o no consigna mi dirección correctamente, incluyendo la imprescindible indicación del PASC ó PAD, PPN, PST, y PCH y número de cuenta (Código de casillero o cliente).</p>
-
-<p>En caso de recibir paquetes o correo que no sean de mi propiedad o de los autorizados en mi casillero acepto informarlo y devolverlo(s) de inmediato en las mismas condiciones en que lo(s) recibí. Ante la eventualidad de abrirlo, utilizarlo o dañarlo me comprometo a cancelar su valor, impuestos y transporte.</p>
-
-<p>PANAMA SHIPPING CO. no acepta responsabilidad alguna por paquetes o correo cuyo comprobante de entrega no cuente con la firma de uno de nuestros trabajadores y colaboradores en Miami.</p>
-
-<p>PANAMA SHIPPING CO. no se hace responsables por paquetes entregados por USPS, entiendo que este comete con frecuencia errores en las entregas y que esto puede llevar a la pérdida de mi artículo comprado.</p>
-
-<p>Entiendo que cualquier reclamo por destrucción de bienes asegurados deberá ser presentado a PANAMA SHIPPING CO. durante los 100 días naturales posteriores al momento en que el paquete esté disponible para ser entregado.</p>
-
-<p>Entiendo que cualquier reclamo por pérdida de bienes asegurados deberá ser presentado a PANAMA SHIPPING CO. durante los 7 días laborales posteriores al momento en que el paquete haya sido entregado y deberá ser cubierto al 100% por PANAMA SHIPPING CO.</p>
-
-<p>Es de mi conocimiento que el propósito del seguro de mercancías es garantizar la cobertura de riesgos producidos por situaciones accidentales durante su manejo y transporte desde Estados Unidos a Panamá. Que se basa en transferir los riesgos a una aseguradora, que se encarga de indemnizar todo o parte del perjuicio según el caso.</p>
-
-<p>Entiendo que PANAMA SHIPPING CO. que en el caso de no asegurar mis compras u órdenes de compras, PANAMA SHIPPING CO. asumirá el valor máximo de cien dólares americanos.</p>
-
-<p>Para artículos personales o comerciales que excedan los cien dólares estadounidenses, el cliente deberá pre-alertar la factura de los artículos obtenidos a nuestras vías de comunicación informando su deseo de asegurar sus bienes. Este tendrá un valor del 1.5% del valor CIF y será cobrado al contado en la factura del servicio.</p>
-
-<p>PANAMA SHIPPING CO. no asegura ni se hace responsable por paquetes que contengan estampillas, joyas, gemas o metales preciosos sin procesar, cheques, manuscritos, acciones, boletos o pasajes de viaje de cualquier clase, automóviles, modelos de barcos, aviones o modelos arquitectónicos (maquetas), perecederos de toda clase, avisos de neón, antigüedades, televisores plasma, LCD o artículos tecnológicos similares; si lo envío o me es enviado, lo es bajo mi exclusivo y propio riesgo.</p>
-
-<p>PANAMA SHIPPING CO. no acepta transportar dinero o cualquier otro documento que represente un valor económico y pueda ser cambiado por el portador.</p>
-
-<p>PANAMA SHIPPING CO. por ninguna razón permite el ingreso o envío dinero a través de sus servicios y expresamente comunica a sus clientes que éste accionar podría constituirse en un delito perseguido por las autoridades locales, razón por la cual es política de la Empresa denunciar a quienes permitan o utilicen nuestros servicios para esos efectos.</p>
-
-<p>Entiendo que los tiempos en tránsito publicados por PANAMA SHIPPING CO., no son prometidos ni obligatorios, ya que su servicio está sujeto a empresas, entidades gubernamentales y factores externos que podrían hacer que el tiempo de entrega se extienda.</p>
-
-<p>PANAMA SHIPPING CO. por ninguna razón acepta cancelarle al cliente multas o indemnizaciones de ningún tipo por llegadas tardías de correo o paquetes.</p>
-
-<p>Acepto conocer que toda importación que ingrese al territorio nacional está sujeta al pago de impuestos, los que serán determinados con base en el valor de la mercancía, su seguro y el flete (CIF).</p>
-
-<p>Toda indemnización producto de la responsabilidad probada de PANAMA SHIPPING CO. por la pérdida o daños sufridos en la mercancía no asegurada, tiene un límite máximo de cien dólares estadounidenses contra factura original del bien.</p>
-
-<p>Admito que es potestad de PANAMA SHIPPING CO. rescindir inmediata y unilateralmente este contrato por justa causa, si incurro personalmente o cualquiera de los autorizados en mi cuenta en las siguientes acciones:</p>
-
-<p>Utilizar indebidamente el servicio, sea por contravenir la ética, la moral y/o la legislación estadounidense o panameña.</p>
-
-<p>Si profiriéramos, individual o conjuntamente, ofensas o insultos en contra de los representantes y/o trabajadores de PANAMA SHIPPING CO. en forma corporal, verbal o escrita.</p>
-
-<p>Si de acuerdo a mis exigencias o necesidades individuales, éstas resultan en imposibilidad material de cumplimiento para PANAMA SHIPPING CO. conforme a los estándares de servicios informados al cliente.</p>
-
-<p>PANAMA SHIPPING CO. tendrá la potestad de modificar sus tarifas de servicios cuando lo considere necesario, previa notificación a sus usuarios en cualquiera de sus vías de comunicación.</p>
-
-<p>Entiendo que PANAMA SHIPPING CO. trabaja conforme a las normas internacionales definidas por la IATA (International Air Transport Association ó Asociación de Transporte Aéreo Internacional), quienes indican que todas las cargas, cualquiera que fuese su forma, mantiene dos características que son libras reales y/o libras volumétricas, y que para efectos de facturación de carga aérea se considerará la libra mayor entre ambas como el peso facturable.</p>
-
-    <!-- Este div (main.content) tiene scroll automático si el contenido excede su altura máxima. -->
-  </main>
-
-  <!-- FOOTER - Contenido copiado de homepage_enhanced_design -->
-  <footer>
-    <div class="footer-container">
-      <div class="footer-col">
-        <h3>Contacto</h3>
-        <p>Asistencia personalizada</p>
-        <div class="social-icons">
-          <!-- Enlace de Instagram actualizado -->
-          <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
-          <!-- Enlace de WhatsApp para el número de teléfono -->
-          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
-          <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
-          <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">💬 WhatsApp</a>
+    <footer>
+        <div class="footer-container">
+            <div class="footer-col">
+                <h3>Contacto</h3>
+                <p>Asistencia personalizada</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
+                    <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
+                    <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Enlaces Rápidos</h3>
+                <a href="/Politicas/">Términos y Condiciones</a><br>
+                <a href="/DG/">Mercancía Restringida</a>
+            </div>
+            <div class="footer-col">
+                <h3>Sobre Nosotros</h3>
+                <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p>
+            </div>
         </div>
-      </div>
-      <div class="footer-col">
-        <h3>Enlaces Rápidos</h3>
-        <!-- Enlace "Términos y Condiciones" ahora apunta a "Politicas/" -->
-        <a href="./">Términos y Condiciones</a><br>
-        <!-- Enlace "Mercancía Restringida" ahora apunta a "DG/" -->
-        <a href="../DG/">Mercancía Restringida</a>
-      </div>
-      <div class="footer-col">
-        <h3>Sobre Nosotros</h3>
-        <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p>
-      </div>
+        <div class="footer-bottom">
+            &copy; 2024 Panama Shipping Co. Todos los derechos reservados.
+        </div>
+    </footer>
+
+    <!-- ====================================================================== -->
+    <!-- INICIO: CÓDIGO DEL FAB DE REFERENCIA INTEGRADO -->
+    <!-- ====================================================================== -->
+    <div class="fab-container">
+        <div class="fab-screen-overlay"></div>
+        <div class="fab-actions">
+             <a href="/" class="fab-action-item home-action">
+                <span class="fab-action-label">Inicio</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                </button>
+            </a>
+            <a href="/Tarjetas/" class="fab-action-item giftcard-action">
+                <span class="fab-action-label">Tarjetas Lbs</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+                </button>
+            </a>
+            <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener" class="fab-action-item whatsapp-action">
+                <span class="fab-action-label">WhatsApp</span>
+                <button class="fab-circular-button" style="background-color: #25D366;">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01s-.52.074-.792.372c-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.289.173-1.414z"/></svg>
+                </button>
+            </a>
+            <a href="/Rastreo/" class="fab-action-item tracker-action">
+                <span class="fab-action-label">Rastreador</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                </button>
+            </a>
+            <a href="/ML/" class="fab-action-item ml-action">
+                <span class="fab-action-label">Mal Identificado</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                </button>
+            </a>
+            <a href="/Cotizador/" class="fab-action-item quotes-action">
+                <span class="fab-action-label">Cotizador</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7V8h10v7zm-5-3c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>
+                </button>
+            </a>
+        </div>
+        <button class="fab-main-button">
+            <svg class="plus-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </button>
     </div>
-    <div class="footer-bottom">
-      &copy; 2023 Panama Shipping Co. Todos los derechos reservados.
-      <div class="footer-links">
-        <a href="#">Términos</a>
-        <a href="#">Privacidad</a>
-      </div>
-    </div>
-  </footer>
+    <!-- ====================================================================== -->
+    <!-- FIN: CÓDIGO DEL FAB DE REFERENCIA -->
+    <!-- ====================================================================== -->
 
-  <!-- WHATSAPP FLOATING BUTTON - Contenido copiado de homepage_enhanced_design -->
-  <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" 
-     class="whatsapp-float" target="_blank" rel="noopener">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="Icono de WhatsApp" />
-  </a>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
 
-  <script>
-    // Lógica principal para el menú responsivo (botón de hamburguesa) - COPIADO DE homepage_enhanced_design
-    (function(){
-      const header = document.querySelector('header');
-      const nav = header ? header.querySelector('nav') : null;
-      const menuToggle = header ? header.querySelector('.menu-toggle') : null;
+            // --- Funcionalidad del Header con efecto Scroll ---
+            const header = document.getElementById('main-header');
+            if(header) {
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 50) {
+                        header.classList.add('scrolled');
+                    } else {
+                        header.classList.remove('scrolled');
+                    }
+                });
+            }
 
-      if (!header || !nav || !menuToggle) {
-        // console.warn('Elementos de navegación no encontrados. El menú de hamburguesa podría no funcionar.');
-        return; // Salir si los elementos no existen
-      }
+            // --- Funcionalidad del Menú FAB ---
+            const fabContainer = document.querySelector('.fab-container');
+            if (fabContainer) {
+                const mainFabButton = fabContainer.querySelector('.fab-main-button');
+                const overlay = fabContainer.querySelector('.fab-screen-overlay');
+                
+                function toggleFabMenu() {
+                    fabContainer.classList.toggle('open');
+                    overlay.classList.toggle('show');
+                }
 
-      // Función para abrir/cerrar el menú
-      function toggleMenu(show) {
-        if (show) {
-          nav.classList.add('show');
-          menuToggle.setAttribute('aria-expanded', 'true');
-        } else {
-          nav.classList.remove('show');
-          menuToggle.setAttribute('aria-expanded', 'false');
-        }
-      }
-
-      // Evento de clic en el botón de hamburguesa
-      menuToggle.addEventListener('click', (e) => {
-        e.stopPropagation(); // Evita que el clic se propague al documento
-        toggleMenu(!nav.classList.contains('show'));
-      });
-
-      // Cierra el menú cuando se hace clic fuera del encabezado
-      document.addEventListener('click', (e) => {
-        if (!header.contains(e.target)) {
-          toggleMenu(false);
-        }
-      });
-
-      // Cierra el menú cuando se redimensiona a un tamaño de escritorio
-      window.addEventListener('resize', () => {
-        if (window.innerWidth > 900) {
-          toggleMenu(false);
-        }
-      });
-    })();
-  </script>
+                mainFabButton.addEventListener('click', toggleFabMenu);
+                overlay.addEventListener('click', toggleFabMenu);
+            }
+        });
+    </script>
 </body>
 </html>
+
