@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Panama Shipping Co. - Historial de Seguimiento</title>
+    
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
 
@@ -50,17 +51,23 @@
             --shadow: 0 6px 30px rgba(0,0,0,0.06);
             --radius:12px;
             --max-width:1200px;
+            --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+            --ok:#34c759;
+            --err:#ff3b30;
+            --warn:#ffd60a;
+            --orange:#ff9500;
+            --chip:#f5f5f7;
         }
 
         /* ====================================================================== */
-        /* INICIO: ESTILOS INTEGRADOS PARA HEADER Y FAB                           */
+        /* INICIO: ESTILOS INTEGRADOS PARA HEADER Y FAB                          */
         /* ====================================================================== */
 
         /* --- Estilos del Header --- */
         header {
             background: linear-gradient(135deg, var(--blue-1), var(--blue-2));
             color: white;
-            position: fixed; /* CAMBIO: De relative a fixed */
+            position: fixed;
             width: 100%;
             top: 0;
             left: 0;
@@ -202,7 +209,7 @@
         }
 
         body {
-            padding-top: 100px; /* AJUSTE: Para que el contenido no quede debajo del header fijo */
+            padding-top: 100px;
         }
 
         /* --- Estilos del FAB --- */
@@ -367,33 +374,20 @@
         /* ====================================================================== */
         main.content {
             flex-grow: 1;
-            max-width: 1200px;
-            margin: 50px auto;
-            padding: 20px;
-            width: 100%;
         }
-
         .psc-embed{
-            --bg:#ffffff;
             --card:#fbfbfd;
             --ink:#1c1c1e;
             --muted:#6e6e73;
             --line:#e7e7ed;
-            --accent:#0a84ff;
-            --warn:#ffd60a;
-            --orange:#ff9500;
-            --blue:#007aff;
-            --ok:#34c759;
-            --err:#ff3b30;
             --shadow:0 1px 2px rgba(0,0,0,.06), 0 8px 30px rgba(0,0,0,.04);
             --radius:16px;
             --chip:#f5f5f7;
             --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
             color:var(--ink);
         }
-        .psc-wrap{max-width:1100px;margin:0 auto;padding:12px 12px 20px}
+        .psc-wrap{max-width:1100px;margin:28px auto;padding:0 16px}
         .psc-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-
         .psc-head{
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -402,9 +396,7 @@
             padding: 18px;
             border-bottom: 1px solid var(--line);
             background: #fff;
-            font-family: var(--font);
         }
-
         .psc-searchBox{position:relative;max-width:660px}
         .psc-searchBox label{display:block;font-size:18px;color:var(--ink);font-weight:800;margin-bottom:10px}
         .psc-inputRow{position:relative}
@@ -426,39 +418,40 @@
             background:#111;color:#fff;font-weight:700;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.12)
         }
         .psc-help{font-size:12px;color:var(--muted);margin-top:6px}
-
         .psc-qsum{display:grid;grid-template-columns:1fr;gap:6px;align-content:start;text-align:right;font-family:var(--font)}
-        
         .psc-qrow {
             display: flex;
             gap: 8px;
-            align-items: center;
-            justify-content: flex-end;
+            align-items: flex-start;
+            justify-content: space-between;
             font-size: 14px;
         }
-
-        .psc-qrow span{color:var(--muted);min-width:90px}
-        
-        .psc-qrow b {
-            font-weight: 700;
-            word-break: break-all;
+        .psc-qrow span{color:var(--muted);min-width:90px; padding-top:2px;}
+        .psc-qrow b {font-weight: 700; word-break: break-all;}
+        .psc-alts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+        .psc-altChip{
+            display:inline-flex;align-items:center;gap:6px;
+            background:#fff;border:1px solid var(--line);
+            border-radius:999px;padding:6px 10px;font-size:12px;
+            box-shadow:0 1px 3px rgba(0,0,0,.04)
         }
-
+        .psc-altChip code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:12px}
+        .psc-altChip button{
+            border:none;background:#111;color:#fff;border-radius:999px;
+            padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer
+        }
         .psc-state{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px dashed var(--line);background:#fff}
         .psc-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--line)}
         .psc-dot.ok{background:var(--ok);border-color:var(--ok)}
         .psc-dot.err{background:var(--err);border-color:var(--err)}
-        .psc-dot.warn{background:var(--accent);border-color:var(--accent)}
-        .psc-spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--ink);animation:psc-spin 1s linear infinite}
-        @keyframes psc-spin{to{transform:rotate(360deg)}}
-
+        .psc-dot.warn{background:var(--warn);border-color:var(--warn)}
+        .psc-spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--ink);animation:spin 1s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
         .psc-grid{display:grid;grid-template-columns:1fr;gap:18px;padding:18px;background:linear-gradient(#fff,#fafafa)}
-
         .psc-panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 14px 16px}
         .psc-titleRow{display:flex;justify-content:space-between;align-items:center;margin:4px 6px 12px}
         .psc-titleRow h3{margin:0;font-size:16px}
         .psc-pill{background:var(--chip);border:1px solid var(--line);padding:6px 10px;border-radius:999px;font-size:12px;color:#000}
-
         .psc-timeline{position:relative;padding-left:22px}
         .psc-timeline::before{content:"";position:absolute;left:10px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#e9e9ee,#dcdcde)}
         .psc-event{position:relative;margin:0 0 14px 0;padding:12px 12px 12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:0 0 0 rgba(0,0,0,0);transition:box-shadow .2s ease, background .2s ease}
@@ -472,26 +465,23 @@
         .psc-src-psc .psc-icon{border-color:rgba(10,132,255,.35);background:rgba(10,132,255,.12)}
         .psc-src-pn{border-left:3px solid var(--orange)}
         .psc-src-fz{border-left:3px solid var(--warn)}
-        .psc-src-psc{border-left:3px solid var(--blue)}
+        .psc-src-psc{border-left:3px solid var(--blue-1)}
         .psc-event.psc-src-pn::before{background:var(--orange);border-color:var(--orange)}
         .psc-event.psc-src-fz::before{background:var(--warn);border-color:var(--warn)}
-        
         .psc-event.psc-src-psc::before {
             width: 24px;
             height: 24px;
             left: -14px;
             top: 10px;
             background: #fff;
-            border-color: var(--blue);
+            border-color: var(--blue-1);
             background-image: url('https://static.wixstatic.com/media/f7f5e1_66b4f06d762d42dd83ca81d5b63ba450~mv2.png');
             background-size: 22px 22px;
             background-repeat: no-repeat;
             background-position: center;
         }
-
         .psc-more{display:flex;justify-content:center;margin-top:8px}
         .psc-more button{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
-        
         .psc-btn-link {
             display: inline-block;
             background-color: var(--warn);
@@ -504,12 +494,17 @@
             border: 1px solid rgba(0,0,0,0.1);
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             transition: all 0.2s ease-in-out;
+            margin-left: 8px;
         }
-
         .psc-btn-link:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             filter: brightness(1.05);
+        }
+        @media (max-width:900px){
+            .psc-head{grid-template-columns:1fr}
+            .psc-qsum{text-align:left}
+            .psc-alts{justify-content:flex-start}
         }
 
         /* ====================================================================== */
@@ -523,7 +518,6 @@
             box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
             flex-shrink: 0;
         }
-
         .footer-container {
             max-width: 1200px;
             margin: auto;
@@ -531,29 +525,24 @@
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 30px;
         }
-
         .footer-col h3 {
             font-size: 1.2rem;
             margin-bottom: 12px;
             color: #333;
         }
-
         .footer-col p, .footer-col a {
             font-size: 14px;
             color: #555;
             transition: color 0.3s ease;
         }
-
         .footer-col a:hover {
             color: #2325d4;
         }
-
         .social-icons {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
-
         .footer-bottom {
             text-align: center;
             margin-top: 30px;
@@ -568,9 +557,6 @@
 </head>
 <body>
 
-    <!-- ====================================================================== -->
-    <!-- INICIO: CÓDIGO DEL HEADER DE REFERENCIA INTEGRADO -->
-    <!-- ====================================================================== -->
     <header id="main-header">
         <div class="header-inner">
             <div class="logo">
@@ -597,12 +583,8 @@
         </div>
         <div class="onda"></div>
     </header>
-    <!-- ====================================================================== -->
-    <!-- FIN: CÓDIGO DEL HEADER DE REFERENCIA -->
-    <!-- ====================================================================== -->
-
     <main class="content">
-        <section id="psc-embed" class="psc-embed">
+        <div id="psc-embed" class="psc-embed">
             <div class="psc-wrap">
                 <div class="psc-card">
                     <div class="psc-head">
@@ -619,6 +601,10 @@
                             <div class="psc-qrow"><span>Status:</span><b id="psc_qsStatus">—</b></div>
                             <div class="psc-qrow"><span>Courier:</span><b id="psc_qsCourier">—</b></div>
                             <div class="psc-qrow"><span>Peso:</span><b id="psc_qsPeso">—</b></div>
+                            <div class="psc-qrow">
+                                <span>Alterno(s):</span>
+                                <div id="psc_qsAlt" class="psc-alts">—</div>
+                            </div>
                         </div>
                     </div>
 
@@ -638,11 +624,9 @@
                             <div class="psc-more"><button id="psc_toggleMore" style="display:none">Mostrar más</button></div>
                         </div>
                     </div>
-
-                    <div style="text-align:center;color:var(--muted);font-size:12px;margin:18px 0">PSC - Panama Shipping Co.</div>
                 </div>
             </div>
-        </section>
+        </div>
     </main>
 
     <footer>
@@ -671,9 +655,6 @@
         </div>
     </footer>
 
-    <!-- ====================================================================== -->
-    <!-- INICIO: CÓDIGO DEL FAB DE REFERENCIA INTEGRADO -->
-    <!-- ====================================================================== -->
     <div class="fab-container">
         <div class="fab-screen-overlay"></div>
         <div class="fab-actions">
@@ -683,7 +664,7 @@
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
                 </button>
             </a>
-            <a href="/Tarjetas/" class="fab-action-item giftcard-action">
+             <a href="/Tarjetas/" class="fab-action-item giftcard-action">
                 <span class="fab-action-label">Tarjetas Lbs</span>
                 <button class="fab-circular-button">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
@@ -720,10 +701,6 @@
             </svg>
         </button>
     </div>
-    <!-- ====================================================================== -->
-    <!-- FIN: CÓDIGO DEL FAB DE REFERENCIA -->
-    <!-- ====================================================================== -->
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
@@ -754,7 +731,7 @@
                 overlay.addEventListener('click', toggleFabMenu);
             }
 
-            // --- SCRIPT DEL MÓDULO DE RASTREO (se mantiene intacto) ---
+            // --- SCRIPT DEL MÓDULO DE RASTREO ---
             (function(){
                 const root = document.getElementById('psc-embed');
                 if (!root) return;
@@ -764,7 +741,7 @@
                 const PARAM_ANON = params.get('anon');
                 const ENDPOINT = (PARAM_ENDPOINT || localStorage.getItem('psc:url') || "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/track_v2").trim();
                 const ANON_KEY = (PARAM_ANON || localStorage.getItem('psc:anon') || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0ZGtheGJncG9ndWR0cmRnemljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NDE2MDYsImV4cCI6MjA3MDQxNzYwNn0.mpjY5nWiS48O0DAUkCL7Jl6agF6LurGneaY8d1u70Po").trim();
-
+                
                 const $ = (sel)=> root.querySelector(sel);
                 const trk = $('#psc_trk');
                 const go = $('#psc_go');
@@ -777,7 +754,10 @@
                 const qsStatus = $('#psc_qsStatus');
                 const qsCourier = $('#psc_qsCourier');
                 const qsPeso = $('#psc_qsPeso');
+                const qsAlt = $('#psc_qsAlt');
                 const toggleMoreBtn = $('#psc_toggleMore');
+
+                try{ const last = localStorage.getItem('psc_last_tracking'); if(last) trk.value = last; }catch{}
 
                 function setState(kind, text, loading=false){
                     dot.className = 'psc-dot ' + (kind||'');
@@ -786,46 +766,12 @@
                     try{ go.disabled = !!loading; }catch{}
                 }
                 function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return new Intl.DateTimeFormat(undefined,{year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(d); }
-                function esc(s){ return String(s??'').replace(/[<>&]/g, m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m])) }
+                function esc(s){ return String(s??'').replace(/[<>&]/g, m=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[m])) }
 
                 function iconSVG(kind){
                     if(kind==='pn') return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7l9-4 9 4-9 4-9-4z" stroke="#a64f00"/><path d="M3 7v10l9 4 9-4V7" stroke="#a64f00"/></svg>';
                     if(kind==='fz') return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 10h18v8H3z" stroke="#7a5c00"/><path d="M7 10V6h10v4" stroke="#7a5c00"/></svg>';
                     return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 16h11v-6H3v6z" stroke="#0752a0"/><path d="M14 14h4l3 3v-7h-7v4z" stroke="#0752a0"/><circle cx="7" cy="19" r="2" stroke="#0752a0"/><circle cx="18" cy="19" r="2" stroke="#0752a0"/></svg>';
-                }
-
-                function hasUI(r){ return !!(r && (r.summary_ui || r.events_ui)); }
-                function renderAll(r){ if(hasUI(r)) renderAllUI(r); else { renderTopSummary(r); renderTimeline(r); } }
-                function renderAllUI(r){
-                    const su = r.summary_ui || {};
-                    qsTracking.textContent = su.tracking || r.tracking || '—';
-                    qsStatus.textContent   = su.status_ui || '—';
-                    qsCourier.textContent  = su.courier || r.detected_courier || r.courier_detected || '—';
-                    qsPeso.textContent     = su.peso_ui || (r.weight_lbs ? `${r.weight_lbs} lbs` : '—');
-
-                    eventsEl.innerHTML='';
-                    const list = (Array.isArray(r.events_ui) ? r.events_ui : []);
-                    evCountEl.textContent = list.length || 0;
-                    if(!list.length){
-                        const empty=document.createElement('div'); empty.style.color='var(--muted)';
-                        empty.textContent='Sin eventos.'; eventsEl.appendChild(empty);
-                        toggleMoreBtn.style.display='none'; return;
-                    }
-                    const MAX=5;
-                    list.forEach((ev,idx)=>{
-                        const src = (ev.src==='psc'||ev.src==='fz'||ev.src==='pn') ? ev.src : 'pn';
-                        const item=document.createElement('div');
-                        item.className=`psc-event psc-src-${src}` + (idx>=MAX?' hiddenEvt':'');
-                        const desc = (ev.desc_ui || ev.description || '');
-                        const loc  = (ev.location || '—');
-                        const when = fmtDate(ev.time_iso);
-                        item.innerHTML=`<div class="psc-desc">${desc}</div><div class="psc-meta"><span class="psc-icon">${iconSVG(src)}</span><span>${esc(loc)}</span><span>•</span><span>${when}</span></div>`;
-                        if(idx>=MAX) item.style.display='none';
-                        eventsEl.appendChild(item);
-                    });
-                    const hidden=eventsEl.querySelectorAll('.hiddenEvt');
-                    toggleMoreBtn.style.display = hidden.length ? 'inline-block' : 'none';
-                    toggleMoreBtn.textContent = 'Mostrar más';
                 }
 
                 function eventSource(ev, resp){
@@ -836,21 +782,25 @@
                         return matchFz ? 'fz' : 'pn';
                     }catch{ return 'pn' }
                 }
+
                 function transformDesc(src, ev, resp){
                     let d = String(ev.description||'');
                     if(src==='fz'){
                         const low = d.toLowerCase().trim();
                         if(low==='miami') d='Doral - Miami';
-                        if(low==='mal') d='Mal Identificado - <a href="https://www.soypsc.com/ml/" class="psc-btn-link" target="_blank" rel="noopener noreferrer">Solicitar aquí</a>';
+                        if(low==='mal') d='Mal Identificado <a href="https://www.soypsc.com/ml/" class="psc-btn-link" target="_blank" rel="noopener noreferrer">Solicitar aquí</a>';
                         if(low==='panama' || low==='panamá') d='Aduanas - Panama City';
                     }
                     if(src==='psc'){
                         const m = d.match(/peso\s*=?\s*(\d+(?:\.\d+)?)\s*lb/i);
                         const lbs = m ? m[1] : (resp && resp.weight_lbs ? resp.weight_lbs : null);
-                        d = 'Centro de Dist. PSC - Peso(Aprox.)' + (lbs?` ${lbs} lbs`:'');
+                        const dbStatus = (resp && resp.db_status) || (resp && resp.sources && resp.sources.db && resp.sources.db.selected && resp.sources.db.selected.status) || '';
+                        const label = String(dbStatus).trim() || 'Centro de Dist. PSC';
+                        d = `${label} - Peso(Aprox.)` + (lbs ? ` ${lbs} lbs` : '');
                     }
                     return d;
                 }
+
                 function computeOrderedList(r){
                     const all = Array.isArray(r.events) ? r.events : [];
                     const groups = { psc: [], fz: [], pn: [] };
@@ -861,49 +811,83 @@
                     groups.pn.sort((a,b)=> String(b.time_iso||'').localeCompare(String(a.time_iso||'')));
                     return [...groups.psc, ...groups.fz, ...groups.pn];
                 }
+
+                function getAltList(r){
+                    const a1 = Array.isArray(r.alt_trackings) ? r.alt_trackings : [];
+                    const a2 = (r.sources && r.sources.postal_ninja && Array.isArray(r.sources.postal_ninja.alt_trackings))
+                        ? r.sources.postal_ninja.alt_trackings : [];
+                    const all = [...a1, ...a2].map(v=>String(v||'').trim()).filter(Boolean);
+                    const primary = String(r.tracking||'').toUpperCase();
+                    const seen = new Set();
+                    const out = [];
+                    for(const x of all){
+                        const key = x.toUpperCase();
+                        if(!key || key===primary || seen.has(key)) continue;
+                        seen.add(key); out.push(x);
+                    }
+                    return out;
+                }
+
+                function renderAltTrackings(r){
+                    const alts = getAltList(r);
+                    if(!alts.length){ qsAlt.textContent='—'; return; }
+                    qsAlt.innerHTML='';
+                    alts.slice(0,6).forEach(code=>{
+                        const chip = document.createElement('div');
+                        chip.className = 'psc-altChip';
+                        chip.innerHTML = `<code>${esc(code)}</code><button type="button">Buscar</button>`;
+                        const btn = chip.querySelector('button');
+                        if (btn) {
+                            btn.addEventListener('click', ()=>{
+                                trk.value = code;
+                                doSearch();
+                            });
+                        }
+                        qsAlt.appendChild(chip);
+                    });
+                    if(alts.length>6){
+                        const more = document.createElement('div');
+                        more.className = 'psc-altChip';
+                        more.textContent = `+${alts.length-6} más`;
+                        qsAlt.appendChild(more);
+                    }
+                }
+                
                 function renderTopSummary(r){
                     qsTracking.textContent = r.tracking || '—';
-                    const list = computeOrderedList(r);
-                    const chosen = list[0];
-                    if(chosen){
-                        const src = eventSource(chosen, r);
-                        let label='';
-                        if(src==='psc') {
-                            label='En Bodega PSC';
-                        }
-                        else if(src==='fz'){
-                            const rawDesc = String(chosen.description || '').toLowerCase().trim();
-                            if (rawDesc === 'mal') {
-                                label = 'Mal Identificado';
-                            } else {
+                    const dbStatus = (r.db_status || (r.sources && r.sources.db && r.sources.db.selected && r.sources.db.selected.status)) || null;
+                    if (dbStatus && String(dbStatus).trim().length > 0) {
+                        qsStatus.textContent = String(dbStatus).trim();
+                    } else {
+                        const list = computeOrderedList(r);
+                        const chosen = list[0];
+                        if (chosen){
+                            const src = eventSource(chosen, r);
+                            let label='';
+                            if(src==='psc') {
+                                label='Centro de Dist. PSC';
+                            } else if(src==='fz'){
                                 const td = transformDesc(src, chosen, r);
-                                if (/Aduanas - Panama City/i.test(td)) {
-                                    label = 'En Aduanas';
-                                } else {
-                                    label = td;
-                                }
-                            }
-                        } else {
-                            const d = String(chosen.description||'');
-                            if (/delivered/i.test(d)) {
-                                label = 'Entregado';
+                                label = /Aduanas - Panama City/i.test(td) ? 'Aduanas' : td;
                             } else {
-                                label = 'En Tránsito';
+                                const d = String(chosen.description||'');
+                                label = /delivered/i.test(d) ? 'Delivered' : 'In transit';
                             }
+                            qsStatus.textContent = label || '—';
+                        } else {
+                            qsStatus.textContent = '—';
                         }
-                        qsStatus.textContent = label || '—';
-                    } else { qsStatus.textContent = '—'; }
+                    }
                     qsCourier.textContent = r.detected_courier || r.courier_detected || '—';
-                    qsPeso.textContent = r.weight_lbs ? `${r.weight_lbs} lbs` : '—';
+                    qsPeso.textContent    = r.weight_lbs ? `${r.weight_lbs} lbs` : '—';
+                    renderAltTrackings(r);
                 }
+
                 function renderTimeline(r){
                     eventsEl.innerHTML='';
                     const list = computeOrderedList(r);
                     evCountEl.textContent = list.length || 0;
-                    if(!list.length){
-                        const empty=document.createElement('div'); empty.style.color='var(--muted)';
-                        empty.textContent='Sin eventos.'; eventsEl.appendChild(empty); return;
-                    }
+                    if(!list.length){ const empty=document.createElement('div'); empty.style.color='var(--muted)'; empty.textContent='Sin eventos.'; eventsEl.appendChild(empty); return; }
                     const MAX=5;
                     list.forEach((ev,idx)=>{
                         const src = eventSource(ev,r);
@@ -912,7 +896,7 @@
                         const desc=transformDesc(src,ev,r);
                         const loc=(ev.location||'—');
                         const when=fmtDate(ev.time_iso);
-                        item.innerHTML=`<div class="psc-desc">${desc}</div><div class="psc-meta"><span class="psc-icon">${iconSVG(src==='pn'?'pn':src==='fz'?'fz':'psc')}</span><span>${esc(loc)}</span><span>•</span><span>${when}</span></div>`;
+                        item.innerHTML=`<div class="psc-desc">${desc}</div><div class="psc-meta"><span class="psc-icon">${iconSVG(src)}</span><span>${esc(loc)}</span><span>•</span><span>${when}</span></div>`;
                         if(idx>=MAX) item.style.display='none';
                         eventsEl.appendChild(item);
                     });
@@ -922,22 +906,26 @@
                 }
 
                 async function doSearch(){
+                    try{ localStorage.setItem('psc_last_tracking', trk.value.trim()); }catch{}
                     const code = trk.value.trim();
                     if(!code){ setState('err','Ingresa un tracking.'); return; }
-                    const endpoint = ENDPOINT;
-                    const token = ANON_KEY;
+                    
                     setState('warn','Buscando…',true);
                     try{
-                        const res = await fetch(endpoint,{
+                        const res = await fetch(ENDPOINT,{
                             method:'POST', mode:'cors', cache:'no-store',
-                            headers:{ 'Content-Type':'application/json', 'Accept':'application/json', Authorization:`Bearer ${token}`, apikey: token },
+                            headers:{ 'Content-Type':'application/json', 'Accept':'application/json', Authorization:`Bearer ${ANON_KEY}`, apikey: ANON_KEY },
                             body: JSON.stringify({ tracking: code })
                         });
                         if(!res.ok){ setState('err',`Error HTTP ${res.status}`); return; }
                         const data = await res.json();
                         setState('ok','Listo.');
-                        renderAll(data);
-                    }catch(e){ console.error(e); setState('err','Fallo de red o CORS.'); }
+                        renderTopSummary(data);
+                        renderTimeline(data);
+                    }catch(e){ 
+                        console.error(e); 
+                        setState('err','Fallo de red o CORS.'); 
+                    }
                 }
 
                 go.addEventListener('click', doSearch);
@@ -952,7 +940,6 @@
             })();
         });
     </script>
-
 </body>
 </html>
 
