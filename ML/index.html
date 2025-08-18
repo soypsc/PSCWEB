@@ -43,18 +43,32 @@
             --max-width: 1200px;
         }
 
-        /* HEADER */
+        /* ====================================================================== */
+        /* INICIO: ESTILOS INTEGRADOs PARA HEADER Y FAB                           */
+        /* ====================================================================== */
+
+        /* --- Estilos del Header --- */
         header {
             background: linear-gradient(135deg, var(--blue-1), var(--blue-2));
             color: white;
-            position: relative;
+            position: fixed; /* CAMBIO: De relative a fixed */
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            height: 140px;
+            height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 0 25px;
-            flex-shrink: 0;
+            transition: height 0.3s ease, background-color 0.3s ease;
+        }
+
+        header.scrolled {
+            height: 80px;
+            background: var(--blue-1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
 
         .header-inner {
@@ -63,33 +77,35 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: relative;
-            z-index: 2;
         }
 
         .logo {
-            height: 180px;
+            height: 100%;
             display: flex;
             align-items: center;
             flex-shrink: 0;
         }
 
         .logo img {
-            max-height: 225px;
+            max-height: 180px;
             width: auto;
             object-fit: contain;
             user-select: none;
             pointer-events: none;
+            transition: max-height 0.3s ease;
         }
 
-        nav {
+        header.scrolled .logo img {
+            max-height: 140px;
+        }
+
+        .desktop-nav {
             display: flex;
             gap: 20px;
             align-items: center;
-            flex-wrap: wrap;
         }
 
-        nav a {
+        .desktop-nav a {
             color: white;
             font-weight: 500;
             font-size: 14px;
@@ -97,7 +113,7 @@
             transition: color 0.3s ease, transform 0.2s ease;
         }
 
-        nav a:hover {
+        .desktop-nav a:hover {
             color: var(--accent);
             transform: translateY(-2px);
         }
@@ -105,7 +121,7 @@
         .header-buttons {
             display: flex;
             gap: 10px;
-            flex-shrink: 0;
+            align-items: center;
         }
 
         .btn-header {
@@ -115,8 +131,9 @@
             border-radius: var(--radius);
             font-weight: 600;
             font-size: 13px;
-            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
         }
 
         .btn-header:hover {
@@ -127,17 +144,20 @@
 
         .onda {
             position: absolute;
-            bottom: -20px;
+            bottom: -1px;
             left: 0;
             width: 100%;
-            height: 40px;
-            background: url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23fafafa" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg width="100%" height="20" viewBox="0 0 1440 20" xmlns="http://www.w3.org/2000/svg"><path fill="%23fafafa" d="M0,10 C360,20 720,0 1440,10 L1440,20 L0,20 Z" /></svg>') no-repeat bottom;
             background-size: cover;
-            z-index: 1;
-            pointer-events: none;
+            z-index: -1;
+            transition: opacity 0.3s ease;
         }
 
-        /* Dropdown */
+        header.scrolled .onda {
+            opacity: 0;
+        }
+
         .dropdown {
             position: relative;
             display: inline-block;
@@ -152,6 +172,7 @@
             border-radius: var(--radius);
             z-index: 10002;
             overflow: hidden;
+            margin-top: 10px;
         }
 
         .dropdown-content a {
@@ -170,6 +191,167 @@
         .dropdown:hover .dropdown-content {
             display: block;
         }
+
+        body {
+            padding-top: 100px; /* AJUSTE: Para que el contenido no quede debajo del header fijo */
+        }
+
+        /* --- Estilos del FAB --- */
+        .fab-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .fab-screen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(240, 240, 240, 0.8);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .fab-screen-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .fab-main-button {
+            position: relative;
+            z-index: 1002;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: red;
+            color: white;
+            border: none;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+        .fab-main-button:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+            transform: scale(1.05);
+            background-color: var(--blue-2);
+        }
+        .fab-main-button .plus-icon {
+            width: 30px;
+            height: 30px;
+            transition: transform 0.3s ease-in-out;
+        }
+        .fab-container.open .fab-main-button .plus-icon {
+            transform: rotate(45deg);
+        }
+        .fab-actions {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-end;
+            transform: scale(0);
+            transform-origin: bottom right;
+            transition: transform 0.3s ease-out;
+            z-index: 1001;
+        }
+        .fab-container.open .fab-actions {
+            transform: scale(1);
+        }
+        .fab-action-item {
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            gap: 10px;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        .fab-container.open .fab-action-item {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .fab-container.open .home-action { transition-delay: 0.30s; }
+        .fab-container.open .giftcard-action { transition-delay: 0.25s; }
+        .fab-container.open .whatsapp-action { transition-delay: 0.20s; }
+        .fab-container.open .tracker-action { transition-delay: 0.15s; }
+        .fab-container.open .ml-action { transition-delay: 0.10s; }
+        .fab-container.open .quotes-action { transition-delay: 0.05s; }
+
+        .fab-circular-button {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background-color: var(--blue-1);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .fab-circular-button:hover {
+            background-color: var(--blue-2);
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+        }
+        .fab-circular-button svg {
+            width: 30px;
+            height: 30px;
+            fill: currentColor;
+        }
+        .fab-action-label {
+            background-color: white;
+            color: var(--blue-1);
+            padding: 8px 12px;
+            border-radius: 18px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            white-space: nowrap;
+        }
+        .fab-action-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* --- Media Queries para Responsive --- */
+        @media (max-width: 900px) {
+            .desktop-nav {
+                display: none;
+            }
+            header, header.scrolled {
+                height: 90px;
+            }
+            body {
+                padding-top: 90px;
+            }
+            .logo img {
+                max-height: 160px;
+            }
+            header.scrolled .logo img {
+                max-height: 120px;
+            }
+            .btn-header {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
+
+        /* ====================================================================== */
+        /* FIN: ESTILOS INTEGRADOS PARA HEADER Y FAB                              */
+        /* ====================================================================== */
         
         /* FOOTER */
         footer {
@@ -220,239 +402,9 @@
             padding-top: 15px;
         }
 
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 10px;
-        }
-
-        .footer-links a {
-            color: var(--blue-1);
-            font-size: 12px;
-        }
-
-        /* Media Queries (Diseño Responsivo) */
-        @media (max-width: 900px) {
-            header {
-                height: auto;
-                padding: 25px;
-            }
-
-            .header-inner {
-                flex-wrap: wrap;
-                justify-content: space-between;
-                align-items: center;
-                gap: 15px;
-            }
-
-            .logo {
-                height: auto;
-                width: auto;
-                margin-right: auto;
-            }
-
-            .logo img {
-                max-height: 150px;
-            }
-
-            nav {
-                display: none;
-            }
-
-            .header-buttons {
-                display: flex;
-                flex-wrap: nowrap;
-                justify-content: flex-end;
-                width: auto;
-                gap: 8px;
-                margin-left: auto;
-            }
-            
-            .btn-header {
-                padding: 4px 8px;
-                font-size: 10px;
-            }
-            
-            .menu-toggle {
-                display: none;
-            }
-        }
-
-        @media (min-width: 901px) {
-            /* --- MODIFICACIÓN: Se eliminó la regla que ocultaba el FAB en PC --- */
-            .menu-toggle {
-                display: none;
-            }
-
-            header nav {
-                display: flex;
-                position: static;
-                box-shadow: none;
-                padding: 0;
-            }
-
-            .header-buttons {
-                display: flex;
-            }
-        }
-
-        /* ====================================================================== */
-        /* FLOATING ACTION BUTTON (FAB) */
-        /* ====================================================================== */
-        .fab-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-
-        .fab-screen-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(240, 240, 240, 0.8);
-            z-index: 999;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .fab-screen-overlay.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .fab-main-button {
-            position: relative;
-            z-index: 1002;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background-color: red;
-            color: white;
-            border: none;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), box-shadow 0.3s ease, background-color 0.3s ease;
-        }
-
-        .fab-main-button:hover {
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-            transform: scale(1.05);
-            background-color: darkred;
-        }
-
-        .fab-main-button .plus-icon {
-            width: 30px;
-            height: 30px;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .fab-container.open .fab-main-button .plus-icon {
-            transform: rotate(45deg);
-        }
-
-        .fab-actions {
-            position: absolute;
-            bottom: 70px;
-            right: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            align-items: flex-end;
-            transform: scale(0);
-            transform-origin: bottom right;
-            transition: transform 0.3s ease-out;
-            z-index: 1001;
-        }
-
-        .fab-container.open .fab-actions {
-            transform: scale(1);
-        }
-
-        .fab-action-item {
-            display: flex;
-            flex-direction: row-reverse;
-            align-items: center;
-            gap: 10px;
-            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-            opacity: 0;
-            transform: translateX(20px);
-        }
-
-        .fab-container.open .fab-action-item {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        /* Retrasos para una animación escalonada */
-        .fab-container.open .whatsapp-action {
-            transition-delay: 0.2s;
-        }
-        .fab-container.open .tracker-action {
-            transition-delay: 0.15s;
-        }
-        .fab-container.open .ml-action {
-            transition-delay: 0.10s;
-        }
-        .fab-container.open .quotes-action {
-            transition-delay: 0.05s;
-        }
-
-        .fab-circular-button {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            background-color: var(--blue-1);
-            color: white;
-            border: none;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .fab-circular-button:hover {
-            background-color: var(--blue-2);
-            transform: scale(1.1);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-        }
-
-        .fab-circular-button svg {
-            width: 30px;
-            height: 30px;
-            fill: currentColor;
-        }
-
-        .fab-action-label {
-            background-color: white;
-            color: var(--blue-1);
-            padding: 8px 12px;
-            border-radius: 18px;
-            font-size: 13px;
-            font-weight: 600;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .fab-action-label:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-
         /* --- ESTILOS ESPECÍFICOS DE LA PÁGINA ML --- */
         main.wrap {
-            min-height: 60vh;
+            flex-grow: 1; /* Permite que el main ocupe el espacio disponible */
             display: grid;
             place-items: center;
             padding: 40px 24px;
@@ -588,25 +540,33 @@
         }
         .hidden { display: none !important; }
 
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
     </style>
 </head>
 <body>
     
-    <header>
+    <!-- ====================================================================== -->
+    <!-- INICIO: CÓDIGO DEL HEADER DE REFERENCIA INTEGRADO -->
+    <!-- ====================================================================== -->
+    <header id="main-header">
         <div class="header-inner">
             <div class="logo">
-                <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
+                <a href="/"><img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co."></a>
             </div>
-            <div class="menu-toggle" style="display:none;">☰</div>
-            <nav>
+            <nav class="desktop-nav">
                 <a href="/">Inicio</a>
                 <a href="/Rastreo/">Rastreador de Paquetes</a>
                 <a href="/Cotizador/">Cotiza tus Compras</a>
-                <a href="/ML/">Mal Identificado</a>
-                
+                <a href="/ML/">Mal identificado</a>
                 <div class="dropdown">
                     <a href="#">Más ▾</a>
                     <div class="dropdown-content">
+                        <a href="/Tarjetas/">Tarjetas de Regalo</a>
                         <a href="/DG/">Mercancía Peligrosa</a>
                         <a href="/Politicas/">Términos y Condiciones</a>
                     </div>
@@ -619,6 +579,9 @@
         </div>
         <div class="onda"></div>
     </header>
+    <!-- ====================================================================== -->
+    <!-- FIN: CÓDIGO DEL HEADER DE REFERENCIA -->
+    <!-- ====================================================================== -->
 
     <main class="wrap">
       <div class="card">
@@ -648,7 +611,7 @@
           <p>¿Mostró Fecha de ingreso CB, saco o Párrafo con fecha? Marque, <strong>SÍ</strong></p>
           <p>-Lo más probable que su paquete esté Mal Identificado</p>
         </div>
-      
+        
         <div class="choices hidden">
           <label class="choice"
             ><input type="radio" name="seen" value="si" /> Sí</label
@@ -683,7 +646,6 @@
                     <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
                     <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
                     <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
-                    <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">💬 WhatsApp</a>
                 </div>
             </div>
             <div class="footer-col">
@@ -697,62 +659,79 @@
             </div>
         </div>
         <div class="footer-bottom">
-            &copy; 2023 Panama Shipping Co. Todos los derechos reservados.
-            <div class="footer-links">
-                <a href="#">Términos</a>
-                <a href="#">Privacidad</a>
-            </div>
+            &copy; 2024 Panama Shipping Co. Todos los derechos reservados.
         </div>
     </footer>
 
+    <!-- ====================================================================== -->
+    <!-- INICIO: CÓDIGO DEL FAB DE REFERENCIA INTEGRADO -->
+    <!-- ====================================================================== -->
     <div class="fab-container">
         <div class="fab-screen-overlay"></div>
         <div class="fab-actions">
+             <a href="/" class="fab-action-item home-action">
+                <span class="fab-action-label">Inicio</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                </button>
+            </a>
+            <a href="/Tarjetas/" class="fab-action-item giftcard-action">
+                <span class="fab-action-label">Tarjetas Lbs</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+                </button>
+            </a>
             <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener" class="fab-action-item whatsapp-action">
                 <span class="fab-action-label">WhatsApp</span>
                 <button class="fab-circular-button" style="background-color: #25D366;">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01s-.52.074-.792.372c-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.289.173-1.414z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01s-.52.074-.792.372c-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.289.173-1.414z"/></svg>
                 </button>
             </a>
             <a href="/Rastreo/" class="fab-action-item tracker-action">
                 <span class="fab-action-label">Rastreador</span>
                 <button class="fab-circular-button">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                 </button>
             </a>
             <a href="/ML/" class="fab-action-item ml-action">
                 <span class="fab-action-label">Mal Identificado</span>
                 <button class="fab-circular-button">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
                 </button>
             </a>
             <a href="/Cotizador/" class="fab-action-item quotes-action">
                 <span class="fab-action-label">Cotizador</span>
                 <button class="fab-circular-button">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7V8h10v7zm-5-3c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7V8h10v7zm-5-3c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>
                 </button>
             </a>
         </div>
-
         <button class="fab-main-button">
             <svg class="plus-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
         </button>
     </div>
+    <!-- ====================================================================== -->
+    <!-- FIN: CÓDIGO DEL FAB DE REFERENCIA -->
+    <!-- ====================================================================== -->
 
     <script>
-        // Script para el menú FAB
         document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Funcionalidad del Header con efecto Scroll ---
+            const header = document.getElementById('main-header');
+            if(header) {
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 50) {
+                        header.classList.add('scrolled');
+                    } else {
+                        header.classList.remove('scrolled');
+                    }
+                });
+            }
+
+            // --- Funcionalidad del Menú FAB ---
             const fabContainer = document.querySelector('.fab-container');
             if (fabContainer) {
                 const mainFabButton = fabContainer.querySelector('.fab-main-button');
@@ -766,295 +745,296 @@
                 mainFabButton.addEventListener('click', toggleFabMenu);
                 overlay.addEventListener('click', toggleFabMenu);
             }
-        });
 
-        // Script para la funcionalidad de la página ML
-        (function () {
-            const SCRAPER_DEFAULT = "https://gel-scraper-proxy.onrender.com/api/gel";
-            const SCRAPER = location.host.includes("gel-scraper-proxy.onrender.com") ? "/api/gel" : SCRAPER_DEFAULT;
-            const CHECK_URL = "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/check-ml";
-            const PUT_URL = "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/put-tracking";
+            // --- Script para la funcionalidad de la página ML ---
+            (function () {
+                const SCRAPER_DEFAULT = "https://gel-scraper-proxy.onrender.com/api/gel";
+                const SCRAPER = location.host.includes("gel-scraper-proxy.onrender.com") ? "/api/gel" : SCRAPER_DEFAULT;
+                const CHECK_URL = "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/check-ml";
+                const PUT_URL = "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/put-tracking";
 
-            const $ = (s) => document.querySelector(s);
-            const trk = $("#trk");
-            const go = $("#go");
-            const clr = $("#clear");
-            const status = $("#status");
-            const out = $("#out");
-            const seenRadios = document.getElementsByName("seen");
-            const noMsg = $("#noMsg");
-            const form = $("#mlForm");
-            const cas = $("#cas");
-            const nameInput = $("#name");
-            const ask = $("#ask");
-            const toast = $("#msg");
-            const question = $(".question");
-            const choices = $(".choices");
+                const $ = (s) => document.querySelector(s);
+                const trk = $("#trk");
+                const go = $("#go");
+                const clr = $("#clear");
+                const status = $("#status");
+                const out = $("#out");
+                const seenRadios = document.getElementsByName("seen");
+                const noMsg = $("#noMsg");
+                const form = $("#mlForm");
+                const cas = $("#cas");
+                const nameInput = $("#name");
+                const ask = $("#ask");
+                const toast = $("#msg");
+                const question = $(".question");
+                const choices = $(".choices");
 
-            const FILTER_STRINGS = [
-                `Login BUSCAR PAQUETES SIN IDENTIFICAR Número de Rastr...N IDENTIFICAR Sin Resultado En Búsqueda Reclamar Paquete Encontrado`,
-            ];
+                const FILTER_STRINGS = [
+                    `Login BUSCAR PAQUETES SIN IDENTIFICAR Número de Rastr...N IDENTIFICAR Sin Resultado En Búsqueda Reclamar Paquete Encontrado`,
+                ];
 
-            let tickerTimer = null;
-            function startTicker() {
-                if (tickerTimer) return;
-                const words = ["Estamos ", "Estamos buscando ", "Estamos buscando tu", "Estamos buscando tu Paquete", "Estamos buscando tu Paquete"];
-                let i = 0;
-                tickerTimer = setInterval(() => {
-                    const s = words[i++ % words.length];
-                    setStatus(`${s} <span class="ticker">•••</span>`, "warn");
-                }, 600);
-            }
-            function stopTicker() {
-                if (tickerTimer) {
-                    clearInterval(tickerTimer);
-                    tickerTimer = null;
+                let tickerTimer = null;
+                function startTicker() {
+                    if (tickerTimer) return;
+                    const words = ["Estamos ", "Estamos buscando ", "Estamos buscando tu", "Estamos buscando tu Paquete", "Estamos buscando tu Paquete"];
+                    let i = 0;
+                    tickerTimer = setInterval(() => {
+                        const s = words[i++ % words.length];
+                        setStatus(`${s} <span class="ticker">•••</span>`, "warn");
+                    }, 600);
                 }
-            }
-
-            function setStatus(msg, cls) {
-                status.innerHTML = msg || "";
-                status.style.color = cls === "warn" ? "#f59e0b" : "#6b7280";
-            }
-            function setToast(msg, kind) {
-                toast.textContent = msg || "";
-                toast.className = "toast " + (kind || "");
-                if (msg && (kind === "ok" || kind === "warn")) {
-                    setTimeout(() => setToast(""), 5000);
-                }
-            }
-            function norm(t) {
-                return String(t || "").replace(/\s+/g, " ").trim();
-            }
-            function sanitizeSnippet(t) {
-                t = norm(t);
-                for (const tb of FILTER_STRINGS) {
-                    if (tb && tb.trim()) {
-                        const re = new RegExp(tb.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g");
-                        t = norm(t).replace(re, "");
+                function stopTicker() {
+                    if (tickerTimer) {
+                        clearInterval(tickerTimer);
+                        tickerTimer = null;
                     }
                 }
-                return t.trim();
-            }
 
-            function resetAll() {
-                trk.value = "";
-                out.textContent = "";
-                setStatus("");
-                setToast("");
-                noMsg.style.display = "none";
-                form.style.display = "none";
-                cas.value = "";
-                nameInput.value = "";
-                for (const r of seenRadios) {
-                    r.checked = false;
+                function setStatus(msg, cls) {
+                    status.innerHTML = msg || "";
+                    status.style.color = cls === "warn" ? "#f59e0b" : "#6b7280";
                 }
-                question.classList.add("hidden");
-                choices.classList.add("hidden");
-                go.disabled = false;
-                ask.disabled = false;
-                stopTicker();
-                if (searchAbort) {
-                    searchAbort.abort();
-                    searchAbort = null;
-                }
-            }
-
-            let searchAbort = null;
-            async function buscar() {
-                const t = trk.value.trim();
-                setToast("");
-                if (!t) {
-                    setStatus("", "");
-                    out.textContent = "";
-                    return;
-                }
-
-                go.disabled = true;
-                setStatus("Buscando…", "warn");
-                startTicker();
-
-                searchAbort = new AbortController();
-                const tt = setTimeout(() => searchAbort.abort(), 45000);
-
-                try {
-                    const r = await fetch(`${SCRAPER}?tracking=${encodeURIComponent(t)}`, { cache: "no-store", signal: searchAbort.signal });
-                    clearTimeout(tt);
-                    stopTicker();
-
-                    let data = null, raw = "";
-                    try {
-                        data = await r.json();
-                    } catch {
-                        try {
-                            raw = await r.text();
-                        } catch {}
+                function setToast(msg, kind) {
+                    toast.textContent = msg || "";
+                    toast.className = "toast " + (kind || "");
+                    if (msg && (kind === "ok" || kind === "warn")) {
+                        setTimeout(() => setToast(""), 5000);
                     }
-
-                    const show = [];
-                    const sako = data?.saco || data?.sack || "";
-                    const fecha = data?.fecha_de_ingreso || data?.fecha || "";
-                    if (sako) show.push(`saco: ${sako}`);
-                    if (fecha) show.push(`fecha_de_ingreso: ${fecha}`);
-
-                    if (show.length > 0) {
-                        out.textContent = show.join("\n");
-                        question.classList.remove("hidden");
-                        choices.classList.remove("hidden");
-                        noMsg.style.display = "none";
-                        form.style.display = "none";
-                        for (const r of seenRadios) r.checked = false;
-                    } else {
-                        let snippet = "";
-                        if (raw) {
-                            const idx = raw.indexOf("Snippet:");
-                            if (idx >= 0) snippet = raw.slice(idx + 8);
+                }
+                function norm(t) {
+                    return String(t || "").replace(/\s+/g, " ").trim();
+                }
+                function sanitizeSnippet(t) {
+                    t = norm(t);
+                    for (const tb of FILTER_STRINGS) {
+                        if (tb && tb.trim()) {
+                            const re = new RegExp(tb.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g");
+                            t = norm(t).replace(re, "");
                         }
-                        snippet = sanitizeSnippet(snippet);
-                        out.textContent = snippet ? snippet : "No se encontró información para este tracking.";
-                        if (snippet) {
+                    }
+                    return t.trim();
+                }
+
+                function resetAll() {
+                    trk.value = "";
+                    out.textContent = "";
+                    setStatus("");
+                    setToast("");
+                    noMsg.style.display = "none";
+                    form.style.display = "none";
+                    cas.value = "";
+                    nameInput.value = "";
+                    for (const r of seenRadios) {
+                        r.checked = false;
+                    }
+                    question.classList.add("hidden");
+                    choices.classList.add("hidden");
+                    go.disabled = false;
+                    ask.disabled = false;
+                    stopTicker();
+                    if (searchAbort) {
+                        searchAbort.abort();
+                        searchAbort = null;
+                    }
+                }
+
+                let searchAbort = null;
+                async function buscar() {
+                    const t = trk.value.trim();
+                    setToast("");
+                    if (!t) {
+                        setStatus("", "");
+                        out.textContent = "";
+                        return;
+                    }
+
+                    go.disabled = true;
+                    setStatus("Buscando…", "warn");
+                    startTicker();
+
+                    searchAbort = new AbortController();
+                    const tt = setTimeout(() => searchAbort.abort(), 45000);
+
+                    try {
+                        const r = await fetch(`${SCRAPER}?tracking=${encodeURIComponent(t)}`, { cache: "no-store", signal: searchAbort.signal });
+                        clearTimeout(tt);
+                        stopTicker();
+
+                        let data = null, raw = "";
+                        try {
+                            data = await r.json();
+                        } catch {
+                            try {
+                                raw = await r.text();
+                            } catch {}
+                        }
+
+                        const show = [];
+                        const sako = data?.saco || data?.sack || "";
+                        const fecha = data?.fecha_de_ingreso || data?.fecha || "";
+                        if (sako) show.push(`saco: ${sako}`);
+                        if (fecha) show.push(`fecha_de_ingreso: ${fecha}`);
+
+                        if (show.length > 0) {
+                            out.textContent = show.join("\n");
                             question.classList.remove("hidden");
                             choices.classList.remove("hidden");
                             noMsg.style.display = "none";
                             form.style.display = "none";
                             for (const r of seenRadios) r.checked = false;
                         } else {
-                            question.classList.add("hidden");
-                            choices.classList.add("hidden");
-                            noMsg.style.display = "none";
-                            form.style.display = "none";
+                            let snippet = "";
+                            if (raw) {
+                                const idx = raw.indexOf("Snippet:");
+                                if (idx >= 0) snippet = raw.slice(idx + 8);
+                            }
+                            snippet = sanitizeSnippet(snippet);
+                            out.textContent = snippet ? snippet : "No se encontró información para este tracking.";
+                            if (snippet) {
+                                question.classList.remove("hidden");
+                                choices.classList.remove("hidden");
+                                noMsg.style.display = "none";
+                                form.style.display = "none";
+                                for (const r of seenRadios) r.checked = false;
+                            } else {
+                                question.classList.add("hidden");
+                                choices.classList.add("hidden");
+                                noMsg.style.display = "none";
+                                form.style.display = "none";
+                            }
                         }
+                    } catch (e) {
+                        clearTimeout(tt);
+                        stopTicker();
+                        setStatus("Error en la búsqueda.", "err");
+                        out.textContent = "";
+                    } finally {
+                        go.disabled = false;
                     }
-                } catch (e) {
-                    clearTimeout(tt);
-                    stopTicker();
-                    setStatus("Error en la búsqueda.", "err");
-                    out.textContent = "";
-                } finally {
-                    go.disabled = false;
-                }
-            }
-
-            const submittedSet = new Set();
-            async function checkDuplicate(code) {
-                const t = (code || "").trim();
-                if (!t) return { exists: false, ml: false };
-
-                if (submittedSet.has(t.toLowerCase())) {
-                    return { exists: true, ml: true };
                 }
 
-                const ctrl = new AbortController();
-                const timeout = setTimeout(() => ctrl.abort(), 8000);
-                try {
-                    const res = await fetch(CHECK_URL, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ trackings: [t] }),
-                        signal: ctrl.signal,
-                    });
-                    clearTimeout(timeout);
-                    if (!res.ok) return { exists: false, ml: false };
-                    const payload = await res.json().catch(() => ({}));
-                    const it = Array.isArray(payload?.items) ? payload.items.find((x) => String(x.tracking || "").toLowerCase() === t.toLowerCase()) : null;
-                    const ml = it && (it.ml === true || it.ML === "true" || it.status === "ML");
-                    const exists = Boolean(it && (it.exists === true || ml));
-                    return { exists, ml: Boolean(ml) };
-                } catch {
-                    clearTimeout(timeout);
-                    return { exists: false, ml: false };
-                }
-            }
+                const submittedSet = new Set();
+                async function checkDuplicate(code) {
+                    const t = (code || "").trim();
+                    if (!t) return { exists: false, ml: false };
 
-            async function solicitarML() {
-                const code = trk.value.trim();
-                const casillero = cas.value.trim();
-                setToast("");
-                const name = nameInput.value.trim();
+                    if (submittedSet.has(t.toLowerCase())) {
+                        return { exists: true, ml: true };
+                    }
 
-                const seen = Array.from(seenRadios).find((r) => r.checked)?.value || "";
-                if (seen !== "si") {
-                    setToast("Confirma que se mostró la información (elige 'Sí').", "warn");
-                    return;
-                }
-                if (!code || !casillero) {
-                    setToast("Ingresa tracking y número de casillero.", "err");
-                    return;
-                }
-
-                ask.disabled = true;
-
-                const dup = await checkDuplicate(code);
-                if (dup.exists) {
-                    setToast(dup.ml ? "Ya existe una solicitud ML para este tracking." : "Ya existe este tracking en la tabla.", "warn");
-                    ask.disabled = false;
-                    return;
-                }
-
-                try {
-                    const res = await fetch(PUT_URL, {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            tracking_original: code,
-                            tracking_corrected: code,
-                            num_casillero: casillero,
-                            status: "ML",
-                            ML: "true",
-                            name: name,
-                        }),
-                    });
-                    const txt = await res.text().catch(() => "");
-                    let payload = {};
+                    const ctrl = new AbortController();
+                    const timeout = setTimeout(() => ctrl.abort(), 8000);
                     try {
-                        payload = JSON.parse(txt || "{}");
-                    } catch {}
+                        const res = await fetch(CHECK_URL, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ trackings: [t] }),
+                            signal: ctrl.signal,
+                        });
+                        clearTimeout(timeout);
+                        if (!res.ok) return { exists: false, ml: false };
+                        const payload = await res.json().catch(() => ({}));
+                        const it = Array.isArray(payload?.items) ? payload.items.find((x) => String(x.tracking || "").toLowerCase() === t.toLowerCase()) : null;
+                        const ml = it && (it.ml === true || it.ML === "true" || it.status === "ML");
+                        const exists = Boolean(it && (it.exists === true || ml));
+                        return { exists, ml: Boolean(ml) };
+                    } catch {
+                        clearTimeout(timeout);
+                        return { exists: false, ml: false };
+                    }
+                }
 
-                    if (!res.ok || payload?.ok !== true) {
-                        const msg = payload?.error || payload?.detail || res.statusText || `HTTP ${res.status}`;
-                        setToast(`Error: ${msg}`, "err");
+                async function solicitarML() {
+                    const code = trk.value.trim();
+                    const casillero = cas.value.trim();
+                    setToast("");
+                    const name = nameInput.value.trim();
+
+                    const seen = Array.from(seenRadios).find((r) => r.checked)?.value || "";
+                    if (seen !== "si") {
+                        setToast("Confirma que se mostró la información (elige 'Sí').", "warn");
+                        return;
+                    }
+                    if (!code || !casillero) {
+                        setToast("Ingresa tracking y número de casillero.", "err");
+                        return;
+                    }
+
+                    ask.disabled = true;
+
+                    const dup = await checkDuplicate(code);
+                    if (dup.exists) {
+                        setToast(dup.ml ? "Ya existe una solicitud ML para este tracking." : "Ya existe este tracking en la tabla.", "warn");
                         ask.disabled = false;
                         return;
                     }
 
-                    setToast("Solicitud recibida", "ok");
-                    submittedSet.add(code.toLowerCase());
-                } catch (e) {
-                    setToast("No se pudo enviar la solicitud.", "err");
-                } finally {
-                    ask.disabled = false;
-                }
-            }
+                    try {
+                        const res = await fetch(PUT_URL, {
+                            method: "PUT",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                tracking_original: code,
+                                tracking_corrected: code,
+                                num_casillero: casillero,
+                                status: "ML",
+                                ML: "true",
+                                name: name,
+                            }),
+                        });
+                        const txt = await res.text().catch(() => "");
+                        let payload = {};
+                        try {
+                            payload = JSON.parse(txt || "{}");
+                        } catch {}
 
-            go.addEventListener("click", buscar);
-            trk.addEventListener("keydown", (e) => {
-                if (e.key === "Enter") buscar();
-            });
-            clr.addEventListener("click", resetAll);
+                        if (!res.ok || payload?.ok !== true) {
+                            const msg = payload?.error || payload?.detail || res.statusText || `HTTP ${res.status}`;
+                            setToast(`Error: ${msg}`, "err");
+                            ask.disabled = false;
+                            return;
+                        }
 
-            for (const r of seenRadios) {
-                r.addEventListener("change", () => {
-                    const v = Array.from(seenRadios).find((x) => x.checked)?.value;
-                    if (v === "si") {
-                        noMsg.textContent = "";
-                        noMsg.style.display = "none";
-                        form.style.display = "block";
-                        cas.focus();
-                    } else if (v === "no") {
-                        noMsg.textContent = "Has marcado «No». Si no sale información intente Buscar nuevamente o contactarse con PSC.";
-                        noMsg.style.display = "block";
-                        form.style.display = "none";
-                    } else {
-                        noMsg.textContent = "";
-                        noMsg.style.display = "none";
-                        form.style.display = "none";
+                        setToast("Solicitud recibida", "ok");
+                        submittedSet.add(code.toLowerCase());
+                    } catch (e) {
+                        setToast("No se pudo enviar la solicitud.", "err");
+                    } finally {
+                        ask.disabled = false;
                     }
+                }
+
+                go.addEventListener("click", buscar);
+                trk.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") buscar();
                 });
-            }
-            ask.addEventListener("click", solicitarML);
-        })();
+                clr.addEventListener("click", resetAll);
+
+                for (const r of seenRadios) {
+                    r.addEventListener("change", () => {
+                        const v = Array.from(seenRadios).find((x) => x.checked)?.value;
+                        if (v === "si") {
+                            noMsg.textContent = "";
+                            noMsg.style.display = "none";
+                            form.style.display = "block";
+                            cas.focus();
+                        } else if (v === "no") {
+                            noMsg.textContent = "Has marcado «No». Si no sale información intente Buscar nuevamente o contactarse con PSC.";
+                            noMsg.style.display = "block";
+                            form.style.display = "none";
+                        } else {
+                            noMsg.textContent = "";
+                            noMsg.style.display = "none";
+                            form.style.display = "none";
+                        }
+                    });
+                }
+                ask.addEventListener("click", solicitarML);
+            })();
+        });
     </script>
 </body>
 </html>
+
 
 
