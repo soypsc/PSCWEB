@@ -43,25 +43,27 @@
             --radius: 12px;
             --max-width: 1200px;
         }
+        
+        /* ====================================================================== */
+        /* INICIO: ESTILOS INTEGRADOS PARA HEADER Y FAB                           */
+        /* ====================================================================== */
 
-        /* ====================================================================== */
-        /* HEADER DINÁMICO
-        /* ====================================================================== */
+        /* --- Estilos del Header --- */
         header {
             background: linear-gradient(135deg, var(--blue-1), var(--blue-2));
             color: white;
-            position: fixed; 
+            position: fixed;
             width: 100%;
             top: 0;
             left: 0;
             z-index: 1000;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            height: 140px;
+            height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 0 25px;
-            transition: height 0.3s ease, background-color 0.3s ease; 
+            transition: height 0.3s ease, background-color 0.3s ease;
         }
 
         header.scrolled {
@@ -76,41 +78,35 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: relative;
-            z-index: 2;
         }
 
         .logo {
-            height: 180px;
+            height: 100%;
             display: flex;
             align-items: center;
             flex-shrink: 0;
-            transition: height 0.3s ease;
-        }
-        header.scrolled .logo {
-            height: 120px;
         }
 
         .logo img {
-            max-height: 260px;
+            max-height: 180px;
             width: auto;
             object-fit: contain;
             user-select: none;
             pointer-events: none;
             transition: max-height 0.3s ease;
         }
+
         header.scrolled .logo img {
-            max-height: 180px;
+            max-height: 140px;
         }
 
-        nav {
+        .desktop-nav {
             display: flex;
             gap: 20px;
             align-items: center;
-            flex-wrap: wrap;
         }
 
-        nav a {
+        .desktop-nav a {
             color: white;
             font-weight: 500;
             font-size: 14px;
@@ -118,7 +114,7 @@
             transition: color 0.3s ease, transform 0.2s ease;
         }
 
-        nav a:hover {
+        .desktop-nav a:hover {
             color: var(--accent);
             transform: translateY(-2px);
         }
@@ -126,7 +122,7 @@
         .header-buttons {
             display: flex;
             gap: 10px;
-            flex-shrink: 0;
+            align-items: center;
         }
 
         .btn-header {
@@ -136,8 +132,9 @@
             border-radius: var(--radius);
             font-weight: 600;
             font-size: 13px;
-            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
         }
 
         .btn-header:hover {
@@ -148,21 +145,20 @@
 
         .onda {
             position: absolute;
-            bottom: -20px;
+            bottom: -1px;
             left: 0;
             width: 100%;
-            height: 40px;
-            background: url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg width="100%" height="20" viewBox="0 0 1440 20" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0,10 C360,20 720,0 1440,10 L1440,20 L0,20 Z" /></svg>') no-repeat bottom;
             background-size: cover;
-            z-index: 1;
-            pointer-events: none;
+            z-index: -1;
             transition: opacity 0.3s ease;
         }
+
         header.scrolled .onda {
             opacity: 0;
         }
 
-        /* Dropdown */
         .dropdown {
             position: relative;
             display: inline-block;
@@ -177,6 +173,7 @@
             border-radius: var(--radius);
             z-index: 10002;
             overflow: hidden;
+            margin-top: 10px;
         }
 
         .dropdown-content a {
@@ -195,10 +192,167 @@
         .dropdown:hover .dropdown-content {
             display: block;
         }
-        
+
         body {
-            padding-top: 140px; 
+            padding-top: 100px; /* IMPORTANTE: Para que el contenido no quede debajo del header fijo */
         }
+
+        /* --- Estilos del FAB --- */
+        .fab-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .fab-screen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(240, 240, 240, 0.8);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .fab-screen-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .fab-main-button {
+            position: relative;
+            z-index: 1002;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: red;
+            color: white;
+            border: none;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+        .fab-main-button:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+            transform: scale(1.05);
+            background-color: var(--blue-2);
+        }
+        .fab-main-button .plus-icon {
+            width: 30px;
+            height: 30px;
+            transition: transform 0.3s ease-in-out;
+        }
+        .fab-container.open .fab-main-button .plus-icon {
+            transform: rotate(45deg);
+        }
+        .fab-actions {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-end;
+            transform: scale(0);
+            transform-origin: bottom right;
+            transition: transform 0.3s ease-out;
+            z-index: 1001;
+        }
+        .fab-container.open .fab-actions {
+            transform: scale(1);
+        }
+        .fab-action-item {
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            gap: 10px;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        .fab-container.open .fab-action-item {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .fab-container.open .home-action { transition-delay: 0.30s; }
+        .fab-container.open .giftcard-action { transition-delay: 0.25s; }
+        .fab-container.open .whatsapp-action { transition-delay: 0.20s; }
+        .fab-container.open .tracker-action { transition-delay: 0.15s; }
+        .fab-container.open .ml-action { transition-delay: 0.10s; }
+        .fab-container.open .quotes-action { transition-delay: 0.05s; }
+
+        .fab-circular-button {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background-color: var(--blue-1);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .fab-circular-button:hover {
+            background-color: var(--blue-2);
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+        }
+        .fab-circular-button svg {
+            width: 30px;
+            height: 30px;
+            fill: currentColor;
+        }
+        .fab-action-label {
+            background-color: white;
+            color: var(--blue-1);
+            padding: 8px 12px;
+            border-radius: 18px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            white-space: nowrap;
+        }
+        .fab-action-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* --- Media Queries para Responsive --- */
+        @media (max-width: 900px) {
+            .desktop-nav {
+                display: none;
+            }
+            header, header.scrolled {
+                height: 90px;
+            }
+            body {
+                padding-top: 90px;
+            }
+            .logo img {
+                max-height: 160px;
+            }
+            header.scrolled .logo img {
+                max-height: 120px;
+            }
+            .btn-header {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
+
+        /* ====================================================================== */
+        /* FIN: ESTILOS INTEGRADOS PARA HEADER Y FAB                              */
+        /* ====================================================================== */
 
         /* HERO Section */
         .hero {
@@ -326,9 +480,9 @@
             box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
         }
 
-        /* ========== SECCIÓN TARIFAS DE CARGA (ESTILO APPLE + PSC) ========== */
+        /* ========== SECCIÓN TARIFAS DE CARGA ========== */
         .rates-section {
-            background-color: #f5f5f7; /* Gris claro estilo Apple */
+            background-color: #f5f5f7;
             padding: 80px 20px;
             text-align: center;
         }
@@ -339,15 +493,15 @@
         }
 
         .rates-section h2 {
-            font-size: 2.5rem; /* 40px */
+            font-size: 2.5rem;
             font-weight: 600;
-            color: #1d1d1f; /* Negro principal de Apple */
+            color: #1d1d1f;
             margin-bottom: 15px;
         }
 
         .rates-section .section-header p {
-            font-size: 1.125rem; /* 18px */
-            color: #515154; /* Gris secundario */
+            font-size: 1.125rem;
+            color: #515154;
             line-height: 1.6;
         }
 
@@ -387,17 +541,17 @@
         }
 
         .rate-card .rate-title {
-            font-size: 1.75rem; /* 28px */
+            font-size: 1.75rem;
             font-weight: 600;
-            color: var(--blue-1); /* Color principal de PSC */
+            color: var(--blue-1);
             margin-bottom: 15px;
         }
 
         .rate-card .rate-description {
-            font-size: 1rem; /* 16px */
+            font-size: 1rem;
             color: #515154;
             line-height: 1.5;
-            margin-bottom: 10px; /* Reducido para acercar el nuevo texto */
+            margin-bottom: 10px;
         }
         
         .rate-card .rate-sub-description {
@@ -447,12 +601,12 @@
             background-color: var(--blue-1);
             color: #ffffff;
             padding: 12px 25px;
-            border-radius: 30px; /* Botón tipo píldora */
+            border-radius: 30px;
             text-decoration: none;
             font-weight: 500;
             transition: background-color 0.3s ease, transform 0.2s ease;
-            align-self: flex-start; /* Alinea el botón a la izquierda */
-            margin-top: auto; /* Empuja el botón al final */
+            align-self: flex-start;
+            margin-top: auto;
         }
 
         .rate-card .cta-button:hover {
@@ -461,18 +615,11 @@
         }
 
         /* EXPERIENCIA */
-        .testimonios, .experiencia {
+        .experiencia {
+            background-color: #000;
             color: white;
             padding: 50px 20px;
             text-align: center;
-        }
-
-        .testimonios {
-            background-color: #0000FF;
-        }
-
-        .experiencia {
-            background-color: #000;
         }
 
         .stats {
@@ -556,105 +703,18 @@
             padding-top: 15px;
         }
 
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 10px;
-        }
-
-        .footer-links a {
-            color: var(--blue-1);
-            font-size: 12px;
-        }
-
         /* Media Queries (Diseño Responsivo) */
-        @media (max-width: 900px) {
-            header, header.scrolled {
-                height: auto;
-                padding: 15px 25px;
-                position: absolute; 
-            }
-            body {
-                padding-top: 0; 
-            }
-            .header-inner {
-                flex-wrap: wrap;
-                justify-content: space-between;
-                align-items: center;
-                gap: 15px;
-            }
-
-            .logo, header.scrolled .logo {
-                height: auto;
-                width: auto;
-                margin-right: auto;
-            }
-
-            .logo img, header.scrolled .logo img {
-                max-height: 150px; 
-            }
-
-            nav {
-                display: none;
-            }
-
-            .header-buttons {
-                display: flex;
-                flex-wrap: nowrap;
-                justify-content: flex-end;
-                width: auto;
-                gap: 8px;
-                margin-left: auto;
-            }
-            
-            .btn-header {
-                padding: 4px 8px; 
-                font-size: 10px; 
-            }
-            
-            .menu-toggle {
-                display: none;
-            }
-        }
-
-        @media (min-width: 901px) {
-            .menu-toggle {
-                display: none;
-            }
-
-            header nav {
-                display: flex !important;
-                position: static;
-                box-shadow: none;
-                padding: 0;
-            }
-
-            .header-buttons {
-                display: flex;
-            }
-        }
-
         @media (max-width: 768px) {
             .hero {
                 flex-direction: column;
                 text-align: center;
-                margin-top: 100px; 
             }
 
-            .hero-text {
+            .hero-text, .hero-img {
                 padding: 10px;
             }
 
-            .hero-img {
-                padding: 10px;
-            }
-
-            .servicios {
-                flex-direction: column;
-            }
-
-            .stats {
+            .servicios, .stats {
                 flex-direction: column;
             }
 
@@ -679,169 +739,29 @@
         .servicio:nth-child(3) { transition-delay: 300ms; }
         .rate-card:nth-child(2) { transition-delay: 150ms; }
         
-        /* FLOATING ACTION BUTTON (FAB) */
-        .fab-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-
-        .fab-screen-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(240, 240, 240, 0.8);
-            z-index: 999;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .fab-screen-overlay.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .fab-main-button {
-            position: relative;
-            z-index: 1002;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background-color: red;
-            color: white;
-            border: none;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), box-shadow 0.3s ease, background-color 0.3s ease;
-        }
-
-        .fab-main-button:hover {
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-            transform: scale(1.05);
-            background-color: var(--blue-2);
-        }
-
-        .fab-main-button .plus-icon {
-            width: 30px;
-            height: 30px;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .fab-container.open .fab-main-button .plus-icon {
-            transform: rotate(45deg);
-        }
-
-        .fab-actions {
-            position: absolute;
-            bottom: 70px;
-            right: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            align-items: flex-end;
-            transform: scale(0);
-            transform-origin: bottom right;
-            transition: transform 0.3s ease-out;
-            z-index: 1001;
-        }
-
-        .fab-container.open .fab-actions {
-            transform: scale(1);
-        }
-
-        .fab-action-item {
-            display: flex;
-            flex-direction: row-reverse;
-            align-items: center;
-            gap: 10px;
-            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-            opacity: 0;
-            transform: translateX(20px);
-        }
-
-        .fab-container.open .fab-action-item {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .fab-container.open .home-action { transition-delay: 0.25s; }
-        .fab-container.open .whatsapp-action { transition-delay: 0.2s; }
-        .fab-container.open .tracker-action { transition-delay: 0.15s; }
-        .fab-container.open .ml-action { transition-delay: 0.10s; }
-        .fab-container.open .quotes-action { transition-delay: 0.05s; }
-
-        .fab-circular-button {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            background-color: var(--blue-1);
-            color: white;
-            border: none;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .fab-circular-button:hover {
-            background-color: var(--blue-2);
-            transform: scale(1.1);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-        }
-
-        .fab-circular-button svg {
-            width: 30px;
-            height: 30px;
-            fill: currentColor;
-        }
-
-        .fab-action-label {
-            background-color: white;
-            color: var(--blue-1);
-            padding: 8px 12px;
-            border-radius: 18px;
-            font-size: 13px;
-            font-weight: 600;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .fab-action-label:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
     </style>
 </head>
 <body>
     
+    <!-- ====================================================================== -->
+    <!-- INICIO: CÓDIGO DEL HEADER DE REFERENCIA (AHORA INTEGRADO DIRECTAMENTE) -->
+    <!-- ====================================================================== -->
     <header id="main-header">
         <div class="header-inner">
             <div class="logo">
-                <img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co.">
+                <a href="/"><img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co."></a>
             </div>
-            <nav>
-                <a href="./">Inicio</a>
-                <a href="Rastreo/">Rastreador de Paquetes</a>
-                <a href="Cotizador/">Cotiza tus Compras</a>
-                <a href="ML/">Mal identificado</a>
-                
+            <nav class="desktop-nav">
+                <a href="/">Inicio</a>
+                <a href="/Rastreo/">Rastreador de Paquetes</a>
+                <a href="/Cotizador/">Cotiza tus Compras</a>
+                <a href="/ML/">Mal identificado</a>
                 <div class="dropdown">
                     <a href="#">Más ▾</a>
                     <div class="dropdown-content">
-                        <a href="DG/">Mercancía Peligrosa</a>
-                        <a href="Politicas/">Términos y Condiciones</a>
-                        <a href="/Tarjetas/">Tarjetas Lbs</a>
+                        <a href="/Tarjetas/">Tarjetas de Regalo</a>
+                        <a href="/DG/">Mercancía Peligrosa</a>
+                        <a href="/Politicas/">Términos y Condiciones</a>
                     </div>
                 </div>
             </nav>
@@ -852,7 +772,11 @@
         </div>
         <div class="onda"></div>
     </header>
+    <!-- ====================================================================== -->
+    <!-- FIN: CÓDIGO DEL HEADER DE REFERENCIA                                   -->
+    <!-- ====================================================================== -->
 
+    <!-- TODO TU CONTENIDO SE MANTIENE IGUAL -->
     <section class="hero">
         <div class="hero-text anim-hidden">
             <p class="hero-slogan">Tu conexión directo al mundo 🌍</p>
@@ -893,14 +817,12 @@
         <img class="sucursal-img" src="https://static.wixstatic.com/media/f7f5e1_8607c401b2cd45cba61a671c3174c8fb~mv2.png" alt="Mapa de ubicaciones de sucursales">
     </section>
 
-    <!-- ========== INICIO DE LA NUEVA SECCIÓN DE TARIFAS ========== -->
     <section class="rates-section">
         <div class="section-header anim-hidden">
             <h2>Tarifas en Carga Aérea y Marítima</h2>
             <p>Ofrecemos soluciones logísticas competitivas y adaptadas a tus necesidades. Explora nuestras tarifas base.</p>
         </div>
         <div class="rates-container">
-            <!-- Tarjeta para Carga Aérea -->
             <div class="rate-card anim-hidden">
                 <div class="card-content">
                     <h3 class="rate-title">Carga Aérea</h3>
@@ -914,8 +836,6 @@
                     <a href="https://psc.e-rmez.com/casillero_register.php" class="cta-button">Regístrate</a>
                 </div>
             </div>
-
-            <!-- Tarjeta para Carga Marítima -->
             <div class="rate-card anim-hidden">
                 <div class="card-content">
                     <h3 class="rate-title">Carga Marítima</h3>
@@ -928,7 +848,6 @@
             </div>
         </div>
     </section>
-    <!-- ========== FIN DE LA NUEVA SECCIÓN ========== -->
 
     <section class="experiencia">
         <h2 class="anim-hidden">NUESTRA EXPERIENCIA</h2>
@@ -938,12 +857,8 @@
             <div class="stat"><span class="counter" data-target="10000">0</span><br/><small>Clientes satisfechos</small></div>
             <div class="stat"><span class="counter" data-target="1000000">0</span><br/><small>Paquetes entregados</small></div>
         </div>
-
         <div class="experiencia-image anim-hidden">
-            <img
-                src="https://static.wixstatic.com/media/f7f5e1_60e079b447f54853aa679ed6a92e1aa6~mv2.png"
-                alt="Imagen ilustrativa de la experiencia de la empresa"
-            >
+            <img src="https://static.wixstatic.com/media/f7f5e1_60e079b447f54853aa679ed6a92e1aa6~mv2.png" alt="Imagen ilustrativa de la experiencia de la empresa">
         </div>
     </section>
 
@@ -956,9 +871,7 @@
                     <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
                     <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
                     <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
-                    <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">💬 WhatsApp</a>
                 </div>
-                
             </div>
             <div class="footer-col">
                 <h3>Enlaces Rápidos</h3>
@@ -971,79 +884,75 @@
             </div>
         </div>
         <div class="footer-bottom">
-            &copy; 2023 Panama Shipping Co. Todos los derechos reservados.
-            <div class="footer-links">
-                <a href="#">Términos</a>
-                <a href="#">Privacidad</a>
-            </div>
-            </div>
+            &copy; 2024 Panama Shipping Co. Todos los derechos reservados.
+        </div>
     </footer>
 
+    <!-- CÓDIGO HTML DEL NUEVO BOTÓN FLOTANTE (FAB) -->
     <div class="fab-container">
         <div class="fab-screen-overlay"></div>
-
         <div class="fab-actions">
-            <a href="./" class="fab-action-item home-action">
+             <a href="/" class="fab-action-item home-action">
                 <span class="fab-action-label">Inicio</span>
                 <button class="fab-circular-button">
-                    <svg viewBox="0 0 24 24" fill="currentColor" stroke="white" stroke-width="1">
-                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                </button>
+            </a>
+            <a href="/Tarjetas/" class="fab-action-item giftcard-action">
+                <span class="fab-action-label">Tarjetas Lbs</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
                 </button>
             </a>
             <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener" class="fab-action-item whatsapp-action">
                 <span class="fab-action-label">WhatsApp</span>
                 <button class="fab-circular-button" style="background-color: #25D366;">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01s-.52.074-.792.372c-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.289.173-1.414z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01s-.52.074-.792.372c-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.289.173-1.414z"/></svg>
                 </button>
             </a>
-            <a href="Rastreo/" class="fab-action-item tracker-action">
+            <a href="/Rastreo/" class="fab-action-item tracker-action">
                 <span class="fab-action-label">Rastreador</span>
                 <button class="fab-circular-button">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                    </svg>
-                </button>
-            <a href="Tarjetas/" class="fab-action-item tracker-action">
-                <span class="fab-action-label">Tarjetas Lbs</span>
-                <button class="fab-circular-button">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                 </button>
             </a>
-            <a href="ML/" class="fab-action-item ml-action">
+            <a href="/ML/" class="fab-action-item ml-action">
                 <span class="fab-action-label">Mal Identificado</span>
                 <button class="fab-circular-button">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
                 </button>
             </a>
-            <a href="Cotizador/" class="fab-action-item quotes-action">
+            <a href="/Cotizador/" class="fab-action-item quotes-action">
                 <span class="fab-action-label">Cotizador</span>
                 <button class="fab-circular-button">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7V8h10v7zm-5-3c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
-                    </svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7V8h10v7zm-5-3c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>
                 </button>
             </a>
         </div>
-
         <button class="fab-main-button">
             <svg class="plus-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
         </button>
     </div>
 
+    <!-- SCRIPT UNIFICADO Y CORREGIDO -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             
-            // --- Script para el FAB (Floating Action Button) ---
+            // --- Funcionalidad del Header (ya está en la página) ---
+            const header = document.getElementById('main-header');
+            if(header) {
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 50) {
+                        header.classList.add('scrolled');
+                    } else {
+                        header.classList.remove('scrolled');
+                    }
+                });
+            }
+
+            // --- Funcionalidad del FAB (Floating Action Button) ---
             const fabContainer = document.querySelector('.fab-container');
             if (fabContainer) {
                 const mainFabButton = fabContainer.querySelector('.fab-main-button');
@@ -1058,19 +967,7 @@
                 overlay.addEventListener('click', toggleFabMenu);
             }
 
-            // --- Script para el Header Dinámico ---
-            const header = document.getElementById('main-header');
-            if(header) {
-                window.addEventListener('scroll', () => {
-                    if (window.scrollY > 50) {
-                        header.classList.add('scrolled');
-                    } else {
-                        header.classList.remove('scrolled');
-                    }
-                });
-            }
-
-            // --- Script para Animaciones al Hacer Scroll ---
+            // --- Animaciones al Hacer Scroll (Se mantiene igual) ---
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
@@ -1085,8 +982,7 @@
             const hiddenElements = document.querySelectorAll('.anim-hidden');
             hiddenElements.forEach((el) => observer.observe(el));
 
-
-            // --- Script para el Contador Animado ---
+            // --- Contador Animado (Se mantiene igual) ---
             const counters = document.querySelectorAll('.counter');
             const speed = 200;
 
@@ -1123,4 +1019,3 @@
     </script>
 </body>
 </html>
-
