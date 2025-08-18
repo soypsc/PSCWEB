@@ -47,7 +47,7 @@
         }
 
         /* ====================================================================== */
-        /* HEADER (Reutilizado de la página principal)
+        /* HEADER 
         /* ====================================================================== */
         header {
             background: linear-gradient(135deg, var(--blue-1), var(--blue-2));
@@ -58,7 +58,7 @@
             left: 0;
             z-index: 1000;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            height: 140px;
+            height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -78,23 +78,17 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: relative;
-            z-index: 2;
         }
 
         .logo {
-            height: 180px;
+            height: 100%;
             display: flex;
             align-items: center;
             flex-shrink: 0;
-            transition: height 0.3s ease;
         }
-        header.scrolled .logo {
-            height: 120px;
-        }
-
+        
         .logo img {
-            max-height: 260px;
+            max-height: 180px;
             width: auto;
             object-fit: contain;
             user-select: none;
@@ -102,17 +96,16 @@
             transition: max-height 0.3s ease;
         }
         header.scrolled .logo img {
-            max-height: 180px;
+            max-height: 140px;
         }
 
-        nav {
+        .desktop-nav {
             display: flex;
             gap: 20px;
             align-items: center;
-            flex-wrap: wrap;
         }
 
-        nav a {
+        .desktop-nav a {
             color: white;
             font-weight: 500;
             font-size: 14px;
@@ -120,7 +113,7 @@
             transition: color 0.3s ease, transform 0.2s ease;
         }
 
-        nav a:hover {
+        .desktop-nav a:hover {
             color: var(--accent);
             transform: translateY(-2px);
         }
@@ -128,7 +121,7 @@
         .header-buttons {
             display: flex;
             gap: 10px;
-            flex-shrink: 0;
+            align-items: center;
         }
 
         .btn-header {
@@ -138,8 +131,9 @@
             border-radius: var(--radius);
             font-weight: 600;
             font-size: 13px;
-            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
         }
 
         .btn-header:hover {
@@ -150,14 +144,13 @@
 
         .onda {
             position: absolute;
-            bottom: -20px;
+            bottom: -1px;
             left: 0;
             width: 100%;
-            height: 40px;
-            background: url('data:image/svg+xml;utf8,<svg width="100%" height="40" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg"><path fill="%23f5f5f7" d="M0 20 Q360 40 720 20 T1440 20 V40 H0 Z"/></svg>') no-repeat bottom;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg width="100%" height="20" viewBox="0 0 1440 20" xmlns="http://www.w3.org/2000/svg"><path fill="%23f5f5f7" d="M0,10 C360,20 720,0 1440,10 L1440,20 L0,20 Z" /></svg>') no-repeat bottom;
             background-size: cover;
-            z-index: 1;
-            pointer-events: none;
+            z-index: -1;
             transition: opacity 0.3s ease;
         }
         header.scrolled .onda {
@@ -178,6 +171,7 @@
             border-radius: var(--radius);
             z-index: 10002;
             overflow: hidden;
+            margin-top: 10px;
         }
 
         .dropdown-content a {
@@ -198,7 +192,7 @@
         }
         
         body {
-            padding-top: 140px; 
+            padding-top: 100px; 
         }
 
         /* SECTIONS */
@@ -231,7 +225,7 @@
         
         .pricing-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 30px;
             justify-content: center;
             align-items: stretch;
@@ -240,15 +234,15 @@
         .price-card {
             background-color: var(--bg);
             border-radius: var(--radius);
-            padding: 30px;
             box-shadow: var(--shadow);
             text-align: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid var(--card-border);
             position: relative;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 70%, 10% 65%, 0% 60%);
+            padding-top: 0;
+            overflow: hidden;
         }
 
         .price-card:hover {
@@ -256,45 +250,62 @@
             box-shadow: 0 12px 35px rgba(0,0,0,0.08);
         }
         
+        .card-header {
+            background-color: var(--blue-1);
+            color: white;
+            padding: 15px 20px;
+            border-radius: var(--radius) var(--radius) 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+        .card-header .brand-logo {
+            height: 44px; /* Aumentado de tamaño 25% */
+            width: auto;
+        }
+        .card-header .lbs {
+            font-size: 1.5rem;
+        }
+
         .price-card .card-content {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
+            padding: 30px 30px 30px 30px;
+            position: relative;
+            z-index: 1;
         }
 
-        .bestseller-tag {
+        .interactive-tag {
             position: absolute;
-            top: 0;
+            bottom: -50px; /* Empieza oculto abajo */
             left: 50%;
             transform: translateX(-50%);
-            background-color: var(--blue-1);
-            color: white;
+            background-color: var(--accent);
+            color: var(--blue-1);
             padding: 5px 20px;
             font-size: 12px;
             font-weight: 700;
-            border-radius: 0 0 var(--radius) var(--radius);
+            border-radius: var(--radius);
             text-transform: uppercase;
+            z-index: 2;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .price-card:hover .interactive-tag {
+            bottom: 15px; /* Aparece al hacer hover */
         }
         
         .price-card.bestseller {
-            border-top: 3px solid var(--blue-1);
             box-shadow: 0 10px 40px rgba(35, 37, 212, 0.15);
         }
         
         .price-card.bestseller:hover {
              transform: translateY(-8px);
              box-shadow: 0 20px 50px rgba(35, 37, 212, 0.2);
-        }
-
-        .price-card h3 {
-            font-size: 2.2rem;
-            font-weight: 600;
-            color: #1d1d1f;
-            margin-bottom: 15px;
-        }
-        
-        .price-card.bestseller h3 {
-            margin-top: 30px;
         }
 
         .save-badge {
@@ -482,9 +493,10 @@
             opacity: 1;
             transform: translateX(0);
         }
-
-        .fab-container.open .home-action { transition-delay: 0.25s; }
-        .fab-container.open .whatsapp-action { transition-delay: 0.2s; }
+        
+        .fab-container.open .home-action { transition-delay: 0.30s; }
+        .fab-container.open .giftcard-action { transition-delay: 0.25s; }
+        .fab-container.open .whatsapp-action { transition-delay: 0.20s; }
         .fab-container.open .tracker-action { transition-delay: 0.15s; }
         .fab-container.open .ml-action { transition-delay: 0.10s; }
         .fab-container.open .quotes-action { transition-delay: 0.05s; }
@@ -527,6 +539,7 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
             cursor: pointer;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
+            white-space: nowrap;
         }
 
         .fab-action-label:hover {
@@ -536,28 +549,56 @@
         
         /* Media Queries */
         @media (max-width: 900px) {
+            .desktop-nav {
+                display: none;
+            }
             header, header.scrolled {
-                height: auto;
-                padding: 15px 25px;
-                position: absolute; 
+                height: 80px;
             }
             body {
-                padding-top: 0; 
+                padding-top: 80px; 
             }
-            .header-inner {
-                flex-wrap: wrap;
+            .logo img {
+                max-height: 140px;
             }
-            nav {
-                display: none;
+            header.scrolled .logo img {
+                max-height: 120px;
             }
         }
         
         @media (max-width: 1100px) {
+            .pricing-container {
+                grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            }
             .price-card.bestseller {
                 transform: scale(1);
             }
              .price-card.bestseller:hover {
                 transform: translateY(-10px);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .pricing-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            .price-card {
+                padding: 0;
+            }
+            .card-header {
+                padding: 10px 15px;
+            }
+            .card-header .brand-logo { height: 20px; }
+            .card-header .lbs { font-size: 1.2rem; }
+            .price-card .card-content {
+                padding: 15px;
+            }
+            .price-card .price {
+                font-size: 2.5rem;
+            }
+            .price-card .price small {
+                font-size: 1.5rem;
             }
         }
 
@@ -570,7 +611,7 @@
             <div class="logo">
                 <a href="/"><img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co."></a>
             </div>
-            <nav>
+            <nav class="desktop-nav">
                 <a href="/">Inicio</a>
                 <a href="/Rastreo/">Rastreador de Paquetes</a>
                 <a href="/Cotizador/">Cotiza tus Compras</a>
@@ -578,6 +619,7 @@
                 <div class="dropdown">
                     <a href="#">Más ▾</a>
                     <div class="dropdown-content">
+                        <a href="#">Tarjetas de Regalo</a>
                         <a href="/DG/">Mercancía Peligrosa</a>
                         <a href="/Politicas/">Términos y Condiciones</a>
                     </div>
@@ -602,43 +644,58 @@
                 
                 <!-- Tarjeta 1: 20 lbs -->
                 <div class="price-card">
+                    <div class="card-header">
+                        <img class="brand-logo" src="https://static.wixstatic.com/media/f7f5e1_b35f42f4b4c9428bb5e9f4e18033e827~mv2.png" alt="Logo PSC Rayo">
+                        <span class="lbs">20 lbs</span>
+                    </div>
                     <div class="card-content">
-                        <h3>20 lbs</h3>
                         <div class="save-badge">Ahorra $4.00</div>
                         <div class="price"><small>$</small>55.00</div>
                         <a href="https://api.whatsapp.com/send?phone=50767906781&text=Estoy%20interesado%20en%20la%20tarjeta%20de%20regalo%20de%2020%20lbs." class="cta-button" target="_blank">Recargar</a>
                     </div>
+                    <div class="interactive-tag">Beginner</div>
                 </div>
 
                 <!-- Tarjeta 2: 30 lbs (Más vendido) -->
                 <div class="price-card bestseller">
-                    <div class="bestseller-tag">Más vendido</div>
+                    <div class="card-header">
+                        <img class="brand-logo" src="https://static.wixstatic.com/media/f7f5e1_b35f42f4b4c9428bb5e9f4e18033e827~mv2.png" alt="Logo PSC Rayo">
+                        <span class="lbs">30 lbs</span>
+                    </div>
                     <div class="card-content">
-                        <h3>30 lbs</h3>
                         <div class="save-badge">Ahorra $13.50</div>
                         <div class="price"><small>$</small>75.00</div>
                         <a href="https://api.whatsapp.com/send?phone=50767906781&text=Estoy%20interesado%20en%20la%20tarjeta%20de%20regalo%20de%2030%20lbs." class="cta-button" target="_blank">Recargar</a>
                     </div>
+                    <div class="interactive-tag">Más Vendido</div>
                 </div>
 
                 <!-- Tarjeta 3: 40 lbs -->
                 <div class="price-card">
+                    <div class="card-header">
+                        <img class="brand-logo" src="https://static.wixstatic.com/media/f7f5e1_b35f42f4b4c9428bb5e9f4e18033e827~mv2.png" alt="Logo PSC Rayo">
+                        <span class="lbs">40 lbs</span>
+                    </div>
                     <div class="card-content">
-                        <h3>40 lbs</h3>
                         <div class="save-badge">Ahorra $18.00</div>
                         <div class="price"><small>$</small>100.00</div>
                         <a href="https://api.whatsapp.com/send?phone=50767906781&text=Estoy%20interesado%20en%20la%20tarjeta%20de%20regalo%20de%2040%20lbs." class="cta-button" target="_blank">Recargar</a>
                     </div>
+                    <div class="interactive-tag">Master</div>
                 </div>
 
                 <!-- Tarjeta 4: 60 lbs -->
                 <div class="price-card">
+                    <div class="card-header">
+                        <img class="brand-logo" src="https://static.wixstatic.com/media/f7f5e1_b35f42f4b4c9428bb5e9f4e18033e827~mv2.png" alt="Logo PSC Rayo">
+                        <span class="lbs">60 lbs</span>
+                    </div>
                     <div class="card-content">
-                        <h3>60 lbs</h3>
                         <div class="save-badge">Ahorra $32.00</div>
                         <div class="price"><small>$</small>145.00</div>
                         <a href="https://api.whatsapp.com/send?phone=50767906781&text=Estoy%20interesado%20en%20la%20tarjeta%20de%20regalo%20de%2060%20lbs." class="cta-button" target="_blank">Recargar</a>
                     </div>
+                    <div class="interactive-tag">DIAMOND</div>
                 </div>
 
             </div>
@@ -673,7 +730,6 @@
     
     <div class="fab-container">
         <div class="fab-screen-overlay"></div>
-
         <div class="fab-actions">
             <a href="/" class="fab-action-item home-action">
                 <span class="fab-action-label">Inicio</span>
@@ -683,14 +739,22 @@
                     </svg>
                 </button>
             </a>
+            <a href="#" class="fab-action-item giftcard-action">
+                <span class="fab-action-label">Tarjetas Lbs</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+                    </svg>
+                </button>
+            </a>
             <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener" class="fab-action-item whatsapp-action">
                 <span class="fab-action-label">WhatsApp</span>
                 <button class="fab-circular-button" style="background-color: #25D366;">
                     <svg viewBox="0 0 24 24" fill="currentColor">
                         <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01s-.52.074-.792.372c-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.289.173-1.414z"/>
-                    </svg>
-                </button>
-            </a>
+                        </svg>
+                    </button>
+                </a>
             <a href="/Rastreo/" class="fab-action-item tracker-action">
                 <span class="fab-action-label">Rastreador</span>
                 <button class="fab-circular-button">
@@ -757,3 +821,5 @@
 
 </body>
 </html>
+
+
