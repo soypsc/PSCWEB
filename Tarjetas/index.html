@@ -266,7 +266,7 @@
             height: 44px; /* Aumentado de tamaño 25% */
             width: auto;
         }
-        .card-header .lbs {
+        .card-header .price {
             font-size: 1.5rem;
         }
 
@@ -319,18 +319,12 @@
             margin: 0 auto 25px auto;
         }
 
-        .price-card .price {
+        .price-card .lbs {
             font-size: 3.5rem;
             font-weight: 700;
             color: var(--blue-1);
             margin-bottom: 25px;
             line-height: 1;
-        }
-        
-        .price-card .price small {
-            font-size: 2rem;
-            font-weight: 600;
-            vertical-align: top;
         }
 
         .price-card .cta-button {
@@ -553,16 +547,20 @@
                 display: none;
             }
             header, header.scrolled {
-                height: 80px;
+                height: 90px; /* Más altura en móvil */
             }
             body {
-                padding-top: 80px; 
+                padding-top: 90px; 
             }
             .logo img {
-                max-height: 140px;
+                max-height: 160px;
             }
             header.scrolled .logo img {
                 max-height: 120px;
+            }
+            .btn-header {
+                padding: 6px 12px; /* Botones más pequeños */
+                font-size: 12px;
             }
         }
         
@@ -579,26 +577,27 @@
         }
 
         @media (max-width: 600px) {
+            .page-header h1 {
+                font-size: 2.2rem; /* Título más pequeño en móvil */
+            }
             .pricing-container {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 20px;
             }
             .price-card {
                 padding: 0;
+                min-height: 320px; /* Altura aumentada para el efecto */
             }
             .card-header {
                 padding: 10px 15px;
             }
             .card-header .brand-logo { height: 20px; }
-            .card-header .lbs { font-size: 1.2rem; }
+            .card-header .price { font-size: 1.2rem; }
             .price-card .card-content {
                 padding: 15px;
             }
-            .price-card .price {
+            .price-card .lbs {
                 font-size: 2.5rem;
-            }
-            .price-card .price small {
-                font-size: 1.5rem;
             }
         }
 
@@ -646,11 +645,11 @@
                 <div class="price-card">
                     <div class="card-header">
                         <img class="brand-logo" src="https://static.wixstatic.com/media/f7f5e1_b35f42f4b4c9428bb5e9f4e18033e827~mv2.png" alt="Logo PSC Rayo">
-                        <span class="lbs">20 lbs</span>
+                        <span class="price">$55.00</span>
                     </div>
                     <div class="card-content">
+                        <div class="lbs">20 lbs</div>
                         <div class="save-badge">Ahorra $4.00</div>
-                        <div class="price"><small>$</small>55.00</div>
                         <a href="https://api.whatsapp.com/send?phone=50767906781&text=Estoy%20interesado%20en%20la%20tarjeta%20de%20regalo%20de%2020%20lbs." class="cta-button" target="_blank">Recargar</a>
                     </div>
                     <div class="interactive-tag">Beginner</div>
@@ -660,11 +659,11 @@
                 <div class="price-card bestseller">
                     <div class="card-header">
                         <img class="brand-logo" src="https://static.wixstatic.com/media/f7f5e1_b35f42f4b4c9428bb5e9f4e18033e827~mv2.png" alt="Logo PSC Rayo">
-                        <span class="lbs">30 lbs</span>
+                        <span class="price">$75.00</span>
                     </div>
                     <div class="card-content">
+                        <div class="lbs">30 lbs</div>
                         <div class="save-badge">Ahorra $13.50</div>
-                        <div class="price"><small>$</small>75.00</div>
                         <a href="https://api.whatsapp.com/send?phone=50767906781&text=Estoy%20interesado%20en%20la%20tarjeta%20de%20regalo%20de%2030%20lbs." class="cta-button" target="_blank">Recargar</a>
                     </div>
                     <div class="interactive-tag">Más Vendido</div>
@@ -674,11 +673,11 @@
                 <div class="price-card">
                     <div class="card-header">
                         <img class="brand-logo" src="https://static.wixstatic.com/media/f7f5e1_b35f42f4b4c9428bb5e9f4e18033e827~mv2.png" alt="Logo PSC Rayo">
-                        <span class="lbs">40 lbs</span>
+                        <span class="price">$100.00</span>
                     </div>
                     <div class="card-content">
+                        <div class="lbs">40 lbs</div>
                         <div class="save-badge">Ahorra $18.00</div>
-                        <div class="price"><small>$</small>100.00</div>
                         <a href="https://api.whatsapp.com/send?phone=50767906781&text=Estoy%20interesado%20en%20la%20tarjeta%20de%20regalo%20de%2040%20lbs." class="cta-button" target="_blank">Recargar</a>
                     </div>
                     <div class="interactive-tag">Master</div>
@@ -688,11 +687,11 @@
                 <div class="price-card">
                     <div class="card-header">
                         <img class="brand-logo" src="https://static.wixstatic.com/media/f7f5e1_b35f42f4b4c9428bb5e9f4e18033e827~mv2.png" alt="Logo PSC Rayo">
-                        <span class="lbs">60 lbs</span>
+                        <span class="price">$145.00</span>
                     </div>
                     <div class="card-content">
+                        <div class="lbs">60 lbs</div>
                         <div class="save-badge">Ahorra $32.00</div>
-                        <div class="price"><small>$</small>145.00</div>
                         <a href="https://api.whatsapp.com/send?phone=50767906781&text=Estoy%20interesado%20en%20la%20tarjeta%20de%20regalo%20de%2060%20lbs." class="cta-button" target="_blank">Recargar</a>
                     </div>
                     <div class="interactive-tag">DIAMOND</div>
@@ -821,5 +820,3 @@
 
 </body>
 </html>
-
-
