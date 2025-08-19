@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PSC App</title>
     
+    <!-- PWA Manifest Details -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="PSC App">
+    <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png">
+
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -17,78 +23,31 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .page {
-            display: none; /* All pages are hidden by default */
-        }
-        .page.active {
-            display: block; /* The active page is shown */
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        /* Hide number input arrows */
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-          -webkit-appearance: none; 
-          margin: 0; 
-        }
-        input[type=number] {
-          -moz-appearance: textfield;
-        }
-        /* Rastreo Page Styles */
-        .timeline-container {
-            position: relative;
-        }
-        .timeline-container::before {
-            content: '';
-            position: absolute;
-            left: 12px;
-            top: 12px;
-            bottom: 12px;
-            width: 2px;
-            background-color: #374151; /* gray-700 */
-        }
-        .spinner {
-             border-color: #4b5563; /* gray-600 */
-             border-top-color: #60a5fa; /* blue-400 */
-             animation: spin 1s linear infinite;
-        }
-        @keyframes spin{to{transform:rotate(360deg)}}
+        body { font-family: 'Inter', sans-serif; }
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        /* Cotizar & Mal Identificado Page Styles */
-        .results-section, .form-section {
-            transition: all 0.5s ease-in-out;
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-        }
-        .results-section.open, .form-section.open {
-            max-height: 1000px; /* Large enough to not clip content */
-            opacity: 1;
-        }
-        /* Custom radio button styles for Mal Identificado */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        .timeline-container { position: relative; }
+        .timeline-container::before { content: ''; position: absolute; left: 12px; top: 12px; bottom: 12px; width: 2px; background-color: #374151; }
+        .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; }
+        @keyframes spin{ to{transform:rotate(360deg)} }
+        
+        .results-section, .form-section { transition: all 0.5s ease-in-out; max-height: 0; overflow: hidden; opacity: 0; }
+        .results-section.open, .form-section.open { max-height: 1000px; opacity: 1; }
+        
         .custom-radio input[type="radio"] { display: none; }
-        .custom-radio label {
-            padding: 0.75rem 1.25rem;
-            border: 1px solid #374151; /* gray-700 */
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            background-color: #1f2937; /* gray-800 */
-        }
-        .custom-radio input[type="radio"]:checked + label {
-            background-color: #3b82f6; /* blue-500 */
-            border-color: #3b82f6;
-            color: #fff;
-        }
-        .custom-radio label:hover {
-            background-color: #374151; /* gray-700 */
-        }
+        .custom-radio label { padding: 0.75rem 1.25rem; border: 1px solid #374151; border-radius: 0.5rem; cursor: pointer; transition: all 0.2s ease-in-out; background-color: #1f2937; }
+        .custom-radio input[type="radio"]:checked + label { background-color: #3b82f6; border-color: #3b82f6; color: #fff; }
+        .custom-radio label:hover { background-color: #374151; }
+        
+        #install-banner { transition: transform 0.5s ease-in-out; transform: translateY(200%); }
+        #install-banner.show { transform: translateY(0); }
+        #install-instructions-overlay { transition: opacity 0.3s ease-in-out; }
     </style>
 </head>
 <body class="bg-black text-gray-200">
@@ -99,132 +58,23 @@
         <!-- PAGE: HOME -->
         <!-- ====================================================================== -->
         <div id="page-home" class="page active">
-            <!-- Header with Logo -->
-            <header class="p-6">
-                <div class="flex items-center justify-between">
-                    <img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo de PSC" class="h-10">
-                    <div class="flex items-center space-x-4">
-                        <i data-lucide="bell" class="text-gray-400 cursor-pointer hover:text-white transition"></i>
-                        <div class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center cursor-pointer">
-                            <i data-lucide="user" class="text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
-            </header>
-            <!-- Main Content -->
-            <main class="px-6 pb-8 space-y-10">
-                <section>
-                    <p class="text-gray-400 text-lg">Buenas noches,</p>
-                    <h1 class="text-3xl font-bold text-white">Cliente PSC</h1>
-                </section>
-                <section class="bg-gray-800 rounded-xl p-6 shadow-lg">
-                     <h2 class="text-xl font-bold text-white">Envíos Rápidos y Seguros</h2>
-                     <p class="text-gray-400 mt-1 mb-4">Cotiza tu próximo envío desde USA con nosotros.</p>
-                     <a href="#" data-target="page-cotizar" class="nav-link bg-blue-500 text-white font-semibold px-5 py-2 rounded-lg hover:bg-blue-600 transition no-underline">Cotizar ahora</a>
-                </section>
-                <section>
-                    <h2 class="text-lg font-semibold text-white mb-3">Mi dirección de casillero</h2>
-                    <div class="bg-gray-800 p-4 rounded-xl cursor-pointer hover:bg-gray-700 transition">
-                        <p class="font-mono text-gray-300">PSC-12345 Juan Pérez</p>
-                        <p class="font-mono text-gray-400 text-sm">123 Main Street, Miami, FL 33172</p>
-                    </div>
-                </section>
-                <section>
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-white">Acceso directo</h2>
-                        <span class="text-blue-400 text-sm font-medium cursor-pointer">Editar</span>
-                    </div>
-                    <div class="grid grid-cols-3 gap-4">
-                        <a href="#" data-target="page-rastreo" class="nav-link text-center p-2 flex flex-col items-center cursor-pointer group no-underline">
-                            <div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-blue-500 transition">
-                                <i data-lucide="search" class="text-blue-400 h-7 w-7 group-hover:text-white transition"></i>
-                            </div>
-                            <span class="font-medium text-gray-300 text-xs mt-2">Rastrear</span>
-                        </a>
-                        <a href="#" data-target="page-casillero" class="nav-link text-center p-2 flex flex-col items-center cursor-pointer group no-underline">
-                           <div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-green-500 transition">
-                                <i data-lucide="archive" class="text-green-400 h-7 w-7 group-hover:text-white transition"></i>
-                           </div>
-                            <span class="font-medium text-gray-300 text-xs mt-2">Casillero</span>
-                        </a>
-                        <a href="#" data-target="page-paquetes" class="nav-link text-center p-2 flex flex-col items-center cursor-pointer group no-underline">
-                            <div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-yellow-500 transition">
-                                <i data-lucide="package" class="text-yellow-400 h-7 w-7 group-hover:text-white transition"></i>
-                            </div>
-                            <span class="font-medium text-gray-300 text-xs mt-2">Paquetes</span>
-                        </a>
-                    </div>
-                </section>
-                 <section>
-                    <h2 class="text-lg font-semibold text-white mb-3">Otros Servicios</h2>
-                    <div class="bg-gray-800 rounded-xl divide-y divide-gray-700">
-                        <a href="#" data-target="page-cotizar" class="nav-link p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-700 transition rounded-t-xl no-underline">
-                            <i data-lucide="calculator" class="text-purple-400"></i>
-                            <span class="font-semibold text-gray-300">Cotizar Compra</span>
-                        </a>
-                         <a href="#" data-target="page-mal-identificado" class="nav-link p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-700 transition rounded-b-xl no-underline">
-                            <i data-lucide="alert-triangle" class="text-yellow-400"></i>
-                            <span class="font-semibold text-gray-300">Mal Identificado</span>
-                        </a>
-                    </div>
-                </section>
-            </main>
+            <header class="p-6"><div class="flex items-center justify-between"><img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo de PSC" class="h-10"><div class="flex items-center space-x-4"><i data-lucide="bell" class="text-gray-400 cursor-pointer hover:text-white transition"></i><div class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center cursor-pointer"><i data-lucide="user" class="text-gray-400"></i></div></div></div></header>
+            <main class="px-6 pb-8 space-y-10"><section><p class="text-gray-400 text-lg">Buenas noches,</p><h1 class="text-3xl font-bold text-white">Cliente PSC</h1></section><section class="bg-gray-800 rounded-xl p-6 shadow-lg"><h2 class="text-xl font-bold text-white">Envíos Rápidos y Seguros</h2><p class="text-gray-400 mt-1 mb-4">Cotiza tu próximo envío.</p><a href="#" data-target="page-cotizar" class="nav-link bg-blue-500 text-white font-semibold px-5 py-2 rounded-lg hover:bg-blue-600 transition no-underline">Cotizar ahora</a></section><section><h2 class="text-lg font-semibold text-white mb-3">Mi dirección de casillero</h2><div class="bg-gray-800 p-4 rounded-xl cursor-pointer hover:bg-gray-700 transition"><p class="font-mono text-gray-300">PSC-12345 Juan Pérez</p><p class="font-mono text-gray-400 text-sm">123 Main Street, Miami, FL 33172</p></div></section><section><div class="flex items-center justify-between mb-4"><h2 class="text-lg font-semibold text-white">Acceso directo</h2><span class="text-blue-400 text-sm font-medium cursor-pointer">Editar</span></div><div class="grid grid-cols-3 gap-4"><a href="#" data-target="page-rastreo" class="nav-link text-center p-2 flex flex-col items-center cursor-pointer group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-blue-500 transition"><i data-lucide="search" class="text-blue-400 h-7 w-7 group-hover:text-white transition"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Rastrear</span></a><a href="#" data-target="page-casillero" class="nav-link text-center p-2 flex flex-col items-center cursor-pointer group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-green-500 transition"><i data-lucide="archive" class="text-green-400 h-7 w-7 group-hover:text-white transition"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Casillero</span></a><a href="#" data-target="page-paquetes" class="nav-link text-center p-2 flex flex-col items-center cursor-pointer group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-yellow-500 transition"><i data-lucide="package" class="text-yellow-400 h-7 w-7 group-hover:text-white transition"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Paquetes</span></a></div></section><section><h2 class="text-lg font-semibold text-white mb-3">Otros Servicios</h2><div class="bg-gray-800 rounded-xl divide-y divide-gray-700"><a href="#" data-target="page-cotizar" class="nav-link p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-700 transition rounded-t-xl no-underline"><i data-lucide="calculator" class="text-purple-400"></i><span class="font-semibold text-gray-300">Cotizar Compra</span></a><a href="#" data-target="page-mal-identificado" class="nav-link p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-700 transition rounded-b-xl no-underline"><i data-lucide="alert-triangle" class="text-yellow-400"></i><span class="font-semibold text-gray-300">Mal Identificado</span></a></div></section></main>
         </div>
 
         <!-- ====================================================================== -->
         <!-- PAGE: RASTREO -->
         <!-- ====================================================================== -->
         <div id="page-rastreo" class="page">
-            <header class="p-6 flex items-center space-x-4">
-                 <a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition">
-                    <i data-lucide="arrow-left" class="h-6 w-6"></i>
-                </a>
-                <h1 class="text-xl font-bold text-white">Rastrear Paquete</h1>
-            </header>
-            <main class="px-6 pb-8 space-y-8">
-                <section>
-                    <div class="flex items-center space-x-2">
-                        <input type="text" id="psc_trk" placeholder="Ingresa tu número de guía" class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white">
-                        <button id="psc_go" class="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition shadow-lg flex-shrink-0">
-                            <i data-lucide="search"></i>
-                        </button>
-                    </div>
-                    <div class="flex items-center gap-2 mt-3 h-5">
-                        <div id="psc_stateSpin" class="spinner w-4 h-4 rounded-full" style="display:none;"></div>
-                        <p id="psc_stateMsg" class="text-sm text-gray-400">Listo.</p>
-                    </div>
-                </section>
-                <section id="results-section-rastreo" class="hidden">
-                    <div class="bg-gray-800 p-4 rounded-xl space-y-2">
-                        <div class="flex justify-between text-sm"><span class="text-gray-400">Tracking:</span><b id="psc_qsTracking" class="font-mono">—</b></div>
-                        <div class="flex justify-between text-sm"><span class="text-gray-400">Status:</span><b id="psc_qsStatus">—</b></div>
-                        <div class="flex justify-between text-sm"><span class="text-gray-400">Courier:</span><b id="psc_qsCourier">—</b></div>
-                        <div class="flex justify-between text-sm"><span class="text-gray-400">Peso:</span><b id="psc_qsPeso">—</b></div>
-                        <div class="flex justify-between text-sm items-start"><span class="text-gray-400 pt-1">Alterno(s):</span>
-                            <div id="psc_qsAlt" class="flex flex-wrap gap-2 justify-end max-w-[70%]">—</div>
-                        </div>
-                    </div>
-                    <div class="mt-8">
-                        <h2 class="text-lg font-semibold text-white mb-4">Historial de seguimiento (<span id="psc_evCount">0</span>)</h2>
-                        <div id="psc_events" class="timeline-container space-y-4"></div>
-                        <div class="flex justify-center mt-4">
-                            <button id="psc_toggleMore" class="text-blue-400 font-semibold text-sm" style="display:none;">Mostrar más</button>
-                        </div>
-                    </div>
-                </section>
-            </main>
+            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Rastrear Paquete</h1></header>
+            <main class="px-6 pb-8 space-y-8"><section><div class="flex items-center space-x-2"><input type="text" id="psc_trk" placeholder="Ingresa tu número de guía" class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white"><button id="psc_go" class="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition shadow-lg flex-shrink-0"><i data-lucide="search"></i></button></div><div class="flex items-center gap-2 mt-3 h-5"><div id="psc_stateSpin" class="spinner w-4 h-4 rounded-full" style="display:none;"></div><p id="psc_stateMsg" class="text-sm text-gray-400">Listo.</p></div></section><section id="results-section-rastreo" class="hidden"><div class="bg-gray-800 p-4 rounded-xl space-y-2"><div class="flex justify-between text-sm"><span class="text-gray-400">Tracking:</span><b id="psc_qsTracking" class="font-mono">—</b></div><div class="flex justify-between text-sm"><span class="text-gray-400">Status:</span><b id="psc_qsStatus">—</b></div><div class="flex justify-between text-sm"><span class="text-gray-400">Courier:</span><b id="psc_qsCourier">—</b></div><div class="flex justify-between text-sm"><span class="text-gray-400">Peso:</span><b id="psc_qsPeso">—</b></div><div class="flex justify-between text-sm items-start"><span class="text-gray-400 pt-1">Alterno(s):</span><div id="psc_qsAlt" class="flex flex-wrap gap-2 justify-end max-w-[70%]">—</div></div></div><div class="mt-8"><h2 class="text-lg font-semibold text-white mb-4">Historial de seguimiento (<span id="psc_evCount">0</span>)</h2><div id="psc_events" class="timeline-container space-y-4"></div><div class="flex justify-center mt-4"><button id="psc_toggleMore" class="text-blue-400 font-semibold text-sm" style="display:none;">Mostrar más</button></div></div></section></main>
         </div>
         
         <!-- ====================================================================== -->
         <!-- PAGE: CASILLERO -->
         <!-- ====================================================================== -->
         <div id="page-casillero" class="page">
-             <header class="p-6 flex items-center space-x-4">
-                 <a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition">
-                    <i data-lucide="arrow-left" class="h-6 w-6"></i>
-                </a>
-                <h1 class="text-xl font-bold text-white">Mi Casillero</h1>
-            </header>
+             <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mi Casillero</h1></header>
             <main id="casillero-content" class="px-6 pb-8 space-y-6"></main>
         </div>
 
@@ -232,132 +82,31 @@
         <!-- PAGE: COTIZAR -->
         <!-- ====================================================================== -->
         <div id="page-cotizar" class="page">
-            <header class="p-6 flex items-center space-x-4">
-                 <a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition">
-                    <i data-lucide="arrow-left" class="h-6 w-6"></i>
-                </a>
-                <h1 class="text-xl font-bold text-white">Cotizar Compra</h1>
-            </header>
-            <main class="px-6 pb-8 space-y-8">
-                <section>
-                    <h2 class="text-lg font-semibold text-white">Calculadora de Compras</h2>
-                    <p class="text-sm text-gray-400 mt-1">Ingresa los detalles para obtener un estimado.</p>
-                    <div id="calculator-form" class="mt-6 space-y-4">
-                        <div>
-                            <label for="productValue" class="text-sm font-medium text-gray-400">Valor del producto (USD)</label>
-                            <div class="relative mt-1"><span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">$</span><input id="productValue" type="number" placeholder="Ej: 150.00" class="w-full pl-7 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white"></div>
-                        </div>
-                        <div>
-                            <label for="downPayment" class="text-sm font-medium text-gray-400">Abono inicial (USD)</label>
-                            <div class="relative mt-1"><span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">$</span><input id="downPayment" type="number" placeholder="Ej: 120.00" class="w-full pl-7 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white"></div>
-                        </div>
-                        <div>
-                            <label for="productWeight" class="text-sm font-medium text-gray-400">Peso (Libras)</label>
-                             <div class="relative mt-1"><span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">lbs</span><input id="productWeight" type="number" placeholder="Ej: 5" class="w-full pr-10 pl-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white"></div>
-                        </div>
-                        <div class="flex items-center pt-2"><input id="addInsurance" type="checkbox" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-500 focus:ring-blue-500"><label for="addInsurance" class="ml-2 text-sm font-medium text-gray-300">Asegurar mi pedido (3% del valor)</label></div>
-                        <button id="calculate-btn" class="w-full bg-blue-500 text-white font-semibold py-2.5 rounded-lg hover:bg-blue-600 transition !mt-6">Calcular</button>
-                    </div>
-                </section>
-                <section id="results-section-cotizar" class="results-section">
-                    <div class="bg-gray-800 p-4 rounded-xl">
-                        <h3 class="text-base font-semibold text-white mb-3">Pago Inicial (A Pagar Ahora)</h3>
-                        <div class="flex justify-between font-bold text-lg"><span class="text-white">Abono:</span><span id="result-downpayment" class="font-mono text-blue-400">$0.00</span></div>
-                    </div>
-                    <div class="bg-gray-800 p-4 rounded-xl mt-4">
-                        <h3 class="text-base font-semibold text-white mb-3">Pagos Pendientes (A Pagar Después)</h3>
-                        <div class="space-y-2 text-sm">
-                            <div class="flex justify-between"><span class="text-gray-400">Saldo del producto:</span><span id="result-balance" class="font-mono text-white">$0.00</span></div>
-                            <div class="flex justify-between"><span class="text-gray-400">Manejo:</span><span id="result-handling" class="font-mono text-white">$0.00</span></div>
-                            <div class="flex justify-between"><span class="text-gray-400">Seguro:</span><span id="result-insurance" class="font-mono text-white">$0.00</span></div>
-                            <div class="flex justify-between"><span class="text-gray-400">Financiamiento:</span><span id="result-financing" class="font-mono text-white">$0.00</span></div>
-                            <hr class="border-gray-700 my-2">
-                            <div class="flex justify-between"><span class="text-gray-400">Flete (contra entrega):</span><span id="result-freight" class="font-mono text-white">$0.00</span></div>
-                            <hr class="border-gray-700 my-2">
-                            <div class="flex justify-between font-bold text-base"><span class="text-white">Total Pendiente:</span><span id="result-total-pending" class="font-mono text-blue-400">$0.00</span></div>
-                        </div>
-                    </div>
-                     <p class="text-xs text-gray-500 mt-3 text-center">Este es un costo aproximado y puede variar.</p>
-                </section>
-            </main>
+            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Cotizar Compra</h1></header>
+            <main class="px-6 pb-8 space-y-8"><section><h2 class="text-lg font-semibold text-white">Calculadora de Compras</h2><p class="text-sm text-gray-400 mt-1">Ingresa los detalles para obtener un estimado.</p><div id="calculator-form" class="mt-6 space-y-4"><div><label for="productValue" class="text-sm font-medium text-gray-400">Valor del producto (USD)</label><div class="relative mt-1"><span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">$</span><input id="productValue" type="number" placeholder="Ej: 150.00" class="w-full pl-7 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white"></div></div><div><label for="downPayment" class="text-sm font-medium text-gray-400">Abono inicial (USD)</label><div class="relative mt-1"><span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">$</span><input id="downPayment" type="number" placeholder="Ej: 120.00" class="w-full pl-7 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white"></div></div><div><label for="productWeight" class="text-sm font-medium text-gray-400">Peso (Libras)</label><div class="relative mt-1"><span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">lbs</span><input id="productWeight" type="number" placeholder="Ej: 5" class="w-full pr-10 pl-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white"></div></div><div class="flex items-center pt-2"><input id="addInsurance" type="checkbox" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-500 focus:ring-blue-500"><label for="addInsurance" class="ml-2 text-sm font-medium text-gray-300">Asegurar mi pedido (3% del valor)</label></div><button id="calculate-btn" class="w-full bg-blue-500 text-white font-semibold py-2.5 rounded-lg hover:bg-blue-600 transition !mt-6">Calcular</button></div></section><section id="results-section-cotizar" class="results-section"><div class="bg-gray-800 p-4 rounded-xl"><h3 class="text-base font-semibold text-white mb-3">Pago Inicial (A Pagar Ahora)</h3><div class="flex justify-between font-bold text-lg"><span class="text-white">Abono:</span><span id="result-downpayment" class="font-mono text-blue-400">$0.00</span></div></div><div class="bg-gray-800 p-4 rounded-xl mt-4"><h3 class="text-base font-semibold text-white mb-3">Pagos Pendientes (A Pagar Después)</h3><div class="space-y-2 text-sm"><div class="flex justify-between"><span class="text-gray-400">Saldo del producto:</span><span id="result-balance" class="font-mono text-white">$0.00</span></div><div class="flex justify-between"><span class="text-gray-400">Manejo:</span><span id="result-handling" class="font-mono text-white">$0.00</span></div><div class="flex justify-between"><span class="text-gray-400">Seguro:</span><span id="result-insurance" class="font-mono text-white">$0.00</span></div><div class="flex justify-between"><span class="text-gray-400">Financiamiento:</span><span id="result-financing" class="font-mono text-white">$0.00</span></div><hr class="border-gray-700 my-2"><div class="flex justify-between"><span class="text-gray-400">Flete (contra entrega):</span><span id="result-freight" class="font-mono text-white">$0.00</span></div><hr class="border-gray-700 my-2"><div class="flex justify-between font-bold text-base"><span class="text-white">Total Pendiente:</span><span id="result-total-pending" class="font-mono text-blue-400">$0.00</span></div></div></div><p class="text-xs text-gray-500 mt-3 text-center">Este es un costo aproximado y puede variar.</p></section></main>
         </div>
 
         <!-- ====================================================================== -->
         <!-- PAGE: MAL IDENTIFICADO -->
         <!-- ====================================================================== -->
         <div id="page-mal-identificado" class="page">
-             <header class="p-6 flex items-center space-x-4">
-                 <a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition">
-                    <i data-lucide="arrow-left" class="h-6 w-6"></i>
-                </a>
-                <h1 class="text-xl font-bold text-white">Mal Identificado</h1>
-            </header>
-            <main class="px-6 pb-8 space-y-8">
-                <section>
-                    <h2 class="text-lg font-semibold text-white">Buscar Paquete</h2>
-                    <p class="text-sm text-gray-400 mt-1">Busca tu paquete por número de tracking para solicitar la corrección.</p>
-                    <div class="mt-4">
-                        <label for="ml_trk" class="text-sm font-medium text-gray-400">Tracking</label>
-                        <div class="flex items-center space-x-2 mt-1">
-                            <input id="ml_trk" type="text" placeholder="Ej: 1Z999999..." class="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white">
-                            <button id="ml_go" class="bg-blue-500 text-white p-2.5 rounded-lg hover:bg-blue-600 transition"><i data-lucide="search" class="h-5 w-5"></i></button>
-                            <button id="ml_clear" class="bg-gray-700 text-white p-2.5 rounded-lg hover:bg-gray-600 transition"><i data-lucide="x" class="h-5 w-5"></i></button>
-                        </div>
-                        <div id="ml_status" class="status text-sm mt-2 min-h-[20px]"></div>
-                    </div>
-                </section>
-                <section id="ml_result-container" class="form-section">
-                    <div class="space-y-6">
-                        <div>
-                            <h3 class="text-base font-semibold text-white">Resultado de la Búsqueda</h3>
-                            <pre id="ml_out" class="text-sm mt-2 p-3 bg-gray-800 rounded-lg whitespace-pre-wrap word-break-break-word min-h-[50px]"></pre>
-                        </div>
-                        <div class="ml_question hidden">
-                            <p class="text-sm font-medium text-white">¿Se encontró información de tu paquete?</p>
-                            <p class="text-xs text-gray-400 mt-1">Si se mostró fecha de ingreso, saco o un párrafo con fecha, lo más probable es que tu paquete esté mal identificado.</p>
-                            <div class="ml_choices custom-radio flex space-x-2 mt-3">
-                                <input type="radio" id="ml_seen_si" name="ml_seen" value="si"><label for="ml_seen_si">Sí, se encontró</label>
-                                <input type="radio" id="ml_seen_no" name="ml_seen" value="no"><label for="ml_seen_no">No, no se encontró</label>
-                            </div>
-                            <div id="ml_noMsg" class="hint text-sm text-yellow-400 p-3 bg-yellow-900/50 rounded-lg mt-3"></div>
-                        </div>
-                        <div class="form" id="ml_mlForm">
-                            <h3 class="text-base font-semibold text-white">Completa tu solicitud</h3>
-                            <div class="space-y-3 mt-3">
-                                <div>
-                                    <label for="ml_cas" class="text-sm font-medium text-gray-400">N.º de casillero (obligatorio)</label>
-                                    <input id="ml_cas" type="text" placeholder="Ej: 12345" class="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white">
-                                </div>
-                                <div>
-                                    <label for="ml_name" class="text-sm font-medium text-gray-400">Nombre</label>
-                                    <input id="ml_name" type="text" placeholder="Tu nombre" class="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white">
-                                </div>
-                                <button id="ml_ask" class="w-full bg-blue-500 text-white font-semibold py-2.5 rounded-lg hover:bg-blue-600 transition">Solicitar</button>
-                            </div>
-                            <div id="ml_msg" class="toast text-center mt-3 text-sm"></div>
-                        </div>
-                    </div>
-                </section>
-            </main>
+             <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mal Identificado</h1></header>
+            <main class="px-6 pb-8 space-y-8"><section><h2 class="text-lg font-semibold text-white">Buscar Paquete</h2><p class="text-sm text-gray-400 mt-1">Busca tu paquete por número de tracking para solicitar la corrección.</p><div class="mt-4"><label for="ml_trk" class="text-sm font-medium text-gray-400">Tracking</label><div class="flex items-center space-x-2 mt-1"><input id="ml_trk" type="text" placeholder="Ej: 1Z999999..." class="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white"><button id="ml_go" class="bg-blue-500 text-white p-2.5 rounded-lg hover:bg-blue-600 transition"><i data-lucide="search" class="h-5 w-5"></i></button><button id="ml_clear" class="bg-gray-700 text-white p-2.5 rounded-lg hover:bg-gray-600 transition"><i data-lucide="x" class="h-5 w-5"></i></button></div><div id="ml_status" class="status text-sm mt-2 min-h-[20px]"></div></div></section><section id="ml_result-container" class="form-section"><div class="space-y-6"><div><h3 class="text-base font-semibold text-white">Resultado de la Búsqueda</h3><pre id="ml_out" class="text-sm mt-2 p-3 bg-gray-800 rounded-lg whitespace-pre-wrap word-break-break-word min-h-[50px]"></pre></div><div class="ml_question hidden"><p class="text-sm font-medium text-white">¿Se encontró información de tu paquete?</p><p class="text-xs text-gray-400 mt-1">Si se mostró fecha de ingreso, saco o un párrafo con fecha, lo más probable es que tu paquete esté mal identificado.</p><div class="ml_choices custom-radio flex space-x-2 mt-3"><input type="radio" id="ml_seen_si" name="ml_seen" value="si"><label for="ml_seen_si">Sí, se encontró</label><input type="radio" id="ml_seen_no" name="ml_seen" value="no"><label for="ml_seen_no">No, no se encontró</label></div><div id="ml_noMsg" class="hint text-sm text-yellow-400 p-3 bg-yellow-900/50 rounded-lg mt-3"></div></div><div class="form" id="ml_mlForm"><h3 class="text-base font-semibold text-white">Completa tu solicitud</h3><div class="space-y-3 mt-3"><div><label for="ml_cas" class="text-sm font-medium text-gray-400">N.º de casillero (obligatorio)</label><input id="ml_cas" type="text" placeholder="Ej: 12345" class="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white"></div><div><label for="ml_name" class="text-sm font-medium text-gray-400">Nombre</label><input id="ml_name" type="text" placeholder="Tu nombre" class="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white"></div><button id="ml_ask" class="w-full bg-blue-500 text-white font-semibold py-2.5 rounded-lg hover:bg-blue-600 transition">Solicitar</button></div><div id="ml_msg" class="toast text-center mt-3 text-sm"></div></div></div></section></main>
         </div>
 
         <!-- ====================================================================== -->
         <!-- PAGE: PAQUETES (Placeholder) -->
         <!-- ====================================================================== -->
         <div id="page-paquetes" class="page">
-             <header class="p-6 flex items-center space-x-4">
-                 <a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition">
-                    <i data-lucide="arrow-left" class="h-6 w-6"></i>
-                </a>
-                <h1 class="text-xl font-bold text-white">Mis Paquetes</h1>
-            </header>
-            <main class="px-6 pb-8 text-center">
-                <i data-lucide="package-search" class="h-16 w-16 text-gray-700 mx-auto"></i>
-                <p class="text-gray-500 mt-4">Aquí verás la lista de tus paquetes.<br>Esta sección está en construcción.</p>
-            </main>
+             <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mis Paquetes</h1></header>
+            <main class="px-6 pb-8 text-center"><i data-lucide="package-search" class="h-16 w-16 text-gray-700 mx-auto"></i><p class="text-gray-500 mt-4">Aquí verás la lista de tus paquetes.<br>Esta sección está en construcción.</p></main>
         </div>
 
     </div>
+    
+    <!-- "Add to Home Screen" Banner & Overlay -->
+    <div id="install-banner" class="fixed bottom-4 left-1/2 -translate-x-1/2 w-11/12 max-w-md bg-gray-800 p-3 rounded-xl shadow-lg flex items-center justify-between z-50"><div class="flex items-center space-x-3"><img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo" class="h-10 w-10 rounded-lg"><div><p class="font-bold text-white text-sm">Instala la App de PSC</p><p class="text-xs text-gray-400">Acceso rápido desde tu celular.</p></div></div><button id="install-button" class="bg-blue-500 text-white font-bold text-sm px-4 py-2 rounded-lg hover:bg-blue-600">Añadir</button><button id="close-install-banner" class="absolute -top-2 -right-2 bg-gray-600 rounded-full h-6 w-6 flex items-center justify-center text-white">&times;</button></div>
+    <div id="install-instructions-overlay" class="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4 hidden opacity-0"><div class="bg-gray-800 p-6 rounded-xl text-center max-w-sm relative"><button id="close-instructions" class="absolute top-2 right-2 text-gray-400">&times;</button><h3 class="text-lg font-bold text-white mb-4">Añadir a la Pantalla de Inicio</h3><div id="ios-instructions" class="hidden space-y-2"><p class="text-sm text-gray-300">1. Pulsa el botón de **Compartir** <i data-lucide="share" class="inline-block h-4 w-4"></i> en tu navegador.</p><p class="text-sm text-gray-300">2. Desliza y selecciona **"Añadir a pantalla de inicio"**.</p></div><div id="android-instructions" class="hidden space-y-2"><p class="text-sm text-gray-300">1. Pulsa el menú de los **tres puntos** <i data-lucide="more-vertical" class="inline-block h-4 w-4"></i> en tu navegador.</p><p class="text-sm text-gray-300">2. Selecciona **"Instalar aplicación"**.</p></div></div></div>
 
     <!--Start of Tawk.to Script-->
     <script type="text/javascript">
@@ -383,7 +132,7 @@
                 pages.forEach(page => page.classList.remove('active'));
                 const targetPage = document.getElementById(pageId);
                 if (targetPage) targetPage.classList.add('active');
-                window.scrollTo(0, 0); // Scroll to top on page change
+                window.scrollTo(0, 0); 
             }
 
             navLinks.forEach(link => {
@@ -394,8 +143,8 @@
                 });
             });
 
-            // Initialize all JS logic
             lucide.createIcons();
+            initializeInstallPrompt();
             initializeRastreoPage();
             initializeCasilleroPage();
             initializeCotizarPage();
@@ -404,7 +153,6 @@
 
         // --- RASTREO PAGE LOGIC ---
         function initializeRastreoPage() {
-            // This function is self-contained to avoid variable conflicts
             (function(){
                 const root = document.getElementById('page-rastreo');
                 if (!root) return;
@@ -420,9 +168,20 @@
                 
                 try { const last = localStorage.getItem('psc_last_tracking'); if (last) trk.value = last; } catch(e) {}
 
-                function setState(kind, text, loading = false) { /* ... logic ... */ }
-                // ... All other functions from the original rastreo script ...
-                // NOTE: For brevity, the full implementation of rastreo functions is omitted here, but would be pasted in.
+                function setState(kind, text, loading = false){ msg.textContent = text || ''; msg.className = 'text-sm'; if (kind === 'ok') msg.classList.add('text-green-400'); else if (kind === 'err') msg.classList.add('text-red-400'); else if (kind === 'warn') msg.classList.add('text-yellow-400'); else msg.classList.add('text-gray-400'); spin.style.display = loading ? 'inline-block' : 'none'; try{ go.disabled = !!loading; }catch{} }
+                function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return new Intl.DateTimeFormat('es-PA',{year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(d); }
+                function esc(s){ return String(s??'').replace(/[<>&]/g, m=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[m])) }
+                function iconSVG(kind){ if(kind==='pn') return '<svg class="h-4 w-4 text-orange-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/></svg>'; if(kind==='fz') return '<svg class="h-4 w-4 text-yellow-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2"><path d="M3 10h18v8H3z"/><path d="M7 10V6h10v4"/></svg>'; return '<svg class="h-4 w-4 text-blue-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2"><path d="M3 16h11v-6H3v6z"/><path d="M14 14h4l3 3v-7h-7v4z"/><circle cx="7" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg>'; }
+                function eventSource(ev, resp){ try{ if((ev.location||'').toUpperCase()==='DB') return 'psc'; const fz = resp.sources?.fuzion?.events || []; const matchFz = fz.some(e=> e.time_iso===ev.time_iso && e.description===ev.description && (e.location||'')===(ev.location||'')); return matchFz ? 'fz' : 'pn'; }catch{ return 'pn' } }
+                function transformDesc(src, ev, resp){ let d = String(ev.description||''); if(src==='fz'){ const low = d.toLowerCase().trim(); if(low==='miami') d='Doral - Miami'; if(low==='mal') d='Mal Identificado <a href="#" data-target="page-mal-identificado" class="nav-link ml-2 bg-yellow-500 text-black text-xs font-bold py-1 px-2 rounded-md hover:bg-yellow-400 transition">Solicitar aquí</a>'; if(low==='panama' || low==='panamá') d='Aduanas - Panama City'; } if(src==='psc'){ const m = d.match(/peso\s*=?\s*(\d+(?:\.\d+)?)\s*lb/i); const lbs = m ? m[1] : (resp?.weight_lbs); const dbStatus = (resp?.db_status) || (resp?.sources?.db?.selected?.status) || ''; const label = String(dbStatus).trim() || 'Centro de Dist. PSC'; d = `${label} - Peso(Aprox.)` + (lbs ? ` ${lbs} lbs` : ''); } return d; }
+                function computeOrderedList(r){ const all = r.events || []; const groups = { psc: [], fz: [], pn: [] }; for(const ev of all){ const s = eventSource(ev, r); if(s==='psc') groups.psc.push(ev); else if(s==='fz') groups.fz.push(ev); else groups.pn.push(ev); } groups.pn.sort((a,b)=> String(b.time_iso||'').localeCompare(String(a.time_iso||''))); return [...groups.psc, ...groups.fz, ...groups.pn]; }
+                function getAltList(r){ const a1 = r.alt_trackings || []; const a2 = r.sources?.postal_ninja?.alt_trackings || []; const all = [...a1, ...a2].map(v=>String(v||'').trim()).filter(Boolean); const primary = String(r.tracking||'').toUpperCase(); const seen = new Set(); const out = []; for(const x of all){ const key = x.toUpperCase(); if(!key || key===primary || seen.has(key)) continue; seen.add(key); out.push(x); } return out; }
+                function renderAltTrackings(r){ const alts = getAltList(r); if(!alts.length){ qsAlt.textContent='—'; return; } qsAlt.innerHTML=''; alts.slice(0,3).forEach(code=>{ const chip = document.createElement('div'); chip.className = 'bg-gray-700 rounded-full px-2 py-1 text-xs font-mono flex items-center gap-2'; chip.innerHTML = `<span>${esc(code)}</span><button type="button" class="bg-gray-600 hover:bg-gray-500 rounded-full h-4 w-4 flex items-center justify-center text-white">&rarr;</button>`; const btn = chip.querySelector('button'); if (btn) { btn.addEventListener('click', ()=>{ trk.value = code; doSearch(); }); } qsAlt.appendChild(chip); }); }
+                function renderTopSummary(r){ qsTracking.textContent = r.tracking || '—'; const dbStatus = (r.db_status || r.sources?.db?.selected?.status) || null; if (dbStatus && String(dbStatus).trim().length > 0) { qsStatus.textContent = String(dbStatus).trim(); } else { const list = computeOrderedList(r); const chosen = list[0]; if (chosen){ const src = eventSource(chosen, r); let label=''; if(src==='psc') { label='Centro de Dist. PSC'; } else if(src==='fz'){ const td = transformDesc(src, chosen, r); label = /Aduanas - Panama City/i.test(td) ? 'Aduanas' : td; } else { const d = String(chosen.description||''); label = /delivered/i.test(d) ? 'Delivered' : 'In transit'; } qsStatus.textContent = label || '—'; } else { qsStatus.textContent = '—'; } } qsCourier.textContent = r.detected_courier || r.courier_detected || '—'; qsPeso.textContent = r.weight_lbs ? `${r.weight_lbs} lbs` : '—'; renderAltTrackings(r); }
+                function renderTimeline(r){ eventsEl.innerHTML=''; const list = computeOrderedList(r); evCountEl.textContent = list.length || 0; if(!list.length){ eventsEl.innerHTML='<p class="text-gray-500">Sin eventos de seguimiento disponibles.</p>'; toggleMoreBtn.style.display = 'none'; return; } const MAX=5; list.forEach((ev,idx)=>{ const src = eventSource(ev,r); const item=document.createElement('div'); item.className=`relative pl-8`; if(idx>=MAX) item.classList.add('hiddenEvt'); const desc=transformDesc(src,ev,r); const loc=(ev.location||'—'); const when=fmtDate(ev.time_iso); const borderColor = src === 'psc' ? 'border-blue-500' : src === 'fz' ? 'border-yellow-500' : 'border-orange-500'; const iconBgColor = src === 'psc' ? 'bg-blue-900' : src === 'fz' ? 'bg-yellow-900' : 'bg-orange-900'; item.innerHTML=`<div class="absolute left-0 top-1 h-6 w-6 rounded-full bg-gray-800 border-2 ${borderColor} flex items-center justify-center">${src === 'psc' ? `<img src="https://static.wixstatic.com/media/f7f5e1_66b4f06d762d42dd83ca81d5b63ba450~mv2.png" class="h-5 w-5 rounded-full">` : ''}</div><div class="bg-gray-800 rounded-lg p-3 border-l-4 ${borderColor}"><p class="font-semibold text-white">${desc}</p><div class="flex items-center gap-2 text-xs text-gray-400 mt-1"><span class="inline-flex items-center justify-center h-5 w-5 rounded-full ${iconBgColor}">${iconSVG(src)}</span><span>${esc(loc)}</span><span>•</span><span>${when}</span></div></div>`; if(idx>=MAX) item.style.display='none'; eventsEl.appendChild(item); }); const hidden=eventsEl.querySelectorAll('.hiddenEvt'); toggleMoreBtn.style.display = hidden.length ? 'inline-block' : 'none'; toggleMoreBtn.textContent = 'Mostrar más'; }
+                async function doSearch(){ resultsSection.classList.add('hidden'); try{ localStorage.setItem('psc_last_tracking', trk.value.trim()); }catch{} const code = trk.value.trim(); if(!code){ setState('err','Ingresa un tracking.'); return; } setState('warn','Buscando…',true); try{ const res = await fetch(ENDPOINT,{ method:'POST', mode:'cors', cache:'no-store', headers:{ 'Content-Type':'application/json', 'Accept':'application/json', Authorization:`Bearer ${ANON_KEY}`, apikey: ANON_KEY }, body: JSON.stringify({ tracking: code }) }); if(!res.ok){ setState('err',`Error HTTP ${res.status}`); return; } const data = await res.json(); setState('ok','Listo.'); renderTopSummary(data); renderTimeline(data); resultsSection.classList.remove('hidden'); }catch(e){ console.error(e); setState('err','Fallo de red o CORS.'); } }
+                go.addEventListener('click', doSearch); trk.addEventListener('keydown', e=>{ if(e.key==='Enter') doSearch(); });
+                toggleMoreBtn.addEventListener('click', ()=>{ const hidden = eventsEl.querySelectorAll('.hiddenEvt'); const expanding = hidden.length && hidden[0].style.display==='none'; hidden.forEach(el=> el.style.display = expanding ? 'block' : 'none'); toggleMoreBtn.textContent = expanding ? 'Mostrar menos' : 'Mostrar más'; });
             })();
         }
 
@@ -430,158 +189,60 @@
         function initializeCasilleroPage() {
             const contentArea = document.getElementById('casillero-content');
             if (!contentArea) return;
-
-            const addresses = [
-                {
-                    title: 'Bodega Principal (Aéreo)',
-                    data: [
-                        { label: 'Nombre', value: 'XPA Alvin Herrera' }, { label: 'Dirección', value: '2610 NW 89 TH' },
-                        { label: 'Referencia', value: 'XPA1234' }, { label: 'Ciudad', value: 'DORAL' },
-                        { label: 'Estado', value: 'FLORIDA' }, { label: 'Código Postal', value: '33172-1615' },
-                        { label: 'Teléfono', value: '+1 (786) 360-2816' }
-                    ]
-                },
-                {
-                    title: 'Bodega Alterna (Casa)',
-                    note: 'Solo usar en caso que la tienda no pueda enviar a un warehouse.',
-                    data: [
-                        { label: 'Nombre', value: 'XPA Alvin Herrera' }, { label: 'Dirección', value: '15421 SW 26 TH TERR' },
-                        { label: 'Referencia', value: 'XPA1234' }, { label: 'Ciudad', value: 'MIAMI' },
-                        { label: 'Estado', value: 'FLORIDA' }, { label: 'Código Postal', value: '33185-4866' },
-                        { label: 'Teléfono', value: '+1 (786) 360-2816' }
-                    ]
-                },
-                {
-                    title: 'Dirección Marítima',
-                    data: [
-                        { label: 'Nombre', value: 'OCEAN/XPA Alvin Herrera' }, { label: 'Dirección', value: '2610 NW 89 TH' },
-                        { label: 'Referencia', value: 'OCEAN/ XPA1234' }, { label: 'Ciudad', value: 'DORAL' },
-                        { label: 'Estado', value: 'FLORIDA' }, { label: 'Código Postal', value: '33172-1615' },
-                        { label: 'Teléfono', value: '+1 (786) 360-2816' }
-                    ]
-                }
-            ];
-
+            const addresses = [ { title: 'Bodega Principal (Aéreo)', data: [ { label: 'Nombre', value: 'XPA Alvin Herrera' }, { label: 'Dirección', value: '2610 NW 89 TH' }, { label: 'Referencia', value: 'XPA1234' }, { label: 'Ciudad', value: 'DORAL' }, { label: 'Estado', value: 'FLORIDA' }, { label: 'Código Postal', value: '33172-1615' }, { label: 'Teléfono', value: '+1 (786) 360-2816' } ] }, { title: 'Bodega Alterna (Casa)', note: 'Solo usar en caso que la tienda no pueda enviar a un warehouse.', data: [ { label: 'Nombre', value: 'XPA Alvin Herrera' }, { label: 'Dirección', value: '15421 SW 26 TH TERR' }, { label: 'Referencia', value: 'XPA1234' }, { label: 'Ciudad', value: 'MIAMI' }, { label: 'Estado', value: 'FLORIDA' }, { label: 'Código Postal', value: '33185-4866' }, { label: 'Teléfono', value: '+1 (786) 360-2816' } ] }, { title: 'Dirección Marítima', data: [ { label: 'Nombre', value: 'OCEAN/XPA Alvin Herrera' }, { label: 'Dirección', value: '2610 NW 89 TH' }, { label: 'Referencia', value: 'OCEAN/ XPA1234' }, { label: 'Ciudad', value: 'DORAL' }, { label: 'Estado', value: 'FLORIDA' }, { label: 'Código Postal', value: '33172-1615' }, { label: 'Teléfono', value: '+1 (786) 360-2816' } ] } ];
             let copyIdCounter = 0;
-            contentArea.innerHTML = addresses.map(addr => `
-                <section>
-                    <h2 class="text-base font-semibold text-white mb-3">${addr.title}</h2>
-                    <div class="bg-gray-800 rounded-xl divide-y divide-gray-700">
-                        ${addr.note ? `<div class="px-3 py-2 text-center"><p class="text-gray-400 text-xs">${addr.note}</p></div>` : ''}
-                        ${addr.data.map(item => {
-                            const uniqueId = `copy-text-${copyIdCounter++}`;
-                            return `
-                            <div class="px-3 py-2 flex justify-between items-center">
-                                <div>
-                                    <p class="text-xs text-gray-400">${item.label}:</p>
-                                    <p class="text-sm text-white font-mono" id="${uniqueId}">${item.value}</p>
-                                </div>
-                                <button class="copy-btn p-2 rounded-lg hover:bg-gray-700" data-target="${uniqueId}">
-                                    <i data-lucide="copy" class="h-4 w-4 text-gray-400"></i>
-                                </button>
-                            </div>`;
-                        }).join('')}
-                    </div>
-                </section>
-            `).join('');
-            
-            lucide.createIcons(); // Re-render icons after adding them
-
-            contentArea.querySelectorAll('.copy-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const targetId = button.dataset.target;
-                    const textToCopy = document.getElementById(targetId).innerText;
-                    navigator.clipboard.writeText(textToCopy).then(() => {
-                        button.innerHTML = '<i data-lucide="check" class="h-4 w-4 text-green-400"></i>';
-                        lucide.createIcons();
-                        setTimeout(() => {
-                            button.innerHTML = `<i data-lucide="copy" class="h-4 w-4 text-gray-400"></i>`;
-                            lucide.createIcons();
-                        }, 2000);
-                    });
-                });
-            });
+            contentArea.innerHTML = addresses.map(addr => `<section><h2 class="text-base font-semibold text-white mb-3">${addr.title}</h2><div class="bg-gray-800 rounded-xl divide-y divide-gray-700">${addr.note ? `<div class="px-3 py-2 text-center"><p class="text-gray-400 text-xs">${addr.note}</p></div>` : ''}${addr.data.map(item => { const uniqueId = `copy-text-${copyIdCounter++}`; return `<div class="px-3 py-2 flex justify-between items-center"><div><p class="text-xs text-gray-400">${item.label}:</p><p class="text-sm text-white font-mono" id="${uniqueId}">${item.value}</p></div><button class="copy-btn p-2 rounded-lg hover:bg-gray-700" data-target="${uniqueId}"><i data-lucide="copy" class="h-4 w-4 text-gray-400"></i></button></div>`; }).join('')}</div></section>`).join('');
+            lucide.createIcons();
+            contentArea.querySelectorAll('.copy-btn').forEach(button => { button.addEventListener('click', () => { const targetId = button.dataset.target; const textToCopy = document.getElementById(targetId).innerText; navigator.clipboard.writeText(textToCopy).then(() => { button.innerHTML = '<i data-lucide="check" class="h-4 w-4 text-green-400"></i>'; lucide.createIcons(); setTimeout(() => { button.innerHTML = `<i data-lucide="copy" class="h-4 w-4 text-gray-400"></i>`; lucide.createIcons(); }, 2000); }); }); });
         }
 
         // --- COTIZAR PAGE LOGIC ---
         function initializeCotizarPage() {
-            const page = document.getElementById('page-cotizar');
-            if (!page) return;
-            
-            const calculateBtn = page.querySelector('#calculate-btn');
-            const resultsSection = page.querySelector('#results-section-cotizar');
-            const resultDownPayment = page.querySelector('#result-downpayment');
-            const resultBalance = page.querySelector('#result-balance');
-            const resultHandling = page.querySelector('#result-handling');
-            const resultInsurance = page.querySelector('#result-insurance');
-            const resultFinancing = page.querySelector('#result-financing');
-            const resultFreight = page.querySelector('#result-freight');
-            const resultTotalPending = page.querySelector('#result-total-pending');
-            const productValueInput = page.querySelector('#productValue');
-            const downPaymentInput = page.querySelector('#downPayment');
-            const productWeightInput = page.querySelector('#productWeight');
-            const addInsuranceInput = page.querySelector('#addInsurance');
-
-            calculateBtn.addEventListener('click', () => {
-                const value = parseFloat(productValueInput.value) || 0;
-                const downPayment = parseFloat(downPaymentInput.value) || 0;
-                const weight = parseFloat(productWeightInput.value) || 0;
-                const addInsurance = addInsuranceInput.checked;
-
-                if (value === 0 || weight === 0) {
-                    alert('Por favor, ingresa el valor del producto y el peso.');
-                    return;
-                }
-
-                const FLETE_RATE_PER_LB = 2.95, INSURANCE_RATE = 0.03, MIN_INSURANCE_FEE = 1.00,
-                      FINANCING_RATE = 0.15, MIN_DOWN_PAYMENT_PERCENTAGE = 0.75;
-
-                const balance = value - downPayment;
-                
-                let handlingCost = 0;
-                if (value <= 30) handlingCost = 5.00;
-                else if (value <= 150) handlingCost = value * 0.18;
-                else if (value <= 500) handlingCost = value * 0.15;
-                else handlingCost = value * 0.12;
-                
-                let insuranceCost = 0;
-                if (addInsurance) insuranceCost = Math.max(value * INSURANCE_RATE, MIN_INSURANCE_FEE);
-                
-                let financingCost = 0;
-                if (downPayment < value * MIN_DOWN_PAYMENT_PERCENTAGE) financingCost = balance * FINANCING_RATE;
-
-                const freightCost = weight * FLETE_RATE_PER_LB;
-                const totalPending = balance + handlingCost + insuranceCost + financingCost + freightCost;
-
-                resultDownPayment.textContent = `$${downPayment.toFixed(2)}`;
-                resultBalance.textContent = `$${balance.toFixed(2)}`;
-                resultHandling.textContent = `$${handlingCost.toFixed(2)}`;
-                resultInsurance.textContent = `$${insuranceCost.toFixed(2)}`;
-                resultFinancing.textContent = `$${financingCost.toFixed(2)}`;
-                resultFreight.textContent = `$${freightCost.toFixed(2)}`;
-                resultTotalPending.textContent = `$${totalPending.toFixed(2)}`;
-
-                resultsSection.classList.remove('hidden');
-                resultsSection.classList.add('open');
-            });
+            const page = document.getElementById('page-cotizar'); if (!page) return;
+            const calculateBtn = page.querySelector('#calculate-btn'), resultsSection = page.querySelector('#results-section-cotizar'), resultDownPayment = page.querySelector('#result-downpayment'), resultBalance = page.querySelector('#result-balance'), resultHandling = page.querySelector('#result-handling'), resultInsurance = page.querySelector('#result-insurance'), resultFinancing = page.querySelector('#result-financing'), resultFreight = page.querySelector('#result-freight'), resultTotalPending = page.querySelector('#result-total-pending'), productValueInput = page.querySelector('#productValue'), downPaymentInput = page.querySelector('#downPayment'), productWeightInput = page.querySelector('#productWeight'), addInsuranceInput = page.querySelector('#addInsurance');
+            calculateBtn.addEventListener('click', () => { const value = parseFloat(productValueInput.value) || 0, downPayment = parseFloat(downPaymentInput.value) || 0, weight = parseFloat(productWeightInput.value) || 0, addInsurance = addInsuranceInput.checked; if (value === 0 || weight === 0) { alert('Por favor, ingresa el valor del producto y el peso.'); return; } const FLETE_RATE_PER_LB = 2.95, INSURANCE_RATE = 0.03, MIN_INSURANCE_FEE = 1.00, FINANCING_RATE = 0.15, MIN_DOWN_PAYMENT_PERCENTAGE = 0.75; const balance = value - downPayment; let handlingCost = 0; if (value <= 30) handlingCost = 5.00; else if (value <= 150) handlingCost = value * 0.18; else if (value <= 500) handlingCost = value * 0.15; else handlingCost = value * 0.12; let insuranceCost = 0; if (addInsurance) insuranceCost = Math.max(value * INSURANCE_RATE, MIN_INSURANCE_FEE); let financingCost = 0; if (downPayment < value * MIN_DOWN_PAYMENT_PERCENTAGE) financingCost = balance * FINANCING_RATE; const freightCost = weight * FLETE_RATE_PER_LB; const totalPending = balance + handlingCost + insuranceCost + financingCost + freightCost; resultDownPayment.textContent = `$${downPayment.toFixed(2)}`; resultBalance.textContent = `$${balance.toFixed(2)}`; resultHandling.textContent = `$${handlingCost.toFixed(2)}`; resultInsurance.textContent = `$${insuranceCost.toFixed(2)}`; resultFinancing.textContent = `$${financingCost.toFixed(2)}`; resultFreight.textContent = `$${freightCost.toFixed(2)}`; resultTotalPending.textContent = `$${totalPending.toFixed(2)}`; resultsSection.classList.add('open'); });
         }
 
         // --- MAL IDENTIFICADO PAGE LOGIC ---
         function initializeMalIdentificadoPage() {
-            // This function is self-contained to avoid variable conflicts
             (function () {
-                const root = document.getElementById('page-mal-identificado');
-                if (!root) return;
-                
+                const root = document.getElementById('page-mal-identificado'); if (!root) return;
                 const $ = (s) => root.querySelector(s);
-                const trk = $("#ml_trk"), go = $("#ml_go"), clr = $("#ml_clear"), status = $("#ml_status"),
-                      out = $("#ml_out"), seenRadios = root.querySelectorAll("[name='ml_seen']"), noMsg = $("#ml_noMsg"),
-                      form = $("#ml_mlForm"), cas = $("#ml_cas"), nameInput = $("#ml_name"), ask = $("#ml_ask"),
-                      toast = $("#ml_msg"), question = $(".ml_question"), resultContainer = $('#ml_result-container');
-
-                // NOTE: For brevity, the full implementation of Mal Identificado functions is omitted here, but would be pasted in.
+                const trk = $("#ml_trk"), go = $("#ml_go"), clr = $("#ml_clear"), status = $("#ml_status"), out = $("#ml_out"), seenRadios = root.querySelectorAll("[name='ml_seen']"), noMsg = $("#ml_noMsg"), form = $("#ml_mlForm"), cas = $("#ml_cas"), nameInput = $("#ml_name"), ask = $("#ml_ask"), toast = $("#ml_msg"), question = $(".ml_question"), resultContainer = $('#ml_result-container');
+                const SCRAPER = "https://gel-scraper-proxy.onrender.com/api/gel", CHECK_URL = "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/check-ml", PUT_URL = "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/put-tracking";
+                const FILTER_STRINGS = [`Login BUSCAR PAQUETES SIN IDENTIFICAR Número de Rastr...N IDENTIFICAR Sin Resultado En Búsqueda Reclamar Paquete Encontrado`];
+                let tickerTimer = null;
+                function startTicker() { if (tickerTimer) return; const words = ["Buscando", "Consultando registros", "Verificando información"]; let i = 0; setStatus(` ${words[i++ % words.length]}...`, "warn"); tickerTimer = setInterval(() => { setStatus(`${words[i++ % words.length]}...`, "warn"); }, 1500); }
+                function stopTicker() { if (tickerTimer) { clearInterval(tickerTimer); tickerTimer = null; } }
+                function setStatus(msg, kind) { status.innerHTML = msg || ""; status.className = "status text-sm mt-2 min-h-[20px]"; if (kind === "warn") status.classList.add("text-yellow-400"); else status.classList.add("text-gray-400"); }
+                function setToast(msg, kind) { toast.textContent = msg || ""; toast.className = "toast text-center mt-3 text-sm"; if (kind === "ok") toast.classList.add("text-green-400"); else if (kind === "err") toast.classList.add("text-red-400"); else if (kind === "warn") toast.classList.add("text-yellow-400"); if (msg && (kind === "ok" || kind === "warn")) { setTimeout(() => setToast(""), 5000); } }
+                function norm(t) { return String(t || "").replace(/\s+/g, " ").trim(); }
+                function sanitizeSnippet(t) { t = norm(t); for (const tb of FILTER_STRINGS) { if (tb && tb.trim()) { const re = new RegExp(tb.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"); t = norm(t).replace(re, ""); } } return t.trim(); }
+                function resetAll() { trk.value = ""; out.textContent = ""; setStatus(""); setToast(""); noMsg.style.display = "none"; form.style.display = "none"; cas.value = ""; nameInput.value = ""; for (const r of seenRadios) { r.checked = false; } question.classList.add("hidden"); go.disabled = false; ask.disabled = false; resultContainer.classList.remove('open'); stopTicker(); if (searchAbort) { searchAbort.abort(); searchAbort = null; } }
+                let searchAbort = null;
+                async function buscar() { const t = trk.value.trim(); setToast(""); if (!t) { setStatus("Por favor, ingresa un número de tracking.", "warn"); return; } go.disabled = true; startTicker(); resultContainer.classList.remove('open'); searchAbort = new AbortController(); const tt = setTimeout(() => searchAbort.abort(), 45000); try { const r = await fetch(`${SCRAPER}?tracking=${encodeURIComponent(t)}`, { cache: "no-store", signal: searchAbort.signal }); clearTimeout(tt); stopTicker(); let data = null, raw = ""; try { data = await r.json(); } catch { try { raw = await r.text(); } catch {} } const show = []; const sako = data?.saco || data?.sack || ""; const fecha = data?.fecha_de_ingreso || data?.fecha || ""; if (sako) show.push(`Saco: ${sako}`); if (fecha) show.push(`Fecha de Ingreso: ${fecha}`); if (show.length > 0) { out.textContent = show.join("\n"); question.classList.remove("hidden"); noMsg.style.display = "none"; form.style.display = "none"; for (const r of seenRadios) r.checked = false; } else { let snippet = ""; if (raw) { const idx = raw.indexOf("Snippet:"); if (idx >= 0) snippet = raw.slice(idx + 8); } snippet = sanitizeSnippet(snippet); out.textContent = snippet ? snippet : "No se encontró información para este tracking."; if (snippet) { question.classList.remove("hidden"); noMsg.style.display = "none"; form.style.display = "none"; for (const r of seenRadios) r.checked = false; } else { question.classList.add("hidden"); noMsg.style.display = "none"; form.style.display = "none"; } } setStatus("Búsqueda completada.", "ok"); resultContainer.classList.add('open'); } catch (e) { clearTimeout(tt); stopTicker(); setStatus("Error en la búsqueda. Intenta de nuevo.", "err"); out.textContent = ""; } finally { go.disabled = false; } }
+                const submittedSet = new Set();
+                async function checkDuplicate(code) { const t = (code || "").trim(); if (!t) return { exists: false, ml: false }; if (submittedSet.has(t.toLowerCase())) return { exists: true, ml: true }; const ctrl = new AbortController(); const timeout = setTimeout(() => ctrl.abort(), 8000); try { const res = await fetch(CHECK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ trackings: [t] }), signal: ctrl.signal, }); clearTimeout(timeout); if (!res.ok) return { exists: false, ml: false }; const payload = await res.json().catch(() => ({})); const it = Array.isArray(payload?.items) ? payload.items.find((x) => String(x.tracking || "").toLowerCase() === t.toLowerCase()) : null; const ml = it && (it.ml === true || it.ML === "true" || it.status === "ML"); const exists = Boolean(it && (it.exists === true || ml)); return { exists, ml: Boolean(ml) }; } catch { clearTimeout(timeout); return { exists: false, ml: false }; } }
+                async function solicitarML() { const code = trk.value.trim(); const casillero = cas.value.trim(); setToast(""); const name = nameInput.value.trim(); const seen = Array.from(seenRadios).find((r) => r.checked)?.value || ""; if (seen !== "si") { setToast("Confirma que se mostró la información (elige 'Sí').", "warn"); return; } if (!code || !casillero) { setToast("Ingresa tracking y número de casillero.", "err"); return; } ask.disabled = true; const dup = await checkDuplicate(code); if (dup.exists) { setToast(dup.ml ? "Ya existe una solicitud ML para este tracking." : "Ya existe este tracking en la tabla.", "warn"); ask.disabled = false; return; } try { const res = await fetch(PUT_URL, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tracking_original: code, tracking_corrected: code, num_casillero: casillero, status: "ML", ML: "true", name: name, }), }); const txt = await res.text().catch(() => ""); let payload = {}; try { payload = JSON.parse(txt || "{}"); } catch {} if (!res.ok || payload?.ok !== true) { const msg = payload?.error || payload?.detail || res.statusText || `HTTP ${res.status}`; setToast(`Error: ${msg}`, "err"); ask.disabled = false; return; } setToast("Tu paquete se ha solicitado con éxito. Tiempo Est. 4 días.", "ok"); submittedSet.add(code.toLowerCase()); } catch (e) { setToast("No se pudo enviar la solicitud.", "err"); } finally { ask.disabled = false; } }
+                go.addEventListener("click", buscar); trk.addEventListener("keydown", (e) => { if (e.key === "Enter") buscar(); }); clr.addEventListener("click", resetAll);
+                for (const r of seenRadios) { r.addEventListener("change", () => { const v = Array.from(seenRadios).find((x) => x.checked)?.value; if (v === "si") { noMsg.style.display = "none"; form.style.display = "block"; cas.focus(); } else if (v === "no") { noMsg.textContent = "Has marcado «No». Si no sale información intente Buscar nuevamente o contactarse con PSC."; noMsg.style.display = "block"; form.style.display = "none"; } else { noMsg.style.display = "none"; form.style.display = "none"; } }); }
+                ask.addEventListener("click", solicitarML);
             })();
+        }
+
+        // --- "Add to Home Screen" Logic ---
+        function initializeInstallPrompt() {
+            const installBanner = document.getElementById('install-banner'), installButton = document.getElementById('install-button'), closeBannerButton = document.getElementById('close-install-banner'), instructionsOverlay = document.getElementById('install-instructions-overlay'), closeInstructionsButton = document.getElementById('close-instructions'), iosInstructions = document.getElementById('ios-instructions'), androidInstructions = document.getElementById('android-instructions');
+            if (window.matchMedia('(display-mode: standalone)').matches || localStorage.getItem('pscInstallDismissed')) return;
+            setTimeout(() => { installBanner.classList.add('show'); }, 5000);
+            closeBannerButton.addEventListener('click', () => { installBanner.classList.remove('show'); localStorage.setItem('pscInstallDismissed', 'true'); });
+            installButton.addEventListener('click', () => { const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; if (isIOS) { iosInstructions.classList.remove('hidden'); androidInstructions.classList.add('hidden'); } else { androidInstructions.classList.remove('hidden'); iosInstructions.classList.add('hidden'); } instructionsOverlay.classList.remove('hidden'); setTimeout(() => instructionsOverlay.style.opacity = '1', 10); lucide.createIcons(); });
+            function closeOverlay() { instructionsOverlay.style.opacity = '0'; setTimeout(() => instructionsOverlay.classList.add('hidden'), 300); }
+            closeInstructionsButton.addEventListener('click', closeOverlay);
+            instructionsOverlay.addEventListener('click', (e) => { if (e.target === instructionsOverlay) closeOverlay(); });
         }
     </script>
 </body>
 </html>
+
+
