@@ -1,3 +1,16 @@
+// --- DATOS DE LA APLICACIÓN ---
+const db = {
+    // La base de datos está vacía, excepto por los usuarios para el login.
+    users: [
+        { id: 1, username: 'Alvin', password: '12345', role: 'ADMIN' },
+        { id: 2, username: 'Supervisor', password: '123', role: 'SUPERVISOR' },
+        { id: 3, username: 'Recepcion', password: '123', role: 'RECEPCION' },
+    ],
+    clients: [],
+    packages: [],
+    sucursales: []
+};
+
 // --- SESIÓN ---
 let session = {
     user: null
@@ -42,7 +55,7 @@ loginForm.addEventListener('submit', (e) => {
         sessionUsernameEl.textContent = session.user.username;
         buildSidebar();
         window.location.hash = '/dashboard';
-        router();
+        router(); // <-- ESTA ES LA LÍNEA CORREGIDA
     } else {
         loginError.classList.remove('hidden');
     }
@@ -68,7 +81,6 @@ function initializeRecibirPaqueteListeners() {
     const step3 = document.getElementById('step3');
 
     trackingInput.addEventListener('blur', () => {
-        // Lógica de búsqueda de paquete (no encontrará nada, pero activa la UI)
         if (trackingInput.value.trim() !== '') {
             step2.classList.add('visible');
         } else {
@@ -78,7 +90,6 @@ function initializeRecibirPaqueteListeners() {
     });
 
     casilleroInput.addEventListener('blur', () => {
-        // Lógica de búsqueda de cliente
         document.getElementById('cliente').value = 'Cliente no encontrado';
         document.getElementById('sucursal').value = '';
         step3.classList.add('visible');
@@ -107,7 +118,6 @@ function initializeAllScanners() {
 }
 
 function initializeRecibirSucursalListeners() {
-    // Añade listeners a los botones estáticos que no dependen de datos
     document.querySelectorAll('.notify-email-btn, .notify-whatsapp-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             showAlert('Esta función requiere datos de un paquete para operar.');
@@ -165,7 +175,6 @@ function initializeSucursalesListeners() {
 }
 
 function initializeNotificacionesListeners() {
-    // Lógica para el cambio de pestañas, no depende de datos
     const mainTabs = document.querySelectorAll('.main-tab-btn');
     const mainTabContents = document.querySelectorAll('.main-tab-content');
     const templateTabs = document.querySelectorAll('.tab-btn');
@@ -191,8 +200,6 @@ function initializeNotificacionesListeners() {
 }
 
 // --- PLANTILLAS DE VISTAS (Templates) ---
-
-// ** TODAS LAS FUNCIONES RENDER HAN SIDO RESTAURADAS **
 
 function renderDashboard() {
     return `
@@ -320,7 +327,7 @@ function renderClientes() {
                     <input type="text" placeholder="Buscar por Nombre, Box, Email, Cédula..." class="w-full p-2 pl-10 border border-slate-300 rounded-md">
                 </div>
                 <button id="toggle-filters-btn" class="flex items-center gap-2 p-2 border border-slate-300 rounded-md text-slate-600 hover:bg-slate-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6-4.14 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
                     <span>Filtros Avanzados</span>
                 </button>
                 <button class="bg-emerald-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-emerald-600">Buscar</button>
@@ -354,7 +361,6 @@ function renderClientes() {
 }
 
 function renderPaquetes() { 
-    // Similar a clientes, la tabla se muestra vacía
     return `
         <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-6"><span class="code">[OP-03]</span>Gestión de Paquetes</h1>
         <div class="bg-white p-4 rounded-lg border border-slate-200 mb-6">
@@ -397,9 +403,6 @@ function renderCobrar() {
     `;
 }
 
-// El resto de las plantillas (Usuarios, Sucursales, etc.) también son restauradas aquí.
-// Por brevedad, se omiten en este ejemplo, pero están en el código completo.
-// (El código completo SÍ las incluye)
 function renderUsuarios() {
     return `
         <div class="flex justify-between items-center mb-6">
@@ -419,7 +422,7 @@ function renderUsuarios() {
                         ${db.users.map(user => `
                         <tr class="bg-white border-b hover:bg-slate-50">
                             <td class="px-6 py-4 font-medium text-slate-900">${user.username}</td>
-                            <td class="px-6 py-4">${user.role}</td>
+                            <td class="px-6 py-4"><span class="font-semibold px-2 py-1 text-xs rounded-full ${user.role === 'ADMIN' ? 'bg-red-100 text-red-800' : 'bg-slate-100 text-slate-800'}">${user.role}</span></td>
                             <td class="px-6 py-4"><div class="flex items-center gap-4"><a href="#" class="text-slate-500 hover:text-indigo-600">Editar</a><a href="#" class="text-slate-500 hover:text-red-600">Eliminar</a></div></td>
                         </tr>`).join('')}
                     </tbody>
@@ -430,7 +433,7 @@ function renderUsuarios() {
             <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-8 modal-content">
                 <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-slate-800">Crear Nuevo Usuario</h2><button class="close-modal text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button></div>
                 <form class="space-y-4">
-                    <div><label class="block text-sm font-medium text-slate-600 mb-1">Nombre Completo</label><input type="text" class="w-full p-2 border border-slate-300 rounded-md"></div>
+                    <div><label class="block text-sm font-medium text-slate-600 mb-1">Nombre de Usuario</label><input type="text" class="w-full p-2 border border-slate-300 rounded-md"></div>
                     <div><label class="block text-sm font-medium text-slate-600 mb-1">Contraseña</label><input type="password" class="w-full p-2 border border-slate-300 rounded-md"></div>
                     <div><label class="block text-sm font-medium text-slate-600 mb-1">Rol</label><select class="w-full p-2 border border-slate-300 rounded-md"><option>ADMIN</option><option>SUPERVISOR</option><option>RECEPCION</option></select></div>
                     <div class="flex justify-end gap-4 pt-4"><button type="button" class="close-modal bg-slate-100 text-slate-700 font-semibold py-2 px-4 rounded-md hover:bg-slate-200">Cancelar</button><button type="submit" class="bg-emerald-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-emerald-600">Guardar Usuario</button></div>
@@ -446,39 +449,30 @@ function renderSucursales() {
             <h1 class="text-3xl font-bold text-slate-900 flex items-center"><span class="code">[OP-04]</span>Gestión de Sucursales</h1>
             <button id="add-sucursal-btn" class="flex items-center gap-2 bg-emerald-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-emerald-600"><span>Crear Sucursal</span></button>
         </div>
-        <div class="text-center p-6 bg-slate-50 rounded-lg"><p>No hay sucursales. Agregue una para comenzar.</p></div>
-        <div id="add-sucursal-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden"></div>
+        <div class="text-center p-6 bg-slate-50 rounded-lg"><p class="text-slate-500">No hay sucursales. Agregue una para comenzar.</p></div>
+        <div id="add-sucursal-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden modal-backdrop">
+            <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-8 modal-content">
+                <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-slate-800">Crear Nueva Sucursal</h2><button class="close-modal text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button></div>
+                <form class="space-y-4">
+                    <div><label class="block text-sm font-medium text-slate-600 mb-1">Nombre</label><input type="text" class="w-full p-2 border border-slate-300 rounded-md"></div>
+                    <div><label class="block text-sm font-medium text-slate-600 mb-1">Dirección</label><input type="text" class="w-full p-2 border border-slate-300 rounded-md"></div>
+                    <div class="flex justify-end gap-4 pt-4"><button type="button" class="close-modal bg-slate-100 text-slate-700 font-semibold py-2 px-4 rounded-md hover:bg-slate-200">Cancelar</button><button type="submit" class="bg-emerald-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-emerald-600">Guardar</button></div>
+                </form>
+            </div>
+        </div>
     `;
 }
 
 function renderConfiguracion() {
-    return `
-        <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-8"><span class="code">[AD-02]</span>Configuración del Sistema</h1>
-        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
-            <h2 class="text-xl font-bold text-slate-800 mb-4">Formularios de Configuración</h2>
-            <p>Aquí estarán los formularios para SMTP, Tarifas, Facturación, etc.</p>
-        </div>
-    `;
+    return `<h1 class="text-3xl font-bold text-slate-900 flex items-center mb-8"><span class="code">[AD-02]</span>Configuración del Sistema</h1><p>Aquí irán los formularios de configuración.</p>`;
 }
 
 function renderNotificaciones() {
-     return `
-        <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-8"><span class="code">[AD-03]</span>Gestión de Notificaciones</h1>
-        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
-            <div class="border-b border-slate-200 mb-6">
-                <nav id="main-notification-tabs" class="flex -mb-px space-x-8">
-                    <button data-target="editor" class="main-tab-btn py-3 px-1 border-b-2 font-medium text-sm">Editor de Plantillas</button>
-                    <button data-target="historial" class="main-tab-btn py-3 px-1 border-b-2 font-medium text-sm">Historial</button>
-                </nav>
-            </div>
-            <div id="main-tab-editor" class="main-tab-content">Contenido del editor de plantillas.</div>
-            <div id="main-tab-historial" class="main-tab-content" style="display:none;">Tabla con historial de envíos.</div>
-        </div>
-    `;
+    return `<h1 class="text-3xl font-bold text-slate-900 flex items-center mb-8"><span class="code">[AD-03]</span>Gestión de Notificaciones</h1><p>Aquí irá el editor de plantillas de notificaciones.</p>`;
 }
 
 function renderAnaqueles() {
-    return `<h1>Gestión de Anaqueles (Deshabilitado)</h1>`;
+    return `<h1>Gestión de Anaqueles</h1><p>Contenido para gestionar anaqueles de una sucursal específica.</p>`;
 }
 
 
@@ -560,7 +554,6 @@ function router() {
             link.classList.toggle('active', `#/${linkPath}` === basePath);
         });
         
-        // Ejecutar los listeners específicos para cada página
         if (basePath === '/recibir-paquete') initializeRecibirPaqueteListeners();
         if (basePath === '/recibir-en-sucursal') initializeRecibirSucursalListeners();
         if (basePath === '/cobrar') initializeCobrarListeners();
@@ -572,13 +565,14 @@ function router() {
 
     } else {
         window.location.hash = '/dashboard';
+        router();
     }
 }
 
 // --- INICIALIZACIÓN ---
 window.addEventListener('hashchange', router);
 window.addEventListener('load', () => {
-    if (window.location.hash) {
-        router();
-    }
+    // Si hay un hash en la URL al cargar, el router intentará navegar.
+    // Si no hay sesión, el router forzará la pantalla de login.
+    router();
 });
