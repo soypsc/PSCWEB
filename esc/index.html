@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGL Módulo - Recibir Paquete</title>
-    <!-- Librería para escanear códigos de barras -->
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <title>SGL Módulo - Recibir Paquete (OCR)</title>
+    
+    <!-- Librería para OCR -->
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -29,10 +30,11 @@
         .modal-content {
             transition: all 0.3s ease-in-out;
         }
-        #reader {
+        #video-feed {
             border: 2px solid #e5e7eb;
             border-radius: 0.5rem;
-            overflow: hidden;
+            width: 100%;
+            background-color: #000;
         }
     </style>
 </head>
@@ -105,61 +107,97 @@
                 }
             });
             
-            initializeScannerListeners();
+            initializeOcrScannerListeners();
         }
 
-        function initializeScannerListeners() {
-            const scannerModal = document.getElementById('scanner-modal');
-            const closeScannerBtn = document.getElementById('close-scanner-btn');
-            let html5QrcodeScanner;
-            let currentScanTargetInput; // Variable para saber qué input llenar
+        function initializeOcrScannerListeners() {
+            const scannerModal = document.getElementById('ocr-scanner-modal');
+            const openScannerBtn = document.getElementById('open-ocr-btn');
+            const closeScannerBtn = document.getElementById('close-ocr-btn');
+            const captureBtn = document.getElementById('capture-ocr-btn');
+            const videoFeed = document.getElementById('video-feed');
+            const ocrStatus = document.getElementById('ocr-status');
+            let stream;
+            let worker;
 
-            const onScanSuccess = (decodedText, decodedResult) => {
-                const cleanedText = decodedText.trim();
-
-                if (currentScanTargetInput) {
-                    // Si el objetivo es el casillero, validamos contra la base de datos de clientes
-                    if (currentScanTargetInput.id === 'casillero') {
-                        const client = db.clients.find(c => c.box.toUpperCase() === cleanedText.toUpperCase());
-                        if (client) {
-                            currentScanTargetInput.value = cleanedText;
-                            currentScanTargetInput.dispatchEvent(new Event('blur'));
-                            stopScanner();
-                        } else {
-                            showAlert("Código escaneado no coincide con ningún casillero en la base de datos.");
-                        }
-                    // Si el objetivo es el tracking, simplemente lo llenamos
-                    } else if (currentScanTargetInput.id === 'tracking-main') {
-                        currentScanTargetInput.value = cleanedText;
-                        currentScanTargetInput.dispatchEvent(new Event('blur'));
-                        stopScanner();
-                    }
+            const startCamera = async () => {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                    videoFeed.srcObject = stream;
+                    ocrStatus.textContent = 'Cámara lista. Apunte a la etiqueta y presione "Capturar".';
+                    captureBtn.disabled = false;
+                } catch (err) {
+                    console.error("Error al acceder a la cámara:", err);
+                    showAlert("No se pudo acceder a la cámara. Asegúrate de dar los permisos necesarios.");
+                    stopCamera();
                 }
             };
 
-            const startScanner = (targetInputId) => {
-                currentScanTargetInput = document.getElementById(targetInputId);
-                scannerModal.classList.remove('hidden');
-                html5QrcodeScanner = new Html5Qrcode("reader");
-                const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-                html5QrcodeScanner.start({ facingMode: "environment" }, config, onScanSuccess)
-                    .catch(err => {
-                        console.error("Error al iniciar el escáner", err);
-                        showAlert("No se pudo iniciar la cámara. Asegúrate de dar los permisos necesarios.");
-                        stopScanner();
-                    });
-            };
-
-            const stopScanner = () => {
-                if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
-                    html5QrcodeScanner.stop().catch(err => console.error("Error al detener el escáner.", err));
+            const stopCamera = () => {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
                 }
                 scannerModal.classList.add('hidden');
             };
 
-            document.getElementById('scan-tracking-btn').addEventListener('click', () => startScanner('tracking-main'));
-            document.getElementById('scan-casillero-btn').addEventListener('click', () => startScanner('casillero'));
-            if(closeScannerBtn) closeScannerBtn.addEventListener('click', stopScanner);
+            const captureAndProcessImage = async () => {
+                ocrStatus.textContent = 'Procesando imagen... por favor espere.';
+                captureBtn.disabled = true;
+
+                const canvas = document.createElement('canvas');
+                canvas.width = videoFeed.videoWidth;
+                canvas.height = videoFeed.videoHeight;
+                const context = canvas.getContext('2d');
+                context.drawImage(videoFeed, 0, 0, canvas.width, canvas.height);
+                
+                worker = await Tesseract.createWorker('spa'); // Usar español para mejor reconocimiento
+                const { data: { text } } = await worker.recognize(canvas.toDataURL('image/jpeg'));
+                await worker.terminate();
+
+                parseOcrText(text);
+                stopCamera();
+            };
+
+            const parseOcrText = (text) => {
+                let trackingFound = '';
+                let casilleroFound = '';
+
+                // Buscar un tracking conocido en el texto
+                for (const pkg of db.packages) {
+                    if (text.includes(pkg.tracking)) {
+                        trackingFound = pkg.tracking;
+                        break;
+                    }
+                }
+                
+                // Buscar un casillero conocido en el texto
+                for (const client of db.clients) {
+                    if (text.includes(client.box)) {
+                        casilleroFound = client.box;
+                        break;
+                    }
+                }
+
+                if (trackingFound) {
+                    document.getElementById('tracking-main').value = trackingFound;
+                }
+                if (casilleroFound) {
+                    const casilleroInput = document.getElementById('casillero');
+                    casilleroInput.value = casilleroFound;
+                    casilleroInput.dispatchEvent(new Event('blur'));
+                }
+
+                if (!trackingFound && !casilleroFound) {
+                    showAlert("No se pudo encontrar un tracking o casillero conocido en la etiqueta. Por favor, ingréselos manualmente.");
+                }
+            };
+
+            openScannerBtn.addEventListener('click', () => {
+                scannerModal.classList.remove('hidden');
+                startCamera();
+            });
+            closeScannerBtn.addEventListener('click', stopCamera);
+            captureBtn.addEventListener('click', captureAndProcessImage);
         }
 
         // --- PLANTILLA DE LA VISTA ---
@@ -167,27 +205,25 @@
             return `
                 <div class="flex justify-between items-center mb-8">
                     <h1 class="text-3xl font-bold text-slate-900 flex items-center"><span class="code">[OP-03A]</span>Recepción de Paquete</h1>
+                    <button id="open-ocr-btn" class="flex items-center gap-2 bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-600 transition-all transform hover:-translate-y-px shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        <span>Escanear Etiqueta (OCR)</span>
+                    </button>
                 </div>
                 <div class="bg-white p-8 rounded-lg border border-slate-200 shadow-sm max-w-4xl mx-auto space-y-8">
                     <div>
                         <label for="tracking-main" class="block text-lg font-semibold text-slate-700 mb-2">1. Tracking Principal</label>
                         <div class="relative flex items-center">
-                            <input type="text" id="tracking-main" placeholder="Ingresar o escanear tracking..." class="w-full text-lg pl-4 pr-12 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 transition">
-                            <button id="scan-tracking-btn" class="absolute right-2 p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Tracking">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6.5 6.5l-1.5-1.5M4 12H2m13.5-6.5l-1.5 1.5M12 20v-1m0-10V4m0 18a9 9 0 110-18 9 9 0 010 18z" /></svg>
-                            </button>
+                            <input type="text" id="tracking-main" placeholder="Ingresar o escanear tracking..." class="w-full text-lg pl-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 transition">
                         </div>
                     </div>
                     
                     <div>
                         <h2 class="text-lg font-semibold text-slate-700 mb-4">2. Asignar Cliente</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="relative flex items-center">
-                                <label for="casillero" class="absolute -top-6 left-0 block text-sm font-medium text-slate-600">Casillero</label>
-                                <input type="text" id="casillero" placeholder="Ingresar o escanear casillero..." class="w-full p-2 pr-12 border border-slate-300 rounded-md">
-                                <button id="scan-casillero-btn" class="absolute right-1 p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Casillero">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6.5 6.5l-1.5-1.5M4 12H2m13.5-6.5l-1.5 1.5M12 20v-1m0-10V4m0 18a9 9 0 110-18 9 9 0 010 18z" /></svg>
-                                </button>
+                            <div>
+                                <label for="casillero" class="block text-sm font-medium text-slate-600 mb-1">Casillero</label>
+                                <input type="text" id="casillero" placeholder="Ingresar o escanear casillero..." class="w-full p-2 border border-slate-300 rounded-md">
                             </div>
                             <div>
                                 <label for="cliente" class="block text-sm font-medium text-slate-600 mb-1">Cliente</label>
@@ -216,13 +252,14 @@
                     </div>
                 </div>
 
-                <!-- Modal de Escáner -->
-                <div id="scanner-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
-                    <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6 relative">
-                        <button id="close-scanner-btn" class="absolute top-2 right-2 text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
-                        <h2 class="text-xl font-bold text-slate-800 mb-4">Escanear Etiqueta del Paquete</h2>
-                        <div id="reader" class="w-full"></div>
-                        <p class="text-xs text-slate-500 mt-4 text-center">Apunte la cámara al código de barras o QR.</p>
+                <!-- Modal de Escáner OCR -->
+                <div id="ocr-scanner-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
+                    <div class="bg-white w-full max-w-lg rounded-lg shadow-xl p-6 relative">
+                        <button id="close-ocr-btn" class="absolute top-2 right-2 text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
+                        <h2 class="text-xl font-bold text-slate-800 mb-4">Escanear Etiqueta con Cámara</h2>
+                        <video id="video-feed" autoplay playsinline></video>
+                        <p id="ocr-status" class="text-sm text-slate-500 mt-2 text-center h-5">Iniciando cámara...</p>
+                        <button id="capture-ocr-btn" class="w-full mt-4 bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 transition-all disabled:opacity-50" disabled>Capturar Imagen</button>
                     </div>
                 </div>
             `;
@@ -237,6 +274,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
