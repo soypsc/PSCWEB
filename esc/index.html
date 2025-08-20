@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGL Módulo - Recibir Paquete (Híbrido)</title>
+    <title>SGL Módulo - Recibir Paquete (OCR + Barcode)</title>
     
     <!-- Librerías para OCR y Escáner de Códigos de Barras -->
     <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
@@ -183,7 +183,7 @@
                 }
             };
 
-            openOcrBtn.addEventListener('click', () => { ocrScannerModal.classList.remove('hidden'); startCamera(); });
+            openOcrBtn.addEventListener('click', () => { ocrScannerModal.classList.remove('hidden'); startOcrCamera(); });
             closeOcrBtn.addEventListener('click', stopOcrCamera);
             captureBtn.addEventListener('click', captureAndProcessImage);
 
@@ -282,7 +282,10 @@
                     <div class="bg-white w-full max-w-lg rounded-lg shadow-xl p-6 relative">
                         <button id="close-ocr-btn" class="absolute top-2 right-2 text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
                         <h2 class="text-xl font-bold text-slate-800 mb-4">Escanear Etiqueta con Cámara</h2>
-                        <video id="video-feed" autoplay playsinline></video>
+                        <div class="relative">
+                            <video id="video-feed" autoplay playsinline></video>
+                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 h-24 border-2 border-dashed border-white rounded-lg pointer-events-none"></div>
+                        </div>
                         <p id="ocr-status" class="text-sm text-slate-500 mt-2 text-center h-5">Iniciando cámara...</p>
                         <button id="capture-ocr-btn" class="w-full mt-4 bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 transition-all disabled:opacity-50" disabled>Capturar Imagen</button>
                     </div>
@@ -309,6 +312,7 @@
     </script>
 </body>
 </html>
+
 
 
 
