@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGL Módulo - Recibir Paquete (Flujo Simplificado)</title>
+    <title>SGL Módulo - Recibir Paquete (Híbrido)</title>
     
     <!-- Librerías para OCR y Escáner de Códigos de Barras -->
     <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
@@ -73,9 +73,9 @@
         // --- MINI BASE DE DATOS (SOLO PARA PRUEBAS) ---
         const db = {
             clients: [
-                { id: 1, box: 'PASC12345', name: 'Juan Pérez', sucursal: 'Vía España' },
-                { id: 2, box: 'PASC54321', name: 'Maria Rodriguez', sucursal: 'El Dorado' },
-                { id: 3, box: 'PASC4684', name: 'Angie Cassorla', sucursal: 'Condado del Rey' }
+                { id: 1, box: 'PASC12345', name: 'Juan Pérez', sucursal: 'Vía España', sucursalColor: 'bg-blue-500' },
+                { id: 2, box: 'PASC54321', name: 'Maria Rodriguez', sucursal: 'El Dorado', sucursalColor: 'bg-yellow-500' },
+                { id: 3, box: 'PASC4684', name: 'Angie Cassorla', sucursal: 'Condado del Rey', sucursalColor: 'bg-green-500' }
             ],
             packages: [
                 { id: 4, tracking: 'GF6409973277748', status: 'En Bodega Miami', clientId: null, weight: 2.0 },
@@ -112,9 +112,13 @@
                 if (pkg) {
                     weightInfo.textContent = `Peso Registrado: ${pkg.weight} lbs`;
                     weightInfo.classList.remove('hidden');
-                    step2.classList.add('visible');
                 } else {
                     weightInfo.classList.add('hidden');
+                }
+                
+                if (trackingInput.value.trim() !== '') {
+                    step2.classList.add('visible');
+                } else {
                     step2.classList.remove('visible');
                     step3.classList.remove('visible');
                 }
@@ -126,15 +130,20 @@
                 if (!client) {
                     client = db.clients.find(c => c.name.toUpperCase() === inputValue);
                 }
+                
+                const colorDot = document.getElementById('sucursal-color-dot');
+                colorDot.className = 'h-4 w-4 rounded-full transition-colors'; // Reset classes
 
                 if (client) {
                     casilleroInput.value = client.box;
                     document.getElementById('cliente').value = client.name;
                     document.getElementById('sucursal').value = client.sucursal;
+                    colorDot.classList.add(client.sucursalColor || 'bg-slate-200');
                     step3.classList.add('visible');
                 } else {
                     document.getElementById('cliente').value = 'Cliente no encontrado';
                     document.getElementById('sucursal').value = '';
+                    colorDot.classList.add('bg-slate-200');
                     step3.classList.remove('visible');
                 }
             });
@@ -143,17 +152,25 @@
         }
 
         function initializeAllScanners() {
-            // --- Lógica para el Escáner OCR (Casillero) ---
+            let ocrStream;
+            let ocrWorker;
+            let html5QrcodeScanner;
+            let currentOcrTargetInput;
+
             const ocrScannerModal = document.getElementById('ocr-scanner-modal');
-            const openOcrBtn = document.getElementById('scan-casillero-ocr-btn');
+            const openOcrBtns = document.querySelectorAll('.scan-ocr-btn');
             const closeOcrBtn = document.getElementById('close-ocr-btn');
             const captureBtn = document.getElementById('capture-ocr-btn');
             const videoFeed = document.getElementById('video-feed');
             const ocrStatus = document.getElementById('ocr-status');
-            let ocrStream;
-            let ocrWorker;
+            
+            const barcodeScannerModal = document.getElementById('barcode-scanner-modal');
+            const openBarcodeBtn = document.getElementById('scan-tracking-barcode-btn');
+            const closeBarcodeBtn = document.getElementById('close-barcode-btn');
 
-            const startOcrCamera = async () => {
+            const startOcrCamera = async (targetInputId) => {
+                currentOcrTargetInput = document.getElementById(targetInputId);
+                ocrScannerModal.classList.remove('hidden');
                 try {
                     ocrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                     videoFeed.srcObject = ocrStream;
@@ -190,34 +207,41 @@
             };
             
             const parseOcrText = (text) => {
-                let casilleroFound = '';
-                const normalizedOcrText = text.toUpperCase();
-                
-                for (const client of db.clients) {
-                    if (normalizedOcrText.includes(client.box.toUpperCase())) {
-                        casilleroFound = client.box;
-                        break;
+                const words = text.replace(/\n/g, ' ').split(' ');
+                let found = false;
+
+                if (currentOcrTargetInput.id === 'casillero') {
+                    for (const word of words) {
+                        const client = db.clients.find(c => c.box.toUpperCase() === word.trim().toUpperCase());
+                        if (client) {
+                            currentOcrTargetInput.value = client.box;
+                            currentOcrTargetInput.dispatchEvent(new Event('blur'));
+                            found = true;
+                            break;
+                        }
+                    }
+                } else if (currentOcrTargetInput.id === 'tracking-main') {
+                     for (const word of words) {
+                        const pkg = db.packages.find(p => p.tracking.toUpperCase() === word.trim().toUpperCase());
+                        if (pkg) {
+                            currentOcrTargetInput.value = pkg.tracking;
+                            currentOcrTargetInput.dispatchEvent(new Event('blur'));
+                            found = true;
+                            break;
+                        }
                     }
                 }
-
-                if (casilleroFound) {
-                    const casilleroInput = document.getElementById('casillero');
-                    casilleroInput.value = casilleroFound;
-                    casilleroInput.dispatchEvent(new Event('blur'));
-                } else {
-                    showAlert("OCR no pudo encontrar un casillero conocido en la etiqueta.");
+                
+                if (!found) {
+                    showAlert(`OCR no pudo encontrar un ${currentOcrTargetInput.id === 'casillero' ? 'casillero' : 'tracking'} conocido en la etiqueta.`);
                 }
             };
 
-            openOcrBtn.addEventListener('click', () => { ocrScannerModal.classList.remove('hidden'); startOcrCamera(); });
+            openOcrBtns.forEach(btn => {
+                btn.addEventListener('click', () => startOcrCamera(btn.dataset.target));
+            });
             closeOcrBtn.addEventListener('click', stopOcrCamera);
             captureBtn.addEventListener('click', captureAndProcessImage);
-
-            // --- Lógica para el Escáner de Código de Barras (Tracking) ---
-            const barcodeScannerModal = document.getElementById('barcode-scanner-modal');
-            const openBarcodeBtn = document.getElementById('scan-tracking-barcode-btn');
-            const closeBarcodeBtn = document.getElementById('close-barcode-btn');
-            let html5QrcodeScanner;
 
             const onBarcodeScanSuccess = (decodedText, decodedResult) => {
                 const trackingInput = document.getElementById('tracking-main');
@@ -258,10 +282,15 @@
                     <div>
                         <label for="tracking-main" class="block text-lg font-semibold text-slate-700 mb-2">1. Tracking Principal</label>
                         <div class="relative flex items-center">
-                            <input type="text" id="tracking-main" placeholder="Ingresar o escanear tracking..." class="w-full text-lg pl-4 pr-12 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 transition">
-                            <button id="scan-tracking-barcode-btn" class="absolute right-2 p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Código de Barras">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6.5 6.5l-1.5-1.5M4 12H2m13.5-6.5l-1.5 1.5M12 20v-1m0-10V4m0 18a9 9 0 110-18 9 9 0 010 18z" /></svg>
-                            </button>
+                            <input type="text" id="tracking-main" placeholder="Ingresar o escanear tracking..." class="w-full text-lg pl-4 pr-24 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 transition">
+                            <div class="absolute right-2 flex items-center gap-1">
+                                <button id="scan-tracking-barcode-btn" class="p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Código de Barras">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6.5 6.5l-1.5-1.5M4 12H2m13.5-6.5l-1.5 1.5M12 20v-1m0-10V4m0 18a9 9 0 110-18 9 9 0 010 18z" /></svg>
+                                </button>
+                                <button data-target="tracking-main" class="scan-ocr-btn p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Etiqueta (OCR)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                </button>
+                            </div>
                         </div>
                         <div id="weight-info" class="hidden mt-2 text-sm font-semibold text-emerald-600 bg-emerald-50 p-2 rounded-md"></div>
                     </div>
@@ -273,7 +302,7 @@
                             <div class="relative flex items-center">
                                 <label for="casillero" class="absolute -top-6 left-0 block text-sm font-medium text-slate-600">Casillero o Nombre</label>
                                 <input type="text" id="casillero" placeholder="Buscar por nombre o escanear casillero..." class="w-full p-2 pr-12 border border-slate-300 rounded-md">
-                                <button id="scan-casillero-ocr-btn" class="absolute right-1 p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Etiqueta (OCR)">
+                                <button id="scan-casillero-ocr-btn" data-target="casillero" class="scan-ocr-btn absolute right-1 p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Etiqueta (OCR)">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                 </button>
                             </div>
@@ -283,7 +312,10 @@
                             </div>
                             <div class="md:col-span-2">
                                 <label for="sucursal" class="block text-sm font-medium text-slate-600 mb-1">Sucursal</label>
-                                <input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
+                                <div class="flex items-center gap-2">
+                                    <span id="sucursal-color-dot" class="h-4 w-4 rounded-full bg-slate-200 transition-colors"></span>
+                                    <input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -331,6 +363,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
