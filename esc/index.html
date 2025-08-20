@@ -31,7 +31,7 @@
         .modal-content {
             transition: all 0.3s ease-in-out;
         }
-        #video-feed, #barcode-reader {
+        #video-feed {
             border: 2px solid #e5e7eb;
             border-radius: 0.5rem;
             width: 100%;
@@ -112,33 +112,32 @@
         }
 
         function initializeAllScanners() {
-            // --- Lógica para el Escáner OCR ---
-            const ocrScannerModal = document.getElementById('ocr-scanner-modal');
-            const openOcrBtn = document.getElementById('open-ocr-btn');
-            const closeOcrBtn = document.getElementById('close-ocr-btn');
+            const scannerModal = document.getElementById('ocr-scanner-modal');
+            const openScannerBtn = document.getElementById('open-ocr-btn');
+            const closeScannerBtn = document.getElementById('close-ocr-btn');
             const captureBtn = document.getElementById('capture-ocr-btn');
             const videoFeed = document.getElementById('video-feed');
             const ocrStatus = document.getElementById('ocr-status');
-            let ocrStream;
+            let stream;
             let ocrWorker;
 
-            const startOcrCamera = async () => {
+            const startCamera = async () => {
                 try {
-                    ocrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                    videoFeed.srcObject = ocrStream;
+                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                    videoFeed.srcObject = stream;
                     ocrStatus.textContent = 'Cámara lista. Apunte a la etiqueta y presione "Capturar".';
                     captureBtn.disabled = false;
                 } catch (err) {
                     showAlert("No se pudo acceder a la cámara. Asegúrate de dar los permisos necesarios.");
-                    stopOcrCamera();
+                    stopCamera();
                 }
             };
 
-            const stopOcrCamera = () => {
-                if (ocrStream) {
-                    ocrStream.getTracks().forEach(track => track.stop());
+            const stopCamera = () => {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
                 }
-                ocrScannerModal.classList.add('hidden');
+                scannerModal.classList.add('hidden');
             };
 
             const captureAndProcessImage = async () => {
@@ -148,30 +147,66 @@
                 const canvas = document.createElement('canvas');
                 canvas.width = videoFeed.videoWidth;
                 canvas.height = videoFeed.videoHeight;
-                canvas.getContext('2d').drawImage(videoFeed, 0, 0, canvas.width, canvas.height);
+                const context = canvas.getContext('2d');
+                context.drawImage(videoFeed, 0, 0, canvas.width, canvas.height);
+                const imageDataUrl = canvas.toDataURL('image/jpeg');
                 
-                ocrWorker = await Tesseract.createWorker('spa');
-                const { data: { text } } = await ocrWorker.recognize(canvas.toDataURL('image/jpeg'));
-                await ocrWorker.terminate();
+                // Iniciar ambos procesos en paralelo
+                const ocrPromise = Tesseract.createWorker('spa').then(worker => {
+                    return worker.recognize(imageDataUrl).finally(() => worker.terminate());
+                });
+                
+                const barcodePromise = new Promise((resolve, reject) => {
+                    const html5QrCode = new Html5Qrcode("content"); // Elemento dummy
+                    html5QrCode.scanFile(dataURLtoFile(imageDataUrl, 'scan.jpg'), false)
+                        .then(decodedText => resolve(decodedText))
+                        .catch(err => resolve(null)); // Resuelve a null si no encuentra barcode
+                });
 
-                parseOcrText(text);
-                stopOcrCamera();
+                const [ocrResult, barcodeResult] = await Promise.all([ocrPromise, barcodePromise]);
+                
+                parseResults(ocrResult.data.text, barcodeResult);
+                stopCamera();
             };
+            
+            const dataURLtoFile = (dataurl, filename) => {
+                let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                    bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                while(n--){
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                return new File([u8arr], filename, {type:mime});
+            }
 
-            const parseOcrText = (text) => {
-                let trackingFound = '', casilleroFound = '';
-                const words = text.replace(/\n/g, ' ').split(' ');
-
-                for (const word of words) {
-                    const cleanedWord = word.trim();
-                    const pkg = db.packages.find(p => p.tracking.toUpperCase() === cleanedWord.toUpperCase());
+            const parseResults = (ocrText, barcodeText) => {
+                let trackingFound = '';
+                let casilleroFound = '';
+                
+                // Prioridad 1: Usar el resultado del código de barras si existe
+                if (barcodeText) {
+                    trackingFound = barcodeText;
+                    const pkg = db.packages.find(p => p.tracking.toUpperCase() === trackingFound.toUpperCase());
                     if (pkg) {
-                        trackingFound = pkg.tracking;
-                        document.getElementById('peso').value = `${pkg.weight} lbs`; 
-                        break;
+                        document.getElementById('peso').value = `${pkg.weight} lbs`;
+                    }
+                }
+
+                const words = ocrText.replace(/\n/g, ' ').split(' ');
+                
+                // Si el tracking no se encontró por código de barras, buscarlo por OCR
+                if (!trackingFound) {
+                    for (const word of words) {
+                        const cleanedWord = word.trim();
+                        const pkg = db.packages.find(p => p.tracking.toUpperCase() === cleanedWord.toUpperCase());
+                        if (pkg) {
+                            trackingFound = pkg.tracking;
+                            document.getElementById('peso').value = `${pkg.weight} lbs`; 
+                            break;
+                        }
                     }
                 }
                 
+                // Buscar casillero por OCR
                 for (const word of words) {
                     const cleanedWord = word.trim();
                     const client = db.clients.find(c => c.box.toUpperCase() === cleanedWord.toUpperCase());
@@ -188,43 +223,12 @@
                     casilleroInput.dispatchEvent(new Event('blur'));
                 }
 
-                if (!trackingFound && !casilleroFound) showAlert("OCR: No se encontró un tracking o casillero conocido.");
+                if (!trackingFound && !casilleroFound) showAlert("No se pudo encontrar un tracking o casillero conocido en la etiqueta.");
             };
 
-            openOcrBtn.addEventListener('click', () => { ocrScannerModal.classList.remove('hidden'); startOcrCamera(); });
-            closeOcrBtn.addEventListener('click', stopOcrCamera);
+            openScannerBtn.addEventListener('click', () => { scannerModal.classList.remove('hidden'); startCamera(); });
+            closeScannerBtn.addEventListener('click', stopCamera);
             captureBtn.addEventListener('click', captureAndProcessImage);
-
-            // --- Lógica para el Escáner de Código de Barras ---
-            const barcodeScannerModal = document.getElementById('barcode-scanner-modal');
-            const openBarcodeBtn = document.getElementById('scan-tracking-barcode-btn');
-            const closeBarcodeBtn = document.getElementById('close-barcode-btn');
-            let html5QrcodeScanner;
-
-            const onBarcodeScanSuccess = (decodedText, decodedResult) => {
-                document.getElementById('tracking-main').value = decodedText;
-                stopBarcodeScanner();
-            };
-
-            const startBarcodeScanner = () => {
-                barcodeScannerModal.classList.remove('hidden');
-                html5QrcodeScanner = new Html5Qrcode("barcode-reader");
-                html5QrcodeScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, onBarcodeScanSuccess)
-                    .catch(err => {
-                        showAlert("No se pudo iniciar el escáner de código de barras.");
-                        stopBarcodeScanner();
-                    });
-            };
-
-            const stopBarcodeScanner = () => {
-                if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
-                    html5QrcodeScanner.stop().catch(err => console.error("Error al detener el escáner de código de barras.", err));
-                }
-                barcodeScannerModal.classList.add('hidden');
-            };
-
-            openBarcodeBtn.addEventListener('click', startBarcodeScanner);
-            closeBarcodeBtn.addEventListener('click', stopBarcodeScanner);
         }
 
         // --- PLANTILLA DE LA VISTA ---
@@ -234,17 +238,14 @@
                     <h1 class="text-3xl font-bold text-slate-900 flex items-center"><span class="code">[OP-03A]</span>Recepción de Paquete</h1>
                     <button id="open-ocr-btn" class="flex items-center gap-2 bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-600 transition-all transform hover:-translate-y-px shadow-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                        <span>Escanear Etiqueta (OCR)</span>
+                        <span>Escanear Etiqueta</span>
                     </button>
                 </div>
                 <div class="bg-white p-8 rounded-lg border border-slate-200 shadow-sm max-w-4xl mx-auto space-y-8">
                     <div>
                         <label for="tracking-main" class="block text-lg font-semibold text-slate-700 mb-2">1. Tracking Principal</label>
                         <div class="relative flex items-center">
-                            <input type="text" id="tracking-main" placeholder="Ingresar o escanear tracking..." class="w-full text-lg pl-4 pr-12 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 transition">
-                            <button id="scan-tracking-barcode-btn" class="absolute right-2 p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Código de Barras">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6.5 6.5l-1.5-1.5M4 12H2m13.5-6.5l-1.5 1.5M12 20v-1m0-10V4m0 18a9 9 0 110-18 9 9 0 010 18z" /></svg>
-                            </button>
+                            <input type="text" id="tracking-main" placeholder="Ingresar o escanear tracking..." class="w-full text-lg pl-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 transition">
                         </div>
                     </div>
                     
@@ -292,16 +293,6 @@
                         <button id="capture-ocr-btn" class="w-full mt-4 bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 transition-all disabled:opacity-50" disabled>Capturar Imagen</button>
                     </div>
                 </div>
-
-                <!-- Modal de Escáner de Código de Barras -->
-                <div id="barcode-scanner-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
-                    <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6 relative">
-                        <button id="close-barcode-btn" class="absolute top-2 right-2 text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
-                        <h2 class="text-xl font-bold text-slate-800 mb-4">Escanear Código de Barras</h2>
-                        <div id="barcode-reader" class="w-full"></div>
-                        <p class="text-xs text-slate-500 mt-4 text-center">Apunte la cámara al código de barras o QR.</p>
-                    </div>
-                </div>
             `;
         }
 
@@ -314,6 +305,7 @@
     </script>
 </body>
 </html>
+
 
 
 
