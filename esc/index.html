@@ -57,6 +57,10 @@
                 { id: 1, box: 'PASC12345', name: 'Juan Pérez', sucursal: 'Vía España' },
                 { id: 2, box: 'PASC54321', name: 'Maria Rodriguez', sucursal: 'El Dorado' },
                 { id: 3, box: 'PASC4684', name: 'Angie Cassorla', sucursal: 'Condado del Rey' }
+            ],
+            packages: [
+                { id: 4, tracking: 'GF6409973277748', status: 'En Bodega Miami', clientId: null, weight: 2.0 },
+                { id: 5, tracking: '1Z456566552525', status: 'En Bodega Miami', clientId: null, weight: 5.0 },
             ]
         };
 
@@ -114,39 +118,54 @@
                 const cleanedText = decodedText.trim();
                 const parts = cleanedText.split(',');
 
-                // Caso 1: Escaneo combinado (formato: TRACKING,PASCXXXXX)
+                const showScanError = (message) => {
+                    const readerElement = document.getElementById('reader');
+                    readerElement.style.borderColor = 'red';
+                    showAlert(message);
+                    setTimeout(() => {
+                         readerElement.style.borderColor = '#e5e7eb';
+                    }, 2500);
+                };
+
+                // Caso 1: Escaneo combinado (formato: TRACKING,CASILLERO)
                 if (parts.length === 2) {
                     const trackingNumber = parts[0].trim();
                     const casilleroNumber = parts[1].trim();
+                    const client = db.clients.find(c => c.box.toUpperCase() === casilleroNumber.toUpperCase());
+                    const pkg = db.packages.find(p => p.tracking.toUpperCase() === trackingNumber.toUpperCase());
 
-                    if (casilleroNumber.toUpperCase().startsWith('PASC') && trackingNumber.length > 8) {
+                    if (client && pkg) {
                         document.getElementById('tracking-main').value = trackingNumber;
                         const casilleroInput = document.getElementById('casillero');
                         casilleroInput.value = casilleroNumber;
-                        casilleroInput.dispatchEvent(new Event('blur')); // Dispara el evento para buscar cliente
+                        casilleroInput.dispatchEvent(new Event('blur'));
                         stopScanner();
                     } else {
-                        showAlert("Formato de QR combinado no es válido. Asegúrese que sea 'TRACKING,PASCXXXXX' y que el tracking tenga más de 8 caracteres.");
+                        showScanError("QR combinado no válido. Verifique que el tracking y el casillero existan en el sistema.");
                     }
-                // Caso 2: Escaneo de Casillero individual
-                } else if (cleanedText.toUpperCase().startsWith('PASC')) {
+                    return;
+                }
+
+                // Caso 2: Escaneo individual. Primero verificamos si es un casillero conocido.
+                const client = db.clients.find(c => c.box.toUpperCase() === cleanedText.toUpperCase());
+                if (client) {
                     const casilleroInput = document.getElementById('casillero');
                     casilleroInput.value = cleanedText;
-                    casilleroInput.dispatchEvent(new Event('blur')); // Dispara el evento para buscar cliente
+                    casilleroInput.dispatchEvent(new Event('blur'));
                     stopScanner();
-                // Caso 3: Escaneo de Tracking individual
-                } else if (cleanedText.length > 8) {
+                    return;
+                }
+
+                // Caso 3: Si no es un casillero, verificamos si es un tracking conocido.
+                const pkg = db.packages.find(p => p.tracking.toUpperCase() === cleanedText.toUpperCase());
+                if (pkg) {
                     document.getElementById('tracking-main').value = cleanedText;
                     stopScanner();
-                // Caso 4: Error de formato
-                } else {
-                    const readerElement = document.getElementById('reader');
-                    readerElement.style.borderColor = 'red';
-                    showAlert("Código no reconocido. No parece ser un tracking (>8 caracteres) ni un casillero (que inicie con PASC).");
-                    setTimeout(() => {
-                         readerElement.style.borderColor = '#e5e7eb';
-                    }, 2000);
+                    return;
                 }
+
+                // Caso 4: No se encontró en ninguna base de datos.
+                showScanError("Código no reconocido. No se encontró como casillero ni como tracking en la base de datos.");
             };
 
             const startScanner = () => {
@@ -237,6 +256,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
