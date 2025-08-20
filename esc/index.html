@@ -53,6 +53,9 @@
         </div>
     </div>
 
+    <!-- Container oculto para el escáner de código de barras -->
+    <div id="barcode-scanner-container" style="display: none;"></div>
+
     <script>
         // --- MINI BASE DE DATOS (SOLO PARA PRUEBAS) ---
         const db = {
@@ -151,16 +154,15 @@
                 context.drawImage(videoFeed, 0, 0, canvas.width, canvas.height);
                 const imageDataUrl = canvas.toDataURL('image/jpeg');
                 
-                // Iniciar ambos procesos en paralelo
                 const ocrPromise = Tesseract.createWorker('spa').then(worker => {
                     return worker.recognize(imageDataUrl).finally(() => worker.terminate());
                 });
                 
-                const barcodePromise = new Promise((resolve, reject) => {
-                    const html5QrCode = new Html5Qrcode("content"); // Elemento dummy
+                const barcodePromise = new Promise((resolve) => {
+                    const html5QrCode = new Html5Qrcode("barcode-scanner-container");
                     html5QrCode.scanFile(dataURLtoFile(imageDataUrl, 'scan.jpg'), false)
                         .then(decodedText => resolve(decodedText))
-                        .catch(err => resolve(null)); // Resuelve a null si no encuentra barcode
+                        .catch(err => resolve(null));
                 });
 
                 const [ocrResult, barcodeResult] = await Promise.all([ocrPromise, barcodePromise]);
@@ -182,7 +184,6 @@
                 let trackingFound = '';
                 let casilleroFound = '';
                 
-                // Prioridad 1: Usar el resultado del código de barras si existe
                 if (barcodeText) {
                     trackingFound = barcodeText;
                     const pkg = db.packages.find(p => p.tracking.toUpperCase() === trackingFound.toUpperCase());
@@ -193,7 +194,6 @@
 
                 const words = ocrText.replace(/\n/g, ' ').split(' ');
                 
-                // Si el tracking no se encontró por código de barras, buscarlo por OCR
                 if (!trackingFound) {
                     for (const word of words) {
                         const cleanedWord = word.trim();
@@ -206,7 +206,6 @@
                     }
                 }
                 
-                // Buscar casillero por OCR
                 for (const word of words) {
                     const cleanedWord = word.trim();
                     const client = db.clients.find(c => c.box.toUpperCase() === cleanedWord.toUpperCase());
@@ -305,7 +304,6 @@
     </script>
 </body>
 </html>
-
 
 
 
