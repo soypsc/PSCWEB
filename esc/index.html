@@ -110,65 +110,20 @@
 
         function initializeScannerListeners() {
             const scannerModal = document.getElementById('scanner-modal');
-            const openScannerBtn = document.getElementById('open-scanner-btn');
             const closeScannerBtn = document.getElementById('close-scanner-btn');
             let html5QrcodeScanner;
+            let currentScanTargetInput; // Variable para saber qué input llenar
 
             const onScanSuccess = (decodedText, decodedResult) => {
-                const cleanedText = decodedText.trim();
-                const parts = cleanedText.split(',');
-
-                const showScanError = (message) => {
-                    const readerElement = document.getElementById('reader');
-                    readerElement.style.borderColor = 'red';
-                    showAlert(message);
-                    setTimeout(() => {
-                         readerElement.style.borderColor = '#e5e7eb';
-                    }, 2500);
-                };
-
-                // Caso 1: Escaneo combinado (formato: TRACKING,CASILLERO)
-                if (parts.length === 2) {
-                    const trackingNumber = parts[0].trim();
-                    const casilleroNumber = parts[1].trim();
-                    const client = db.clients.find(c => c.box.toUpperCase() === casilleroNumber.toUpperCase());
-                    const pkg = db.packages.find(p => p.tracking.toUpperCase() === trackingNumber.toUpperCase());
-
-                    if (client && pkg) {
-                        document.getElementById('tracking-main').value = trackingNumber;
-                        const casilleroInput = document.getElementById('casillero');
-                        casilleroInput.value = casilleroNumber;
-                        casilleroInput.dispatchEvent(new Event('blur'));
-                        stopScanner();
-                    } else {
-                        showScanError("QR combinado no válido. Verifique que el tracking y el casillero existan en el sistema.");
-                    }
-                    return;
-                }
-
-                // Caso 2: Escaneo individual. Primero verificamos si es un casillero conocido.
-                const client = db.clients.find(c => c.box.toUpperCase() === cleanedText.toUpperCase());
-                if (client) {
-                    const casilleroInput = document.getElementById('casillero');
-                    casilleroInput.value = cleanedText;
-                    casilleroInput.dispatchEvent(new Event('blur'));
+                if (currentScanTargetInput) {
+                    currentScanTargetInput.value = decodedText;
+                    currentScanTargetInput.dispatchEvent(new Event('blur')); // Dispara el evento para buscar cliente o avanzar
                     stopScanner();
-                    return;
                 }
-
-                // Caso 3: Si no es un casillero, verificamos si es un tracking conocido.
-                const pkg = db.packages.find(p => p.tracking.toUpperCase() === cleanedText.toUpperCase());
-                if (pkg) {
-                    document.getElementById('tracking-main').value = cleanedText;
-                    stopScanner();
-                    return;
-                }
-
-                // Caso 4: No se encontró en ninguna base de datos.
-                showScanError("Código no reconocido. No se encontró como casillero ni como tracking en la base de datos.");
             };
 
-            const startScanner = () => {
+            const startScanner = (targetInputId) => {
+                currentScanTargetInput = document.getElementById(targetInputId);
                 scannerModal.classList.remove('hidden');
                 html5QrcodeScanner = new Html5Qrcode("reader");
                 const config = { fps: 10, qrbox: { width: 250, height: 250 } };
@@ -187,7 +142,8 @@
                 scannerModal.classList.add('hidden');
             };
 
-            if(openScannerBtn) openScannerBtn.addEventListener('click', startScanner);
+            document.getElementById('scan-tracking-btn').addEventListener('click', () => startScanner('tracking-main'));
+            document.getElementById('scan-casillero-btn').addEventListener('click', () => startScanner('casillero'));
             if(closeScannerBtn) closeScannerBtn.addEventListener('click', stopScanner);
         }
 
@@ -196,26 +152,36 @@
             return `
                 <div class="flex justify-between items-center mb-8">
                     <h1 class="text-3xl font-bold text-slate-900 flex items-center"><span class="code">[OP-03A]</span>Recepción de Paquete</h1>
-                    <button id="open-scanner-btn" class="flex items-center gap-2 bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-600 transition-all transform hover:-translate-y-px shadow-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6.5 6.5l-1.5-1.5M4 12H2m13.5-6.5l-1.5 1.5M12 20v-1m0-10V4m0 18a9 9 0 110-18 9 9 0 010 18z" /></svg>
-                        <span>Escanear Código</span>
-                    </button>
                 </div>
                 <div class="bg-white p-8 rounded-lg border border-slate-200 shadow-sm max-w-4xl mx-auto space-y-8">
                     <div>
                         <label for="tracking-main" class="block text-lg font-semibold text-slate-700 mb-2">1. Tracking Principal</label>
-                        <div class="relative">
-                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
-                            <input type="text" id="tracking-main" placeholder="Escanear o ingresar tracking..." class="w-full text-lg pl-12 pr-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 transition">
+                        <div class="relative flex items-center">
+                            <input type="text" id="tracking-main" placeholder="Ingresar o escanear tracking..." class="w-full text-lg pl-4 pr-12 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 transition">
+                            <button id="scan-tracking-btn" class="absolute right-2 p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Tracking">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6.5 6.5l-1.5-1.5M4 12H2m13.5-6.5l-1.5 1.5M12 20v-1m0-10V4m0 18a9 9 0 110-18 9 9 0 010 18z" /></svg>
+                            </button>
                         </div>
                     </div>
                     
                     <div>
                         <h2 class="text-lg font-semibold text-slate-700 mb-4">2. Asignar Cliente</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div><label for="casillero" class="block text-sm font-medium text-slate-600 mb-1">Casillero</label><input type="text" id="casillero" placeholder="Escanear o ingresar casillero..." class="w-full p-2 border border-slate-300 rounded-md"></div>
-                            <div><label for="cliente" class="block text-sm font-medium text-slate-600 mb-1">Cliente</label><input type="text" id="cliente" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100"></div>
-                            <div class="md:col-span-2"><label for="sucursal" class="block text-sm font-medium text-slate-600 mb-1">Sucursal</label><input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100"></div>
+                            <div class="relative flex items-center">
+                                <label for="casillero" class="absolute -top-6 left-0 block text-sm font-medium text-slate-600">Casillero</label>
+                                <input type="text" id="casillero" placeholder="Ingresar o escanear casillero..." class="w-full p-2 pr-12 border border-slate-300 rounded-md">
+                                <button id="scan-casillero-btn" class="absolute right-1 p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Casillero">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6.5 6.5l-1.5-1.5M4 12H2m13.5-6.5l-1.5 1.5M12 20v-1m0-10V4m0 18a9 9 0 110-18 9 9 0 010 18z" /></svg>
+                                </button>
+                            </div>
+                            <div>
+                                <label for="cliente" class="block text-sm font-medium text-slate-600 mb-1">Cliente</label>
+                                <input type="text" id="cliente" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="sucursal" class="block text-sm font-medium text-slate-600 mb-1">Sucursal</label>
+                                <input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
+                            </div>
                         </div>
                     </div>
 
@@ -256,6 +222,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
