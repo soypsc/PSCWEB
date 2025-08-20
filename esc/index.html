@@ -111,23 +111,37 @@
 
             const onScanSuccess = (decodedText, decodedResult) => {
                 const cleanedText = decodedText.trim();
+                const parts = cleanedText.split(',');
 
-                if (cleanedText.toUpperCase().startsWith('PASC')) {
+                // Caso 1: Escaneo combinado (formato: TRACKING,PASCXXXXX)
+                if (parts.length === 2) {
+                    const trackingNumber = parts[0].trim();
+                    const casilleroNumber = parts[1].trim();
+
+                    if (casilleroNumber.toUpperCase().startsWith('PASC') && trackingNumber.length > 8) {
+                        document.getElementById('tracking-main').value = trackingNumber;
+                        const casilleroInput = document.getElementById('casillero');
+                        casilleroInput.value = casilleroNumber;
+                        casilleroInput.dispatchEvent(new Event('blur')); // Dispara el evento para buscar cliente
+                        stopScanner();
+                    } else {
+                        showAlert("Formato de QR combinado no es válido. Asegúrese que sea 'TRACKING,PASCXXXXX' y que el tracking tenga más de 8 caracteres.");
+                    }
+                // Caso 2: Escaneo de Casillero individual
+                } else if (cleanedText.toUpperCase().startsWith('PASC')) {
                     const casilleroInput = document.getElementById('casillero');
                     casilleroInput.value = cleanedText;
                     casilleroInput.dispatchEvent(new Event('blur')); // Dispara el evento para buscar cliente
                     stopScanner();
-
-                } else if (cleanedText.length > 6) {
-                    const trackingInput = document.getElementById('tracking-main');
-                    trackingInput.value = cleanedText;
-                    trackingInput.dispatchEvent(new Event('blur')); // Dispara el evento para mostrar siguientes pasos
+                // Caso 3: Escaneo de Tracking individual
+                } else if (cleanedText.length > 8) {
+                    document.getElementById('tracking-main').value = cleanedText;
                     stopScanner();
-                    
+                // Caso 4: Error de formato
                 } else {
                     const readerElement = document.getElementById('reader');
                     readerElement.style.borderColor = 'red';
-                    showAlert("Código no reconocido. Asegúrese que sea un tracking válido o un casillero (ej: PASC12345).");
+                    showAlert("Código no reconocido. No parece ser un tracking (>8 caracteres) ni un casillero (que inicie con PASC).");
                     setTimeout(() => {
                          readerElement.style.borderColor = '#e5e7eb';
                     }, 2000);
@@ -177,22 +191,22 @@
                     </div>
                     
                     <div>
-                        <h2 class="text-lg font-semibold text-slate-700 mb-4">2. Detalles del Paquete</h2>
+                        <h2 class="text-lg font-semibold text-slate-700 mb-4">2. Asignar Cliente</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div><label for="casillero" class="block text-sm font-medium text-slate-600 mb-1">Casillero</label><input type="text" id="casillero" placeholder="Escanear o ingresar casillero..." class="w-full p-2 border border-slate-300 rounded-md"></div>
+                            <div><label for="cliente" class="block text-sm font-medium text-slate-600 mb-1">Cliente</label><input type="text" id="cliente" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100"></div>
+                            <div class="md:col-span-2"><label for="sucursal" class="block text-sm font-medium text-slate-600 mb-1">Sucursal</label><input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h2 class="text-lg font-semibold text-slate-700 mb-4">3. Detalles del Paquete</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div><label for="tracking-sec" class="block text-sm font-medium text-slate-600 mb-1">Tracking Secundario (Opcional)</label><input type="text" id="tracking-sec" class="w-full p-2 border border-slate-300 rounded-md"></div>
                             <div><label for="anaquel" class="block text-sm font-medium text-slate-600 mb-1">Anaquel</label><select id="anaquel" class="w-full p-2 border border-slate-300 rounded-md"><option>A-01</option><option>A-02</option><option>B-01</option></select></div>
                             <div><label for="peso" class="block text-sm font-medium text-slate-600 mb-1">Peso (Libras)</label><input type="text" id="peso" value="5.2 lbs" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100"></div>
                             <div><label class="block text-sm font-medium text-slate-600 mb-1">¿Es Marítimo?</label><div class="flex gap-4 mt-2"><label class="flex items-center"><input type="radio" name="maritimo" value="si" class="h-4 w-4 text-emerald-600 border-slate-300 focus:ring-emerald-500"> <span class="ml-2">Sí</span></label><label class="flex items-center"><input type="radio" name="maritimo" value="no" class="h-4 w-4 text-emerald-600 border-slate-300 focus:ring-emerald-500" checked> <span class="ml-2">No</span></label></div></div>
                             <div id="carga-peligrosa-section" class="hidden"><label class="block text-sm font-medium text-slate-600 mb-1">¿Carga Peligrosa?</label><div class="flex gap-4 mt-2"><label class="flex items-center"><input type="radio" name="peligrosa" value="si" class="h-4 w-4 text-emerald-600 border-slate-300 focus:ring-emerald-500"> <span class="ml-2">Sí</span></label><label class="flex items-center"><input type="radio" name="peligrosa" value="no" class="h-4 w-4 text-emerald-600 border-slate-300 focus:ring-emerald-500" checked> <span class="ml-2">No</span></label></div></div>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h2 class="text-lg font-semibold text-slate-700 mb-4">3. Asignar Cliente</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div><label for="casillero" class="block text-sm font-medium text-slate-600 mb-1">Casillero</label><input type="text" id="casillero" placeholder="Escanear o ingresar casillero..." class="w-full p-2 border border-slate-300 rounded-md"></div>
-                            <div><label for="cliente" class="block text-sm font-medium text-slate-600 mb-1">Cliente</label><input type="text" id="cliente" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100"></div>
-                            <div class="md:col-span-2"><label for="sucursal" class="block text-sm font-medium text-slate-600 mb-1">Sucursal</label><input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100"></div>
                         </div>
                     </div>
                     
@@ -222,5 +236,7 @@
     </script>
 </body>
 </html>
+
+
 
 
