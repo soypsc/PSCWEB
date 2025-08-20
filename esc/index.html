@@ -23,19 +23,6 @@
             border-radius: 6px;
             user-select: none;
         }
-        .form-section {
-            transition: all 0.5s ease-in-out;
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            transform: translateY(-10px);
-        }
-        .form-section.visible {
-            max-height: 1000px;
-            opacity: 1;
-            transform: translateY(0);
-            margin-top: 1.5rem;
-        }
         .modal-backdrop {
             transition: opacity 0.3s ease-in-out;
         }
@@ -90,20 +77,6 @@
 
         // --- LÓGICA DEL MÓDULO ---
         function initializeRecibirPaqueteListeners() {
-            const trackingInput = document.getElementById('tracking-main');
-            const step2 = document.getElementById('step2');
-            const step3 = document.getElementById('step3');
-            const step4 = document.getElementById('step4');
-            
-            if (!trackingInput) return;
-
-            trackingInput.addEventListener('blur', () => {
-                if (trackingInput.value.trim() !== '') {
-                    step2.classList.add('visible');
-                    step3.classList.add('visible');
-                }
-            });
-
             document.querySelectorAll('input[name="maritimo"]').forEach(radio => {
                 radio.addEventListener('change', (e) => {
                     const cargaSection = document.getElementById('carga-peligrosa-section');
@@ -121,11 +94,9 @@
                 if (client) {
                     document.getElementById('cliente').value = client.name;
                     document.getElementById('sucursal').value = client.sucursal;
-                    step4.classList.add('visible');
                 } else {
                     document.getElementById('cliente').value = 'Cliente no encontrado';
                     document.getElementById('sucursal').value = '';
-                    step4.classList.remove('visible');
                 }
             });
             
@@ -144,13 +115,13 @@
                 if (cleanedText.toUpperCase().startsWith('PASC')) {
                     const casilleroInput = document.getElementById('casillero');
                     casilleroInput.value = cleanedText;
-                    casilleroInput.dispatchEvent(new Event('blur'));
+                    casilleroInput.dispatchEvent(new Event('blur')); // Dispara el evento para buscar cliente
                     stopScanner();
 
                 } else if (cleanedText.length > 6) {
                     const trackingInput = document.getElementById('tracking-main');
                     trackingInput.value = cleanedText;
-                    trackingInput.dispatchEvent(new Event('blur'));
+                    trackingInput.dispatchEvent(new Event('blur')); // Dispara el evento para mostrar siguientes pasos
                     stopScanner();
                     
                 } else {
@@ -196,15 +167,16 @@
                         <span>Escanear Código</span>
                     </button>
                 </div>
-                <div class="bg-white p-8 rounded-lg border border-slate-200 shadow-sm max-w-4xl mx-auto">
-                    <div id="step1">
+                <div class="bg-white p-8 rounded-lg border border-slate-200 shadow-sm max-w-4xl mx-auto space-y-8">
+                    <div>
                         <label for="tracking-main" class="block text-lg font-semibold text-slate-700 mb-2">1. Tracking Principal</label>
                         <div class="relative">
                              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
                             <input type="text" id="tracking-main" placeholder="Escanear o ingresar tracking..." class="w-full text-lg pl-12 pr-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 transition">
                         </div>
                     </div>
-                    <div id="step2" class="form-section">
+                    
+                    <div>
                         <h2 class="text-lg font-semibold text-slate-700 mb-4">2. Detalles del Paquete</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div><label for="tracking-sec" class="block text-sm font-medium text-slate-600 mb-1">Tracking Secundario (Opcional)</label><input type="text" id="tracking-sec" class="w-full p-2 border border-slate-300 rounded-md"></div>
@@ -214,7 +186,8 @@
                             <div id="carga-peligrosa-section" class="hidden"><label class="block text-sm font-medium text-slate-600 mb-1">¿Carga Peligrosa?</label><div class="flex gap-4 mt-2"><label class="flex items-center"><input type="radio" name="peligrosa" value="si" class="h-4 w-4 text-emerald-600 border-slate-300 focus:ring-emerald-500"> <span class="ml-2">Sí</span></label><label class="flex items-center"><input type="radio" name="peligrosa" value="no" class="h-4 w-4 text-emerald-600 border-slate-300 focus:ring-emerald-500" checked> <span class="ml-2">No</span></label></div></div>
                         </div>
                     </div>
-                    <div id="step3" class="form-section">
+                    
+                    <div>
                         <h2 class="text-lg font-semibold text-slate-700 mb-4">3. Asignar Cliente</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div><label for="casillero" class="block text-sm font-medium text-slate-600 mb-1">Casillero</label><input type="text" id="casillero" placeholder="Escanear o ingresar casillero..." class="w-full p-2 border border-slate-300 rounded-md"></div>
@@ -222,7 +195,10 @@
                             <div class="md:col-span-2"><label for="sucursal" class="block text-sm font-medium text-slate-600 mb-1">Sucursal</label><input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100"></div>
                         </div>
                     </div>
-                    <div id="step4" class="form-section"><button class="w-full bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all">Registrar Paquete</button></div>
+                    
+                    <div>
+                        <button class="w-full bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all">Registrar Paquete</button>
+                    </div>
                 </div>
 
                 <!-- Modal de Escáner -->
@@ -246,3 +222,5 @@
     </script>
 </body>
 </html>
+
+
