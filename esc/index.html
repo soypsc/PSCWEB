@@ -162,20 +162,18 @@
                 let trackingFound = '';
                 let casilleroFound = '';
                 
-                // Divide el texto reconocido en palabras para una búsqueda más precisa
                 const words = text.replace(/\n/g, ' ').split(' ');
 
-                // Buscar un tracking conocido en las palabras reconocidas
                 for (const word of words) {
                     const cleanedWord = word.trim();
                     const pkg = db.packages.find(p => p.tracking.toUpperCase() === cleanedWord.toUpperCase());
                     if (pkg) {
                         trackingFound = pkg.tracking;
+                        document.getElementById('peso').value = `${pkg.weight} lbs`; 
                         break; 
                     }
                 }
                 
-                // Buscar un casillero conocido en las palabras reconocidas
                 for (const word of words) {
                     const cleanedWord = word.trim();
                     const client = db.clients.find(c => c.box.toUpperCase() === cleanedWord.toUpperCase());
@@ -285,6 +283,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
