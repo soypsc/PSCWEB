@@ -101,8 +101,14 @@
 
             const casilleroInput = document.getElementById('casillero');
             casilleroInput.addEventListener('blur', () => {
-                const client = db.clients.find(c => c.box.toUpperCase() === casilleroInput.value.trim().toUpperCase());
+                const inputValue = casilleroInput.value.trim().toUpperCase();
+                let client = db.clients.find(c => c.box.toUpperCase() === inputValue);
+                if (!client) {
+                    client = db.clients.find(c => c.name.toUpperCase() === inputValue);
+                }
+
                 if (client) {
+                    casilleroInput.value = client.box;
                     document.getElementById('cliente').value = client.name;
                     document.getElementById('sucursal').value = client.sucursal;
                 } else {
@@ -163,12 +169,10 @@
             
             const parseOcrText = (text) => {
                 let casilleroFound = '';
-                const words = text.replace(/\n/g, ' ').split(' ');
+                const normalizedOcrText = text.toUpperCase();
                 
-                for (const word of words) {
-                    const cleanedWord = word.trim();
-                    const client = db.clients.find(c => c.box.toUpperCase() === cleanedWord.toUpperCase());
-                    if (client) {
+                for (const client of db.clients) {
+                    if (normalizedOcrText.includes(client.box.toUpperCase())) {
                         casilleroFound = client.box;
                         break;
                     }
@@ -245,7 +249,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="relative flex items-center">
                                 <label for="casillero" class="absolute -top-6 left-0 block text-sm font-medium text-slate-600">Casillero</label>
-                                <input type="text" id="casillero" placeholder="Ingresar o escanear casillero..." class="w-full p-2 pr-12 border border-slate-300 rounded-md">
+                                <input type="text" id="casillero" placeholder="Ingresar, buscar por nombre o escanear..." class="w-full p-2 pr-12 border border-slate-300 rounded-md">
                                 <button id="scan-casillero-ocr-btn" class="absolute right-1 p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Etiqueta (OCR)">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                 </button>
@@ -284,7 +288,7 @@
                         <h2 class="text-xl font-bold text-slate-800 mb-4">Escanear Etiqueta con Cámara</h2>
                         <div class="relative">
                             <video id="video-feed" autoplay playsinline></video>
-                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 h-24 border-2 border-dashed border-white rounded-lg pointer-events-none"></div>
+                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 h-16 border-2 border-dashed border-white rounded-lg pointer-events-none"></div>
                         </div>
                         <p id="ocr-status" class="text-sm text-slate-500 mt-2 text-center h-5">Iniciando cámara...</p>
                         <button id="capture-ocr-btn" class="w-full mt-4 bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 transition-all disabled:opacity-50" disabled>Capturar Imagen</button>
@@ -312,6 +316,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
