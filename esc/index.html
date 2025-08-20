@@ -144,7 +144,7 @@
                     document.getElementById('cliente').value = 'Cliente no encontrado';
                     document.getElementById('sucursal').value = '';
                     colorDot.classList.add('bg-slate-200');
-                    step3.classList.remove('visible');
+                    step3.classList.add('visible'); // Permitir avanzar aunque el cliente sea nuevo
                 }
             });
             
@@ -215,26 +215,31 @@
                         const client = db.clients.find(c => c.box.toUpperCase() === word.trim().toUpperCase());
                         if (client) {
                             currentOcrTargetInput.value = client.box;
-                            currentOcrTargetInput.dispatchEvent(new Event('blur'));
                             found = true;
                             break;
                         }
+                    }
+                    if (!found) {
+                        const candidate = words.find(w => w.trim().toUpperCase().startsWith('PASC'));
+                        currentOcrTargetInput.value = candidate ? candidate.trim() : '';
+                        if(!candidate) showAlert("OCR no pudo encontrar un casillero en la etiqueta.");
                     }
                 } else if (currentOcrTargetInput.id === 'tracking-main') {
                      for (const word of words) {
                         const pkg = db.packages.find(p => p.tracking.toUpperCase() === word.trim().toUpperCase());
                         if (pkg) {
                             currentOcrTargetInput.value = pkg.tracking;
-                            currentOcrTargetInput.dispatchEvent(new Event('blur'));
                             found = true;
                             break;
                         }
                     }
+                    if (!found) {
+                        const candidate = words.filter(w => w.length > 8).sort((a,b) => b.length - a.length)[0];
+                        currentOcrTargetInput.value = candidate ? candidate.trim() : '';
+                        if(!candidate) showAlert("OCR no pudo encontrar un tracking en la etiqueta.");
+                    }
                 }
-                
-                if (!found) {
-                    showAlert(`OCR no pudo encontrar un ${currentOcrTargetInput.id === 'casillero' ? 'casillero' : 'tracking'} conocido en la etiqueta.`);
-                }
+                currentOcrTargetInput.dispatchEvent(new Event('blur'));
             };
 
             openOcrBtns.forEach(btn => {
@@ -363,9 +368,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
