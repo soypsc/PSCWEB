@@ -115,10 +115,25 @@
             let currentScanTargetInput; // Variable para saber qué input llenar
 
             const onScanSuccess = (decodedText, decodedResult) => {
+                const cleanedText = decodedText.trim();
+
                 if (currentScanTargetInput) {
-                    currentScanTargetInput.value = decodedText;
-                    currentScanTargetInput.dispatchEvent(new Event('blur')); // Dispara el evento para buscar cliente o avanzar
-                    stopScanner();
+                    // Si el objetivo es el casillero, validamos contra la base de datos de clientes
+                    if (currentScanTargetInput.id === 'casillero') {
+                        const client = db.clients.find(c => c.box.toUpperCase() === cleanedText.toUpperCase());
+                        if (client) {
+                            currentScanTargetInput.value = cleanedText;
+                            currentScanTargetInput.dispatchEvent(new Event('blur'));
+                            stopScanner();
+                        } else {
+                            showAlert("Código escaneado no coincide con ningún casillero en la base de datos.");
+                        }
+                    // Si el objetivo es el tracking, simplemente lo llenamos
+                    } else if (currentScanTargetInput.id === 'tracking-main') {
+                        currentScanTargetInput.value = cleanedText;
+                        currentScanTargetInput.dispatchEvent(new Event('blur'));
+                        stopScanner();
+                    }
                 }
             };
 
@@ -222,6 +237,7 @@
     </script>
 </body>
 </html>
+
 
 
 
