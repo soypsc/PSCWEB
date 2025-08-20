@@ -150,7 +150,7 @@
                 const context = canvas.getContext('2d');
                 context.drawImage(videoFeed, 0, 0, canvas.width, canvas.height);
                 
-                worker = await Tesseract.createWorker('spa'); // Usar español para mejor reconocimiento
+                worker = await Tesseract.createWorker('spa');
                 const { data: { text } } = await worker.recognize(canvas.toDataURL('image/jpeg'));
                 await worker.terminate();
 
@@ -161,18 +161,25 @@
             const parseOcrText = (text) => {
                 let trackingFound = '';
                 let casilleroFound = '';
+                
+                // Divide el texto reconocido en palabras para una búsqueda más precisa
+                const words = text.replace(/\n/g, ' ').split(' ');
 
-                // Buscar un tracking conocido en el texto
-                for (const pkg of db.packages) {
-                    if (text.includes(pkg.tracking)) {
+                // Buscar un tracking conocido en las palabras reconocidas
+                for (const word of words) {
+                    const cleanedWord = word.trim();
+                    const pkg = db.packages.find(p => p.tracking.toUpperCase() === cleanedWord.toUpperCase());
+                    if (pkg) {
                         trackingFound = pkg.tracking;
-                        break;
+                        break; 
                     }
                 }
                 
-                // Buscar un casillero conocido en el texto
-                for (const client of db.clients) {
-                    if (text.includes(client.box)) {
+                // Buscar un casillero conocido en las palabras reconocidas
+                for (const word of words) {
+                    const cleanedWord = word.trim();
+                    const client = db.clients.find(c => c.box.toUpperCase() === cleanedWord.toUpperCase());
+                    if (client) {
                         casilleroFound = client.box;
                         break;
                     }
@@ -189,6 +196,10 @@
 
                 if (!trackingFound && !casilleroFound) {
                     showAlert("No se pudo encontrar un tracking o casillero conocido en la etiqueta. Por favor, ingréselos manualmente.");
+                } else if (!trackingFound) {
+                    showAlert("Se encontró el casillero, pero no el tracking. Ingrese el tracking manualmente.");
+                } else if (!casilleroFound) {
+                    showAlert("Se encontró el tracking, pero no el casillero. Ingrese el casillero manualmente.");
                 }
             };
 
@@ -241,7 +252,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div><label for="tracking-sec" class="block text-sm font-medium text-slate-600 mb-1">Tracking Secundario (Opcional)</label><input type="text" id="tracking-sec" class="w-full p-2 border border-slate-300 rounded-md"></div>
                             <div><label for="anaquel" class="block text-sm font-medium text-slate-600 mb-1">Anaquel</label><select id="anaquel" class="w-full p-2 border border-slate-300 rounded-md"><option>A-01</option><option>A-02</option><option>B-01</option></select></div>
-                            <div><label for="peso" class="block text-sm font-medium text-slate-600 mb-1">Peso (Libras)</label><input type="text" id="peso" value="2 lbs" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100"></div>
+                            <div><label for="peso" class="block text-sm font-medium text-slate-600 mb-1">Peso (Libras)</label><input type="text" id="peso" value="" placeholder="0.0 lbs" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100"></div>
                             <div><label class="block text-sm font-medium text-slate-600 mb-1">¿Es Marítimo?</label><div class="flex gap-4 mt-2"><label class="flex items-center"><input type="radio" name="maritimo" value="si" class="h-4 w-4 text-emerald-600 border-slate-300 focus:ring-emerald-500"> <span class="ml-2">Sí</span></label><label class="flex items-center"><input type="radio" name="maritimo" value="no" class="h-4 w-4 text-emerald-600 border-slate-300 focus:ring-emerald-500" checked> <span class="ml-2">No</span></label></div></div>
                             <div id="carga-peligrosa-section" class="hidden"><label class="block text-sm font-medium text-slate-600 mb-1">¿Carga Peligrosa?</label><div class="flex gap-4 mt-2"><label class="flex items-center"><input type="radio" name="peligrosa" value="si" class="h-4 w-4 text-emerald-600 border-slate-300 focus:ring-emerald-500"> <span class="ml-2">Sí</span></label><label class="flex items-center"><input type="radio" name="peligrosa" value="no" class="h-4 w-4 text-emerald-600 border-slate-300 focus:ring-emerald-500" checked> <span class="ml-2">No</span></label></div></div>
                         </div>
