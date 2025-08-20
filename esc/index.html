@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGL Módulo - Recibir Paquete (Híbrido)</title>
+    <title>SGL Módulo - Recibir Paquete (OCR + Barcode)</title>
     
     <!-- Librerías para OCR y Escáner de Códigos de Barras -->
     <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
@@ -193,10 +193,28 @@
                 ocrStatus.textContent = 'Procesando imagen... por favor espere.';
                 captureBtn.disabled = true;
 
+                const video = document.getElementById('video-feed');
+                const guideBox = document.getElementById('ocr-guide-box');
                 const canvas = document.createElement('canvas');
-                canvas.width = videoFeed.videoWidth;
-                canvas.height = videoFeed.videoHeight;
-                canvas.getContext('2d').drawImage(videoFeed, 0, 0, canvas.width, canvas.height);
+
+                const videoWidth = video.videoWidth;
+                const videoHeight = video.videoHeight;
+                const guideRect = guideBox.getBoundingClientRect();
+                const videoRect = video.getBoundingClientRect();
+
+                const scaleX = videoWidth / videoRect.width;
+                const scaleY = videoHeight / videoRect.height;
+
+                const cropX = (guideRect.left - videoRect.left) * scaleX;
+                const cropY = (guideRect.top - videoRect.top) * scaleY;
+                const cropWidth = guideRect.width * scaleX;
+                const cropHeight = guideRect.height * scaleY;
+
+                canvas.width = cropWidth;
+                canvas.height = cropHeight;
+
+                const context = canvas.getContext('2d');
+                context.drawImage(video, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
                 
                 ocrWorker = await Tesseract.createWorker('spa');
                 const { data: { text } } = await ocrWorker.recognize(canvas.toDataURL('image/jpeg'));
@@ -340,7 +358,7 @@
                         <h2 class="text-xl font-bold text-slate-800 mb-4">Escanear Etiqueta con Cámara</h2>
                         <div class="relative">
                             <video id="video-feed" autoplay playsinline></video>
-                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10/12 h-16 border-2 border-dashed border-white rounded-lg pointer-events-none"></div>
+                            <div id="ocr-guide-box" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10/12 h-12 border-2 border-dashed border-white rounded-lg pointer-events-none"></div>
                         </div>
                         <p id="ocr-status" class="text-sm text-slate-500 mt-2 text-center h-5">Iniciando cámara...</p>
                         <button id="capture-ocr-btn" class="w-full mt-4 bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 transition-all disabled:opacity-50" disabled>Capturar Imagen</button>
