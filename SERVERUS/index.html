@@ -94,11 +94,6 @@
             border-radius: 0.5rem;
             overflow: hidden;
         }
-        .scan-target-btn.active {
-            background-color: #6366f1; /* indigo-500 */
-            color: white;
-            font-weight: 600;
-        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -304,18 +299,30 @@
             const openScannerBtn = document.getElementById('open-scanner-btn');
             const closeScannerBtn = document.getElementById('close-scanner-btn');
             let html5QrcodeScanner;
-            let currentScanTarget = 'tracking'; // 'tracking' or 'casillero'
 
             const onScanSuccess = (decodedText, decodedResult) => {
-                if (currentScanTarget === 'tracking') {
-                    document.getElementById('tracking-main').value = decodedText;
-                    document.getElementById('tracking-main').dispatchEvent(new Event('blur'));
+                const parts = decodedText.split(','); 
+                if (parts.length === 2) {
+                    const trackingNumber = parts[0].trim();
+                    const casilleroNumber = parts[1].trim();
+
+                    const trackingInput = document.getElementById('tracking-main');
+                    trackingInput.value = trackingNumber;
+                    trackingInput.dispatchEvent(new Event('blur'));
+
+                    const casilleroInput = document.getElementById('casillero');
+                    casilleroInput.value = casilleroNumber;
+                    casilleroInput.dispatchEvent(new Event('blur'));
+
+                    stopScanner();
                 } else {
-                    document.getElementById('casillero').value = decodedText;
-                    document.getElementById('casillero').dispatchEvent(new Event('blur'));
+                    const readerElement = document.getElementById('reader');
+                    readerElement.style.borderColor = 'red';
+                    showAlert("Código no válido. Formato esperado: TRACKING,CASILLERO");
+                    setTimeout(() => {
+                         readerElement.style.borderColor = '#e5e7eb';
+                    }, 2000);
                 }
-                
-                stopScanner();
             };
 
             const startScanner = () => {
@@ -339,14 +346,6 @@
 
             openScannerBtn.addEventListener('click', startScanner);
             closeScannerBtn.addEventListener('click', stopScanner);
-            
-            document.querySelectorAll('.scan-target-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelector('.scan-target-btn.active').classList.remove('active');
-                    btn.classList.add('active');
-                    currentScanTarget = btn.dataset.target;
-                });
-            });
         }
 
 
@@ -681,10 +680,10 @@
                 </div>
                 <div class="bg-white p-8 rounded-lg border border-slate-200 shadow-sm max-w-4xl mx-auto">
                     <div id="step1">
-                        <label for="tracking-main" class="block text-lg font-semibold text-slate-700 mb-2">1. Escanear Tracking Principal</label>
+                        <label for="tracking-main" class="block text-lg font-semibold text-slate-700 mb-2">1. Tracking Principal</label>
                         <div class="relative">
                              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
-                            <input type="text" id="tracking-main" placeholder="Esperando escaneo de código de barras..." class="w-full text-lg pl-12 pr-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 transition">
+                            <input type="text" id="tracking-main" placeholder="Escanear o ingresar tracking..." class="w-full text-lg pl-12 pr-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 transition">
                         </div>
                     </div>
                     <div id="step2" class="form-section">
@@ -700,7 +699,7 @@
                     <div id="step3" class="form-section">
                         <h2 class="text-lg font-semibold text-slate-700 mb-4">3. Asignar Cliente</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div><label for="casillero" class="block text-sm font-medium text-slate-600 mb-1">Casillero</label><input type="text" id="casillero" placeholder="Ingrese el ID del casillero..." class="w-full p-2 border border-slate-300 rounded-md"></div>
+                            <div><label for="casillero" class="block text-sm font-medium text-slate-600 mb-1">Casillero</label><input type="text" id="casillero" placeholder="Escanear o ingresar casillero..." class="w-full p-2 border border-slate-300 rounded-md"></div>
                             <div><label for="cliente" class="block text-sm font-medium text-slate-600 mb-1">Cliente</label><input type="text" id="cliente" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100"></div>
                             <div class="md:col-span-2"><label for="sucursal" class="block text-sm font-medium text-slate-600 mb-1">Sucursal</label><input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100"></div>
                         </div>
@@ -712,12 +711,9 @@
                 <div id="scanner-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
                     <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6 relative">
                         <button id="close-scanner-btn" class="absolute top-2 right-2 text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
-                        <h2 class="text-xl font-bold text-slate-800 mb-4">Escanear Código de Barras</h2>
+                        <h2 class="text-xl font-bold text-slate-800 mb-4">Escanear Etiqueta del Paquete</h2>
                         <div id="reader" class="w-full"></div>
-                        <div class="mt-4 flex justify-center bg-slate-100 rounded-lg p-1">
-                            <button data-target="tracking" class="scan-target-btn active w-1/2 py-2 px-4 rounded-md text-sm transition-colors">Escanear Tracking</button>
-                            <button data-target="casillero" class="scan-target-btn w-1/2 py-2 px-4 rounded-md text-sm transition-colors">Escanear Casillero</button>
-                        </div>
+                        <p class="text-xs text-slate-500 mt-4 text-center">Apunte la cámara al código de barras o QR.</p>
                     </div>
                 </div>
             `;
@@ -1699,6 +1695,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
