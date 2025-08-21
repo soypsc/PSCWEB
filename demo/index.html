@@ -40,59 +40,61 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module">
-        import { supabaseUrl, supabaseAnonKey } from './config.js';
-        
-        const supabase = Supabase.createClient(supabaseUrl, supabaseAnonKey);
-        
-        const authContainer = document.getElementById('auth-container');
-        const loginForm = document.getElementById('login-form');
-        const loginError = document.getElementById('login-error');
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+    import { supabaseUrl, supabaseAnonKey } from './config.js';
+    
+    // Ahora, `createClient` es una función que puedes usar.
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    
+    const authContainer = document.getElementById('auth-container');
+    const loginForm = document.getElementById('login-form');
+    const loginError = document.getElementById('login-error');
 
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = e.target.email.value;
-            const password = e.target.password.value;
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = e.target.email.value;
+        const password = e.target.password.value;
+        
+        try {
+            // 1. Usa el SDK de Supabase para autenticar al usuario
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
             
-            try {
-                // 1. Usa el SDK de Supabase para autenticar al usuario
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                
-                if (error) throw error;
-                
-                // 2. Si la autenticación es exitosa, llama a la Edge Function para obtener el rol
-                const response = await fetch(`${supabaseUrl}/functions/v1/users-get-role`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${data.session.access_token}`,
-                    },
-                    body: JSON.stringify({ userId: data.user.id })
-                });
-                
-                const userData = await response.json();
+            if (error) throw error;
+            
+            // 2. Si la autenticación es exitosa, llama a la Edge Function para obtener el rol
+            const response = await fetch(`${supabaseUrl}/functions/v1/users-get-role`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${data.session.access_token}`,
+                },
+                body: JSON.stringify({ userId: data.user.id })
+            });
+            
+            const userData = await response.json();
 
-                if (userData && userData.role) {
-                    authContainer.innerHTML = `
-                        <div class="text-center">
-                            <h1 class="text-4xl font-bold text-slate-800">¡Bienvenido, ${userData.role}!</h1>
-                            <p class="text-lg text-slate-500 mt-2">Autenticación exitosa.</p>
-                        </div>
-                    `;
-                } else {
-                     loginError.textContent = "Error: No se pudo obtener el rol del usuario.";
-                     loginError.classList.remove('hidden');
-                }
-            } catch (error) {
-                console.error("Error al iniciar sesión:", error);
-                loginError.textContent = error.message || "Hubo un problema al conectar con el servidor. Inténtalo de nuevo más tarde.";
-                loginError.classList.remove('hidden');
+            if (userData && userData.role) {
+                authContainer.innerHTML = `
+                    <div class="text-center">
+                        <h1 class="text-4xl font-bold text-slate-800">¡Bienvenido, ${userData.role}!</h1>
+                        <p class="text-lg text-slate-500 mt-2">Autenticación exitosa.</p>
+                    </div>
+                `;
+            } else {
+                 loginError.textContent = "Error: No se pudo obtener el rol del usuario.";
+                 loginError.classList.remove('hidden');
             }
-        });
-    </script>
+        } catch (error) {
+            console.error("Error al iniciar sesión:", error);
+            loginError.textContent = error.message || "Hubo un problema al conectar con el servidor. Inténtalo de nuevo más tarde.";
+            loginError.classList.remove('hidden');
+        }
+    });
+</script>
 </body>
 </html>
+
 
 
 
