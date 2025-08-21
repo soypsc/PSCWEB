@@ -45,10 +45,13 @@
   </div>
 
   <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-    import { supabaseUrl, supabaseAnonKey } from "./config.js";
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+  import { supabaseUrl, supabaseAnonKey } from "./config.js";
 
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+  console.log("Supabase listo:", supabase);
+  
 
     const authContainer = document.getElementById("auth-container");
     const loginForm = document.getElementById("login-form");
@@ -103,3 +106,4 @@
   </script>
 </body>
 </html>
+
