@@ -120,7 +120,7 @@
                     <input id="password" name="password" type="password" required class="w-full p-3 border border-slate-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500">
                 </div>
                 <p id="login-error" class="text-sm text-red-600 text-center hidden">Usuario o contraseña incorrectos.</p>
-                <button type="submit" class="w-full py-3 px-4 bg-emerald-500 text-white font-bold rounded-md shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all">Iniciar Sesión</button>
+                <button type="button" id="login-button" class="w-full py-3 px-4 bg-emerald-500 text-white font-bold rounded-md shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all">Iniciar Sesión</button>
             </form>
         </div>
     </div>
@@ -257,29 +257,33 @@
         };
     }
 
-    // --- LÓGICA DE LOGIN Y SESIÓN ---
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const username = e.target.username.value;
-        const password = e.target.password.value;
-        
-        // La lógica de búsqueda ahora usa los datos cargados desde Google Sheets
-        const user = db.users.find(u => u.username === username && u.password == password); // Usar == por si el número se lee como texto
+// --- LÓGICA DE LOGIN Y SESIÓN (CORREGIDA) ---
+const loginButton = document.getElementById('login-button');
 
-        if (user) {
-            session.user = user;
-            loginScreen.classList.add('hidden');
-            mainApp.classList.remove('hidden');
-            sessionUsernameEl.textContent = session.user.username;
-            buildSidebar();
-            window.location.hash = '/dashboard';
-            router();
-            loginError.classList.add('hidden');
-        } else {
-            loginError.textContent = 'Usuario o contraseña incorrectos.';
-            loginError.classList.remove('hidden');
-        }
-    });
+loginButton.addEventListener('click', () => {
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+
+    const username = usernameInput.value;
+    const password = passwordInput.value;
+
+    // Usamos toLowerCase() para que no importen las mayúsculas/minúsculas
+    const user = db.users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password == password);
+
+    if (user) {
+        session.user = user;
+        loginScreen.classList.add('hidden');
+        mainApp.classList.remove('hidden');
+        sessionUsernameEl.textContent = session.user.username;
+        buildSidebar();
+        window.location.hash = '/dashboard';
+        router();
+        loginError.classList.add('hidden');
+    } else {
+        loginError.textContent = 'Usuario o contraseña incorrectos.';
+        loginError.classList.remove('hidden');
+    }
+});
 
     logoutBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -1093,3 +1097,4 @@
 </body>
 
 </html>
+
