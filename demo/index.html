@@ -12,6 +12,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800">
 
+  <!-- Contenedor del login -->
   <div id="auth-container" class="flex items-center justify-center h-screen bg-slate-100">
     <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-2xl shadow-lg">
       <div class="flex flex-col items-center">
@@ -45,15 +46,11 @@
   </div>
 
   <script type="module">
-  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-  import { supabaseUrl, supabaseAnonKey } from "./config.js";
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    import { supabaseUrl, supabaseAnonKey } from "./config.js";
 
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-  console.log("Supabase listo:", supabase);
-  
-
-    const authContainer = document.getElementById("auth-container");
     const loginForm = document.getElementById("login-form");
     const loginError = document.getElementById("login-error");
 
@@ -63,7 +60,7 @@
       const password = e.target.password.value;
 
       try {
-        // 1. Login
+        // 1. Login con Supabase
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
 
@@ -72,7 +69,7 @@
         const userId = data.user?.id;
         if (!token || !userId) throw new Error("Sesión inválida");
 
-        // 3. Llamar a Edge Function para rol
+        // 3. Llamar a Edge Function para obtener rol
         const response = await fetch(`${supabaseUrl}/functions/v1/users-get-role`, {
           method: "POST",
           headers: {
@@ -87,11 +84,13 @@
         const userData = await response.json();
 
         if (userData?.role) {
-          // Aquí decides: mostrar mensaje o redirigir según rol
-          authContainer.innerHTML = `
-            <div class="text-center">
-              <h1 class="text-4xl font-bold text-slate-800">¡Bienvenido, ${userData.role}!</h1>
-              <p class="text-lg text-slate-500 mt-2">Autenticación exitosa.</p>
+          // Mostrar página en blanco con bienvenida
+          document.body.innerHTML = `
+            <div class="flex items-center justify-center h-screen bg-slate-50">
+              <div class="text-center">
+                <h1 class="text-4xl font-bold text-slate-800">¡Bienvenido, ${userData.role}!</h1>
+                <p class="text-lg text-slate-500 mt-2">Autenticación exitosa.</p>
+              </div>
             </div>
           `;
         } else {
@@ -106,4 +105,6 @@
   </script>
 </body>
 </html>
+
+
 
