@@ -143,25 +143,48 @@
             closeBtn.onclick = () => { alertBox.classList.add('hidden'); };
         }
 
-        const loginButton = document.getElementById('login-button');
-        loginButton.addEventListener('click', () => {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const user = db.users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password == password);
-            if (user) {
-                session.user = user;
-                loginScreen.classList.add('hidden');
-                mainApp.classList.remove('hidden');
-                sessionUsernameEl.textContent = session.user.username;
-                buildSidebar();
-                window.location.hash = '/dashboard';
-                router();
-                loginError.classList.add('hidden');
-            } else {
-                loginError.textContent = 'Usuario o contraseña incorrectos.';
-                loginError.classList.remove('hidden');
-            }
-        });
+       const loginButton = document.getElementById('login-button');
+loginButton.addEventListener('click', async () => {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    loginError.textContent = 'Verificando credenciales...';
+    loginError.classList.remove('hidden', 'text-red-600');
+    loginError.classList.add('text-slate-500');
+
+    try {
+        // Petición a la API de Google Sheets para validar usuario
+        const response = await fetch(`${API_URL}?action=getUser&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
+        
+        if (!response.ok) {
+            throw new Error('Error al conectar con la API.');
+        }
+
+        const user = await response.json();
+
+        // Si el usuario existe y las credenciales son correctas
+        if (user && user.status === 'success') {
+            session.user = user.data; // Almacena el objeto de usuario completo
+            loginScreen.classList.add('hidden');
+            mainApp.classList.remove('hidden');
+            sessionUsernameEl.textContent = session.user.username;
+            buildSidebar();
+            window.location.hash = '/dashboard';
+            router();
+            loginError.classList.add('hidden');
+        } else {
+            // Usuario no encontrado o credenciales incorrectas
+            loginError.textContent = 'Usuario o contraseña incorrectos.';
+            loginError.classList.remove('hidden');
+            loginError.classList.add('text-red-600');
+        }
+    } catch (error) {
+        console.error(error);
+        loginError.textContent = 'Error al iniciar sesión. Inténtalo de nuevo.';
+        loginError.classList.remove('hidden');
+        loginError.classList.add('text-red-600');
+    }
+});
 
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -1706,6 +1729,7 @@
     </script>
 </body>
 </html>
+
 
 
 
