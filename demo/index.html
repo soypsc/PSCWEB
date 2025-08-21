@@ -27,70 +27,73 @@
             </div>
             <form id="login-form" class="space-y-6">
                 <div>
-                    <label for="username" class="block text-sm font-medium text-slate-600 mb-1">Usuario</label>
-                    <input id="username" name="username" type="text" required class="w-full p-3 border border-slate-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500">
+                    <label for="email" class="block text-sm font-medium text-slate-600 mb-1">Correo Electrónico</label>
+                    <input id="email" name="email" type="email" required class="w-full p-3 border border-slate-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500">
                 </div>
                 <div>
                     <label for="password" class="block text-sm font-medium text-slate-600 mb-1">Contraseña</label>
                     <input id="password" name="password" type="password" required class="w-full p-3 border border-slate-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500">
                 </div>
-                <p id="login-error" class="text-sm text-red-600 text-center hidden">Usuario o contraseña incorrectos.</p>
+                <p id="login-error" class="text-sm text-red-600 text-center hidden">Correo o contraseña incorrectos.</p>
                 <button type="submit" class="w-full py-3 px-4 bg-emerald-500 text-white font-bold rounded-md shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all">Iniciar Sesión</button>
             </form>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module">
         import { supabaseUrl, supabaseAnonKey } from './config.js';
         
-        const api = {
-            async login(username, password) {
-                const response = await fetch(`${supabaseUrl}/functions/v1/auth-login`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${supabaseAnonKey}`,
-                        'apikey': supabaseAnonKey
-                    },
-                    body: JSON.stringify({ username, password })
-                });
-                return response.json();
-            }
-        };
-
+        const supabase = Supabase.createClient(supabaseUrl, supabaseAnonKey);
+        
         const authContainer = document.getElementById('auth-container');
         const loginForm = document.getElementById('login-form');
         const loginError = document.getElementById('login-error');
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const username = e.target.username.value;
+            const email = e.target.email.value;
             const password = e.target.password.value;
             
             try {
-                const user = await api.login(username, password);
+                // 1. Usa el SDK de Supabase para autenticar al usuario
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
                 
-                // Si la respuesta incluye un 'id', el login es exitoso.
-                if (user && user.id) {
-                    // El objeto `user` ahora contiene el rol devuelto por la Edge Function.
+                if (error) throw error;
+                
+                // 2. Si la autenticación es exitosa, llama a la Edge Function para obtener el rol
+                const response = await fetch(`${supabaseUrl}/functions/v1/users-get-role`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${data.session.access_token}`,
+                    },
+                    body: JSON.stringify({ userId: data.user.id })
+                });
+                
+                const userData = await response.json();
+
+                if (userData && userData.role) {
                     authContainer.innerHTML = `
                         <div class="text-center">
-                            <h1 class="text-4xl font-bold text-slate-800">¡Bienvenido, ${user.role}!</h1>
+                            <h1 class="text-4xl font-bold text-slate-800">¡Bienvenido, ${userData.role}!</h1>
                             <p class="text-lg text-slate-500 mt-2">Autenticación exitosa.</p>
                         </div>
                     `;
                 } else {
-                    loginError.classList.remove('hidden');
+                     loginError.textContent = "Error: No se pudo obtener el rol del usuario.";
+                     loginError.classList.remove('hidden');
                 }
             } catch (error) {
                 console.error("Error al iniciar sesión:", error);
-                loginError.textContent = "Hubo un problema al conectar con el servidor. Inténtalo de nuevo más tarde.";
+                loginError.textContent = error.message || "Hubo un problema al conectar con el servidor. Inténtalo de nuevo más tarde.";
                 loginError.classList.remove('hidden');
             }
         });
     </script>
 </body>
 </html>
+
 
 
 
