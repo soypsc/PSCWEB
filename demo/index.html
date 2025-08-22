@@ -2,87 +2,65 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Login con Supabase</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-100 flex items-center justify-center h-screen">
-
-  <div id="login-container" class="bg-white shadow-xl rounded-2xl p-8 w-96">
-    <h1 class="text-2xl font-bold text-slate-800 mb-6">Iniciar Sesión</h1>
-
-    <form id="login-form" class="space-y-4">
-      <input id="email" type="email" placeholder="Correo electrónico"
-        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300" required>
-
-      <input id="password" type="password" placeholder="Contraseña"
-        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300" required>
-
-      <button type="submit"
-        class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
-        Entrar
-      </button>
-    </form>
-
-    <p id="error-message" class="text-red-500 text-sm mt-3 hidden"></p>
-  </div>
-
+  <title>Login</title>
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
     import { supabaseUrl, supabaseAnonKey } from "./config.js";
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-    const loginForm = document.getElementById("login-form");
-    const errorMessage = document.getElementById("error-message");
+    window.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("login-form");
 
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      errorMessage.classList.add("hidden");
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
 
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+        try {
+          // 1️⃣ Login en Supabase
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
 
-      try {
-        // 1️⃣ Login
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+          if (error) throw error;
 
-        // 2️⃣ Token de sesión
-        const token = data.session.access_token;
+          const token = data.session.access_token;
 
-        // 3️⃣ Llamar a la función para obtener el rol
-        const resp = await fetch(`${supabaseUrl}/functions/v1/users-get-role`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          },
-          body: JSON.stringify({ email })
-        });
+          // 2️⃣ Llamar a la Edge Function para obtener el rol
+          const resp = await fetch(`${supabaseUrl}/functions/v1/users-get-role`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            }
+          });
 
-        if (!resp.ok) throw new Error("Error al consultar rol");
-        const userData = await resp.json();
+          const result = await resp.json();
+          if (!resp.ok) throw new Error(result.error || "Error al consultar rol");
 
-        // 4️⃣ Mostrar pantalla de bienvenida
-        document.body.innerHTML = `
-          <div class="flex items-center justify-center h-screen bg-slate-50">
-            <div class="text-center">
-              <h1 class="text-4xl font-bold text-slate-800">
-                ¡Bienvenido, ${userData.role}!
-              </h1>
-              <p class="text-lg text-slate-500 mt-2">Autenticación exitosa.</p>
-            </div>
-          </div>
-        `;
-      } catch (err) {
-        console.error("Error al iniciar sesión:", err);
-        errorMessage.textContent = err.message;
-        errorMessage.classList.remove("hidden");
-      }
+          // 3️⃣ Mostrar bienvenida
+          document.body.innerHTML = `<h1>Bienvenido, tu rol es: ${result.role}</h1>`;
+
+        } catch (err) {
+          console.error("Error al iniciar sesión:", err);
+          alert("Error: " + err.message);
+        }
+      });
     });
   </script>
+</head>
+<body>
+  <form id="login-form">
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Contraseña" required>
+    <button type="submit">Iniciar sesión</button>
+  </form>
 </body>
 </html>
+
+
 
 
 
