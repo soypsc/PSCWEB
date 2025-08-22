@@ -8,15 +8,11 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
     <style>
         /* Estilos globales y reseteo */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #fafafa; /* Color de fondo de la nueva página */
+            background-color: #fafafa;
             color: #000;
             line-height: 1.6;
             overflow-x: hidden;
@@ -25,12 +21,8 @@
             min-height: 100vh;
         }
 
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
+        a { text-decoration: none; color: inherit; }
 
-        /* Variables CSS (Colores, etc.) */
         :root {
             --blue-1: #2325d4;
             --blue-2: #1a1cb3;
@@ -43,516 +35,117 @@
             --max-width: 1200px;
         }
 
-        /* ====================================================================== */
-        /* INICIO: ESTILOS INTEGRADOs PARA HEADER Y FAB                           */
-        /* ====================================================================== */
-
-        /* --- Estilos del Header --- */
+        /* Header */
         header {
             background: linear-gradient(135deg, var(--blue-1), var(--blue-2));
             color: white;
-            position: fixed; /* CAMBIO: De relative a fixed */
+            position: fixed;
             width: 100%;
-            top: 0;
-            left: 0;
+            top: 0; left: 0;
             z-index: 1000;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             padding: 0 25px;
             transition: height 0.3s ease, background-color 0.3s ease;
         }
-
-        header.scrolled {
-            height: 80px;
-            background: var(--blue-1);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        }
-
-        .header-inner {
-            max-width: var(--max-width);
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .logo {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            flex-shrink: 0;
-        }
-
-        .logo img {
-            max-height: 180px;
-            width: auto;
-            object-fit: contain;
-            user-select: none;
-            pointer-events: none;
-            transition: max-height 0.3s ease;
-        }
-
-        header.scrolled .logo img {
-            max-height: 140px;
-        }
-
-        .desktop-nav {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .desktop-nav a {
-            color: white;
-            font-weight: 500;
-            font-size: 14px;
-            position: relative;
-            transition: color 0.3s ease, transform 0.2s ease;
-        }
-
-        .desktop-nav a:hover {
-            color: var(--accent);
-            transform: translateY(-2px);
-        }
-
-        .header-buttons {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .btn-header {
-            background: var(--accent);
-            color: var(--blue-1);
-            padding: 8px 18px;
-            border-radius: var(--radius);
-            font-weight: 600;
-            font-size: 13px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            white-space: nowrap;
-        }
-
-        .btn-header:hover {
-            background: #e6d800;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        .onda {
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            width: 100%;
-            height: 20px;
-            background: url('data:image/svg+xml;utf8,<svg width="100%" height="20" viewBox="0 0 1440 20" xmlns="http://www.w3.org/2000/svg"><path fill="%23fafafa" d="M0,10 C360,20 720,0 1440,10 L1440,20 L0,20 Z" /></svg>') no-repeat bottom;
-            background-size: cover;
-            z-index: -1;
-            transition: opacity 0.3s ease;
-        }
-
-        header.scrolled .onda {
-            opacity: 0;
-        }
-
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
+        header.scrolled { height: 80px; background: var(--blue-1); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+        .header-inner { max-width: var(--max-width); width: 100%; display: flex; align-items: center; justify-content: space-between; }
+        .logo { height: 100%; display: flex; align-items: center; flex-shrink: 0; }
+        .logo img { max-height: 180px; width: auto; object-fit: contain; user-select: none; pointer-events: none; transition: max-height 0.3s ease; }
+        header.scrolled .logo img { max-height: 140px; }
+        .desktop-nav { display: flex; gap: 20px; align-items: center; }
+        .desktop-nav a { color: white; font-weight: 500; font-size: 14px; position: relative; transition: color 0.3s ease, transform 0.2s ease; }
+        .desktop-nav a:hover { color: var(--accent); transform: translateY(-2px); }
+        .header-buttons { display: flex; gap: 10px; align-items: center; }
+        .btn-header { background: var(--accent); color: var(--blue-1); padding: 8px 18px; border-radius: var(--radius); font-weight: 600; font-size: 13px; transition: all 0.3s ease; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); white-space: nowrap; }
+        .btn-header:hover { background: #e6d800; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); }
+        .onda { position: absolute; bottom: -1px; left: 0; width: 100%; height: 20px; background: url('data:image/svg+xml;utf8,<svg width="100%" height="20" viewBox="0 0 1440 20" xmlns="http://www.w3.org/2000/svg"><path fill="%23fafafa" d="M0,10 C360,20 720,0 1440,10 L1440,20 L0,20 Z" /></svg>') no-repeat bottom; background-size: cover; z-index: -1; transition: opacity 0.3s ease; }
+        header.scrolled .onda { opacity: 0; }
+        .dropdown { position: relative; display: inline-block; }
         .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: var(--blue-1);
-            min-width: 200px;
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.25);
-            border-radius: var(--radius);
-            z-index: 10002;
-            overflow: hidden;
-            margin-top: 10px;
+            display: none; position: absolute; background-color: var(--blue-1);
+            min-width: 200px; box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.25); border-radius: var(--radius);
+            z-index: 10002; overflow: hidden; margin-top: 10px;
         }
+        .dropdown-content a { color: white; padding: 10px 16px; display: block; font-size: 14px; transition: background-color 0.3s ease, color 0.3s ease; }
+        .dropdown-content a:hover { background-color: var(--blue-2); color: var(--accent); }
+        .dropdown:hover .dropdown-content { display: block; }
+        body { padding-top: 100px; }
 
-        .dropdown-content a {
-            color: white;
-            padding: 10px 16px;
-            display: block;
-            font-size: 14px;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .dropdown-content a:hover {
-            background-color: var(--blue-2);
-            color: var(--accent);
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-
-        body {
-            padding-top: 100px; /* AJUSTE: Para que el contenido no quede debajo del header fijo */
-        }
-
-        /* --- Estilos del FAB --- */
-        .fab-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-        .fab-screen-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(240, 240, 240, 0.8);
-            z-index: 999;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        .fab-screen-overlay.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .fab-main-button {
-            position: relative;
-            z-index: 1002;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background-color: red;
-            color: white;
-            border: none;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), box-shadow 0.3s ease, background-color 0.3s ease;
-        }
-        .fab-main-button:hover {
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-            transform: scale(1.05);
-            background-color: var(--blue-2);
-        }
-        .fab-main-button .plus-icon {
-            width: 30px;
-            height: 30px;
-            transition: transform 0.3s ease-in-out;
-        }
-        .fab-container.open .fab-main-button .plus-icon {
-            transform: rotate(45deg);
-        }
-        .fab-actions {
-            position: absolute;
-            bottom: 70px;
-            right: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            align-items: flex-end;
-            transform: scale(0);
-            transform-origin: bottom right;
-            transition: transform 0.3s ease-out;
-            z-index: 1001;
-        }
-        .fab-container.open .fab-actions {
-            transform: scale(1);
-        }
-        .fab-action-item {
-            display: flex;
-            flex-direction: row-reverse;
-            align-items: center;
-            gap: 10px;
-            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-            opacity: 0;
-            transform: translateX(20px);
-        }
-        .fab-container.open .fab-action-item {
-            opacity: 1;
-            transform: translateX(0);
-        }
+        /* FAB */
+        .fab-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
+        .fab-screen-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(240, 240, 240, 0.8); z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .fab-screen-overlay.show { opacity: 1; pointer-events: auto; }
+        .fab-main-button { position: relative; z-index: 1002; width: 60px; height: 60px; border-radius: 50%; background-color: red; color: white; border: none; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.3s cubic-bezier(0.68,-0.55,0.27,1.55), box-shadow 0.3s ease, background-color 0.3s ease; }
+        .fab-main-button:hover { box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35); transform: scale(1.05); background-color: var(--blue-2); }
+        .fab-main-button .plus-icon { width: 30px; height: 30px; transition: transform 0.3s ease-in-out; }
+        .fab-container.open .fab-main-button .plus-icon { transform: rotate(45deg); }
+        .fab-actions { position: absolute; bottom: 70px; right: 0; display: flex; flex-direction: column; gap: 15px; align-items: flex-end; transform: scale(0); transform-origin: bottom right; transition: transform 0.3s ease-out; z-index: 1001; }
+        .fab-container.open .fab-actions { transform: scale(1); }
+        .fab-action-item { display: flex; flex-direction: row-reverse; align-items: center; gap: 10px; transition: opacity 0.3s ease-out, transform 0.3s ease-out; opacity: 0; transform: translateX(20px); }
+        .fab-container.open .fab-action-item { opacity: 1; transform: translateX(0); }
         .fab-container.open .home-action { transition-delay: 0.30s; }
         .fab-container.open .giftcard-action { transition-delay: 0.25s; }
         .fab-container.open .whatsapp-action { transition-delay: 0.20s; }
         .fab-container.open .tracker-action { transition-delay: 0.15s; }
         .fab-container.open .ml-action { transition-delay: 0.10s; }
         .fab-container.open .quotes-action { transition-delay: 0.05s; }
+        .fab-circular-button { width: 55px; height: 55px; border-radius: 50%; background-color: var(--blue-1); color: white; border: none; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; }
+        .fab-circular-button:hover { background-color: var(--blue-2); transform: scale(1.1); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25); }
+        .fab-circular-button svg { width: 30px; height: 30px; fill: currentColor; }
+        .fab-action-label { background-color: white; color: var(--blue-1); padding: 8px 12px; border-radius: 18px; font-size: 13px; font-weight: 600; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; white-space: nowrap; }
+        .fab-action-label:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); }
 
-        .fab-circular-button {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            background-color: var(--blue-1);
-            color: white;
-            border: none;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .fab-circular-button:hover {
-            background-color: var(--blue-2);
-            transform: scale(1.1);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-        }
-        .fab-circular-button svg {
-            width: 30px;
-            height: 30px;
-            fill: currentColor;
-        }
-        .fab-action-label {
-            background-color: white;
-            color: var(--blue-1);
-            padding: 8px 12px;
-            border-radius: 18px;
-            font-size: 13px;
-            font-weight: 600;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            white-space: nowrap;
-        }
-        .fab-action-label:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        /* --- Media Queries para Responsive --- */
         @media (max-width: 900px) {
-            .desktop-nav {
-                display: none;
-            }
-            header, header.scrolled {
-                height: 90px;
-            }
-            body {
-                padding-top: 90px;
-            }
-            .logo img {
-                max-height: 160px;
-            }
-            header.scrolled .logo img {
-                max-height: 120px;
-            }
-            .btn-header {
-                padding: 6px 12px;
-                font-size: 12px;
-            }
+            .desktop-nav { display: none; }
+            header, header.scrolled { height: 90px; }
+            body { padding-top: 90px; }
+            .logo img { max-height: 160px; }
+            header.scrolled .logo img { max-height: 120px; }
+            .btn-header { padding: 6px 12px; font-size: 12px; }
         }
 
-        /* ====================================================================== */
-        /* FIN: ESTILOS INTEGRADOS PARA HEADER Y FAB                              */
-        /* ====================================================================== */
-        
-        /* FOOTER */
-        footer {
-            background: var(--bg);
-            color: #000;
-            padding: 40px 20px;
-            margin-top: auto;
-            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08);
-            flex-shrink: 0;
-        }
+        /* Footer */
+        footer { background: var(--bg); color: #000; padding: 40px 20px; margin-top: auto; box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08); flex-shrink: 0; }
+        .footer-container { max-width: var(--max-width); margin: auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+        .footer-col h3 { font-size: 1.2rem; margin-bottom: 12px; color: #333; }
+        .footer-col p, .footer-col a { font-size: 14px; color: #555; transition: color 0.3s ease; }
+        .footer-col a:hover { color: var(--blue-1); }
+        .social-icons { display: flex; flex-direction: column; gap: 8px; }
+        .footer-bottom { text-align: center; margin-top: 30px; font-size: 12px; color: var(--muted); border-top: 1px solid rgba(0, 0, 0, 0.1); padding-top: 15px; }
 
-        .footer-container {
-            max-width: var(--max-width);
-            margin: auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-        }
-
-        .footer-col h3 {
-            font-size: 1.2rem;
-            margin-bottom: 12px;
-            color: #333;
-        }
-
-        .footer-col p, .footer-col a {
-            font-size: 14px;
-            color: #555;
-            transition: color 0.3s ease;
-        }
-
-        .footer-col a:hover {
-            color: var(--blue-1);
-        }
-
-        .social-icons {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .footer-bottom {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 12px;
-            color: var(--muted);
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
-            padding-top: 15px;
-        }
-
-        /* --- ESTILOS ESPECÍFICOS DE LA PÁGINA ML --- */
-        main.wrap {
-            flex-grow: 1; /* Permite que el main ocupe el espacio disponible */
-            display: grid;
-            place-items: center;
-            padding: 40px 24px;
-        }
-        .card {
-            width: 100%;
-            max-width: 720px;
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            padding: 24px;
-        }
-        h1 {
-            margin: 0 0 6px 0;
-            font-size: 20px;
-            letter-spacing: -0.01em;
-        }
-        p.sub {
-            margin: 0;
-            color: #6b7280;
-            font-size: 14px;
-        }
-        .divider {
-            height: 1px;
-            background: #e5e7eb;
-            margin: 16px 0;
-        }
-        .row {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            background: #fff;
-            font-size: 16px;
-        }
-        button {
-            border: 0;
-            border-radius: 12px;
-            padding: 12px 14px;
-            cursor: pointer;
-            font-size: 15px;
-        }
-        .btn-ghost {
-            background: #fff;
-            border: 1px solid #e5e7eb;
-        }
-        .btn-primary {
-            background: #111;
-            color: #fff;
-        }
-        .status {
-            margin-top: 6px;
-            color: #6b7280;
-            min-height: 22px;
-        }
-        pre {
-            background: #eef6ff;
-            border: 1px dashed #bfdbfe;
-            color: #0f172a;
-            border-radius: 12px;
-            padding: 14px;
-            white-space: pre-wrap;
-            word-break: break-word;
-            margin-top: 12px;
-            min-height: 44px;
-        }
-        .question {
-            margin-top: 14px;
-            font-size: 15px;
-            color: #111;
-        }
-        .choices {
-            display: flex;
-            gap: 10px;
-            margin-top: 6px;
-        }
-        .choice {
-            display: inline-flex;
-            gap: 8px;
-            align-items: center;
-            border: 1px solid #e5e7eb;
-            padding: 8px 10px;
-            border-radius: 10px;
-            cursor: pointer;
-            background: #fff;
-        }
-        .choice input {
-            accent-color: #111;
-        }
-        .hint {
-            margin-top: 8px;
-            color: #f59e0b;
-            font-size: 14px;
-            display: none;
-        }
-        .form {
-            margin-top: 14px;
-            display: none;
-        }
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 160px;
-            gap: 8px;
-        }
-        .note {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 6px;
-        }
-        .toast {
-            margin-top: 10px;
-            font-size: 14px;
-        }
-        .toast.ok {
-            color: #16a34a;
-        }
-        .toast.err {
-            color: #ff0000;
-        }
-        .ticker {
-            display: inline-block;
-            width: 12ch;
-            overflow: hidden;
-            white-space: nowrap;
-            vertical-align: bottom;
-        }
+        /* Página ML */
+        main.wrap { flex-grow: 1; display: grid; place-items: center; padding: 40px 24px; }
+        .card { width: 100%; max-width: 720px; background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); padding: 24px; }
+        h1 { margin: 0 0 6px 0; font-size: 20px; letter-spacing: -0.01em; }
+        p.sub { margin: 0; color: #6b7280; font-size: 14px; }
+        .divider { height: 1px; background: #e5e7eb; margin: 16px 0; }
+        .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+        input[type="text"] { width: 100%; padding: 12px 14px; border: 1px solid #e5e7eb; border-radius: 12px; background: #fff; font-size: 16px; }
+        button { border: 0; border-radius: 12px; padding: 12px 14px; cursor: pointer; font-size: 15px; }
+        .btn-ghost { background: #fff; border: 1px solid #e5e7eb; }
+        .btn-primary { background: #111; color: #fff; }
+        .status { margin-top: 6px; color: #6b7280; min-height: 22px; }
+        pre { background: #eef6ff; border: 1px dashed #bfdbfe; color: #0f172a; border-radius: 12px; padding: 14px; white-space: pre-wrap; word-break: break-word; margin-top: 12px; min-height: 44px; }
+        .question { margin-top: 14px; font-size: 15px; color: #111; }
+        .choices { display: flex; gap: 10px; margin-top: 6px; }
+        .choice { display: inline-flex; gap: 8px; align-items: center; border: 1px solid #e5e7eb; padding: 8px 10px; border-radius: 10px; cursor: pointer; background: #fff; }
+        .choice input { accent-color: #111; }
+        .hint { margin-top: 8px; color: #f59e0b; font-size: 14px; display: none; }
+        .form { margin-top: 14px; display: none; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr 160px; gap: 8px; }
+        .note { font-size: 12px; color: #6b7280; margin-top: 6px; }
+        .toast { margin-top: 10px; font-size: 14px; }
+        .toast.ok { color: #16a34a; }
+        .toast.err { color: #ff0000; }
+        .ticker { display: inline-block; width: 12ch; overflow: hidden; white-space: nowrap; vertical-align: bottom; }
         .hidden { display: none !important; }
 
-        @media (max-width: 600px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-    
-    <!-- ====================================================================== -->
-    <!-- INICIO: CÓDIGO DEL HEADER DE REFERENCIA INTEGRADO -->
-    <!-- ====================================================================== -->
     <header id="main-header">
         <div class="header-inner">
             <div class="logo">
@@ -579,16 +172,11 @@
         </div>
         <div class="onda"></div>
     </header>
-    <!-- ====================================================================== -->
-    <!-- FIN: CÓDIGO DEL HEADER DE REFERENCIA -->
-    <!-- ====================================================================== -->
 
     <main class="wrap">
       <div class="card">
         <h1>Buscar Mal identificados (ML)</h1>
-        <p class="sub">
-          Busca tu paquete por número de tracking para solicitar la corrección.
-        </p>
+        <p class="sub">Busca tu paquete por número de tracking para solicitar la corrección.</p>
 
         <div class="divider"></div>
 
@@ -613,16 +201,10 @@
         </div>
         
         <div class="choices hidden">
-          <label class="choice"
-            ><input type="radio" name="seen" value="si" /> Sí</label
-          >
-          <label class="choice"
-            ><input type="radio" name="seen" value="no" /> No</label
-          >
+          <label class="choice"><input type="radio" name="seen" value="si" /> Sí</label>
+          <label class="choice"><input type="radio" name="seen" value="no" /> No</label>
         </div>
-        <div id="noMsg" class="hint">
-          Si no sale información intente Buscar nuevamente o contactarse con PSC.
-        </div>
+        <div id="noMsg" class="hint">Si no sale información intente Buscar nuevamente o contactarse con PSC.</div>
 
         <div class="form" id="mlForm">
           <label for="cas">N.º de casillero (obligatorio)</label>
@@ -658,18 +240,14 @@
                 <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p>
             </div>
         </div>
-        <div class="footer-bottom">
-            &copy; 2024 Panama Shipping Co. Todos los derechos reservados.
-        </div>
+        <div class="footer-bottom">&copy; 2024 Panama Shipping Co. Todos los derechos reservados.</div>
     </footer>
 
-    <!-- ====================================================================== -->
-    <!-- INICIO: CÓDIGO DEL FAB DE REFERENCIA INTEGRADO -->
-    <!-- ====================================================================== -->
+    <!-- FAB -->
     <div class="fab-container">
         <div class="fab-screen-overlay"></div>
         <div class="fab-actions">
-             <a href="/" class="fab-action-item home-action">
+            <a href="/" class="fab-action-item home-action">
                 <span class="fab-action-label">Inicio</span>
                 <button class="fab-circular-button">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -678,7 +256,7 @@
             <a href="/Tarjetas/" class="fab-action-item giftcard-action">
                 <span class="fab-action-label">Tarjetas Lbs</span>
                 <button class="fab-circular-button">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
                 </button>
             </a>
             <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener" class="fab-action-item whatsapp-action">
@@ -712,329 +290,320 @@
             </svg>
         </button>
     </div>
-    <!-- ====================================================================== -->
-    <!-- FIN: CÓDIGO DEL FAB DE REFERENCIA -->
-    <!-- ====================================================================== -->
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', function () {
+        // Header scroll
+        var header = document.getElementById('main-header');
+        if (header) {
+            window.addEventListener('scroll', function () {
+                if (window.scrollY > 50) header.classList.add('scrolled');
+                else header.classList.remove('scrolled');
+            });
+        }
 
-            // --- Funcionalidad del Header con efecto Scroll ---
-            const header = document.getElementById('main-header');
-            if(header) {
-                window.addEventListener('scroll', () => {
-                    if (window.scrollY > 50) {
-                        header.classList.add('scrolled');
-                    } else {
-                        header.classList.remove('scrolled');
+        // FAB
+        var fabContainer = document.querySelector('.fab-container');
+        if (fabContainer) {
+            var mainFabButton = fabContainer.querySelector('.fab-main-button');
+            var overlay = fabContainer.querySelector('.fab-screen-overlay');
+            function toggleFabMenu() {
+                fabContainer.classList.toggle('open');
+                overlay.classList.toggle('show');
+            }
+            mainFabButton.addEventListener('click', toggleFabMenu);
+            overlay.addEventListener('click', toggleFabMenu);
+        }
+
+        // Página ML
+        (function () {
+            var SCRAPER_DEFAULT = "https://gel-scraper-proxy.onrender.com/api/gel";
+            var SCRAPER = location.host.indexOf("gel-scraper-proxy.onrender.com") !== -1 ? "/api/gel" : SCRAPER_DEFAULT;
+
+            // Constantes originales (no usadas directamente aquí)
+            var CHECK_URL = "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/check-ml";
+            var PUT_URL   = "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/put-tracking";
+
+            // Edge nueva
+            var ML_URL    = "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/ml-request";
+
+            var $ = function (s) { return document.querySelector(s); };
+            var trk = $("#trk");
+            var go = $("#go");
+            var clr = $("#clear");
+            var status = $("#status");
+            var out = $("#out");
+            var seenRadios = document.getElementsByName("seen");
+            var noMsg = $("#noMsg");
+            var form = $("#mlForm");
+            var cas = $("#cas");
+            var nameInput = $("#name");
+            var ask = $("#ask");
+            var toast = $("#msg");
+            var question = $(".question");
+            var choices = $(".choices");
+
+            var FILTER_STRINGS = [
+                "Login BUSCAR PAQUETES SIN IDENTIFICAR Número de Rastr...N IDENTIFICAR Sin Resultado En Búsqueda Reclamar Paquete Encontrado"
+            ];
+
+            var tickerTimer = null;
+            function startTicker() {
+                if (tickerTimer) return;
+                var words = ["Estamos ", "Estamos buscando ", "Estamos buscando tu", "Estamos buscando tu Paquete", "Estamos buscando tu Paquete"];
+                var i = 0;
+                tickerTimer = setInterval(function () {
+                    var s = words[i++ % words.length];
+                    setStatus(s + ' <span class="ticker">•••</span>', "warn");
+                }, 600);
+            }
+            function stopTicker() { if (tickerTimer) { clearInterval(tickerTimer); tickerTimer = null; } }
+
+            function setStatus(msg, cls) {
+                status.innerHTML = msg || "";
+                status.style.color = cls === "warn" ? "#f59e0b" : "#6b7280";
+            }
+            function setToast(msg, kind) {
+                toast.textContent = msg || "";
+                toast.className = "toast " + (kind || "");
+                if (msg && (kind === "ok" || kind === "warn")) {
+                    setTimeout(function () { setToast(""); }, 5000);
+                }
+            }
+            function norm(t) { return String(t || "").replace(/\s+/g, " ").trim(); }
+            function sanitizeSnippet(t) {
+                t = norm(t);
+                for (var i = 0; i < FILTER_STRINGS.length; i++) {
+                    var tb = FILTER_STRINGS[i];
+                    if (tb && tb.trim()) {
+                        var re = new RegExp(tb.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g");
+                        t = norm(t).replace(re, "");
                     }
-                });
+                }
+                return t.trim();
             }
 
-            // --- Funcionalidad del Menú FAB ---
-            const fabContainer = document.querySelector('.fab-container');
-            if (fabContainer) {
-                const mainFabButton = fabContainer.querySelector('.fab-main-button');
-                const overlay = fabContainer.querySelector('.fab-screen-overlay');
-                
-                function toggleFabMenu() {
-                    fabContainer.classList.toggle('open');
-                    overlay.classList.toggle('show');
-                }
-
-                mainFabButton.addEventListener('click', toggleFabMenu);
-                overlay.addEventListener('click', toggleFabMenu);
+            var searchAbort = null;
+            function resetAll() {
+                trk.value = "";
+                out.textContent = "";
+                setStatus("");
+                setToast("");
+                noMsg.style.display = "none";
+                form.style.display = "none";
+                cas.value = "";
+                nameInput.value = "";
+                for (var i = 0; i < seenRadios.length; i++) seenRadios[i].checked = false;
+                question.classList.add("hidden");
+                choices.classList.add("hidden");
+                go.disabled = false;
+                ask.disabled = false;
+                stopTicker();
+                if (searchAbort) { searchAbort.abort(); searchAbort = null; }
             }
 
-            // --- Script para la funcionalidad de la página ML ---
-            (function () {
-                const SCRAPER_DEFAULT = "https://gel-scraper-proxy.onrender.com/api/gel";
-                const SCRAPER = location.host.includes("gel-scraper-proxy.onrender.com") ? "/api/gel" : SCRAPER_DEFAULT;
-                const CHECK_URL = "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/check-ml";
-                const PUT_URL = "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/put-tracking";
+            async function buscar() {
+                var t = trk.value.trim();
+                setToast("");
+                if (!t) { setStatus("", ""); out.textContent = ""; return; }
 
-                const $ = (s) => document.querySelector(s);
-                const trk = $("#trk");
-                const go = $("#go");
-                const clr = $("#clear");
-                const status = $("#status");
-                const out = $("#out");
-                const seenRadios = document.getElementsByName("seen");
-                const noMsg = $("#noMsg");
-                const form = $("#mlForm");
-                const cas = $("#cas");
-                const nameInput = $("#name");
-                const ask = $("#ask");
-                const toast = $("#msg");
-                const question = $(".question");
-                const choices = $(".choices");
+                go.disabled = true;
+                setStatus("Buscando…", "warn");
+                startTicker();
 
-                const FILTER_STRINGS = [
-                    `Login BUSCAR PAQUETES SIN IDENTIFICAR Número de Rastr...N IDENTIFICAR Sin Resultado En Búsqueda Reclamar Paquete Encontrado`,
-                ];
+                searchAbort = new AbortController();
+                var tt = setTimeout(function () { searchAbort.abort(); }, 45000);
 
-                let tickerTimer = null;
-                function startTicker() {
-                    if (tickerTimer) return;
-                    const words = ["Estamos ", "Estamos buscando ", "Estamos buscando tu", "Estamos buscando tu Paquete", "Estamos buscando tu Paquete"];
-                    let i = 0;
-                    tickerTimer = setInterval(() => {
-                        const s = words[i++ % words.length];
-                        setStatus(`${s} <span class="ticker">•••</span>`, "warn");
-                    }, 600);
-                }
-                function stopTicker() {
-                    if (tickerTimer) {
-                        clearInterval(tickerTimer);
-                        tickerTimer = null;
-                    }
-                }
-
-                function setStatus(msg, cls) {
-                    status.innerHTML = msg || "";
-                    status.style.color = cls === "warn" ? "#f59e0b" : "#6b7280";
-                }
-                function setToast(msg, kind) {
-                    toast.textContent = msg || "";
-                    toast.className = "toast " + (kind || "");
-                    if (msg && (kind === "ok" || kind === "warn")) {
-                        setTimeout(() => setToast(""), 5000);
-                    }
-                }
-                function norm(t) {
-                    return String(t || "").replace(/\s+/g, " ").trim();
-                }
-                function sanitizeSnippet(t) {
-                    t = norm(t);
-                    for (const tb of FILTER_STRINGS) {
-                        if (tb && tb.trim()) {
-                            const re = new RegExp(tb.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g");
-                            t = norm(t).replace(re, "");
-                        }
-                    }
-                    return t.trim();
-                }
-
-                function resetAll() {
-                    trk.value = "";
-                    out.textContent = "";
-                    setStatus("");
-                    setToast("");
-                    noMsg.style.display = "none";
-                    form.style.display = "none";
-                    cas.value = "";
-                    nameInput.value = "";
-                    for (const r of seenRadios) {
-                        r.checked = false;
-                    }
-                    question.classList.add("hidden");
-                    choices.classList.add("hidden");
-                    go.disabled = false;
-                    ask.disabled = false;
+                try {
+                    var r = await fetch(SCRAPER + "?tracking=" + encodeURIComponent(t), { cache: "no-store", signal: searchAbort.signal });
+                    clearTimeout(tt);
                     stopTicker();
-                    if (searchAbort) {
-                        searchAbort.abort();
-                        searchAbort = null;
-                    }
-                }
 
-                let searchAbort = null;
-                async function buscar() {
-                    const t = trk.value.trim();
-                    setToast("");
-                    if (!t) {
-                        setStatus("", "");
-                        out.textContent = "";
-                        return;
+                    var data = null, raw = "";
+                    try { data = await r.json(); } catch (e) {
+                        try { raw = await r.text(); } catch (e2) {}
                     }
 
-                    go.disabled = true;
-                    setStatus("Buscando…", "warn");
-                    startTicker();
+                    var show = [];
+                    var sako = (data && (data.saco || data.sack)) || "";
+                    var fecha = (data && (data.fecha_de_ingreso || data.fecha)) || "";
+                    if (sako) show.push("saco: " + sako);
+                    if (fecha) show.push("fecha_de_ingreso: " + fecha);
 
-                    searchAbort = new AbortController();
-                    const tt = setTimeout(() => searchAbort.abort(), 45000);
-
-                    try {
-                        const r = await fetch(`${SCRAPER}?tracking=${encodeURIComponent(t)}`, { cache: "no-store", signal: searchAbort.signal });
-                        clearTimeout(tt);
-                        stopTicker();
-
-                        let data = null, raw = "";
-                        try {
-                            data = await r.json();
-                        } catch {
-                            try {
-                                raw = await r.text();
-                            } catch {}
+                    if (show.length > 0) {
+                        out.textContent = show.join("\n");
+                        question.classList.remove("hidden");
+                        choices.classList.remove("hidden");
+                        noMsg.style.display = "none";
+                        form.style.display = "none";
+                        for (var i2 = 0; i2 < seenRadios.length; i2++) seenRadios[i2].checked = false;
+                    } else {
+                        var snippet = "";
+                        if (raw) {
+                            var idx = raw.indexOf("Snippet:");
+                            if (idx >= 0) snippet = raw.slice(idx + 8);
                         }
-
-                        const show = [];
-                        const sako = data?.saco || data?.sack || "";
-                        const fecha = data?.fecha_de_ingreso || data?.fecha || "";
-                        if (sako) show.push(`saco: ${sako}`);
-                        if (fecha) show.push(`fecha_de_ingreso: ${fecha}`);
-
-                        if (show.length > 0) {
-                            out.textContent = show.join("\n");
+                        snippet = sanitizeSnippet(snippet);
+                        out.textContent = snippet ? snippet : "No se encontró información para este tracking.";
+                        if (snippet) {
                             question.classList.remove("hidden");
                             choices.classList.remove("hidden");
                             noMsg.style.display = "none";
                             form.style.display = "none";
-                            for (const r of seenRadios) r.checked = false;
+                            for (var i3 = 0; i3 < seenRadios.length; i3++) seenRadios[i3].checked = false;
                         } else {
-                            let snippet = "";
-                            if (raw) {
-                                const idx = raw.indexOf("Snippet:");
-                                if (idx >= 0) snippet = raw.slice(idx + 8);
-                            }
-                            snippet = sanitizeSnippet(snippet);
-                            out.textContent = snippet ? snippet : "No se encontró información para este tracking.";
-                            if (snippet) {
-                                question.classList.remove("hidden");
-                                choices.classList.remove("hidden");
-                                noMsg.style.display = "none";
-                                form.style.display = "none";
-                                for (const r of seenRadios) r.checked = false;
-                            } else {
-                                question.classList.add("hidden");
-                                choices.classList.add("hidden");
-                                noMsg.style.display = "none";
-                                form.style.display = "none";
-                            }
-                        }
-                    } catch (e) {
-                        clearTimeout(tt);
-                        stopTicker();
-                        setStatus("Error en la búsqueda.", "err");
-                        out.textContent = "";
-                    } finally {
-                        go.disabled = false;
-                    }
-                }
-
-                const submittedSet = new Set();
-                async function checkDuplicate(code) {
-                    const t = (code || "").trim();
-                    if (!t) return { exists: false, ml: false };
-
-                    if (submittedSet.has(t.toLowerCase())) {
-                        return { exists: true, ml: true };
-                    }
-
-                    const ctrl = new AbortController();
-                    const timeout = setTimeout(() => ctrl.abort(), 8000);
-                    try {
-                        const res = await fetch(CHECK_URL, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ trackings: [t] }),
-                            signal: ctrl.signal,
-                        });
-                        clearTimeout(timeout);
-                        if (!res.ok) return { exists: false, ml: false };
-                        const payload = await res.json().catch(() => ({}));
-                        const it = Array.isArray(payload?.items) ? payload.items.find((x) => String(x.tracking || "").toLowerCase() === t.toLowerCase()) : null;
-                        const ml = it && (it.ml === true || it.ML === "true" || it.status === "ML");
-                        const exists = Boolean(it && (it.exists === true || ml));
-                        return { exists, ml: Boolean(ml) };
-                    } catch {
-                        clearTimeout(timeout);
-                        return { exists: false, ml: false };
-                    }
-                }
-
-                async function solicitarML() {
-                    const code = trk.value.trim();
-                    const casillero = cas.value.trim();
-                    setToast("");
-                    const name = nameInput.value.trim();
-
-                    const seen = Array.from(seenRadios).find((r) => r.checked)?.value || "";
-                    if (seen !== "si") {
-                        setToast("Confirma que se mostró la información (elige 'Sí').", "warn");
-                        return;
-                    }
-                    if (!code || !casillero) {
-                        setToast("Ingresa tracking y número de casillero.", "err");
-                        return;
-                    }
-
-                    ask.disabled = true;
-
-                    const dup = await checkDuplicate(code);
-                    if (dup.exists) {
-                        setToast(dup.ml ? "Ya existe una solicitud ML para este tracking." : "Ya existe este tracking en la tabla.", "warn");
-                        ask.disabled = false;
-                        return;
-                    }
-
-                    try {
-                        const res = await fetch(PUT_URL, {
-                            method: "PUT",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                tracking_original: code,
-                                tracking_corrected: code,
-                                num_casillero: casillero,
-                                status: "ML",
-                                ML: "true",
-                                name: name,
-                            }),
-                        });
-                        const txt = await res.text().catch(() => "");
-                        let payload = {};
-                        try {
-                            payload = JSON.parse(txt || "{}");
-                        } catch {}
-
-                        if (!res.ok || payload?.ok !== true) {
-                            const msg = payload?.error || payload?.detail || res.statusText || `HTTP ${res.status}`;
-                            setToast(`Error: ${msg}`, "err");
-                            ask.disabled = false;
-                            return;
-                        }
-
-                        setToast("Solicitud recibida", "ok");
-                        submittedSet.add(code.toLowerCase());
-                    } catch (e) {
-                        setToast("No se pudo enviar la solicitud.", "err");
-                    } finally {
-                        ask.disabled = false;
-                    }
-                }
-
-                go.addEventListener("click", buscar);
-                trk.addEventListener("keydown", (e) => {
-                    if (e.key === "Enter") buscar();
-                });
-                clr.addEventListener("click", resetAll);
-
-                for (const r of seenRadios) {
-                    r.addEventListener("change", () => {
-                        const v = Array.from(seenRadios).find((x) => x.checked)?.value;
-                        if (v === "si") {
-                            noMsg.textContent = "";
-                            noMsg.style.display = "none";
-                            form.style.display = "block";
-                            cas.focus();
-                        } else if (v === "no") {
-                            noMsg.textContent = "Has marcado «No». Si no sale información intente Buscar nuevamente o contactarse con PSC.";
-                            noMsg.style.display = "block";
-                            form.style.display = "none";
-                        } else {
-                            noMsg.textContent = "";
+                            question.classList.add("hidden");
+                            choices.classList.add("hidden");
                             noMsg.style.display = "none";
                             form.style.display = "none";
                         }
+                    }
+                } catch (e3) {
+                    clearTimeout(tt);
+                    stopTicker();
+                    setStatus("Error en la búsqueda.", "err");
+                    out.textContent = "";
+                } finally {
+                    go.disabled = false;
+                }
+            }
+
+            /* ===== Paso 2 (chequeo duplicado + edge) ===== */
+            var submittedSet = new Set();
+
+            async function getAuthHeaders() {
+                var headers = { "Accept": "application/json" };
+                if (window.PSC_CONFIG && window.PSC_CONFIG.anon) {
+                    headers["apikey"] = window.PSC_CONFIG.anon;
+                    headers["Authorization"] = "Bearer " + window.PSC_CONFIG.anon;
+                }
+                return headers;
+            }
+
+            async function checkDuplicate(code) {
+                var t = (code || "").trim();
+                if (!t) return { exists: false, ml: false };
+                if (submittedSet.has(t.toLowerCase())) return { exists: true, ml: true };
+
+                var base = (window.PSC_CONFIG && window.PSC_CONFIG.url) ? window.PSC_CONFIG.url : "";
+                if (!base) return { exists: false, ml: false };
+
+                try {
+                    var headers = await getAuthHeaders();
+
+                    // 1) ml = true
+                    var url1 = new URL(base + "/rest/v1/trackings");
+                    url1.searchParams.set("select", "id,ml,status,tracking_original,tracking_corrected");
+                    url1.searchParams.set("limit", "1");
+                    url1.searchParams.append("or", "(tracking_original.eq." + t + ",tracking_corrected.eq." + t + ")");
+                    url1.searchParams.set("ml", "is.true");
+                    var r1 = await fetch(url1, { headers: headers });
+                    if (r1.ok) {
+                        var rows1 = await r1.json();
+                        if (Array.isArray(rows1) && rows1.length > 0) return { exists: true, ml: true };
+                    }
+
+                    // 2) status = 'ML'
+                    var url2 = new URL(base + "/rest/v1/trackings");
+                    url2.searchParams.set("select", "id,ml,status,tracking_original,tracking_corrected");
+                    url2.searchParams.set("limit", "1");
+                    url2.searchParams.append("or", "(tracking_original.eq." + t + ",tracking_corrected.eq." + t + ")");
+                    url2.searchParams.set("status", "eq.ML");
+                    var r2 = await fetch(url2, { headers: headers });
+                    if (r2.ok) {
+                        var rows2 = await r2.json();
+                        if (Array.isArray(rows2) && rows2.length > 0) return { exists: true, ml: true };
+                    }
+
+                    return { exists: false, ml: false };
+                } catch (e) {
+                    return { exists: false, ml: false };
+                }
+            }
+
+            async function solicitarML() {
+                var code = trk.value.trim();
+                var casillero = cas.value.trim();
+                setToast("");
+                var name = nameInput.value.trim();
+
+                var sel = Array.from(seenRadios).find(function (r) { return r.checked; });
+                var seen = sel ? sel.value : "";
+
+                if (seen !== "si") { setToast("Confirma que se mostró la información (elige 'Sí').", "warn"); return; }
+                if (!code || !casillero) { setToast("Ingresa tracking y número de casillero.", "err"); return; }
+
+                ask.disabled = true;
+
+                // 1) Duplicado
+                var dup = await checkDuplicate(code);
+                if (dup.exists) {
+                    setToast("Ya existe una solicitud ML para este tracking.", "warn");
+                    ask.disabled = false;
+                    return;
+                }
+
+                // 2) Edge
+                try {
+                    var res = await fetch(ML_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ tracking: code, num_casillero: casillero, name: name })
                     });
+
+                    var payload = {};
+                    try { payload = await res.json(); } catch (e) {}
+
+                    if (res.status === 409 || (payload && (payload.mode === "exists" || payload.error === "duplicate_ml"))) {
+                        setToast("Ya existe una solicitud ML para este tracking.", "warn");
+                        submittedSet.add(code.toLowerCase());
+                        ask.disabled = false;
+                        return;
+                    }
+
+                    if (!res.ok || !(payload && payload.ok === true)) {
+                        var msg = (payload && (payload.error || payload.detail)) || res.statusText || ("HTTP " + res.status);
+                        setToast("Error: " + msg, "err");
+                        ask.disabled = false;
+                        return;
+                    }
+
+                    setToast("Solicitud recibida", "ok");
+                    submittedSet.add(code.toLowerCase());
+                } catch (e2) {
+                    setToast("No se pudo enviar la solicitud.", "err");
+                } finally {
+                    ask.disabled = false;
                 }
-                ask.addEventListener("click", solicitarML);
-            })();
-        });
+            }
+
+            go.addEventListener("click", buscar);
+            trk.addEventListener("keydown", function (e) { if (e.key === "Enter") buscar(); });
+            clr.addEventListener("click", resetAll);
+
+            for (var i4 = 0; i4 < seenRadios.length; i4++) {
+                seenRadios[i4].addEventListener("change", function () {
+                    var sel2 = Array.from(seenRadios).find(function (x) { return x.checked; });
+                    var v = sel2 ? sel2.value : "";
+                    if (v === "si") {
+                        noMsg.textContent = "";
+                        noMsg.style.display = "none";
+                        form.style.display = "block";
+                        cas.focus();
+                    } else if (v === "no") {
+                        noMsg.textContent = "Has marcado «No». Si no sale información intente Buscar nuevamente o contactarse con PSC.";
+                        noMsg.style.display = "block";
+                        form.style.display = "none";
+                    } else {
+                        noMsg.textContent = "";
+                        noMsg.style.display = "none";
+                        form.style.display = "none";
+                    }
+                });
+            }
+            ask.addEventListener("click", solicitarML);
+        })();
+    });
     </script>
 </body>
 </html>
-
-
-
