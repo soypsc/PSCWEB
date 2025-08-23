@@ -21,18 +21,18 @@
 <body class="bg-slate-50 text-slate-800">
 
     <div class="relative min-h-screen md:flex">
-        <!-- Menú Móvil y Barra Lateral -->
         <div class="bg-white text-slate-800 flex justify-between md:hidden sticky top-0 z-20 shadow-md">
-            <a href="./dashboard.html" class="block p-4 font-bold">SGL1</a>
+            <a href="./index.html" class="block p-4 font-bold">SGL1</a>
             <button id="mobile-menu-button" class="p-4 focus:outline-none focus:bg-slate-200">
                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
             </button>
         </div>
         <aside id="sidebar" class="bg-white text-slate-600 w-64 p-4 space-y-6 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 z-30 shadow-lg md:shadow-none">
             <div class="flex items-center gap-3 mb-8 px-2"><div class="bg-emerald-500 p-2 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg></div><h1 class="text-xl font-bold text-slate-800">SGL1</h1></div>
+            
             <nav>
                 <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-4">Operaciones</h2>
-                <a href="./index.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="dashboard.html"><span>Dashboard</span></a>
+                <a href="./index.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="index.html"><span>Dashboard</span></a>
                 <a href="./recibir-paquete.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="recibir-paquete.html"><span>Recibir Paquete</span></a>
                 <a href="./recibir-en-sucursal.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="recibir-en-sucursal.html"><span>Recibir en Sucursal</span></a>
                 <a href="./clientes.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="clientes.html"><span>Clientes</span></a>
@@ -44,9 +44,8 @@
                 <a href="./configuracion.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="configuracion.html"><span>Configuración</span></a>
                 <a href="./notificaciones.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="notificaciones.html"><span>Notificaciones</span></a>
             </nav>
-        </aside>
+            </aside>
 
-        <!-- Contenido Principal -->
         <main class="flex-1 p-8">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold text-slate-900 flex items-center"><span class="code">[OP-02]</span>Gestión de Clientes</h1>
@@ -95,7 +94,6 @@
                 </table>
             </div>
             
-            <!-- Modal para añadir cliente -->
             <div id="add-client-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40 modal-backdrop">
                 <div class="bg-white w-full max-w-4xl rounded-lg shadow-xl p-6 modal-content overflow-y-auto max-h-[95vh]">
                     <div class="flex justify-between items-center mb-4">
@@ -131,11 +129,7 @@
 
     <script type="module">
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-        // ===== Configuración de Supabase =====
         const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
-
-        // ===== Utilidades =====
         const norm = s => (s||"").trim();
         const normEmail = s => (s||"").trim().toLowerCase();
         const toNum = (s) => {
@@ -144,8 +138,6 @@
         };
         const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
         const fmtNum = (n) => (n==null ? "" : (Number(n).toFixed(2)));
-
-        // ===== Referencias del DOM =====
         const tableBody   = document.querySelector("table tbody");
         const inputQ      = document.getElementById('q');
         const btnBuscar   = document.getElementById('btnBuscar');
@@ -155,7 +147,6 @@
         const fltSucursal = document.getElementById('fltSucursal');
         const fltSource   = document.getElementById('fltSource');
         const fltBox      = document.getElementById('fltBox');
-        
         const modalEl     = document.getElementById('add-client-modal');
         const form        = document.getElementById('formCliente');
         const modalTitle  = document.getElementById('modalTitle');
@@ -168,10 +159,7 @@
         const fldTar3     = document.getElementById('tarifa3');
         const fldDir      = document.getElementById('direccion');
         const fldSucursal = document.getElementById('sucursal');
-
         let editingId = null;
-
-        // ===== Lógica Principal =====
         async function cargarSucursales() {
           fldSucursal.innerHTML = "<option value=''>Cargando...</option>";
           fltSucursal.innerHTML = "<option value=''>Todas</option>";
@@ -188,18 +176,15 @@
             opt1.value = name;
             opt1.textContent = name;
             fldSucursal.appendChild(opt1);
-
             const opt2 = document.createElement("option");
             opt2.value = name;
             opt2.textContent = name;
             fltSucursal.appendChild(opt2);
           }
         }
-
         function renderEmpty(msg="No hay clientes.") {
           tableBody.innerHTML = `<tr><td colspan="10" class="text-center p-4 text-slate-500">${msg}</td></tr>`;
         }
-
         function renderRows(rows){
           if (!rows || !rows.length) return renderEmpty();
           tableBody.innerHTML = rows.map(r => `
@@ -222,10 +207,8 @@
             </tr>
           `).join("");
         }
-
         async function cargarClientes() {
           let query = sb.from("clientes").select("*").order("created_at",{ascending:false}).limit(200);
-          
           const d = fltDesde.value ? `${fltDesde.value}T00:00:00Z` : null;
           const h = fltHasta.value ? `${fltHasta.value}T23:59:59Z` : null;
           if (d) query = query.gte("created_at", d);
@@ -233,24 +216,20 @@
           if (fltSucursal.value) query = query.eq("sucursal", fltSucursal.value);
           if (fltSource.value)   query = query.eq("source", fltSource.value);
           if (fltBox.value)      query = query.eq("box", Number(fltBox.value));
-
           const q = norm(inputQ.value);
           if (q) {
             query = query.or(`nombre.ilike.%${q}%,email.ilike.%${q}%,telefono.ilike.%${q}%`);
           }
-
           const { data, error } = await query;
           if (error) { console.error(error); return renderEmpty("Error cargando."); }
           renderRows(data);
         }
-
         function resetModal(){
           editingId = null;
           modalTitle.textContent = "Crear Nuevo Cliente";
           form.reset();
           fldSucursal.value = "";
         }
-
         function abrirEditar(clienteData){
           const data = JSON.parse(clienteData);
           editingId = data.id;
@@ -266,7 +245,6 @@
           fldSucursal.value = data.sucursal || "";
           modalEl.classList.remove('hidden');
         }
-
         async function correoExiste(email, excluirId=null){
           const em = normEmail(email);
           if (!em) return false;
@@ -276,7 +254,6 @@
           if (error && error.code !== "PGRST116") { console.error(error); }
           return !!(data && data.id);
         }
-
         form?.addEventListener("submit", async (ev) => {
           ev.preventDefault();
           const payload = {
@@ -291,16 +268,13 @@
             sucursal:  fldSucursal.value || null,
             source:    "staff"
           };
-
           if (!payload.nombre || !payload.email || !payload.sucursal) {
             return alert("Nombre, Email y Sucursal son obligatorios.");
           }
-
           const dup = await correoExiste(payload.email, editingId);
           if (dup) {
             return alert("Este email ya está registrado. No se puede duplicar.");
           }
-
           let err;
           if (editingId) {
             const { error } = await sb.from("clientes").update(payload).eq("id", editingId);
@@ -309,19 +283,16 @@
             const { error } = await sb.from("clientes").insert(payload);
             err = error;
           }
-
           if (err) {
             console.error(err);
             if (err.code === "23505") alert("Este email ya está registrado (único).");
             else alert(err.message || "Error al guardar");
             return;
           }
-
           modalEl.classList.add('hidden');
           await cargarClientes();
           alert("Guardado ✅");
         });
-
         async function eliminar(id){
           if (!confirm("¿Eliminar este cliente? Esta acción no se puede deshacer.")) return;
           const { error } = await sb.from("clientes").delete().eq("id", id);
@@ -329,7 +300,6 @@
           await cargarClientes();
           alert("Eliminado 🗑️");
         }
-        
         function initializeFilterToggle() {
             const toggleButton = document.getElementById('toggle-filters-btn');
             const filtersDiv = document.getElementById('advanced-filters');
@@ -337,22 +307,18 @@
                 toggleButton.addEventListener('click', () => filtersDiv.classList.toggle('visible'));
             }
         }
-
         function initializeClientesListeners() {
             initializeModal('add-client-btn', 'add-client-modal', 'close-modal');
             initializeFilterToggle();
             document.getElementById('add-client-btn').addEventListener('click', resetModal);
-            
             btnBuscar.addEventListener("click", cargarClientes);
             btnLimpiar.addEventListener("click", ()=>{
                 fltDesde.value=""; fltHasta.value=""; fltSucursal.value=""; fltSource.value=""; fltBox.value=""; inputQ.value="";
                 cargarClientes();
             });
-
             [fltDesde, fltHasta, fltBox, fltSucursal, fltSource].forEach(el => {
                 el.addEventListener('change', cargarClientes);
             });
-
             tableBody.addEventListener('click', (e) => {
                 if (e.target.dataset.edit) {
                     abrirEditar(e.target.dataset.edit);
@@ -361,16 +327,13 @@
                     eliminar(e.target.dataset.del);
                 }
             });
-
             cargarSucursales();
             cargarClientes();
         }
-
         function initializeModal(openBtnId, modalId, closeBtnClass) {
             const openBtn = document.getElementById(openBtnId);
             const modal = document.getElementById(modalId);
             const closeBtns = modal.querySelectorAll(`.${closeBtnClass}`);
-            
             if (openBtn && modal) {
                 openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
                 closeBtns.forEach(btn => {
@@ -378,22 +341,18 @@
                 });
             }
         }
-
-        // ===== Eventos Generales =====
         document.addEventListener('DOMContentLoaded', () => {
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const sidebar = document.getElementById('sidebar');
             mobileMenuButton.addEventListener('click', () => {
                 sidebar.classList.toggle('-translate-x-full');
             });
-
-            const currentPage = window.location.pathname.split('/').pop();
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
             document.querySelectorAll('.sidebar-link').forEach(link => {
                 if (link.dataset.path === currentPage) {
                     link.classList.add('active');
                 }
             });
-
             initializeClientesListeners();
         });
     </script>
