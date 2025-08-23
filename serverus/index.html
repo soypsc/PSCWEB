@@ -6,9 +6,6 @@
     <title>SGL1 - Clientes1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- 
-        Restaurado: Ahora se utiliza tu archivo config.js para las credenciales de Supabase.
-    -->
     <script src="config.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -335,6 +332,11 @@
                 cargarClientes();
             });
 
+            // FIX: Se añaden los event listeners para que los filtros funcionen al cambiar.
+            [fltBox, fltSucursal, fltSource].forEach(el => {
+                el.addEventListener('change', cargarClientes);
+            });
+
             tableBody.addEventListener('click', (e) => {
                 if (e.target.dataset.edit) {
                     abrirEditar(e.target.dataset.edit);
@@ -381,3 +383,4 @@
     </script>
 </body>
 </html>
+
