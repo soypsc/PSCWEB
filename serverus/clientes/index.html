@@ -44,7 +44,7 @@
                 <a href="./configuracion.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="configuracion.html"><span>Configuración</span></a>
                 <a href="./notificaciones.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="notificaciones.html"><span>Notificaciones</span></a>
             </nav>
-            </aside>
+        </aside>
 
         <main class="flex-1 p-8">
             <div class="flex justify-between items-center mb-6">
@@ -106,15 +106,12 @@
                             <div><label for="email" class="block text-sm font-medium">Email</label><input id="email" type="email" class="w-full p-1.5 border rounded-md text-sm" required></div>
                             <div><label for="telefono" class="block text-sm font-medium">Teléfono</label><input id="telefono" type="tel" class="w-full p-1.5 border rounded-md text-sm"></div>
                             <div><label for="fecha_nac" class="block text-sm font-medium">Fecha Nacimiento</label><input id="fecha_nac" type="date" class="w-full p-1.5 border rounded-md text-sm"></div>
-                            
                             <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-3">
                                 <div><label for="tarifa1" class="block text-sm font-medium">Tarifa (1)</label><input id="tarifa1" type="number" step="0.01" class="w-full p-1.5 border rounded-md text-sm"></div>
                                 <div><label for="tarifa2" class="block text-sm font-medium">Tarifa (2)</label><input id="tarifa2" type="number" step="0.01" class="w-full p-1.5 border rounded-md text-sm"></div>
                                 <div><label for="tarifa3" class="block text-sm font-medium">Tarifa (3)</label><input id="tarifa3" type="number" step="0.01" class="w-full p-1.5 border rounded-md text-sm"></div>
                             </div>
-                            
                             <div class="md:col-span-2"><label for="direccion" class="block text-sm font-medium">Dirección</label><textarea id="direccion" rows="3" class="w-full p-1.5 border rounded-md text-sm"></textarea></div>
-                            
                             <div class="md:col-span-2"><label for="sucursal" class="block text-sm font-medium">Sucursal</label><select id="sucursal" class="w-full p-1.5 border rounded-md text-sm" required><option value="">Cargando...</option></select></div>
                         </div>
                         <div class="flex justify-end gap-4 pt-4 mt-4 border-t">
@@ -129,9 +126,7 @@
 
     <script type="module">
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
         const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
-
         const norm = s => (s||"").trim();
         const normEmail = s => (s||"").trim().toLowerCase();
         const toNum = (s) => {
@@ -140,7 +135,6 @@
         };
         const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
         const fmtNum = (n) => (n==null ? "" : (Number(n).toFixed(2)));
-
         const tableBody   = document.querySelector("table tbody");
         const inputQ      = document.getElementById('q');
         const btnBuscar   = document.getElementById('btnBuscar');
@@ -150,7 +144,6 @@
         const fltSucursal = document.getElementById('fltSucursal');
         const fltSource   = document.getElementById('fltSource');
         const fltBox      = document.getElementById('fltBox');
-        
         const modalEl     = document.getElementById('add-client-modal');
         const form        = document.getElementById('formCliente');
         const modalTitle  = document.getElementById('modalTitle');
@@ -163,9 +156,7 @@
         const fldTar3     = document.getElementById('tarifa3');
         const fldDir      = document.getElementById('direccion');
         const fldSucursal = document.getElementById('sucursal');
-
         let editingId = null;
-
         async function cargarSucursales() {
           fldSucursal.innerHTML = "<option value=''>Cargando...</option>";
           fltSucursal.innerHTML = "<option value=''>Todas</option>";
@@ -182,18 +173,15 @@
             opt1.value = name;
             opt1.textContent = name;
             fldSucursal.appendChild(opt1);
-
             const opt2 = document.createElement("option");
             opt2.value = name;
             opt2.textContent = name;
             fltSucursal.appendChild(opt2);
           }
         }
-
         function renderEmpty(msg="No hay clientes.") {
           tableBody.innerHTML = `<tr><td colspan="10" class="text-center p-4 text-slate-500">${msg}</td></tr>`;
         }
-
         function renderRows(rows){
           if (!rows || !rows.length) return renderEmpty();
           tableBody.innerHTML = rows.map(r => `
@@ -216,10 +204,8 @@
             </tr>
           `).join("");
         }
-
         async function cargarClientes() {
           let query = sb.from("clientes").select("*").order("created_at",{ascending:false}).limit(200);
-          
           const d = fltDesde.value ? `${fltDesde.value}T00:00:00Z` : null;
           const h = fltHasta.value ? `${fltHasta.value}T23:59:59Z` : null;
           if (d) query = query.gte("created_at", d);
@@ -227,24 +213,20 @@
           if (fltSucursal.value) query = query.eq("sucursal", fltSucursal.value);
           if (fltSource.value)   query = query.eq("source", fltSource.value);
           if (fltBox.value)      query = query.eq("box", Number(fltBox.value));
-
           const q = norm(inputQ.value);
           if (q) {
             query = query.or(`nombre.ilike.%${q}%,email.ilike.%${q}%,telefono.ilike.%${q}%`);
           }
-
           const { data, error } = await query;
           if (error) { console.error(error); return renderEmpty("Error cargando."); }
           renderRows(data);
         }
-
         function resetModal(){
           editingId = null;
           modalTitle.textContent = "Crear Nuevo Cliente";
           form.reset();
           fldSucursal.value = "";
         }
-
         function abrirEditar(clienteData){
           const data = JSON.parse(clienteData);
           editingId = data.id;
@@ -260,7 +242,6 @@
           fldSucursal.value = data.sucursal || "";
           modalEl.classList.remove('hidden');
         }
-
         async function correoExiste(email, excluirId=null){
           const em = normEmail(email);
           if (!em) return false;
@@ -270,7 +251,6 @@
           if (error && error.code !== "PGRST116") { console.error(error); }
           return !!(data && data.id);
         }
-
         form?.addEventListener("submit", async (ev) => {
           ev.preventDefault();
           const payload = {
@@ -285,16 +265,13 @@
             sucursal:  fldSucursal.value || null,
             source:    "staff"
           };
-
           if (!payload.nombre || !payload.email || !payload.sucursal) {
             return alert("Nombre, Email y Sucursal son obligatorios.");
           }
-
           const dup = await correoExiste(payload.email, editingId);
           if (dup) {
             return alert("Este email ya está registrado. No se puede duplicar.");
           }
-
           let err;
           if (editingId) {
             const { error } = await sb.from("clientes").update(payload).eq("id", editingId);
@@ -303,19 +280,16 @@
             const { error } = await sb.from("clientes").insert(payload);
             err = error;
           }
-
           if (err) {
             console.error(err);
             if (err.code === "23505") alert("Este email ya está registrado (único).");
             else alert(err.message || "Error al guardar");
             return;
           }
-
           modalEl.classList.add('hidden');
           await cargarClientes();
           alert("Guardado ✅");
         });
-
         async function eliminar(id){
           if (!confirm("¿Eliminar este cliente? Esta acción no se puede deshacer.")) return;
           const { error } = await sb.from("clientes").delete().eq("id", id);
@@ -323,7 +297,6 @@
           await cargarClientes();
           alert("Eliminado 🗑️");
         }
-        
         function initializeFilterToggle() {
             const toggleButton = document.getElementById('toggle-filters-btn');
             const filtersDiv = document.getElementById('advanced-filters');
@@ -331,22 +304,18 @@
                 toggleButton.addEventListener('click', () => filtersDiv.classList.toggle('visible'));
             }
         }
-
         function initializeClientesListeners() {
             initializeModal('add-client-btn', 'add-client-modal', 'close-modal');
             initializeFilterToggle();
             document.getElementById('add-client-btn').addEventListener('click', resetModal);
-            
             btnBuscar.addEventListener("click", cargarClientes);
             btnLimpiar.addEventListener("click", ()=>{
                 fltDesde.value=""; fltHasta.value=""; fltSucursal.value=""; fltSource.value=""; fltBox.value=""; inputQ.value="";
                 cargarClientes();
             });
-
             [fltDesde, fltHasta, fltBox, fltSucursal, fltSource].forEach(el => {
                 el.addEventListener('change', cargarClientes);
             });
-
             tableBody.addEventListener('click', (e) => {
                 if (e.target.dataset.edit) {
                     abrirEditar(e.target.dataset.edit);
@@ -355,16 +324,13 @@
                     eliminar(e.target.dataset.del);
                 }
             });
-
             cargarSucursales();
             cargarClientes();
         }
-
         function initializeModal(openBtnId, modalId, closeBtnClass) {
             const openBtn = document.getElementById(openBtnId);
             const modal = document.getElementById(modalId);
             const closeBtns = modal.querySelectorAll(`.${closeBtnClass}`);
-            
             if (openBtn && modal) {
                 openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
                 closeBtns.forEach(btn => {
@@ -372,22 +338,36 @@
                 });
             }
         }
+        // La llamada a 'initializeClientesListeners' se mueve al script de abajo
+    </script>
 
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- Lógica para el menú móvil (Hamburguesa) ---
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const sidebar = document.getElementById('sidebar');
-            mobileMenuButton.addEventListener('click', () => {
-                sidebar.classList.toggle('-translate-x-full');
-            });
+            
+            if (mobileMenuButton && sidebar) {
+                mobileMenuButton.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    sidebar.classList.toggle('-translate-x-full');
+                });
+            }
 
+            // --- Lógica para resaltar el enlace activo en el menú lateral ---
             const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-            document.querySelectorAll('.sidebar-link').forEach(link => {
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+
+            sidebarLinks.forEach(link => {
                 if (link.dataset.path === currentPage) {
                     link.classList.add('active');
                 }
             });
 
-            initializeClientesListeners();
+            // --- Lógica específica para la página de clientes ---
+            if (typeof initializeClientesListeners === 'function') {
+                initializeClientesListeners();
+            }
         });
     </script>
 </body>
