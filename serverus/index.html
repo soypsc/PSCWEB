@@ -49,7 +49,7 @@
                 <a href="./configuracion.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="configuracion.html"><span>Configuración</span></a>
                 <a href="./notificaciones.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="notificaciones.html"><span>Notificaciones</span></a>
             </nav>
-        </aside>
+            </aside>
 
         <main class="flex-1 p-8">
             <div class="flex justify-between items-center mb-8">
@@ -77,29 +77,18 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Lógica para el menú móvil (Hamburguesa) ---
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const sidebar = document.getElementById('sidebar');
-            
-            if (mobileMenuButton && sidebar) {
-                mobileMenuButton.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    sidebar.classList.toggle('-translate-x-full');
-                });
-            }
-
-            // --- Lógica para resaltar el enlace activo en el menú lateral ---
-            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            mobileMenuButton.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html'; // Asegura que index.html se detecte
             const sidebarLinks = document.querySelectorAll('.sidebar-link');
-
             sidebarLinks.forEach(link => {
                 if (link.dataset.path === currentPage) {
                     link.classList.add('active');
                 }
             });
-
-            // Si hay funciones específicas para esta página que necesiten inicializarse,
-            // se pueden llamar aquí. Para el dashboard, usualmente no es necesario.
         });
     </script>
 </body>
