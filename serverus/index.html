@@ -321,9 +321,19 @@
           await cargarClientes();
           alert("Eliminado 🗑️");
         }
+        
+        // FIX: Se reincorpora la función para mostrar/ocultar los filtros.
+        function initializeFilterToggle() {
+            const toggleButton = document.getElementById('toggle-filters-btn');
+            const filtersDiv = document.getElementById('advanced-filters');
+            if (toggleButton && filtersDiv) {
+                toggleButton.addEventListener('click', () => filtersDiv.classList.toggle('visible'));
+            }
+        }
 
         function initializeClientesListeners() {
             initializeModal('add-client-btn', 'add-client-modal', 'close-modal');
+            initializeFilterToggle(); // Se llama a la función para activar el botón.
             document.getElementById('add-client-btn').addEventListener('click', resetModal);
             
             btnBuscar.addEventListener("click", cargarClientes);
@@ -332,7 +342,6 @@
                 cargarClientes();
             });
 
-            // FIX: Se añaden los event listeners para que los filtros funcionen al cambiar.
             [fltBox, fltSucursal, fltSource].forEach(el => {
                 el.addEventListener('change', cargarClientes);
             });
@@ -383,4 +392,5 @@
     </script>
 </body>
 </html>
+
 
