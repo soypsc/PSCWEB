@@ -62,10 +62,12 @@
                 </div>
                 <div id="advanced-filters" class="advanced-filters">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t mt-4">
-                        <input id="fltBox" type="number" min="1" placeholder="Box" class="p-2 border rounded-md text-sm">
-                        <select id="fltSucursal" class="p-2 border rounded-md text-sm"><option value="">Cualquier Sucursal</option></select>
-                        <select id="fltSource" class="p-2 border rounded-md text-sm"><option value="">Todos los Sources</option><option>staff</option><option>web</option><option>app</option></select>
-                        <button id="btnLimpiar" type="button" class="bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-md">Limpiar</button>
+                        <div><label class="block text-xs font-medium text-slate-500 mb-1">Desde</label><input id="fltDesde" type="date" class="p-2 border rounded-md text-sm w-full"></div>
+                        <div><label class="block text-xs font-medium text-slate-500 mb-1">Hasta</label><input id="fltHasta" type="date" class="p-2 border rounded-md text-sm w-full"></div>
+                        <div><label class="block text-xs font-medium text-slate-500 mb-1">Box</label><input id="fltBox" type="number" min="1" placeholder="Box" class="p-2 border rounded-md text-sm w-full"></div>
+                        <div><label class="block text-xs font-medium text-slate-500 mb-1">Sucursal</label><select id="fltSucursal" class="p-2 border rounded-md text-sm w-full"><option value="">Cualquier Sucursal</option></select></div>
+                        <div><label class="block text-xs font-medium text-slate-500 mb-1">Source</label><select id="fltSource" class="p-2 border rounded-md text-sm w-full"><option value="">Todos los Sources</option><option>staff</option><option>web</option><option>app</option></select></div>
+                        <div class="flex items-end"><button id="btnLimpiar" type="button" class="bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-md w-full">Limpiar</button></div>
                     </div>
                 </div>
             </div>
@@ -148,6 +150,8 @@
         const inputQ      = document.getElementById('q');
         const btnBuscar   = document.getElementById('btnBuscar');
         const btnLimpiar  = document.getElementById('btnLimpiar');
+        const fltDesde    = document.getElementById('fltDesde');
+        const fltHasta    = document.getElementById('fltHasta');
         const fltSucursal = document.getElementById('fltSucursal');
         const fltSource   = document.getElementById('fltSource');
         const fltBox      = document.getElementById('fltBox');
@@ -222,6 +226,10 @@
         async function cargarClientes() {
           let query = sb.from("clientes").select("*").order("created_at",{ascending:false}).limit(200);
           
+          const d = fltDesde.value ? `${fltDesde.value}T00:00:00Z` : null;
+          const h = fltHasta.value ? `${fltHasta.value}T23:59:59Z` : null;
+          if (d) query = query.gte("created_at", d);
+          if (h) query = query.lte("created_at", h);
           if (fltSucursal.value) query = query.eq("sucursal", fltSucursal.value);
           if (fltSource.value)   query = query.eq("source", fltSource.value);
           if (fltBox.value)      query = query.eq("box", Number(fltBox.value));
@@ -322,7 +330,6 @@
           alert("Eliminado 🗑️");
         }
         
-        // FIX: Se reincorpora la función para mostrar/ocultar los filtros.
         function initializeFilterToggle() {
             const toggleButton = document.getElementById('toggle-filters-btn');
             const filtersDiv = document.getElementById('advanced-filters');
@@ -333,16 +340,16 @@
 
         function initializeClientesListeners() {
             initializeModal('add-client-btn', 'add-client-modal', 'close-modal');
-            initializeFilterToggle(); // Se llama a la función para activar el botón.
+            initializeFilterToggle();
             document.getElementById('add-client-btn').addEventListener('click', resetModal);
             
             btnBuscar.addEventListener("click", cargarClientes);
             btnLimpiar.addEventListener("click", ()=>{
-                fltSucursal.value=""; fltSource.value=""; fltBox.value=""; inputQ.value="";
+                fltDesde.value=""; fltHasta.value=""; fltSucursal.value=""; fltSource.value=""; fltBox.value=""; inputQ.value="";
                 cargarClientes();
             });
 
-            [fltBox, fltSucursal, fltSource].forEach(el => {
+            [fltDesde, fltHasta, fltBox, fltSucursal, fltSource].forEach(el => {
                 el.addEventListener('change', cargarClientes);
             });
 
@@ -392,5 +399,3 @@
     </script>
 </body>
 </html>
-
-
