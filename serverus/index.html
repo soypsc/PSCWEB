@@ -82,7 +82,9 @@
             mobileMenuButton.addEventListener('click', () => {
                 sidebar.classList.toggle('-translate-x-full');
             });
-            const currentPage = window.location.pathname.split('/').pop() || 'index.html'; // Asegura que index.html se detecte
+
+            // Lógica para resaltar el enlace activo
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html'; // Asegura que 'index.html' se active en la raíz
             const sidebarLinks = document.querySelectorAll('.sidebar-link');
             sidebarLinks.forEach(link => {
                 if (link.dataset.path === currentPage) {
