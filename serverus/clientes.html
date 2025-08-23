@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGL1 - Clientes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-link.active { background-color: #ecfdf5; color: #059669; font-weight: 600; }
+        .code { font-size: 13px; font-weight: 600; color: #94a3b8; margin-right: 12px; background-color: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
+        #sidebar { transition: transform 0.3s ease-in-out; }
+        .advanced-filters { transition: all 0.3s ease-in-out; max-height: 0; opacity: 0; overflow: hidden; }
+        .advanced-filters.visible { max-height: 500px; opacity: 1; margin-top: 1rem; }
+        .modal-backdrop { transition: opacity 0.3s ease-in-out; }
+        .modal-content { transition: all 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="relative min-h-screen md:flex">
+        <div class="bg-white text-slate-800 flex justify-between md:hidden sticky top-0 z-20 shadow-md">
+            <a href="./index.html" class="block p-4 font-bold">SGL1</a>
+            <button id="mobile-menu-button" class="p-4 focus:outline-none focus:bg-slate-200">
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+            </button>
+        </div>
+        <aside id="sidebar" class="bg-white text-slate-600 w-64 p-4 space-y-6 fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 z-30 shadow-lg md:shadow-none">
+            <div class="flex items-center gap-3 mb-8 px-2"><div class="bg-emerald-500 p-2 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg></div><h1 class="text-xl font-bold text-slate-800">SGL1</h1></div>
+            
+            <nav>
+                <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-4">Operaciones</h2>
+                <a href="./index.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="index.html"><span>Dashboard</span></a>
+                <a href="./recibir-paquete.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="recibir-paquete.html"><span>Recibir Paquete</span></a>
+                <a href="./recibir-en-sucursal.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="recibir-en-sucursal.html"><span>Recibir en Sucursal</span></a>
+                <a href="./clientes.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="clientes.html"><span>Clientes</span></a>
+                <a href="./paquetes.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="paquetes.html"><span>Paquetes</span></a>
+                <a href="./sucursales.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="sucursales.html"><span>Sucursales</span></a>
+                <a href="./cobrar.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="cobrar.html"><span>Cobrar y Facturar</span></a>
+                <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-6 mb-2 px-4 pt-4 border-t">Administración</h2>
+                <a href="./usuarios.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="usuarios.html"><span>Usuarios y Roles</span></a>
+                <a href="./configuracion.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="configuracion.html"><span>Configuración</span></a>
+                <a href="./notificaciones.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="notificaciones.html"><span>Notificaciones</span></a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-slate-900 flex items-center"><span class="code">[OP-02]</span>Gestión de Clientes</h1>
+                <button id="add-client-btn" class="flex items-center gap-2 bg-emerald-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-emerald-600">Crear Cliente</button>
+            </div>
+            <div class="bg-white p-4 rounded-lg border border-slate-200 mb-6">
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="relative flex-grow">
+                        <input id="q" type="search" placeholder="Buscar por Nombre, Box, Email..." class="w-full p-2 pl-10 border border-slate-300 rounded-md">
+                    </div>
+                    <button id="toggle-filters-btn" class="flex items-center gap-2 p-2 border rounded-md">Filtros Avanzados</button>
+                    <button id="btnBuscar" class="bg-emerald-500 text-white font-semibold py-2 px-4 rounded-md">Buscar</button>
+                </div>
+                <div id="advanced-filters" class="advanced-filters">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t mt-4">
+                        <div><label class="block text-xs font-medium text-slate-500 mb-1">Desde</label><input id="fltDesde" type="date" class="p-2 border rounded-md text-sm w-full"></div>
+                        <div><label class="block text-xs font-medium text-slate-500 mb-1">Hasta</label><input id="fltHasta" type="date" class="p-2 border rounded-md text-sm w-full"></div>
+                        <div><label class="block text-xs font-medium text-slate-500 mb-1">Box</label><input id="fltBox" type="number" min="1" placeholder="Box" class="p-2 border rounded-md text-sm w-full"></div>
+                        <div><label class="block text-xs font-medium text-slate-500 mb-1">Sucursal</label><select id="fltSucursal" class="p-2 border rounded-md text-sm w-full"><option value="">Cualquier Sucursal</option></select></div>
+                        <div><label class="block text-xs font-medium text-slate-500 mb-1">Source</label><select id="fltSource" class="p-2 border rounded-md text-sm w-full"><option value="">Todos los Sources</option><option>staff</option><option>web</option><option>app</option></select></div>
+                        <div class="flex items-end"><button id="btnLimpiar" type="button" class="bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-md w-full">Limpiar</button></div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg border overflow-x-auto">
+                <table class="w-full text-sm whitespace-nowrap">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left">Nombre</th>
+                            <th class="px-6 py-3 text-left">Box</th>
+                            <th class="px-6 py-3 text-left">Email</th>
+                            <th class="px-6 py-3 text-left">Teléfono</th>
+                            <th class="px-6 py-3 text-left">Sucursal</th>
+                            <th class="px-6 py-3 text-left">Source</th>
+                            <th class="px-6 py-3 text-left">Tarifa (1)</th>
+                            <th class="px-6 py-3 text-left">Tarifa (2)</th>
+                            <th class="px-6 py-3 text-left">Tarifa (3)</th>
+                            <th class="px-6 py-3 text-left">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="10" class="text-center p-4 text-slate-500">Cargando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="add-client-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40 modal-backdrop">
+                <div class="bg-white w-full max-w-4xl rounded-lg shadow-xl p-6 modal-content overflow-y-auto max-h-[95vh]">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 id="modalTitle" class="text-xl font-bold text-slate-800">Crear Nuevo Cliente</h2>
+                        <button class="close-modal text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
+                    </div>
+                    <form id="formCliente">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                            <div><label for="nombre" class="block text-sm font-medium">Nombre</label><input id="nombre" type="text" class="w-full p-1.5 border rounded-md text-sm" required></div>
+                            <div><label for="email" class="block text-sm font-medium">Email</label><input id="email" type="email" class="w-full p-1.5 border rounded-md text-sm" required></div>
+                            <div><label for="telefono" class="block text-sm font-medium">Teléfono</label><input id="telefono" type="tel" class="w-full p-1.5 border rounded-md text-sm"></div>
+                            <div><label for="fecha_nac" class="block text-sm font-medium">Fecha Nacimiento</label><input id="fecha_nac" type="date" class="w-full p-1.5 border rounded-md text-sm"></div>
+                            <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-3">
+                                <div><label for="tarifa1" class="block text-sm font-medium">Tarifa (1)</label><input id="tarifa1" type="number" step="0.01" class="w-full p-1.5 border rounded-md text-sm"></div>
+                                <div><label for="tarifa2" class="block text-sm font-medium">Tarifa (2)</label><input id="tarifa2" type="number" step="0.01" class="w-full p-1.5 border rounded-md text-sm"></div>
+                                <div><label for="tarifa3" class="block text-sm font-medium">Tarifa (3)</label><input id="tarifa3" type="number" step="0.01" class="w-full p-1.5 border rounded-md text-sm"></div>
+                            </div>
+                            <div class="md:col-span-2"><label for="direccion" class="block text-sm font-medium">Dirección</label><textarea id="direccion" rows="3" class="w-full p-1.5 border rounded-md text-sm"></textarea></div>
+                            <div class="md:col-span-2"><label for="sucursal" class="block text-sm font-medium">Sucursal</label><select id="sucursal" class="w-full p-1.5 border rounded-md text-sm" required><option value="">Cargando...</option></select></div>
+                        </div>
+                        <div class="flex justify-end gap-4 pt-4 mt-4 border-t">
+                            <button type="button" class="close-modal bg-slate-100 text-slate-700 font-semibold py-2 px-4 rounded-md hover:bg-slate-200">Cancelar</button>
+                            <button id="btnGuardar" type="submit" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-md hover:bg-blue-700">Crear</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+        const norm = s => (s||"").trim();
+        const normEmail = s => (s||"").trim().toLowerCase();
+        const toNum = (s) => {
+          const n = Number(String(s||"").replace(",", "."));
+          return Number.isFinite(n) ? n : null;
+        };
+        const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+        const fmtNum = (n) => (n==null ? "" : (Number(n).toFixed(2)));
+        const tableBody   = document.querySelector("table tbody");
+        const inputQ      = document.getElementById('q');
+        const btnBuscar   = document.getElementById('btnBuscar');
+        const btnLimpiar  = document.getElementById('btnLimpiar');
+        const fltDesde    = document.getElementById('fltDesde');
+        const fltHasta    = document.getElementById('fltHasta');
+        const fltSucursal = document.getElementById('fltSucursal');
+        const fltSource   = document.getElementById('fltSource');
+        const fltBox      = document.getElementById('fltBox');
+        const modalEl     = document.getElementById('add-client-modal');
+        const form        = document.getElementById('formCliente');
+        const modalTitle  = document.getElementById('modalTitle');
+        const fldNombre   = document.getElementById('nombre');
+        const fldEmail    = document.getElementById('email');
+        const fldTel      = document.getElementById('telefono');
+        const fldFecha    = document.getElementById('fecha_nac');
+        const fldTar1     = document.getElementById('tarifa1');
+        const fldTar2     = document.getElementById('tarifa2');
+        const fldTar3     = document.getElementById('tarifa3');
+        const fldDir      = document.getElementById('direccion');
+        const fldSucursal = document.getElementById('sucursal');
+        let editingId = null;
+        async function cargarSucursales() {
+          fldSucursal.innerHTML = "<option value=''>Cargando...</option>";
+          fltSucursal.innerHTML = "<option value=''>Todas</option>";
+          const { data, error } = await sb.from("sucursales").select("sucursal").order("sucursal");
+          if (error) {
+            console.error(error);
+            fldSucursal.innerHTML = "<option value=''>Error</option>";
+            return;
+          }
+          fldSucursal.innerHTML = "<option value=''>Seleccione sucursal</option>";
+          for (const row of (data || [])) {
+            const name = row.sucursal;
+            const opt1 = document.createElement("option");
+            opt1.value = name;
+            opt1.textContent = name;
+            fldSucursal.appendChild(opt1);
+            const opt2 = document.createElement("option");
+            opt2.value = name;
+            opt2.textContent = name;
+            fltSucursal.appendChild(opt2);
+          }
+        }
+        function renderEmpty(msg="No hay clientes.") {
+          tableBody.innerHTML = `<tr><td colspan="10" class="text-center p-4 text-slate-500">${msg}</td></tr>`;
+        }
+        function renderRows(rows){
+          if (!rows || !rows.length) return renderEmpty();
+          tableBody.innerHTML = rows.map(r => `
+            <tr class="bg-white border-b hover:bg-slate-50">
+              <td class="px-6 py-4 font-medium text-slate-900">${escapeHtml(r.nombre)}</td>
+              <td class="px-6 py-4">${r.box ?? ""}</td>
+              <td class="px-6 py-4">${escapeHtml(r.email)}</td>
+              <td class="px-6 py-4">${escapeHtml(r.telefono)}</td>
+              <td class="px-6 py-4">${escapeHtml(r.sucursal)}</td>
+              <td class="px-6 py-4">${escapeHtml(r.source)}</td>
+              <td class="px-6 py-4">${fmtNum(r.tarifa_1)}</td>
+              <td class="px-6 py-4">${fmtNum(r.tarifa_2)}</td>
+              <td class="px-6 py-4">${fmtNum(r.tarifa_3)}</td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                  <button class="text-xs bg-blue-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-blue-600" data-edit='${JSON.stringify(r)}'>Editar</button>
+                  <button class="text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-red-600" data-del="${r.id}">Eliminar</button>
+                </div>
+              </td>
+            </tr>
+          `).join("");
+        }
+        async function cargarClientes() {
+          let query = sb.from("clientes").select("*").order("created_at",{ascending:false}).limit(200);
+          const d = fltDesde.value ? `${fltDesde.value}T00:00:00Z` : null;
+          const h = fltHasta.value ? `${fltHasta.value}T23:59:59Z` : null;
+          if (d) query = query.gte("created_at", d);
+          if (h) query = query.lte("created_at", h);
+          if (fltSucursal.value) query = query.eq("sucursal", fltSucursal.value);
+          if (fltSource.value)   query = query.eq("source", fltSource.value);
+          if (fltBox.value)      query = query.eq("box", Number(fltBox.value));
+          const q = norm(inputQ.value);
+          if (q) {
+            query = query.or(`nombre.ilike.%${q}%,email.ilike.%${q}%,telefono.ilike.%${q}%`);
+          }
+          const { data, error } = await query;
+          if (error) { console.error(error); return renderEmpty("Error cargando."); }
+          renderRows(data);
+        }
+        function resetModal(){
+          editingId = null;
+          modalTitle.textContent = "Crear Nuevo Cliente";
+          form.reset();
+          fldSucursal.value = "";
+        }
+        function abrirEditar(clienteData){
+          const data = JSON.parse(clienteData);
+          editingId = data.id;
+          modalTitle.textContent = `Editar cliente (Box ${data.box ?? "-"})`;
+          fldNombre.value = data.nombre || "";
+          fldEmail.value  = data.email || "";
+          fldTel.value    = data.telefono || "";
+          fldFecha.value  = data.fecha_nac || "";
+          fldTar1.value   = data.tarifa_1 ?? "";
+          fldTar2.value   = data.tarifa_2 ?? "";
+          fldTar3.value   = data.tarifa_3 ?? "";
+          fldDir.value    = data.direccion || "";
+          fldSucursal.value = data.sucursal || "";
+          modalEl.classList.remove('hidden');
+        }
+        async function correoExiste(email, excluirId=null){
+          const em = normEmail(email);
+          if (!em) return false;
+          let q = sb.from("clientes").select("id").eq("email", em).limit(1);
+          if (excluirId) q = q.neq("id", excluirId);
+          const { data, error } = await q.maybeSingle();
+          if (error && error.code !== "PGRST116") { console.error(error); }
+          return !!(data && data.id);
+        }
+        form?.addEventListener("submit", async (ev) => {
+          ev.preventDefault();
+          const payload = {
+            nombre:    norm(fldNombre.value),
+            email:     normEmail(fldEmail.value),
+            telefono:  norm(fldTel.value) || null,
+            fecha_nac: fldFecha.value || null,
+            tarifa_1:  toNum(fldTar1.value),
+            tarifa_2:  toNum(fldTar2.value),
+            tarifa_3:  toNum(fldTar3.value),
+            direccion: norm(fldDir.value) || null,
+            sucursal:  fldSucursal.value || null,
+            source:    "staff"
+          };
+          if (!payload.nombre || !payload.email || !payload.sucursal) {
+            return alert("Nombre, Email y Sucursal son obligatorios.");
+          }
+          const dup = await correoExiste(payload.email, editingId);
+          if (dup) {
+            return alert("Este email ya está registrado. No se puede duplicar.");
+          }
+          let err;
+          if (editingId) {
+            const { error } = await sb.from("clientes").update(payload).eq("id", editingId);
+            err = error;
+          } else {
+            const { error } = await sb.from("clientes").insert(payload);
+            err = error;
+          }
+          if (err) {
+            console.error(err);
+            if (err.code === "23505") alert("Este email ya está registrado (único).");
+            else alert(err.message || "Error al guardar");
+            return;
+          }
+          modalEl.classList.add('hidden');
+          await cargarClientes();
+          alert("Guardado ✅");
+        });
+        async function eliminar(id){
+          if (!confirm("¿Eliminar este cliente? Esta acción no se puede deshacer.")) return;
+          const { error } = await sb.from("clientes").delete().eq("id", id);
+          if (error) { console.error(error); return alert(error.message || "No se pudo eliminar"); }
+          await cargarClientes();
+          alert("Eliminado 🗑️");
+        }
+        function initializeFilterToggle() {
+            const toggleButton = document.getElementById('toggle-filters-btn');
+            const filtersDiv = document.getElementById('advanced-filters');
+            if (toggleButton && filtersDiv) {
+                toggleButton.addEventListener('click', () => filtersDiv.classList.toggle('visible'));
+            }
+        }
+        function initializeClientesListeners() {
+            initializeModal('add-client-btn', 'add-client-modal', 'close-modal');
+            initializeFilterToggle();
+            document.getElementById('add-client-btn').addEventListener('click', resetModal);
+            btnBuscar.addEventListener("click", cargarClientes);
+            btnLimpiar.addEventListener("click", ()=>{
+                fltDesde.value=""; fltHasta.value=""; fltSucursal.value=""; fltSource.value=""; fltBox.value=""; inputQ.value="";
+                cargarClientes();
+            });
+            [fltDesde, fltHasta, fltBox, fltSucursal, fltSource].forEach(el => {
+                el.addEventListener('change', cargarClientes);
+            });
+            tableBody.addEventListener('click', (e) => {
+                if (e.target.dataset.edit) {
+                    abrirEditar(e.target.dataset.edit);
+                }
+                if (e.target.dataset.del) {
+                    eliminar(e.target.dataset.del);
+                }
+            });
+            cargarSucursales();
+            cargarClientes();
+        }
+        function initializeModal(openBtnId, modalId, closeBtnClass) {
+            const openBtn = document.getElementById(openBtnId);
+            const modal = document.getElementById(modalId);
+            const closeBtns = modal.querySelectorAll(`.${closeBtnClass}`);
+            if (openBtn && modal) {
+                openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+                closeBtns.forEach(btn => {
+                    btn.addEventListener('click', () => modal.classList.add('hidden'));
+                });
+            }
+        }
+        // La llamada a 'initializeClientesListeners' se mueve al script de abajo
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Lógica para el menú móvil (Hamburguesa) ---
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (mobileMenuButton && sidebar) {
+                mobileMenuButton.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    sidebar.classList.toggle('-translate-x-full');
+                });
+            }
+
+            // --- Lógica para resaltar el enlace activo en el menú lateral ---
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+
+            sidebarLinks.forEach(link => {
+                if (link.dataset.path === currentPage) {
+                    link.classList.add('active');
+                }
+            });
+
+            // --- Lógica específica para la página de clientes ---
+            if (typeof initializeClientesListeners === 'function') {
+                initializeClientesListeners();
+            }
+        });
+    </script>
+</body>
+</html>
