@@ -53,7 +53,7 @@
                         <input type="text" id="tracking-sucursal-main" placeholder="Esperando escaneo de tracking interno..." class="w-full text-lg pl-4 pr-4 py-3 border-2 border-slate-300 rounded-lg">
                     </div>
                     <div class="bg-white p-6 mt-6 rounded-lg border border-slate-200 shadow-sm">
-                        <h2 class="text-lg font-semibold text-slate-700">Paquetes "En Tránsito"</h2>
+                        <h2 class="text-lg font-semibold text-slate-700">Paquetes "Recibido en Bodega"</h2>
                         <div class="overflow-x-auto mt-4">
                             <table class="w-full text-sm">
                                 <thead class="text-xs text-slate-700 uppercase bg-slate-100">
@@ -170,7 +170,7 @@
                     const { data, error } = await sb
                         .from('paquetes')
                         .select('sucursal, cliente_nombre, tracking')
-                        .eq('status', 'En Tránsito')
+                        .eq('status', 'Recibido en Bodega') // <-- LÓGICA CORREGIDA AQUÍ
                         .order('created_at', { ascending: false });
 
                     if (error) {
@@ -180,7 +180,7 @@
                     }
 
                     if (data.length === 0) {
-                        tablaPendientes.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-slate-500">No hay paquetes "En Tránsito".</td></tr>`;
+                        tablaPendientes.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-slate-500">No hay paquetes pendientes de recibir.</td></tr>`;
                         return;
                     }
                     
@@ -276,5 +276,6 @@
     </script>
 </body>
 </html>
+
 
 
