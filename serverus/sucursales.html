@@ -51,8 +51,20 @@
                 <h1 class="text-3xl font-bold text-slate-900 flex items-center"><span class="code">[OP-04]</span>Gestión de Sucursales</h1>
                 <button id="add-sucursal-btn" class="bg-emerald-500 text-white font-semibold py-2 px-4 rounded-md">Crear Sucursal</button>
             </div>
-            <div id="sucursales-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Contenido se carga desde Supabase -->
+            <div class="bg-white rounded-lg border overflow-x-auto">
+                <table class="w-full text-sm whitespace-nowrap">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left">Fecha</th>
+                            <th class="px-6 py-3 text-left">Sucursal</th>
+                            <th class="px-6 py-3 text-left">Código</th>
+                            <th class="px-6 py-3 text-left">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Contenido se carga desde Supabase -->
+                    </tbody>
+                </table>
             </div>
             
             <!-- Modal para añadir/editar sucursal -->
@@ -130,7 +142,7 @@
             try {
                 const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
-                const sucursalesContainer = document.getElementById('sucursales-container');
+                const tableBody = document.querySelector("table tbody");
                 const modalEl = document.getElementById('add-sucursal-modal');
                 const modalTitle = document.getElementById('modalTitle');
                 const form = document.getElementById('formSucursal');
@@ -141,24 +153,32 @@
                 // Utils
                 const collapseSpaces = (s) => (s ?? "").replace(/\s+/g, " ").trim();
                 const titleCaseEachWord = (s) => collapseSpaces(s).split(" ").map((w) => (w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : "")).join(" ");
-                
+                const fmtDate = (iso) => {
+                    if (!iso) return "";
+                    try {
+                        const d = new Date(iso);
+                        return d.toLocaleDateString("es-PA", { day: "2-digit", month: "2-digit", year: "2-digit" });
+                    } catch { return iso; }
+                };
+
                 function renderEmpty(msg = "No hay sucursales.") {
-                    sucursalesContainer.innerHTML = `<div class="text-center p-8 bg-white rounded-lg border col-span-full"><p class="text-slate-500">${msg}</p></div>`;
+                    tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500">${msg}</td></tr>`;
                 }
 
-                function renderCards(rows) {
+                function renderRows(rows) {
                     if (!rows.length) return renderEmpty();
-                    sucursalesContainer.innerHTML = rows.map(r => `
-                        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm flex flex-col">
-                            <div class="flex-grow">
-                                <h2 class="text-xl font-bold text-slate-800">${r.sucursal || ""}</h2>
-                                <p class="text-sm text-slate-500 mt-1">Código: ${r.codigo || ""}</p>
-                            </div>
-                            <div class="mt-6 flex items-center gap-2">
-                                <button class="w-full text-xs bg-blue-500 text-white font-semibold py-2 px-3 rounded-md hover:bg-blue-600" data-edit='${JSON.stringify(r)}'>Editar</button>
-                                <button class="w-full text-xs bg-red-500 text-white font-semibold py-2 px-3 rounded-md hover:bg-red-600" data-del="${r.id}">Eliminar</button>
-                            </div>
-                        </div>
+                    tableBody.innerHTML = rows.map(r => `
+                        <tr class="bg-white border-b hover:bg-slate-50">
+                            <td class="px-6 py-4">${fmtDate(r.created_at)}</td>
+                            <td class="px-6 py-4 font-medium text-slate-900">${r.sucursal || ""}</td>
+                            <td class="px-6 py-4">${r.codigo || ""}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    <button class="text-xs bg-blue-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-blue-600" data-edit='${JSON.stringify(r)}'>Editar</button>
+                                    <button class="text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-red-600" data-del="${r.id}">Eliminar</button>
+                                </div>
+                            </td>
+                        </tr>
                     `).join("");
                 }
 
@@ -168,7 +188,7 @@
                         console.error(error);
                         return renderEmpty("Error al cargar.");
                     }
-                    renderCards(data || []);
+                    renderRows(data || []);
                 }
 
                 async function existeSucursal(nombre, excluirId = null) {
@@ -239,7 +259,7 @@
 
                 document.getElementById('add-sucursal-btn').addEventListener('click', resetModal);
                 
-                sucursalesContainer.addEventListener('click', (e) => {
+                tableBody.addEventListener('click', (e) => {
                     const editButton = e.target.closest('[data-edit]');
                     const deleteButton = e.target.closest('[data-del]');
                     if (editButton) {
@@ -254,10 +274,11 @@
 
             } catch (error) {
                 console.error("Error al inicializar Supabase. Verifica que tu archivo config.js esté presente y sea correcto.", error);
-                const container = document.getElementById('sucursales-container');
-                if(container) container.innerHTML = `<div class="text-center p-8 bg-white rounded-lg border col-span-full"><p class="text-red-500 font-semibold">Error de conexión a la base de datos.</p><p class="text-slate-500 mt-2">Verifica la consola para más detalles.</p></div>`;
+                const tableBody = document.querySelector("table tbody");
+                if(tableBody) tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4"><p class="text-red-500 font-semibold">Error de conexión a la base de datos.</p><p class="text-slate-500 mt-2">Verifica la consola para más detalles.</p></td></tr>`;
             }
         }
     </script>
 </body>
 </html>
+
