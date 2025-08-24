@@ -206,29 +206,33 @@
 
                 function renderRows(rows) {
                     if (!rows || !rows.length) return renderEmpty();
-                    tableBody.innerHTML = rows.map(r => `
-                        <tr class="bg-white border-b hover:bg-slate-50">
-                            <td class="px-6 py-4">${fmtDate(r.fecha_bodega)}</td>
-                            <td class="px-6 py-4">${fmtDate(r.fecha_recibido)}</td>
-                            <td class="px-6 py-4 font-medium text-slate-900">${escapeHtml(r.tracking)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.status)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.cliente_nombre)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.cliente_box)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.sucursal)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.sucursal_recibido)}</td>
-                            <td class="px-6 py-4">${fmtDate(r.fecha_sucursal)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.anaquel)}</td>
-                            <td class="px-6 py-4">${fmtNum(r.peso)}</td>
-                            <td class="px-6 py-4">$${fmtNum(r.valor)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.factura_id)}</td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-2">
-                                    <button class="text-xs bg-blue-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-blue-600" data-edit='${JSON.stringify(r)}'>Editar</button>
-                                    <button class="text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-red-600" data-del-id="${r.id}">Eliminar</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `).join("");
+                    tableBody.innerHTML = rows.map(r => {
+                        const clienteNombre = r.clientes ? r.clientes.nombre || '' : (r.cliente_nombre || 'N/A');
+                        const clienteBox = r.clientes ? r.clientes.box || '' : (r.cliente_box || 'N/A');
+                        return `
+                            <tr class="bg-white border-b hover:bg-slate-50">
+                                <td class="px-6 py-4">${fmtDate(r.fecha_bodega)}</td>
+                                <td class="px-6 py-4">${fmtDate(r.fecha_recibido)}</td>
+                                <td class="px-6 py-4 font-medium text-slate-900">${escapeHtml(r.tracking)}</td>
+                                <td class="px-6 py-4">${escapeHtml(r.status)}</td>
+                                <td class="px-6 py-4">${escapeHtml(clienteNombre)}</td>
+                                <td class="px-6 py-4">${escapeHtml(clienteBox)}</td>
+                                <td class="px-6 py-4">${escapeHtml(r.sucursal)}</td>
+                                <td class="px-6 py-4">${escapeHtml(r.sucursal_recibido)}</td>
+                                <td class="px-6 py-4">${fmtDate(r.fecha_sucursal)}</td>
+                                <td class="px-6 py-4">${escapeHtml(r.anaquel)}</td>
+                                <td class="px-6 py-4">${fmtNum(r.peso)}</td>
+                                <td class="px-6 py-4">$${fmtNum(r.valor)}</td>
+                                <td class="px-6 py-4">${escapeHtml(r.factura_id)}</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <button class="text-xs bg-blue-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-blue-600" data-edit='${JSON.stringify(r)}'>Editar</button>
+                                        <button class="text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-red-600" data-del-id="${r.id}">Eliminar</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join("");
                 }
 
                 async function cargarPaquetes() {
@@ -277,8 +281,8 @@
                     editingId = data.id;
                     document.getElementById('modalTitle').textContent = `Editando Paquete: ${data.tracking}`;
                     document.getElementById('fld_tracking').value = data.tracking;
-                    document.getElementById('fld_cliente_nombre').value = data.cliente_nombre;
-                    document.getElementById('fld_cliente_box').value = data.cliente_box;
+                    document.getElementById('fld_cliente_nombre').value = data.clientes?.nombre || data.cliente_nombre || '';
+                    document.getElementById('fld_cliente_box').value = data.clientes?.box || data.cliente_box || '';
                     document.getElementById('fld_status').value = data.status;
                     document.getElementById('fld_sucursal').value = data.sucursal;
                     document.getElementById('fld_sucursal_recibido').value = data.sucursal_recibido;
@@ -364,11 +368,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
