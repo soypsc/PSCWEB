@@ -21,7 +21,7 @@
     <div class="relative min-h-screen md:flex">
         <!-- Menú Móvil y Barra Lateral -->
         <div class="bg-white text-slate-800 flex justify-between md:hidden sticky top-0 z-20 shadow-md">
-            <a href="./index.html" class="block p-4 font-bold">SGL1</a>
+            <a href="./dashboard.html" class="block p-4 font-bold">SGL1</a>
             <button id="mobile-menu-button" class="p-4 focus:outline-none focus:bg-slate-200">
                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
             </button>
@@ -30,7 +30,7 @@
             <div class="flex items-center gap-3 mb-8 px-2"><div class="bg-emerald-500 p-2 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg></div><h1 class="text-xl font-bold text-slate-800">SGL1</h1></div>
             <nav>
                 <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-4">Operaciones</h2>
-                <a href="./index.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="dashboard.html"><span>Dashboard</span></a>
+                <a href="./dashboard.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="dashboard.html"><span>Dashboard</span></a>
                 <a href="./recibir-paquete.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="recibir-paquete.html"><span>Recibir Paquete</span></a>
                 <a href="./recibir-en-sucursal.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="recibir-en-sucursal.html"><span>Recibir en Sucursal</span></a>
                 <a href="./clientes.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="clientes.html"><span>Clientes</span></a>
@@ -41,6 +41,7 @@
                 <a href="./usuarios.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="usuarios.html"><span>Usuarios y Roles</span></a>
                 <a href="./configuracion.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="configuracion.html"><span>Configuración</span></a>
                 <a href="./notificaciones.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="notificaciones.html"><span>Notificaciones</span></a>
+                <a href="./anaqueles.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="anaqueles.html"><span>Anaqueles</span></a>
             </nav>
         </aside>
 
@@ -51,10 +52,9 @@
                 <button id="add-sucursal-btn" class="bg-emerald-500 text-white font-semibold py-2 px-4 rounded-md">Crear Sucursal</button>
             </div>
             <div id="sucursales-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="text-center p-8 bg-white rounded-lg border col-span-full">
-                    <p class="text-slate-500">Cargando sucursales...</p>
-                </div>
+                <!-- Contenido se carga desde Supabase -->
             </div>
+            
             <!-- Modal para añadir/editar sucursal -->
             <div id="add-sucursal-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40 modal-backdrop">
                 <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6 modal-content">
@@ -65,12 +65,13 @@
                     <form id="formSucursal">
                         <div class="space-y-4">
                             <div>
-                                <label for="sucursal_nombre" class="block text-sm font-medium text-slate-600 mb-1">Nombre de la Sucursal</label>
-                                <input id="sucursal_nombre" type="text" class="w-full p-2 border border-slate-300 rounded-md" required>
+                                <label for="sucursal_nombre" class="block text-sm font-medium text-slate-600 mb-1">Sucursal</label>
+                                <input id="sucursal_nombre" type="text" class="w-full p-2 border border-slate-300 rounded-md" required placeholder="Ej: Chorrera">
                             </div>
                             <div>
-                                <label for="codigo_casillero" class="block text-sm font-medium text-slate-600 mb-1">Código de Casillero</label>
-                                <input id="codigo_casillero" type="text" class="w-full p-2 border border-slate-300 rounded-md">
+                                <label for="codigo_casillero" class="block text-sm font-medium text-slate-600 mb-1">Código</label>
+                                <input id="codigo_casillero" type="text" class="w-full p-2 border border-slate-300 rounded-md" required placeholder="Ej: CHR">
+                                <p class="text-xs text-slate-500 mt-1">Único por sucursal (no distingue mayúsculas).</p>
                             </div>
                         </div>
                         <div class="flex justify-end gap-4 pt-4 mt-4 border-t">
@@ -133,130 +134,107 @@
                 const modalEl = document.getElementById('add-sucursal-modal');
                 const modalTitle = document.getElementById('modalTitle');
                 const form = document.getElementById('formSucursal');
-                const fldNombre = document.getElementById('sucursal_nombre');
+                const fldSucursal = document.getElementById('sucursal_nombre');
                 const fldCodigo = document.getElementById('codigo_casillero');
                 let editingId = null;
 
-                function renderSucursales(sucursales) {
-                    if (!sucursales || sucursales.length === 0) {
-                        sucursalesContainer.innerHTML = `<div class="text-center p-8 bg-white rounded-lg border col-span-full"><p class="text-slate-500">No hay sucursales definidas. Use el botón "Crear Sucursal".</p></div>`;
-                        return;
-                    }
+                // Utils
+                const collapseSpaces = (s) => (s ?? "").replace(/\s+/g, " ").trim();
+                const titleCaseEachWord = (s) => collapseSpaces(s).split(" ").map((w) => (w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : "")).join(" ");
+                
+                function renderEmpty(msg = "No hay sucursales.") {
+                    sucursalesContainer.innerHTML = `<div class="text-center p-8 bg-white rounded-lg border col-span-full"><p class="text-slate-500">${msg}</p></div>`;
+                }
 
-                    sucursalesContainer.innerHTML = sucursales.map(s => `
+                function renderCards(rows) {
+                    if (!rows.length) return renderEmpty();
+                    sucursalesContainer.innerHTML = rows.map(r => `
                         <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm flex flex-col">
                             <div class="flex-grow">
-                                <h2 class="text-xl font-bold text-slate-800">${s.sucursal || ''}</h2>
-                                <p class="text-sm text-slate-500 mt-1">Código: ${s.codigo_casillero || 'N/A'}</p>
-                                <div class="mt-4 pt-4 border-t border-slate-200 text-sm space-y-1">
-                                    <p>Paquetes sin retirar: <span class="font-semibold text-slate-700">${s.paquetes_sin_retirar || 0}</span></p>
-                                    <p>Total sin retirar: <span class="font-semibold text-slate-700">$${(s.total_sin_retirar || 0).toFixed(2)}</span></p>
-                                </div>
+                                <h2 class="text-xl font-bold text-slate-800">${r.sucursal || ""}</h2>
+                                <p class="text-sm text-slate-500 mt-1">Código: ${r.codigo || ""}</p>
                             </div>
-                            <div class="mt-6 flex gap-2">
-                                <button class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 text-sm" data-edit='${JSON.stringify(s)}'>Editar</button>
-                                <button class="w-full bg-red-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-red-600 text-sm" data-del="${s.id}">Eliminar</button>
+                            <div class="mt-6 flex items-center gap-2">
+                                <button class="w-full text-xs bg-blue-500 text-white font-semibold py-2 px-3 rounded-md hover:bg-blue-600" data-edit='${JSON.stringify(r)}'>Editar</button>
+                                <button class="w-full text-xs bg-red-500 text-white font-semibold py-2 px-3 rounded-md hover:bg-red-600" data-del="${r.id}">Eliminar</button>
                             </div>
                         </div>
-                    `).join('');
+                    `).join("");
                 }
 
-                async function cargarDatos() {
-                    // 1. Obtener todas las sucursales
-                    const { data: sucursales, error: errorSucursales } = await sb.from('sucursales').select('*').order('sucursal');
-                    if (errorSucursales) {
-                        console.error("Error cargando sucursales:", errorSucursales);
-                        sucursalesContainer.innerHTML = `<div class="text-center p-8 bg-white rounded-lg border col-span-full"><p class="text-red-500">Error al cargar sucursales.</p></div>`;
-                        return;
+                async function cargarSucursalesLista() {
+                    const { data, error } = await sb.from("sucursales").select("id, created_at, sucursal, codigo").order("sucursal", { ascending: true });
+                    if (error) {
+                        console.error(error);
+                        return renderEmpty("Error al cargar.");
                     }
-
-                    // 2. Obtener los paquetes sin retirar
-                    const { data: paquetes, error: errorPaquetes } = await sb.from('paquetes').select('sucursal, valor').eq('status', 'En Sucursal');
-                    if (errorPaquetes) {
-                        console.error("Error cargando paquetes:", errorPaquetes);
-                        // No detenemos la ejecución, solo mostramos las sucursales sin datos de paquetes
-                    }
-
-                    // 3. Procesar y combinar los datos
-                    const resumenPaquetes = {};
-                    if(paquetes) {
-                        for(const pkg of paquetes) {
-                            if(!resumenPaquetes[pkg.sucursal]) {
-                                resumenPaquetes[pkg.sucursal] = { count: 0, total: 0 };
-                            }
-                            resumenPaquetes[pkg.sucursal].count++;
-                            resumenPaquetes[pkg.sucursal].total += pkg.valor || 0;
-                        }
-                    }
-                    
-                    const sucursalesConDatos = sucursales.map(s => ({
-                        ...s,
-                        paquetes_sin_retirar: resumenPaquetes[s.sucursal]?.count || 0,
-                        total_sin_retirar: resumenPaquetes[s.sucursal]?.total || 0
-                    }));
-                    
-                    // 4. Renderizar
-                    renderSucursales(sucursalesConDatos);
+                    renderCards(data || []);
                 }
 
+                async function existeSucursal(nombre, excluirId = null) {
+                    const nom = titleCaseEachWord(nombre);
+                    let q = sb.from("sucursales").select("id").ilike("sucursal", nom).limit(1);
+                    if (excluirId) q = q.neq("id", excluirId);
+                    const { data, error } = await q;
+                    if (error) { console.error(error); return false; }
+                    return !!(data && data.length);
+                }
 
                 function resetModal() {
                     editingId = null;
-                    modalTitle.textContent = "Crear Nueva Sucursal";
+                    modalTitle.textContent = "Crear sucursal";
                     form.reset();
                 }
 
                 function abrirEditar(sucursalData) {
                     const data = JSON.parse(sucursalData);
                     editingId = data.id;
-                    modalTitle.textContent = `Editar Sucursal`;
-                    fldNombre.value = data.sucursal || "";
-                    fldCodigo.value = data.codigo_casillero || "";
+                    modalTitle.textContent = "Editar sucursal";
+                    fldSucursal.value = data.sucursal || "";
+                    fldCodigo.value = data.codigo || "";
                     modalEl.classList.remove('hidden');
                 }
 
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const payload = {
-                        sucursal: fldNombre.value.trim(),
-                        codigo_casillero: fldCodigo.value.trim() || null
-                    };
-
-                    if (!payload.sucursal) {
-                        alert("El nombre de la sucursal es obligatorio.");
-                        return;
+                form.addEventListener("submit", async (ev) => {
+                    ev.preventDefault();
+                    const sucursalNorm = titleCaseEachWord(fldSucursal.value);
+                    const codigoNorm = collapseSpaces(fldCodigo.value).trim();
+                    if (!sucursalNorm || !codigoNorm) {
+                        return alert("Sucursal y código son obligatorios.");
                     }
-
-                    let error;
+                    if (await existeSucursal(sucursalNorm, editingId)) {
+                        return alert("Ya existe una sucursal con ese nombre.");
+                    }
+                    
+                    const payload = { sucursal: sucursalNorm, codigo: codigoNorm };
+                    let err;
                     if (editingId) {
-                        const { error: updateError } = await sb.from('sucursales').update(payload).eq('id', editingId);
-                        error = updateError;
+                        const { error } = await sb.from("sucursales").update(payload).eq("id", editingId);
+                        err = error;
                     } else {
-                        const { error: insertError } = await sb.from('sucursales').insert(payload);
-                        error = insertError;
+                        const { error } = await sb.from("sucursales").insert(payload);
+                        err = error;
                     }
 
-                    if (error) {
-                        console.error("Error al guardar:", error);
-                        alert("Error al guardar la sucursal.");
-                        return;
+                    if (err) {
+                        console.error(err);
+                        return alert(err.message || "Error al guardar");
                     }
 
                     modalEl.classList.add('hidden');
-                    await cargarDatos();
-                    alert("Sucursal guardada ✅");
+                    await cargarSucursalesLista();
+                    alert("Guardado ✅");
                 });
 
                 async function eliminar(id) {
                     if (!confirm("¿Eliminar esta sucursal?")) return;
-                    const { error } = await sb.from('sucursales').delete().eq('id', id);
+                    const { error } = await sb.from("sucursales").delete().eq("id", id);
                     if (error) {
-                        console.error("Error al eliminar:", error);
-                        alert("No se pudo eliminar la sucursal.");
-                        return;
+                        console.error(error);
+                        return alert(error.message || "No se pudo eliminar");
                     }
-                    await cargarDatos();
-                    alert("Sucursal eliminada 🗑️");
+                    await cargarSucursalesLista();
+                    alert("Eliminado 🗑️");
                 }
 
                 document.getElementById('add-sucursal-btn').addEventListener('click', resetModal);
@@ -272,7 +250,7 @@
                     }
                 });
 
-                cargarDatos();
+                cargarSucursalesLista();
 
             } catch (error) {
                 console.error("Error al inicializar Supabase. Verifica que tu archivo config.js esté presente y sea correcto.", error);
@@ -283,4 +261,3 @@
     </script>
 </body>
 </html>
-
