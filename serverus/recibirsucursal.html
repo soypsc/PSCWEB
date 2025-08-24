@@ -53,19 +53,18 @@
                         <input type="text" id="tracking-sucursal-main" placeholder="Esperando escaneo de tracking interno..." class="w-full text-lg pl-4 pr-4 py-3 border-2 border-slate-300 rounded-lg">
                     </div>
                     <div class="bg-white p-6 mt-6 rounded-lg border border-slate-200 shadow-sm">
-                        <h2 class="text-lg font-semibold text-slate-700">Paquetes Pendientes de Notificación</h2>
+                        <h2 class="text-lg font-semibold text-slate-700">Paquetes "En Tránsito"</h2>
                         <div class="overflow-x-auto mt-4">
                             <table class="w-full text-sm">
                                 <thead class="text-xs text-slate-700 uppercase bg-slate-100">
                                     <tr>
-                                        <th class="px-6 py-3">Tracking</th>
-                                        <th class="px-6 py-3">Cliente</th>
-                                        <th class="px-6 py-3">Anaquel</th>
-                                        <th class="px-6 py-3">Acciones</th>
+                                        <th class="px-6 py-3 text-left">Sucursal Destino</th>
+                                        <th class="px-6 py-3 text-left">Cliente</th>
+                                        <th class="px-6 py-3 text-left">Tracking</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr><td colspan="4" class="text-center p-4 text-slate-500">Funcionalidad de paquetes pendiente.</td></tr>
+                                <tbody id="tabla-pendientes">
+                                    <tr><td colspan="3" class="text-center p-4 text-slate-500">Cargando paquetes pendientes...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -77,7 +76,7 @@
                         <div class="space-y-4">
                             <div>
                                 <label for="sucursal-destino" class="block text-sm font-medium text-slate-600 mb-1">Sucursal (Sesión)</label>
-                                <select id="sucursal-destino" class="w-full p-2 border border-slate-300 rounded-md bg-slate-50">
+                                <select id="sucursal-destino" class="w-full p-2 border border-slate-300 rounded-md bg-slate-50" required>
                                     <option value="">Cargando...</option>
                                 </select>
                             </div>
@@ -129,7 +128,14 @@
 
                 const anaquelSelect = document.getElementById('anaquel-destino');
                 const sucursalSelect = document.getElementById('sucursal-destino');
+                const trackingInput = document.getElementById('tracking-sucursal-main');
+                const infoPaqueteDiv = document.getElementById('info-paquete-sucursal');
+                const tablaPendientes = document.getElementById('tabla-pendientes');
+                const formConfirmar = document.getElementById('form-confirmar');
+                
+                let paqueteActual = null;
 
+                // --- Carga de datos inicial ---
                 async function cargarAnaqueles() {
                     const { data, error } = await sb.from('anaqueles').select('nombre').order('nombre');
                     if(error) {
@@ -160,16 +166,115 @@
                     }
                 }
 
-                // Carga inicial
+                async function cargarPaquetesPendientes() {
+                    const { data, error } = await sb
+                        .from('paquetes')
+                        .select('sucursal, cliente_nombre, tracking')
+                        .eq('status', 'En Tránsito')
+                        .order('created_at', { ascending: false });
+
+                    if (error) {
+                        console.error("Error al cargar paquetes pendientes:", error);
+                        tablaPendientes.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500">Error al cargar paquetes.</td></tr>`;
+                        return;
+                    }
+
+                    if (data.length === 0) {
+                        tablaPendientes.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-slate-500">No hay paquetes "En Tránsito".</td></tr>`;
+                        return;
+                    }
+                    
+                    tablaPendientes.innerHTML = data.map(p => `
+                        <tr class="border-b hover:bg-slate-50">
+                            <td class="px-6 py-3">${p.sucursal || 'N/A'}</td>
+                            <td class="px-6 py-3">${p.cliente_nombre || 'N/A'}</td>
+                            <td class="px-6 py-3 font-medium">${p.tracking}</td>
+                        </tr>
+                    `).join('');
+                }
+
+                // --- Lógica de Búsqueda y Actualización ---
+                async function buscarPaquete(tracking) {
+                    infoPaqueteDiv.innerHTML = `<p>Buscando...</p>`;
+                    paqueteActual = null;
+
+                    const { data, error } = await sb
+                        .from('paquetes')
+                        .select('*')
+                        .eq('tracking', tracking)
+                        .single();
+
+                    if (error || !data) {
+                        infoPaqueteDiv.innerHTML = `<p class="text-red-500">Paquete no encontrado o ya procesado.</p>`;
+                        return;
+                    }
+                    
+                    paqueteActual = data;
+                    infoPaqueteDiv.innerHTML = `
+                        <p><strong>Cliente:</strong> ${paqueteActual.cliente_nombre || 'N/A'}</p>
+                        <p><strong>Box:</strong> ${paqueteActual.cliente_box || 'N/A'}</p>
+                        <p><strong>Peso:</strong> ${paqueteActual.peso || 0} lbs</p>
+                    `;
+                }
+
+                formConfirmar.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    if (!paqueteActual) {
+                        alert("Por favor, escanee un paquete válido primero.");
+                        return;
+                    }
+                    if (!anaquelSelect.value) {
+                        alert("Por favor, seleccione un anaquel.");
+                        return;
+                    }
+
+                    const payload = {
+                        status: 'En Sucursal',
+                        sucursal_recibido: sucursalSelect.value,
+                        fecha_sucursal: new Date().toISOString(),
+                        anaquel: anaquelSelect.value
+                    };
+
+                    const { error } = await sb
+                        .from('paquetes')
+                        .update(payload)
+                        .eq('id', paqueteActual.id);
+
+                    if (error) {
+                        console.error("Error al actualizar paquete:", error);
+                        alert("Error al confirmar la recepción. Verifique la consola.");
+                        return;
+                    }
+
+                    alert(`Paquete ${paqueteActual.tracking} recibido y guardado en anaquel ${anaquelSelect.value} ✅`);
+                    
+                    // Resetear
+                    paqueteActual = null;
+                    trackingInput.value = '';
+                    infoPaqueteDiv.innerHTML = `<p>Esperando escaneo...</p>`;
+                    formConfirmar.reset();
+                    cargarPaquetesPendientes(); // Recargar la lista de pendientes
+                });
+
+                trackingInput.addEventListener('change', () => {
+                    const trackingValue = trackingInput.value.trim();
+                    if (trackingValue) {
+                        buscarPaquete(trackingValue);
+                    }
+                });
+
+                // --- Carga inicial ---
                 cargarAnaqueles();
                 cargarSucursales();
+                cargarPaquetesPendientes();
 
             } catch (error) {
                 console.error("Error al inicializar Supabase:", error);
-                document.querySelector('main').innerHTML = `<div class="text-center p-8 bg-white rounded-lg border col-span-full"><p class="text-red-500 font-semibold">Error de conexión a la base de datos.</p><p class="text-slate-500 mt-2">Verifica la consola para más detalles.</p></div>`;
+                document.querySelector('main').innerHTML = `<div class="text-center p-8 bg-white rounded-lg border col-span-full"><p class="text-red-500 font-semibold">Error de conexión a la base de datos.</p><p class="text-slate-500 mt-2">Verifica que tu archivo config.js sea correcto.</p></div>`;
             }
         }
     </script>
 </body>
 </html>
+
 
