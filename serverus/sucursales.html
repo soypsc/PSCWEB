@@ -281,7 +281,7 @@
         const modal = document.getElementById(modalId);
         const form = document.getElementById("formSucursal");
         const modalTitle = document.getElementById("modalTitle");
-        const closeBtns = modal.querySelectorAll(.${closeBtnClass});
+        const closeBtns = modal.querySelectorAll(`.${closeBtnClass}`);
 
         if (openBtn && modal) {
           openBtn.addEventListener("click", () => {
@@ -315,7 +315,7 @@
 
           function renderSucursales(sucursales) {
             if (!sucursales || sucursales.length === 0) {
-              sucursalesContainer.innerHTML = <div class="text-center p-8 bg-white rounded-lg border col-span-full"><p class="text-slate-500">No hay sucursales definidas. Use el botón "Crear Sucursal".</p></div>;
+              sucursalesContainer.innerHTML = `<div class="text-center p-8 bg-white rounded-lg border col-span-full"><p class="text-slate-500">No hay sucursales definidas. Use el botón "Crear Sucursal".</p></div>`;
               return;
             }
 
@@ -361,7 +361,7 @@
               .order("sucursal");
             if (errorSucursales) {
               console.error("Error cargando sucursales:", errorSucursales);
-              sucursalesContainer.innerHTML = <div class="text-center p-8 bg-white rounded-lg border col-span-full"><p class="text-red-500">Error al cargar sucursales.</p></div>;
+              sucursalesContainer.innerHTML = `<div class="text-center p-8 bg-white rounded-lg border col-span-full"><p class="text-red-500">Error al cargar sucursales.</p></div>`;
               return;
             }
 
@@ -406,7 +406,7 @@
           function abrirEditar(sucursalData) {
             const data = JSON.parse(sucursalData);
             editingId = data.id;
-            modalTitle.textContent = Editar Sucursal;
+            modalTitle.textContent = `Editar Sucursal`;
             fldNombre.value = data.sucursal || "";
             fldCodigo.value = data.codigo_casillero || "";
             modalEl.classList.remove("hidden");
@@ -458,7 +458,7 @@
               return;
             }
             await cargarDatos();
-            alert("Sucursal eliminada 🗑");
+            alert("Sucursal eliminada 🗑️");
           }
 
           document
@@ -484,9 +484,7 @@
           );
           const container = document.getElementById("sucursales-container");
           if (container)
-            container.innerHTML = <div class="text-center p-8 bg-white rounded-lg border col-span-full"><p class="text-red-500 font-semibold">Error de conexión a la base de datos.</p><p class="text-slate-500 mt-2">Verifica la consola para más detalles.</p></div>;
+            container.innerHTML = `<div class="text-center p-8 bg-white rounded-lg border col-span-full"><p class="text-red-500 font-semibold">Error de conexión a la base de datos.</p><p class="text-slate-500 mt-2">Verifica la consola para más detalles.</p></div>`;
         }
       }
-    </script>
-  </body>
-</html>
+    </script
