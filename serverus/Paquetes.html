@@ -176,7 +176,8 @@
                             <td class="px-6 py-4">${escapeHtml(r.factura_id)}</td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-2">
-                                    <button class="text-xs bg-blue-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-blue-600" data-id="${r.id}">Editar</button>
+                                    <button class="text-xs bg-blue-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-blue-600" data-edit-id="${r.id}">Editar</button>
+                                    <button class="text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-red-600" data-del-id="${r.id}">Eliminar</button>
                                 </div>
                             </td>
                         </tr>
@@ -227,10 +228,40 @@
                     });
                 }
                 
+                async function eliminarPaquete(id) {
+                    if (!confirm("¿Estás seguro de que quieres eliminar este paquete?")) return;
+                    
+                    const { error } = await sb.from('paquetes').delete().eq('id', id);
+
+                    if (error) {
+                        console.error("Error al eliminar el paquete:", error);
+                        alert("No se pudo eliminar el paquete.");
+                    } else {
+                        alert("Paquete eliminado exitosamente.");
+                        cargarPaquetes(); // Recargar la tabla
+                    }
+                }
+
                 // Event Listeners
                 btnBuscar.addEventListener('click', cargarPaquetes);
                 [fltStatus, fltSucursal, fltSucursalRecibido, fltDesde, fltHasta].forEach(el => {
                     el.addEventListener('change', cargarPaquetes);
+                });
+
+                tableBody.addEventListener('click', (e) => {
+                    const editBtn = e.target.closest('[data-edit-id]');
+                    const delBtn = e.target.closest('[data-del-id]');
+
+                    if (editBtn) {
+                        const paqueteId = editBtn.dataset.editId;
+                        // Aquí iría la lógica para abrir un modal de edición
+                        alert(`Funcionalidad para editar el paquete ID: ${paqueteId} aún no implementada.`);
+                    }
+
+                    if (delBtn) {
+                        const paqueteId = delBtn.dataset.delId;
+                        eliminarPaquete(paqueteId);
+                    }
                 });
 
                 // Carga inicial
@@ -246,5 +277,7 @@
     </script>
 </body>
 </html>
+
+
 
 
