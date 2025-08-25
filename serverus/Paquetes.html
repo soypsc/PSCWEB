@@ -240,23 +240,28 @@
                     const { data: sucursales } = await sb.from('sucursales').select('sucursal').order('sucursal');
                     const { data: anaqueles } = await sb.from('anaqueles').select('nombre').order('nombre');
                     const estados = ['Recibido en Bodega', 'En Tránsito', 'En Sucursal', 'Entregado'];
+                    
+                    const editSucursalSelect = document.getElementById('edit-sucursal');
+                    const editSucursalRecibidoSelect = document.getElementById('edit-sucursal-recibido');
+                    const editAnaquelSelect = document.getElementById('edit-anaquel');
+                    const editStatusSelect = document.getElementById('edit-status');
 
                     if (sucursales) {
                         sucursales.forEach(s => {
                             fltSucursal.innerHTML += `<option value="${s.sucursal}">${s.sucursal}</option>`;
                             fltSucursalRecibido.innerHTML += `<option value="${s.sucursal}">${s.sucursal}</option>`;
-                            document.getElementById('edit-sucursal').innerHTML += `<option value="${s.sucursal}">${s.sucursal}</option>`;
-                            document.getElementById('edit-sucursal-recibido').innerHTML += `<option value="${s.sucursal}">${s.sucursal}</option>`;
+                            editSucursalSelect.innerHTML += `<option value="${s.sucursal}">${s.sucursal}</option>`;
+                            editSucursalRecibidoSelect.innerHTML += `<option value="${s.sucursal}">${s.sucursal}</option>`;
                         });
                     }
                     if (anaqueles) {
                         anaqueles.forEach(a => {
-                            document.getElementById('edit-anaquel').innerHTML += `<option value="${a.nombre}">${a.nombre}</option>`;
+                            editAnaquelSelect.innerHTML += `<option value="${a.nombre}">${a.nombre}</option>`;
                         });
                     }
                     estados.forEach(e => {
                         fltStatus.innerHTML += `<option value="${e}">${e}</option>`;
-                        document.getElementById('edit-status').innerHTML += `<option value="${e}">${e}</option>`;
+                        editStatusSelect.innerHTML += `<option value="${e}">${e}</option>`;
                     });
                 }
                 
@@ -346,6 +351,7 @@
     </script>
 </body>
 </html>
+
 
 
 
