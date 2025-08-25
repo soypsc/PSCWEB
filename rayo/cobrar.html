@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGL1 - Cobrar y Facturar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-link.active { background-color: #ecfdf5; color: #059669; font-weight: 600; }
+        .code { font-size: 13px; font-weight: 600; color: #94a3b8; margin-right: 12px; background-color: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
+        #sidebar { transition: transform 0.3s ease-in-out; }
+        .dynamic-section { transition: all 0.5s ease-in-out; max-height: 0; opacity: 0; overflow: hidden; transform: translateY(-10px); }
+        .dynamic-section.visible { max-height: 2000px; opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="relative min-h-screen md:flex">
+        <div class="bg-white text-slate-800 flex justify-between md:hidden sticky top-0 z-20 shadow-md">
+            <a href="./index.html" class="block p-4 font-bold">SGL1</a>
+            <button id="mobile-menu-button" class="p-4 focus:outline-none focus:bg-slate-200">
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+            </button>
+        </div>
+
+        <div id="menu-container"></div>
+
+        <main class="flex-1 p-8">
+            <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-8"><span class="code">[OP-05]</span>Cobrar y Facturar</h1>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white p-6 rounded-lg border shadow-sm">
+                        <h2 class="text-lg font-semibold text-slate-700 mb-2">1. Buscar Cliente</h2>
+                        <input type="text" id="search-cliente" placeholder="Buscar por Casillero (Box) o Nombre..." class="w-full text-base p-2 border-2 border-slate-300 rounded-lg">
+                        <div id="cliente-info" class="mt-4 text-sm bg-slate-50 p-3 rounded-md hidden"></div>
+                    </div>
+
+                    <div id="paquetes-section" class="dynamic-section bg-white p-6 rounded-lg border shadow-sm">
+                        <h2 id="paquetes-title" class="text-lg font-semibold text-slate-700 mb-4">2. Seleccionar Paquetes</h2>
+                        <div id="paquetes-list" class="space-y-3">
+                            <p class="text-slate-500">Esperando cliente...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1 sticky top-8">
+                    <div class="bg-white p-6 rounded-lg border shadow-sm">
+                        <h2 class="text-lg font-semibold text-slate-700 mb-4">3. Resumen de Cobro</h2>
+                        <div class="space-y-2 text-lg">
+                            <div class="flex justify-between"><span>Flete:</span> <span id="subtotal-flete" class="font-medium">$0.00</span></div>
+                            <div class="flex justify-between"><span>Impuestos:</span> <span id="subtotal-impuestos" class="font-medium">$0.00</span></div>
+                            <hr class="my-2">
+                            <div class="flex justify-between text-2xl font-bold text-slate-800"><span>TOTAL:</span> <span id="total-pagar">$0.00</span></div>
+                        </div>
+                        <button id="btn-facturar" class="w-full mt-6 bg-emerald-500 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-emerald-600 disabled:bg-slate-300 disabled:cursor-not-allowed" disabled>
+                            Registrar Pago y Facturar
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
+        // --- Elementos del DOM ---
+        const searchClienteInput = document.getElementById('search-cliente');
+        const clienteInfoDiv = document.getElementById('cliente-info');
+        const paquetesSection = document.getElementById('paquetes-section');
+        const paquetesTitle = document.getElementById('paquetes-title');
+        const paquetesListDiv = document.getElementById('paquetes-list');
+        const subtotalFleteSpan = document.getElementById('subtotal-flete');
+        const subtotalImpuestosSpan = document.getElementById('subtotal-impuestos');
+        const totalPagarSpan = document.getElementById('total-pagar');
+        const btnFacturar = document.getElementById('btn-facturar');
+
+        let clienteActual = null;
+        let paquetesDisponibles = [];
+
+        // --- Lógica Principal ---
+
+        // 1. BUSCAR CLIENTE
+        searchClienteInput.addEventListener('change', async (e) => {
+            const searchTerm = e.target.value.trim();
+            if (!searchTerm) return;
+            
+            const isNumeric = !isNaN(searchTerm);
+            let query = sb.from('clientes').select('*');
+            if (isNumeric) {
+                query = query.eq('box', parseInt(searchTerm));
+            } else {
+                query = query.ilike('nombre', `%${searchTerm}%`);
+            }
+            
+            const { data, error } = await query.limit(1).single();
+
+            if (error || !data) {
+                alert("Cliente no encontrado.");
+                resetTodo();
+                return;
+            }
+            
+            clienteActual = data;
+            mostrarInfoCliente(data);
+            await buscarPaquetesCliente(data.box);
+        });
+
+        function mostrarInfoCliente(cliente) {
+            clienteInfoDiv.innerHTML = `
+                <p><strong>Cliente:</strong> ${cliente.nombre}</p>
+                <p><strong>Casillero (Box):</strong> ${cliente.box}</p>
+            `;
+            clienteInfoDiv.classList.remove('hidden');
+        }
+
+        // 2. BUSCAR PAQUETES DEL CLIENTE
+        async function buscarPaquetesCliente(clienteBox) {
+            // Buscamos paquetes que estén en sucursal y aún no hayan sido facturados
+            const { data, error } = await sb.from('paquetes')
+                .select('*')
+                .eq('cliente_box', clienteBox)
+                .eq('status', 'En Sucursal')
+                .is('factura_id', null);
+
+            if (error) {
+                alert("Error al buscar los paquetes del cliente.");
+                return;
+            }
+
+            paquetesDisponibles = data;
+            paquetesTitle.textContent = `2. Seleccionar Paquetes de ${clienteActual.nombre}`;
+            mostrarPaquetes(data);
+            paquetesSection.classList.add('visible');
+        }
+
+        function mostrarPaquetes(paquetes) {
+            if (paquetes.length === 0) {
+                paquetesListDiv.innerHTML = '<p class="text-slate-500 text-center p-4">Este cliente no tiene paquetes pendientes de pago.</p>';
+                return;
+            }
+
+            paquetesListDiv.innerHTML = paquetes.map(p => `
+                <div class="border p-3 rounded-lg flex items-center gap-4">
+                    <input type="checkbox" data-paquete-id="${p.id}" class="paquete-checkbox h-6 w-6">
+                    <div class="flex-grow">
+                        <p class="font-bold">${p.tracking}</p>
+                        <p class="text-sm text-slate-500">Peso: ${p.peso || 'N/A'} lbs</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <div>
+                            <label class="block text-xs">Flete ($)</label>
+                            <input type="number" step="0.01" value="${p.costo_flete || '0.00'}" data-costo="flete" data-paquete-id="${p.id}" class="costo-input w-24 p-1 border rounded">
+                        </div>
+                        <div>
+                            <label class="block text-xs">Impuestos ($)</label>
+                            <input type="number" step="0.01" value="${p.costo_impuestos || '0.00'}" data-costo="impuestos" data-paquete-id="${p.id}" class="costo-input w-24 p-1 border rounded">
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Añadir listeners a los nuevos elementos
+            document.querySelectorAll('.paquete-checkbox, .costo-input').forEach(el => {
+                el.addEventListener('change', calcularTotal);
+            });
+        }
+
+        // 3. CALCULAR TOTAL EN TIEMPO REAL
+        function calcularTotal() {
+            let fleteTotal = 0;
+            let impuestosTotal = 0;
+            
+            const checkboxes = document.querySelectorAll('.paquete-checkbox:checked');
+            
+            checkboxes.forEach(cb => {
+                const id = cb.dataset.paqueteId;
+                const fleteInput = document.querySelector(`.costo-input[data-costo="flete"][data-paquete-id="${id}"]`);
+                const impuestosInput = document.querySelector(`.costo-input[data-costo="impuestos"][data-paquete-id="${id}"]`);
+                
+                fleteTotal += parseFloat(fleteInput.value) || 0;
+                impuestosTotal += parseFloat(impuestosInput.value) || 0;
+            });
+            
+            subtotalFleteSpan.textContent = `$${fleteTotal.toFixed(2)}`;
+            subtotalImpuestosSpan.textContent = `$${impuestosTotal.toFixed(2)}`;
+            totalPagarSpan.textContent = `$${(fleteTotal + impuestosTotal).toFixed(2)}`;
+            
+            // Habilitar o deshabilitar el botón de facturar
+            btnFacturar.disabled = checkboxes.length === 0;
+        }
+
+        // 4. REGISTRAR PAGO Y FACTURAR
+        btnFacturar.addEventListener('click', async () => {
+            if (!clienteActual) return;
+            
+            const paquetesSeleccionadosIds = Array.from(document.querySelectorAll('.paquete-checkbox:checked')).map(cb => cb.dataset.paqueteId);
+            if (paquetesSeleccionadosIds.length === 0) return;
+
+            const montoTotal = parseFloat(totalPagarSpan.textContent.replace('$', ''));
+
+            // Iniciar transacción en Supabase
+            try {
+                // Paso 1: Crear la factura
+                const { data: facturaData, error: facturaError } = await sb.from('facturas')
+                    .insert({
+                        cliente_box: clienteActual.box,
+                        cliente_nombre: clienteActual.nombre,
+                        monto_total: montoTotal,
+                        status: 'Pagada'
+                    }).select().single();
+
+                if (facturaError) throw facturaError;
+                
+                const nuevaFacturaId = facturaData.id;
+
+                // Paso 2: Crear los items de la factura y actualizar los paquetes
+                const itemsParaInsertar = [];
+                const paquetesParaActualizar = [];
+
+                for (const paqueteId of paquetesSeleccionadosIds) {
+                    const flete = parseFloat(document.querySelector(`.costo-input[data-costo="flete"][data-paquete-id="${paqueteId}"]`).value) || 0;
+                    const impuestos = parseFloat(document.querySelector(`.costo-input[data-costo="impuestos"][data-paquete-id="${paqueteId}"]`).value) || 0;
+                    const tracking = paquetesDisponibles.find(p => p.id == paqueteId).tracking;
+
+                    itemsParaInsertar.push({
+                        factura_id: nuevaFacturaId,
+                        paquete_id: paqueteId,
+                        paquete_tracking: tracking,
+                        monto_cobrado_item: flete + impuestos
+                    });
+
+                    paquetesParaActualizar.push({
+                        id: paqueteId,
+                        status: 'Entregado',
+                        factura_id: nuevaFacturaId,
+                        costo_flete: flete,
+                        costo_impuestos: impuestos
+                    });
+                }
+                
+                // Ejecutar las operaciones en paralelo
+                const [itemsResult, paquetesResult] = await Promise.all([
+                    sb.from('factura_items').insert(itemsParaInsertar),
+                    sb.from('paquetes').upsert(paquetesParaActualizar)
+                ]);
+                
+                if (itemsResult.error) throw itemsResult.error;
+                if (paquetesResult.error) throw paquetesResult.error;
+                
+                alert(`Factura #${nuevaFacturaId} creada exitosamente por un monto de $${montoTotal.toFixed(2)}.`);
+                resetTodo();
+
+            } catch (error) {
+                console.error("Error al facturar:", error);
+                alert(`Error al procesar la factura: ${error.message}`);
+            }
+        });
+
+
+        function resetTodo() {
+            searchClienteInput.value = '';
+            clienteInfoDiv.classList.add('hidden');
+            paquetesSection.classList.remove('visible');
+            paquetesListDiv.innerHTML = '<p class="text-slate-500">Esperando cliente...</p>';
+            clienteActual = null;
+            paquetesDisponibles = [];
+            calcularTotal();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+           // Lógica inicial si es necesaria
+        });
+    </script>
+</body>
+</html>
