@@ -3,596 +3,375 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal de Entrega Interactivo</title>
+    <title>SGL1 - Terminal de Entrega</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="config.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
-        /* Animaciones para el escaneo y el movimiento de paquetes */
-        .paquete-item { transition: all 0.3s ease-in-out; }
-        .paquete-picked { opacity: 0; transition: all 0.5s ease-out; height: 0; padding: 0 !important; margin: 0 !important; border: none !important; }
-        /* Feedback visual en el campo de escáner */
-        .input-focus-flash { border-color: #3b82f6 !important; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); }
-        .input-error-flash { border-color: #ef4444 !important; }
-        .input-error-flash::placeholder { color: #dc2626; }
+        .sidebar-link.active { background-color: #ecfdf5; color: #059669; font-weight: 600; }
+        .code { font-size: 13px; font-weight: 600; color: #94a3b8; margin-right: 12px; background-color: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
+        #sidebar { transition: transform 0.3s ease-in-out; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .scan-success { background-color: #dcfce7 !important; transition: background-color 0.3s; }
+        .scan-error { background-color: #fee2e2 !important; transition: background-color 0.3s; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
-
-    <div class="min-h-screen p-4 md:p-8">
-        <header class="mb-6">
-            <h1 class="text-3xl font-bold text-slate-900 mb-2">Terminal de Entrega Interactivo</h1>
-            <input type="text" id="input-busqueda-cliente" placeholder="📍 Iniciar: Buscar por Casillero o Nombre..." class="w-full text-lg p-3 border-2 border-slate-300 rounded-lg focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
-            <div id="cliente-info" class="mt-3 text-base bg-white p-3 rounded-lg border shadow-sm hidden"></div>
-        </header>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:h-[calc(100vh-160px)]">
-
-            <section id="panel-izquierdo" class="lg:col-span-2 bg-white p-6 rounded-lg border shadow-lg flex flex-col h-full">
-                <h2 class="text-xl font-semibold text-slate-700 mb-4 flex-shrink-0">📦 Almacén del Cliente: Paquetes Pendientes</h2>
-                
-                <div class="mb-4 flex-shrink-0">
-                    <input type="text" id="input-escaner" placeholder="🚀 Escanea el Paquete (Tracking o ID) ¡BEEP!" class="w-full text-xl p-3 border-2 border-slate-400 rounded-lg bg-slate-100 font-mono focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all" disabled>
-                </div>
-
-                <div id="lista-anaqueles" class="overflow-y-auto flex-grow pr-2">
-                    <p class="text-slate-500 text-center p-8">Busca un cliente para cargar sus paquetes pendientes.</p>
-                </div>
-            </section>
-
-            <section id="panel-derecho" class="lg:col-span-1 bg-white p-6 rounded-lg border shadow-lg flex flex-col h-full sticky top-4">
-                <h2 class="text-xl font-semibold text-slate-700 mb-4 flex-shrink-0">🛒 Carrito de Entrega</h2>
-
-                <div id="carrito-items" class="overflow-y-auto flex-grow space-y-3 mb-6 border-b pb-4">
-                    <p class="text-slate-500 text-center p-4">Los paquetes escaneados aparecerán aquí.</p>
-                </div>
-
-                <div id="resumen-pago" class="flex-shrink-0">
-                    <div class="space-y-2 text-lg">
-                        <div class="flex justify-between"><span>Flete:</span> <span id="subtotal-flete" class="font-medium">$0.00</span></div>
-                        <div class="flex justify-between"><span>Impuestos:</span> <span id="subtotal-impuestos" class="font-medium">$0.00</span></div>
-                        <hr class="my-2 border-slate-300">
-                        <div class="flex justify-between text-2xl font-bold text-slate-800"><span>TOTAL:</span> <span id="total-pagar">$0.00</span></div>
-                    </div>
-                    
-                    <hr class="my-4 border-slate-200">
-
-                    <div id="area-pagos-realizados" class="mb-4 space-y-1 text-sm">
-                        </div>
-
-                    <div class="flex justify-between items-center mb-3">
-                        <h4 class="text-xl font-bold text-indigo-600">Monto Restante:</h4> 
-                        <span id="monto-restante" class="text-2xl font-extrabold text-indigo-600">$0.00</span>
-                    </div>
-
-                    <div id="metodos-pago" class="grid grid-cols-3 gap-2 mb-4">
-                        <button class="btn-pago bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50" data-metodo="Efectivo" disabled>💰 Efectivo</button>
-                        <button class="btn-pago bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50" data-metodo="Tarjeta" disabled>💳 Tarjeta</button>
-                        <button class="btn-pago bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50" data-metodo="Yappy" disabled>📱 Yappy</button>
-                        <button class="btn-pago bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50" data-metodo="Transferencia" disabled>🏦 Transferencia</button>
-                        </div>
-
-                    <div id="modulo-ingreso-pago" class="p-3 bg-indigo-50 rounded-lg mb-4 hidden">
-                        <label class="block text-sm font-semibold mb-1" id="pago-label"></label>
-                        <div class="flex gap-2">
-                            <input type="number" id="monto-ingresado" placeholder="0.00" step="0.01" class="flex-grow p-2 border rounded-lg text-lg">
-                            <button id="btn-registrar-pago" class="bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700">Registrar</button>
-                        </div>
-                        <button type="button" id="btn-cancelar-pago" class="text-xs text-slate-500 mt-1 hover:underline">Cancelar</button>
-                    </div>
-
-                    <button id="btn-completar-venta" class="w-full bg-emerald-500 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-emerald-600 disabled:bg-slate-300 disabled:cursor-not-allowed" disabled>
-                        ✅ Completar Venta y Entregar
-                    </button>
-                    <button id="btn-imprimir-recibo" class="w-full mt-2 bg-slate-300 text-slate-800 font-semibold py-2 rounded-lg hover:bg-slate-400 hidden">
-                        🖨️ Imprimir Recibo
-                    </button>
-                </div>
-            </section>
+    <div class="relative min-h-screen md:flex">
+        <div class="bg-white text-slate-800 flex justify-between md:hidden sticky top-0 z-20 shadow-md">
+            <a href="./index.html" class="block p-4 font-bold">SGL1</a>
+            <button id="mobile-menu-button" class="p-4 focus:outline-none focus:bg-slate-200">
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+            </button>
         </div>
-    </div>
-    
-    <div id="custom-alert" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6 text-center">
-            <p id="custom-alert-message" class="text-slate-700 mb-4">Mensaje.</p>
-            <button id="custom-alert-close" class="bg-emerald-500 text-white font-semibold py-2 px-6 rounded-md hover:bg-emerald-600">Entendido</button>
-        </div>
+
+        <div id="menu-container"></div>
+
+        <main class="flex-1 p-8">
+            <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-6"><span class="code">[OP-05]</span>Terminal de Entrega</h1>
+            
+            <div class="bg-white p-6 rounded-lg border shadow-sm">
+                <div class="max-w-xl mb-6">
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Buscar Cliente por Casillero o Nombre</label>
+                    <input type="text" id="search-cliente" class="w-full text-lg p-2 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Inicia aquí...">
+                </div>
+
+                <div id="terminal-content" class="hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800 mb-2">Paquetes Pendientes de <span id="cliente-nombre-titulo"></span></h2>
+                            <p class="mb-4 text-sm text-slate-500">Ubicados en los siguientes anaqueles. Escanee cada paquete para agregarlo al carrito.</p>
+                            <div id="pendientes-list" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                                </div>
+                        </div>
+
+                        <div class="bg-slate-50 rounded-lg p-6">
+                            <h2 class="text-xl font-bold text-slate-800 mb-4">🛒 Carrito de Entrega</h2>
+                            
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-slate-600 mb-1">Escanear Paquete</label>
+                                <input type="text" id="scan-input" class="w-full text-base p-2 border-2 border-slate-400 rounded-lg" placeholder="Esperando escaneo...">
+                            </div>
+                            
+                            <div id="carrito-items" class="space-y-2 mb-4 border-b pb-4">
+                                <p class="text-slate-500">El carrito está vacío.</p>
+                            </div>
+                            
+                            <div class="space-y-2 text-lg mb-6">
+                                <div class="flex justify-between font-bold text-3xl text-emerald-600">
+                                    <span>TOTAL:</span>
+                                    <span id="total-carrito">$0.00</span>
+                                </div>
+                            </div>
+                            
+                            <div id="pago-modulo">
+                                <h3 class="text-lg font-semibold text-slate-700 mb-2">Registrar Pago</h3>
+                                <div class="flex justify-between font-medium text-xl text-red-600 mb-4">
+                                    <span>Restante:</span>
+                                    <span id="pago-restante">$0.00</span>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2 mb-4">
+                                    <button data-metodo="Efectivo" class="payment-method-btn bg-sky-500 text-white p-2 rounded-md hover:bg-sky-600">Efectivo</button>
+                                    <button data-metodo="Tarjeta" class="payment-method-btn bg-indigo-500 text-white p-2 rounded-md hover:bg-indigo-600">Tarjeta</button>
+                                    <button data-metodo="Yappy" class="payment-method-btn bg-purple-500 text-white p-2 rounded-md hover:bg-purple-600">Yappy</button>
+                                    <button data-metodo="Transferencia" class="payment-method-btn bg-gray-500 text-white p-2 rounded-md hover:bg-gray-600">Otro</button>
+                                </div>
+                                <div id="pagos-realizados-list" class="text-sm space-y-1 mb-4"></div>
+                                <button id="btn-completar-venta" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-emerald-700 disabled:bg-slate-400 disabled:cursor-not-allowed" disabled>
+                                    Completar Venta
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
+    <script src="app.js"></script>
     <script type="module">
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-        // --- Elementos del DOM ---
-        const inputBusquedaCliente = document.getElementById('input-busqueda-cliente');
-        const clienteInfoDiv = document.getElementById('cliente-info');
-        const inputEscaner = document.getElementById('input-escaner');
-        const listaAnaquelesDiv = document.getElementById('lista-anaqueles');
-        const carritoItemsDiv = document.getElementById('carrito-items');
-        const subtotalFleteSpan = document.getElementById('subtotal-flete');
-        const subtotalImpuestosSpan = document.getElementById('subtotal-impuestos');
-        const totalPagarSpan = document.getElementById('total-pagar');
-        const montoRestanteSpan = document.getElementById('monto-restante');
-        const areaPagosRealizados = document.getElementById('area-pagos-realizados');
-        const metodosPagoBtns = document.querySelectorAll('.btn-pago');
-        const moduloIngresoPago = document.getElementById('modulo-ingreso-pago');
-        const montoIngresadoInput = document.getElementById('monto-ingresado');
-        const btnRegistrarPago = document.getElementById('btn-registrar-pago');
-        const btnCancelarPago = document.getElementById('btn-cancelar-pago');
-        const btnCompletarVenta = document.getElementById('btn-completar-venta');
-        const pagoLabel = document.getElementById('pago-label');
-        const btnImprimirRecibo = document.getElementById('btn-imprimir-recibo');
-        const customAlert = document.getElementById('custom-alert');
-        const customAlertClose = document.getElementById('custom-alert-close');
-        
-        // --- Estado Global ---
-        let sb;
+        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
+        // --- Estado de la Aplicación ---
         let clienteActual = null;
-        let paquetesDisponibles = []; // Paquetes pendientes en el almacén del cliente
-        let carritoPaquetes = []; // Paquetes que el cliente seleccionó (escaneados)
-        let pagosRealizados = []; // [{ metodo: 'Efectivo', monto: 10.00 }]
-        let montoTotalVenta = 0;
-        let metodoPagoActual = null; // Para la gestión de pagos divididos
+        let paquetesPendientes = [];
+        let carrito = [];
+        let pagos = [];
 
-        // --- Funciones de Utilidad ---
-        function showAlert(message) {
-            document.getElementById('custom-alert-message').textContent = message;
-            customAlert.classList.remove('hidden');
-        }
-
-        customAlertClose.onclick = () => customAlert.classList.add('hidden');
-
-        // La función principal de cálculo y actualización de la UI
-        function actualizarResumen() {
-            let fleteTotal = carritoPaquetes.reduce((acc, p) => acc + (parseFloat(p.costo_flete) || 0), 0);
-            let impuestosTotal = carritoPaquetes.reduce((acc, p) => acc + (parseFloat(p.costo_impuestos) || 0), 0);
-            
-            montoTotalVenta = fleteTotal + impuestosTotal;
-            const montoPagado = pagosRealizados.reduce((acc, p) => acc + p.monto, 0);
-            const montoRestante = montoTotalVenta - montoPagado;
-
-            subtotalFleteSpan.textContent = `$${fleteTotal.toFixed(2)}`;
-            subtotalImpuestosSpan.textContent = `$${impuestosTotal.toFixed(2)}`;
-            totalPagarSpan.textContent = `$${montoTotalVenta.toFixed(2)}`;
-            
-            // Mostrar monto restante y cambio (si es negativo)
-            const displayRestante = montoRestante <= 0 ? (montoRestante * -1).toFixed(2) : montoRestante.toFixed(2);
-            montoRestanteSpan.textContent = montoRestante <= 0 ? `-$${displayRestante}` : `$${displayRestante}`;
-            montoRestanteSpan.classList.toggle('text-red-600', montoRestante > 0);
-            montoRestanteSpan.classList.toggle('text-indigo-600', montoRestante <= 0);
-
-            // Deshabilitar botones de pago si el carrito está vacío
-            metodosPagoBtns.forEach(btn => btn.disabled = carritoPaquetes.length === 0);
-            
-            // Habilitar venta solo si hay paquetes y el monto restante es <= 0
-            btnCompletarVenta.disabled = !(carritoPaquetes.length > 0 && montoRestante <= 0);
-        }
+        // --- Elementos del DOM ---
+        const searchClienteInput = document.getElementById('search-cliente');
+        const terminalContent = document.getElementById('terminal-content');
+        const clienteNombreTitulo = document.getElementById('cliente-nombre-titulo');
+        const pendientesListDiv = document.getElementById('pendientes-list');
+        const scanInput = document.getElementById('scan-input');
+        const carritoItemsDiv = document.getElementById('carrito-items');
+        const totalCarritoSpan = document.getElementById('total-carrito');
+        const pagoRestanteSpan = document.getElementById('pago-restante');
+        const pagosRealizadosList = document.getElementById('pagos-realizados-list');
+        const btnCompletarVenta = document.getElementById('btn-completar-venta');
         
-        function resetTodo() {
-            clienteActual = null;
-            paquetesDisponibles = [];
-            carritoPaquetes = [];
-            pagosRealizados = [];
-            montoTotalVenta = 0;
-            
-            inputBusquedaCliente.value = '';
-            clienteInfoDiv.classList.add('hidden');
-            inputEscaner.value = '';
-            inputEscaner.disabled = true;
-            listaAnaquelesDiv.innerHTML = '<p class="text-slate-500 text-center p-8">Busca un cliente para cargar sus paquetes pendientes.</p>';
-            carritoItemsDiv.innerHTML = '<p class="text-slate-500 text-center p-4">Los paquetes escaneados aparecerán aquí.</p>';
-            areaPagosRealizados.innerHTML = '';
-            moduloIngresoPago.classList.add('hidden');
-            btnCompletarVenta.classList.remove('hidden');
-            btnImprimirRecibo.classList.add('hidden');
-            
-            actualizarResumen();
-            inputBusquedaCliente.focus(); // Empezar de nuevo
-        }
-        
-        function feedbackVisual(element, type) {
-            const className = type === 'success' ? 'input-focus-flash' : 'input-error-flash';
-            // Simular audio si es necesario: new Audio('beep.mp3').play();
-            
-            element.classList.add(className);
-            
-            setTimeout(() => {
-                element.classList.remove(className);
-                element.focus();
-            }, 500); // Duración de la animación
-        }
-        
-        function fmtDateDisplay(iso) {
-            if (!iso) return "N/A";
-            try {
-                const d = new Date(iso);
-                return d.toLocaleDateString("es-PA", { day: "2-digit", month: "2-digit", year: "2-digit" });
-            } catch { return "N/A"; }
-        }
+        // --- Lógica de Renderizado ---
 
-        // --- Lógica del Cliente y Paquetes ---
-
-        inputBusquedaCliente.addEventListener('change', async (e) => {
-            const searchTerm = e.target.value.trim();
-            if (!searchTerm) return;
-            
-            // 1. Resetear el estado para la nueva búsqueda
-            resetTodo(); 
-
-            // 2. Buscar Cliente
-            const isNumeric = !isNaN(searchTerm);
-            // Incluimos tarifas para el cálculo del flete (asumimos tarifas están relacionadas 1 a 1 o 1 a muchos y se toma la primera)
-            let query = sb.from('clientes').select('*, tarifas:tarifa_clientes(*)'); 
-            if (isNumeric) {
-                query = query.eq('box', parseInt(searchTerm));
-            } else {
-                query = query.ilike('nombre', `%${searchTerm}%`);
-            }
-            
-            const { data, error } = await query.limit(1).single();
-
-            if (error || !data) {
-                showAlert("Cliente no encontrado.");
+        function renderPendientes() {
+            if (paquetesPendientes.length === 0) {
+                pendientesListDiv.innerHTML = '<p class="text-center text-slate-500 p-4">¡No hay más paquetes pendientes para este cliente!</p>';
                 return;
             }
-            
-            // Cargar tarifas del cliente si existen (usamos tarifa_1 como tarifa base)
-            const tarifaPorPeso = data.tarifas?.[0]?.tarifa_1 || 5.00;
-            const clienteData = { ...data, tarifa_por_peso: tarifaPorPeso }; 
-            
-            clienteActual = clienteData;
-            mostrarInfoCliente(clienteData);
-            await buscarPaquetesCliente(clienteData.box, tarifaPorPeso);
-            
-            inputEscaner.disabled = false;
-            inputEscaner.focus(); // Pasar foco al escaner
-        });
-
-        function mostrarInfoCliente(cliente) {
-            clienteInfoDiv.innerHTML = `
-                <p><strong>Cliente:</strong> ${cliente.nombre}</p>
-                <p><strong>Casillero (Box):</strong> ${cliente.box} | <strong>Tarifa Base:</strong> $${cliente.tarifa_por_peso.toFixed(2)}</p>
-            `;
-            clienteInfoDiv.classList.remove('hidden');
-        }
-
-        async function buscarPaquetesCliente(clienteBox, tarifaPorPeso) {
-            // Buscamos paquetes que estén en sucursal y aún no hayan sido facturados
-            const { data: paquetes, error } = await sb.from('paquetes')
-                .select('*')
-                .eq('cliente_box', clienteBox)
-                .eq('status', 'En Sucursal')
-                .is('factura_id', null)
-                .order('anaquel', { ascending: true })
-                .order('tracking', { ascending: true });
-
-            if (error) {
-                showAlert("Error al buscar los paquetes del cliente.");
-                return;
-            }
-
-            paquetesDisponibles = paquetes.map(p => ({
-                ...p,
-                // Pre-calcular costos si no existen
-                costo_flete: (p.costo_flete || (p.peso * tarifaPorPeso) || 0).toFixed(2),
-                costo_impuestos: (p.costo_impuestos || 0).toFixed(2),
-            }));
-            
-            mostrarPaquetesEnAlmacen(paquetesDisponibles);
-        }
-        
-        function mostrarPaquetesEnAlmacen(paquetes) {
-            if (paquetes.length === 0) {
-                listaAnaquelesDiv.innerHTML = '<p class="text-slate-500 text-center p-8">Este cliente no tiene paquetes pendientes de pago.</p>';
-                return;
-            }
-
             // Agrupar por anaquel
-            const agrupados = paquetes.reduce((acc, p) => {
-                const anaquel = p.anaquel || 'S/N';
+            const agrupados = paquetesPendientes.reduce((acc, p) => {
+                const anaquel = p.anaquel || 'Sin Anaquel';
                 if (!acc[anaquel]) acc[anaquel] = [];
                 acc[anaquel].push(p);
                 return acc;
             }, {});
-            
-            let html = '';
-            const sortedAnaqueles = Object.keys(agrupados).sort();
 
-            for (const anaquel of sortedAnaqueles) {
-                html += `<div class="mb-4">
-                    <h3 class="text-sm font-bold text-indigo-700 bg-indigo-100 p-2 rounded-t-lg">Anaquel: ${anaquel} (${agrupados[anaquel].length} pqt)</h3>
-                    <div class="border border-indigo-200 rounded-b-lg p-3 space-y-2">`;
-                
-                html += agrupados[anaquel].map(p => `
-                    <div id="paquete-${p.id}" data-tracking="${p.tracking}" class="paquete-item border p-2 rounded-lg flex justify-between items-center bg-white hover:bg-slate-50">
-                        <div>
-                            <p class="font-semibold text-base">${p.tracking}</p>
-                            <p class="text-xs text-slate-500">
-                                Box: ${p.cliente_box} | Peso: ${p.peso || 'N/A'} lbs | Recibido: ${fmtDateDisplay(p.fecha_sucursal)}
-                            </p>
-                        </div>
-                    </div>
-                `).join('');
-                
-                html += `</div></div>`;
-            }
-            listaAnaquelesDiv.innerHTML = html;
-            carritoItemsDiv.innerHTML = '<p class="text-slate-500 text-center p-4">Los paquetes escaneados aparecerán aquí.</p>';
-        }
-
-        // --- Lógica del Escaneo (Core del Terminal) ---
-
-        inputEscaner.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault(); // Evitar el submit
-                procesarEscaneo(inputEscaner.value.trim());
-            }
-        });
-        
-        async function procesarEscaneo(codigo) {
-            inputEscaner.value = ''; // Limpiar el campo inmediatamente
-            
-            if (!clienteActual) {
-                feedbackVisual(inputEscaner, 'error');
-                showAlert('Primero debe buscar y seleccionar un cliente.');
-                return;
-            }
-
-            // 1. Buscar el paquete en los paquetes disponibles del cliente por tracking o ID
-            const paquete = paquetesDisponibles.find(p => p.tracking === codigo || p.id == codigo);
-            
-            if (!paquete) {
-                feedbackVisual(inputEscaner, 'error');
-                showAlert(`Paquete "${codigo}" no encontrado o no pertenece a este cliente.`);
-                return; 
-            }
-            
-            // 2. Verificar si ya está en el carrito
-            if (carritoPaquetes.some(p => p.id === paquete.id)) {
-                feedbackVisual(inputEscaner, 'error');
-                showAlert("Este paquete ya fue escaneado y está en el carrito.");
-                return;
-            }
-
-            // 3. Procesar: Mover al carrito
-            
-            // Quitar de la lista de pendientes (visual y funcionalmente)
-            const paqueteElement = document.getElementById(`paquete-${paquete.id}`);
-            if (paqueteElement) {
-                paqueteElement.classList.add('paquete-picked');
-            }
-            
-            // Agregar al carrito
-            carritoPaquetes.push(paquete);
-            mostrarPaqueteEnCarrito(paquete);
-            
-            // Feedback
-            feedbackVisual(inputEscaner, 'success');
-            
-            // Recalcular
-            actualizarResumen();
-        }
-        
-        function mostrarPaqueteEnCarrito(paquete) {
-            if (carritoPaquetes.length === 1) {
-                carritoItemsDiv.innerHTML = ''; // Limpiar el mensaje de "vacío"
-            }
-            
-            const totalItem = (parseFloat(paquete.costo_flete) + parseFloat(paquete.costo_impuestos)).toFixed(2);
-
-            const itemHtml = `
-                <div id="carrito-item-${paquete.id}" class="bg-white border p-3 rounded-lg flex justify-between items-center shadow-sm">
-                    <div>
-                        <p class="font-bold text-base text-slate-700">${paquete.tracking}</p>
-                        <p class="text-xs text-slate-500">Flete: $${paquete.costo_flete} | Impuestos: $${paquete.costo_impuestos}</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button type="button" data-remove-id="${paquete.id}" class="text-red-500 hover:text-red-700 text-lg leading-none font-bold"> &times; </button>
-                        <div class="text-lg font-semibold text-emerald-600">$${totalItem}</div>
+            pendientesListDiv.innerHTML = Object.entries(agrupados).map(([anaquel, paquetes]) => `
+                <div class="p-3 bg-slate-100 rounded-md">
+                    <h4 class="font-bold text-slate-600 mb-2">📍 Anaquel: ${anaquel}</h4>
+                    <div class="space-y-2">
+                        ${paquetes.map(p => `
+                            <div id="pendiente-${p.tracking}" class="p-2 border bg-white rounded flex justify-between items-center">
+                                <span>${p.tracking}</span>
+                                <span class="text-sm text-slate-500">${p.peso || 0} lbs</span>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
-            `;
-            carritoItemsDiv.insertAdjacentHTML('beforeend', itemHtml);
-            
-            // Listener para quitar del carrito
-            document.querySelector(`[data-remove-id="${paquete.id}"]`).addEventListener('click', (e) => {
-                quitarPaqueteDelCarrito(e.target.dataset.removeId);
-            });
+            `).join('');
         }
         
-        function quitarPaqueteDelCarrito(paqueteId) {
-            const id = parseInt(paqueteId);
-            
-            // 1. Quitar del carritoPaquetes
-            const paqueteQuitadoIndex = carritoPaquetes.findIndex(p => p.id === id);
-            if (paqueteQuitadoIndex === -1) return;
-            const paqueteQuitado = carritoPaquetes.splice(paqueteQuitadoIndex, 1)[0];
-            
-            // 2. Quitar visualmente del carrito
-            const carritoElement = document.getElementById(`carrito-item-${id}`);
-            if (carritoElement) carritoElement.remove();
-            
-            // 3. Devolver a la lista de pendientes (visual y funcionalmente)
-            if (paqueteQuitado) {
-                // Agregar paquete quitado a la lista de disponibles (para que pueda volver a escanearse)
-                paquetesDisponibles.push(paqueteQuitado);
-                // Volver a renderizar toda la lista de anaqueles para que aparezca en el orden correcto
-                mostrarPaquetesEnAlmacen(paquetesDisponibles); 
+        function renderCarrito() {
+            if (carrito.length === 0) {
+                carritoItemsDiv.innerHTML = '<p class="text-slate-500">El carrito está vacío.</p>';
+                return;
             }
-            
-            // Si el carrito queda vacío, mostrar mensaje
-            if (carritoPaquetes.length === 0) {
-                carritoItemsDiv.innerHTML = '<p class="text-slate-500 text-center p-4">Los paquetes escaneados aparecerán aquí.</p>';
-                pagosRealizados = []; // Limpiar pagos si el carrito está vacío
-                areaPagosRealizados.innerHTML = '';
-            }
-
-            // 4. Recalcular
-            actualizarResumen();
-            inputEscaner.focus();
+            carritoItemsDiv.innerHTML = carrito.map(p => `
+                <div class="p-2 bg-white rounded border flex justify-between items-center fade-in">
+                    <div>
+                        <p class="font-semibold">${p.tracking}</p>
+                        <p class="text-xs text-slate-500">${p.peso || 0} lbs</p>
+                    </div>
+                    <span class="font-bold text-emerald-700">$${((p.costo_flete || 0) + (p.costo_impuestos || 0)).toFixed(2)}</span>
+                </div>
+            `).join('');
+            calcularTotal();
         }
 
-        // --- Lógica del Pago Dividido ---
+        function renderPagos() {
+            pagosRealizadosList.innerHTML = pagos.map(p => `
+                <div class="flex justify-between bg-emerald-100 p-1 rounded-md">
+                    <span>${p.metodo}:</span>
+                    <span class="font-medium">$${p.monto.toFixed(2)}</span>
+                </div>
+            `).join('');
+        }
 
-        metodosPagoBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                if (carritoPaquetes.length === 0) {
-                    showAlert("Primero escanee los paquetes para iniciar el cobro.");
-                    return;
-                }
-                
-                metodoPagoActual = e.target.dataset.metodo;
-                const montoPendiente = montoTotalVenta - pagosRealizados.reduce((acc, p) => acc + p.monto, 0);
-
-                if (montoPendiente <= 0) {
-                     showAlert("El monto total ya ha sido cubierto. Presione 'Completar Venta'.");
-                     metodoPagoActual = null;
-                     return;
-                }
-                
-                pagoLabel.textContent = `Monto a pagar con ${metodoPagoActual}:`;
-                // Se autocompleta con el restante pendiente
-                montoIngresadoInput.value = Math.max(0, montoPendiente).toFixed(2); 
-                moduloIngresoPago.classList.remove('hidden');
-                montoIngresadoInput.focus();
-            });
-        });
+        // --- Lógica de Negocio ---
         
-        btnCancelarPago.addEventListener('click', () => {
-            moduloIngresoPago.classList.add('hidden');
-            metodoPagoActual = null;
-            inputEscaner.focus();
-        });
-
-        btnRegistrarPago.addEventListener('click', () => {
-            const monto = parseFloat(montoIngresadoInput.value);
+        async function buscarCliente(searchTerm) {
+            resetTerminal();
+            if (!searchTerm) return;
             
-            if (isNaN(monto) || monto <= 0) {
-                showAlert("Ingrese un monto válido y positivo.");
+            const isNumeric = !isNaN(searchTerm);
+            let query = sb.from('clientes').select('*');
+            if (isNumeric) query = query.eq('box', parseInt(searchTerm));
+            else query = query.ilike('nombre', `%${searchTerm}%`);
+            
+            const { data, error } = await query.limit(1).single();
+
+            if (error || !data) {
+                alert("Cliente no encontrado.");
                 return;
             }
             
-            // Se permite pagar más del total, para manejar el cambio
+            clienteActual = data;
             
-            pagosRealizados.push({ metodo: metodoPagoActual, monto: monto });
-            
-            // Actualizar lista de pagos
-            const pagoHtml = `<p class="text-sm font-medium"><span class="text-indigo-500 mr-2">${metodoPagoActual}:</span> $${monto.toFixed(2)}</p>`;
-            areaPagosRealizados.insertAdjacentHTML('beforeend', pagoHtml);
-            
-            moduloIngresoPago.classList.add('hidden');
-            actualizarResumen();
-            inputEscaner.focus(); // Devolver el foco al escaner/terminal
-        });
+            const { data: paquetes, error: paquetesError } = await sb.from('paquetes')
+                .select('*').eq('cliente_box', clienteActual.box)
+                .eq('status', 'En Sucursal').is('factura_id', null);
 
-        // --- 4. REGISTRAR VENTA Y FACTURAR ---
+            if (paquetesError) {
+                alert("Error al cargar paquetes del cliente.");
+                return;
+            }
+
+            paquetesPendientes = paquetes.map(p => ({
+                ...p,
+                costo_flete: (p.peso || 0) * (clienteActual.tarifa_1 || 4.00), // Lógica de tarifa simple
+                costo_impuestos: 0 // Puedes añadir lógica más compleja aquí
+            }));
+            
+            clienteNombreTitulo.textContent = clienteActual.nombre;
+            terminalContent.classList.remove('hidden');
+            terminalContent.classList.add('fade-in');
+            renderPendientes();
+            scanInput.focus();
+        }
         
-        btnCompletarVenta.addEventListener('click', async () => {
-            const montoTotal = parseFloat(totalPagarSpan.textContent.replace('$', ''));
-            const montoPagado = pagosRealizados.reduce((acc, p) => acc + p.monto, 0);
+        function handleScan() {
+            const tracking = scanInput.value.trim();
+            if (!tracking) return;
+
+            const paqueteIndex = paquetesPendientes.findIndex(p => p.tracking === tracking);
             
-            if (montoPagado < montoTotal) {
-                 showAlert("El monto total no ha sido cubierto. Por favor, registre el pago restante.");
-                 return;
+            if (paqueteIndex > -1) {
+                // Éxito: Mover paquete de pendientes al carrito
+                const [paquete] = paquetesPendientes.splice(paqueteIndex, 1);
+                carrito.push(paquete);
+                
+                renderPendientes();
+                renderCarrito();
+                
+                // Feedback visual
+                document.getElementById(`pendiente-${tracking}`)?.classList.add('line-through', 'text-slate-400');
+                flashInputColor('scan-success');
+            } else {
+                // Error: Paquete no encontrado o ya escaneado
+                alert(`Error: Paquete ${tracking} no está en la lista de pendientes o ya fue escaneado.`);
+                flashInputColor('scan-error');
             }
             
-            const cambio = Math.max(0, montoPagado - montoTotal);
+            scanInput.value = '';
+            scanInput.focus();
+        }
+
+        function calcularTotal() {
+            const total = carrito.reduce((acc, p) => acc + (p.costo_flete || 0) + (p.costo_impuestos || 0), 0);
+            const totalPagado = pagos.reduce((acc, p) => acc + p.monto, 0);
+            const restante = total - totalPagado;
+
+            totalCarritoSpan.textContent = `$${total.toFixed(2)}`;
+            pagoRestanteSpan.textContent = `$${restante.toFixed(2)}`;
             
-            if (cambio > 0) {
-                const confirmar = confirm(`El monto pagado es $${montoPagado.toFixed(2)}. Debe entregar un CAMBIO de $${cambio.toFixed(2)}. ¿Desea confirmar la venta?`);
-                if (!confirmar) return;
+            // Habilitar botón de completar solo si el carrito no está vacío y el pago está completo
+            btnCompletarVenta.disabled = carrito.length === 0 || restante > 0.001;
+        }
+
+        function handlePago(metodo) {
+            if (carrito.length === 0) {
+                alert("Agregue paquetes al carrito antes de registrar un pago.");
+                return;
+            }
+            const total = carrito.reduce((acc, p) => acc + (p.costo_flete || 0) + (p.costo_impuestos || 0), 0);
+            const totalPagado = pagos.reduce((acc, p) => acc + p.monto, 0);
+            const restante = total - totalPagado;
+
+            if (restante <= 0) {
+                alert("La cuenta ya está saldada.");
+                return;
             }
 
+            const montoStr = prompt(`Ingrese el monto a pagar con ${metodo}:`, restante.toFixed(2));
+            const monto = parseFloat(montoStr);
+
+            if (!isNaN(monto) && monto > 0 && monto <= restante + 0.001) {
+                pagos.push({ metodo, monto });
+                renderPagos();
+                calcularTotal();
+            } else {
+                alert("Monto inválido. No puede ser mayor al restante ni ser cero.");
+            }
+        }
+
+        async function completarVenta() {
+            if (btnCompletarVenta.disabled) return;
+            btnCompletarVenta.textContent = "Procesando...";
             btnCompletarVenta.disabled = true;
-            btnCompletarVenta.textContent = 'Procesando...';
+
+            const montoTotal = carrito.reduce((acc, p) => acc + (p.costo_flete || 0) + (p.costo_impuestos || 0), 0);
 
             try {
-                // 1. Crear la Factura (Encabezado)
-                const { data: facturaData, error: facturaError } = await sb.from('facturas')
-                    .insert({
-                        cliente_box: clienteActual.box,
-                        cliente_nombre: clienteActual.nombre,
-                        monto_total: montoTotal,
-                        monto_pagado: montoPagado, 
-                        monto_cambio: cambio, 
-                        status: 'Pagada',
-                    }).select().single();
+                // 1. Crear factura
+                const { data: factura, error: errFactura } = await sb.from('facturas').insert({
+                    cliente_box: clienteActual.box,
+                    cliente_nombre: clienteActual.nombre,
+                    monto_total: montoTotal,
+                    status: 'Pagada'
+                }).select().single();
+                if (errFactura) throw errFactura;
+                const facturaId = factura.id;
 
-                if (facturaError) throw facturaError;
-                const nuevaFacturaId = facturaData.id;
-
-                // 2. Insertar Pagos Divididos
-                const pagosParaInsertar = pagosRealizados.map(p => ({
-                    factura_id: nuevaFacturaId,
-                    monto_pagado: p.monto,
-                    metodo_pago: p.metodo,
+                // 2. Preparar datos para inserts masivos
+                const itemsData = carrito.map(p => ({
+                    factura_id: facturaId,
+                    paquete_id: p.id,
+                    paquete_tracking: p.tracking,
+                    monto_cobrado: (p.costo_flete || 0) + (p.costo_impuestos || 0)
                 }));
-                const pagosResult = await sb.from('pagos_factura').insert(pagosParaInsertar);
-                if (pagosResult.error) throw pagosResult.error;
-
-                // 3. Crear los Items de la Factura y actualizar los Paquetes
-                const paquetesParaActualizar = carritoPaquetes.map(p => ({
+                const pagosData = pagos.map(p => ({
+                    factura_id: facturaId,
+                    monto: p.monto,
+                    metodo_pago: p.metodo
+                }));
+                const paquetesUpdateData = carrito.map(p => ({
                     id: p.id,
                     status: 'Entregado',
-                    factura_id: nuevaFacturaId,
-                    costo_flete: parseFloat(p.costo_flete),
-                    costo_impuestos: parseFloat(p.costo_impuestos),
+                    factura_id: facturaId
                 }));
                 
-                const paquetesResult = await sb.from('paquetes').upsert(paquetesParaActualizar);
-                if (paquetesResult.error) throw paquetesResult.error;
+                // 3. Ejecutar inserts
+                const [resItems, resPagos, resPaquetes] = await Promise.all([
+                    sb.from('factura_items').insert(itemsData),
+                    sb.from('pagos').insert(pagosData),
+                    sb.from('paquetes').upsert(paquetesUpdateData)
+                ]);
 
-                
-                // --- Finalización Exitosa ---
-                btnCompletarVenta.classList.add('hidden');
-                btnImprimirRecibo.classList.remove('hidden');
-                btnImprimirRecibo.onclick = () => showAlert(`Simulando impresión de Factura #${nuevaFacturaId}...`);
-                
-                showAlert(`✅ Venta completada. Factura #${nuevaFacturaId}. Cambio a entregar: $${cambio.toFixed(2)}.`);
-                
-                // Reiniciar inmediatamente para el próximo cliente
-                setTimeout(resetTodo, 1000); 
+                if (resItems.error) throw resItems.error;
+                if (resPagos.error) throw resPagos.error;
+                if (resPaquetes.error) throw resPaquetes.error;
+
+                alert(`¡Venta completada! Factura #${facturaId} creada.`);
+                resetTerminal(true);
 
             } catch (error) {
-                console.error("Error al facturar:", error);
-                showAlert(`🔴 Error al procesar la factura: ${error.message}`);
+                console.error("Error al completar la venta:", error);
+                alert(`Error: ${error.message}`);
+                btnCompletarVenta.textContent = "Completar Venta";
                 btnCompletarVenta.disabled = false;
-                btnCompletarVenta.textContent = 'Reintentar Venta';
             }
-        });
+        }
 
+        // --- Utilidades y Reseteo ---
 
-        // --- Inicialización ---
-
-        document.addEventListener('DOMContentLoaded', () => {
-             try {
-                // Inicializar Supabase
-                sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
-            } catch (e) {
-                console.error("Error al inicializar Supabase. Verifica tu config.js", e);
-                showAlert("Error crítico: No se pudo conectar a la base de datos.");
-                return;
-            }
+        function resetTerminal(limpiarBuscador = false) {
+            clienteActual = null;
+            paquetesPendientes = [];
+            carrito = [];
+            pagos = [];
             
-            // Asegurar que el foco esté siempre en el escáner (o en el input de búsqueda si está vacío)
-            document.body.addEventListener('click', (e) => {
-                // Si el módulo de pago está visible, no robar el foco del input de monto
-                if (!moduloIngresoPago.classList.contains('hidden')) {
-                    return;
-                }
-                // Si la búsqueda inicial está activa, enfocamos ahí
-                if (!clienteActual) {
-                    inputBusquedaCliente.focus();
-                } 
-                // Si ya hay cliente, enfocamos en el escáner
-                else if (e.target !== inputBusquedaCliente && e.target !== inputEscaner) {
-                    inputEscaner.focus();
-                }
-            });
+            terminalContent.classList.add('hidden');
+            clienteNombreTitulo.textContent = '';
+            pendientesListDiv.innerHTML = '';
+            
+            if (limpiarBuscador) searchClienteInput.value = '';
+            
+            renderCarrito();
+            renderPagos();
+            btnCompletarVenta.textContent = "Completar Venta";
+        }
 
-            // Configurar el input de búsqueda como inicio
-            inputBusquedaCliente.focus();
+        function flashInputColor(className) {
+            scanInput.classList.add(className);
+            setTimeout(() => scanInput.classList.remove(className), 500);
+        }
+
+        // --- Inicialización y Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            searchClienteInput.addEventListener('change', (e) => buscarCliente(e.target.value));
+            scanInput.addEventListener('change', handleScan);
+            
+            document.querySelectorAll('.payment-method-btn').forEach(btn => {
+                btn.addEventListener('click', () => handlePago(btn.dataset.metodo));
+            });
+            btnCompletarVenta.addEventListener('click', completarVenta);
         });
+
     </script>
 </body>
 </html>
