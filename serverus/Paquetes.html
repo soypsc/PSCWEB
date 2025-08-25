@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGL1 - Paquetes</title>
+    <title>SGL1 - Recibir Paquete</title>
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="config.js"></script>
@@ -12,14 +14,18 @@
         .sidebar-link.active { background-color: #ecfdf5; color: #059669; font-weight: 600; }
         .code { font-size: 13px; font-weight: 600; color: #94a3b8; margin-right: 12px; background-color: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
         #sidebar { transition: transform 0.3s ease-in-out; }
-        .advanced-filters { transition: all 0.3s ease-in-out; max-height: 0; opacity: 0; overflow: hidden; }
-        .advanced-filters.visible { max-height: 500px; opacity: 1; margin-top: 1rem; }
+        .form-section { transition: all 0.5s ease-in-out; max-height: 0; opacity: 0; overflow: hidden; transform: translateY(-10px); }
+        .form-section.visible { max-height: 1000px; opacity: 1; transform: translateY(0); margin-top: 1.5rem; }
         .modal-content { transition: all 0.3s ease-in-out; }
+        .info-grid-item { background-color: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; }
+        .info-grid-label { font-size: 12px; color: #64748b; font-weight: 500; }
+        .info-grid-value { font-size: 14px; color: #0f172a; font-weight: 600; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
 
     <div class="relative min-h-screen md:flex">
+        <!-- Menú Móvil y Barra Lateral -->
         <div class="bg-white text-slate-800 flex justify-between md:hidden sticky top-0 z-20 shadow-md">
             <a href="./dashboard.html" class="block p-4 font-bold">SGL1</a>
             <button id="mobile-menu-button" class="p-4 focus:outline-none focus:bg-slate-200">
@@ -30,7 +36,7 @@
             <div class="flex items-center gap-3 mb-8 px-2"><div class="bg-emerald-500 p-2 rounded-lg"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg></div><h1 class="text-xl font-bold text-slate-800">SGL1</h1></div>
             <nav>
                 <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-4">Operaciones</h2>
-                <a href="./index.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="dashboard.html"><span>Dashboard</span></a>
+                <a href="./dashboard.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="dashboard.html"><span>Dashboard</span></a>
                 <a href="./recibir-paquete.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="recibir-paquete.html"><span>Recibir Paquete</span></a>
                 <a href="./recibirsucursal.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="recibir-en-sucursal.html"><span>Recibir en Sucursal</span></a>
                 <a href="./clientes.html" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-lg" data-path="clientes.html"><span>Clientes</span></a>
@@ -45,87 +51,106 @@
             </nav>
         </aside>
 
+        <!-- Contenido Principal -->
         <main class="flex-1 p-8">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-bold text-slate-900 flex items-center"><span class="code">[OP-03]</span>Gestión de Paquetes</h1>
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold text-slate-900 flex items-center"><span class="code">[OP-03A]</span>Recepción de Paquete</h1>
+                <button id="add-manual-btn" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600">Agregar Paquete Manualmente</button>
             </div>
-            <div class="bg-white p-4 rounded-lg border border-slate-200 mb-6">
-                <div class="flex flex-wrap items-center gap-4">
-                    <div class="relative flex-grow">
-                        <input id="q" type="search" placeholder="Buscar por todas las columnas..." class="w-full p-2 pl-10 border border-slate-300 rounded-md">
-                    </div>
-                    <button id="toggle-filters-btn" class="flex items-center gap-2 p-2 border rounded-md">Filtros Avanzados</button>
-                    <button id="btnBuscar" class="bg-emerald-500 text-white font-semibold py-2 px-4 rounded-md">Buscar</button>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Columna Izquierda: Formulario Principal -->
+                <div class="lg:col-span-2">
+                    <form id="form-recibir" class="bg-white p-8 rounded-lg border border-slate-200 shadow-sm">
+                        <div>
+                            <label for="tracking-main" class="block text-lg font-semibold text-slate-700 mb-2">1. Tracking Principal</label>
+                            <div class="relative flex items-center">
+                                <input type="text" id="tracking-main" placeholder="Ingresar o escanear tracking..." class="w-full text-lg pl-4 pr-24 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500">
+                            </div>
+                            <div id="info-paquete-cargado" class="hidden mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
+                                <div class="info-grid-item"><p class="info-grid-label">Fecha Bodega (Carga)</p><p id="info-fecha" class="info-grid-value"></p></div>
+                                <div class="info-grid-item"><p class="info-grid-label">Status (Carga)</p><p id="info-status" class="info-grid-value"></p></div>
+                                <div class="info-grid-item"><p class="info-grid-label">Casillero (Carga)</p><p id="info-box" class="info-grid-value"></p></div>
+                                <div class="info-grid-item"><p class="info-grid-label">Peso (lbs)</p><p id="info-peso" class="info-grid-value"></p></div>
+                                <div class="info-grid-item"><p class="info-grid-label">Valor ($)</p><p id="info-valor" class="info-grid-value"></p></div>
+                            </div>
+                        </div>
+                        <div id="step2" class="form-section">
+                            <h2 class="text-lg font-semibold text-slate-700 mb-4">2. Cliente Asignado</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="casillero-search" class="block text-sm font-medium text-slate-600 mb-1">Buscar Cliente (Casillero/Nombre)</label>
+                                    <input type="text" id="casillero-search" class="w-full p-2 border border-slate-300 rounded-md">
+                                </div>
+                                <div>
+                                    <label for="cliente" class="block text-sm font-medium text-slate-600 mb-1">Cliente Encontrado</label>
+                                    <input type="text" id="cliente" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label for="sucursal" class="block text-sm font-medium text-slate-600 mb-1">Sucursal del Cliente</label>
+                                    <input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="step3" class="form-section">
+                            <div class="mt-8">
+                                <button type="submit" class="w-full bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-emerald-500/20 hover:bg-emerald-600">Registrar Paquete en Sistema</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <div id="advanced-filters" class="advanced-filters">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t mt-4">
-                        <select id="fltStatus" class="p-2 border rounded-md text-sm"><option value="">Todos los Estados</option></select>
-                        <select id="fltSucursal" class="p-2 border rounded-md text-sm"><option value="">Sucursal Cliente</option></select>
-                        <select id="fltSucursalRecibido" class="p-2 border rounded-md text-sm"><option value="">Sucursal Recibido</option></select>
-                        <input id="fltDesde" type="date" class="p-2 border rounded-md text-sm text-slate-500">
-                        <input id="fltHasta" type="date" class="p-2 border rounded-md text-sm text-slate-500">
+
+                <!-- Columna Derecha: Tabla de Verificación -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+                        <h2 class="text-xl font-bold text-slate-800 mb-4">Paquetes Pendientes de Carga</h2>
+                        <div class="overflow-y-auto max-h-96">
+                            <table class="w-full text-sm">
+                                <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left">Tracking</th>
+                                        <th class="px-4 py-2 text-left">Casillero</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-pendientes">
+                                    <tr><td colspan="2" class="text-center p-4 text-slate-500">Cargando...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="bg-white rounded-lg border overflow-x-auto">
-                <table class="w-full text-sm whitespace-nowrap">
-                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
-                        <tr>
-                            <th class="px-6 py-3 text-left">Fecha Bodega</th>
-                            <th class="px-6 py-3 text-left">Fecha Status</th>
-                            <th class="px-6 py-3 text-left">Tracking</th>
-                            <th class="px-6 py-3 text-left">Status</th>
-                            <th class="px-6 py-3 text-left">Nombre del cliente</th>
-                            <th class="px-6 py-3 text-left">Box</th>
-                            <th class="px-6 py-3 text-left">Sucursal Cliente</th>
-                            <th class="px-6 py-3 text-left">Sucursal Recibido</th>
-                            <th class="px-6 py-3 text-left">Fecha Sucursal</th>
-                            <th class="px-6 py-3 text-left">Anaquel</th>
-                            <th class="px-6 py-3 text-left">Peso</th>
-                            <th class="px-6 py-3 text-left">Valor</th>
-                            <th class="px-6 py-3 text-left"># Factura</th>
-                            <th class="px-6 py-3 text-left">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td colspan="14" class="text-center p-4 text-slate-500">Cargando paquetes...</td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
         </main>
     </div>
-    
-    <div id="edit-paquete-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
-        <div class="bg-white w-full max-w-4xl rounded-lg shadow-xl p-6 modal-content overflow-y-auto max-h-[95vh]">
+
+    <!-- Modal para Agregar Paquete Manualmente -->
+    <div id="manual-paquete-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
+        <div class="bg-white w-full max-w-2xl rounded-lg shadow-xl p-6 modal-content">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-slate-800">Editar Paquete</h2>
+                <h2 class="text-xl font-bold text-slate-800">Agregar Paquete Manualmente</h2>
                 <button class="close-modal text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
             </div>
-            <form id="form-edit-paquete">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
-                    <div><label class="block text-sm font-medium">Tracking</label><input id="edit-tracking" type="text" class="w-full p-1.5 border rounded-md text-sm bg-slate-100" readonly></div>
-                    <div><label class="block text-sm font-medium">Nombre Cliente</label><input id="edit-cliente-nombre" type="text" class="w-full p-1.5 border rounded-md text-sm"></div>
-                    <div><label class="block text-sm font-medium">Box Cliente</label><input id="edit-cliente-box" type="text" class="w-full p-1.5 border rounded-md text-sm"></div>
-                    
-                    <div><label class="block text-sm font-medium">Status</label><select id="edit-status" class="w-full p-1.5 border rounded-md text-sm"></select></div>
-                    <div><label class="block text-sm font-medium">Sucursal Cliente</label><select id="edit-sucursal" class="w-full p-1.5 border rounded-md text-sm"></select></div>
-                    <div><label class="block text-sm font-medium">Sucursal Recibido</label><select id="edit-sucursal-recibido" class="w-full p-1.5 border rounded-md text-sm"></select></div>
-
-                    <div><label class="block text-sm font-medium">Anaquel</label><select id="edit-anaquel" class="w-full p-1.5 border rounded-md text-sm"></select></div>
-                    <div><label class="block text-sm font-medium">Peso (lbs)</label><input id="edit-peso" type="number" step="0.01" class="w-full p-1.5 border rounded-md text-sm"></div>
-                    <div><label class="block text-sm font-medium">Valor ($)</label><input id="edit-valor" type="number" step="0.01" class="w-full p-1.5 border rounded-md text-sm"></div>
-                    
-                    <div><label class="block text-sm font-medium">Fecha Bodega</label><input id="edit-fecha-bodega" type="date" class="w-full p-1.5 border rounded-md text-sm"></div>
-                    <div><label class="block text-sm font-medium">Fecha Recibido (Status)</label><input id="edit-fecha-recibido" type="date" class="w-full p-1.5 border rounded-md text-sm"></div>
-                    <div><label class="block text-sm font-medium">Fecha Sucursal</label><input id="edit-fecha-sucursal" type="date" class="w-full p-1.5 border rounded-md text-sm"></div>
+            <form id="form-manual">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                    <div><label for="manual-tracking1" class="block text-sm font-medium">Tracking Principal</label><input id="manual-tracking1" type="text" class="w-full p-1.5 border rounded-md text-sm" required></div>
+                    <div><label for="manual-peso" class="block text-sm font-medium">Peso (lbs)</label><input id="manual-peso" type="number" step="0.01" class="w-full p-1.5 border rounded-md text-sm"></div>
+                    <div class="md:col-span-2"><hr></div>
+                    <div><label for="manual-casillero" class="block text-sm font-medium">Buscar Cliente (Casillero/Nombre)</label><input id="manual-casillero" type="text" class="w-full p-1.5 border rounded-md text-sm"></div>
+                    <div><label class="block text-sm font-medium">Cliente Encontrado</label><input id="manual-cliente-info" type="text" class="w-full p-1.5 border rounded-md text-sm bg-slate-100" readonly></div>
                 </div>
                 <div class="flex justify-end gap-4 pt-4 mt-4 border-t">
                     <button type="button" class="close-modal bg-slate-100 text-slate-700 font-semibold py-2 px-4 rounded-md hover:bg-slate-200">Cancelar</button>
-                    <button type="submit" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-md hover:bg-blue-700">Guardar Cambios</button>
+                    <button type="submit" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-md hover:bg-blue-700">Guardar Paquete</button>
                 </div>
             </form>
+        </div>
+    </div>
+    
+    <!-- Alerta Personalizada -->
+    <div id="custom-alert" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6 text-center">
+            <p id="custom-alert-message" class="text-slate-700 mb-4">Mensaje.</p>
+            <button id="custom-alert-close" class="bg-emerald-500 text-white font-semibold py-2 px-6 rounded-md hover:bg-emerald-600">Entendido</button>
         </div>
     </div>
 
@@ -136,223 +161,257 @@
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const sidebar = document.getElementById('sidebar');
             mobileMenuButton.addEventListener('click', () => sidebar.classList.toggle('-translate-x-full'));
-
             const currentPage = window.location.pathname.split('/').pop();
             document.querySelectorAll('.sidebar-link').forEach(link => {
                 if (link.dataset.path === currentPage) link.classList.add('active');
             });
-
-            initializeFilterToggle();
-            initializeDatabaseLogic();
+            initializeRecibirPaqueteLogic();
         });
 
-        function initializeFilterToggle() {
-            const toggleButton = document.getElementById('toggle-filters-btn');
-            const filtersDiv = document.getElementById('advanced-filters');
-            if (toggleButton) toggleButton.addEventListener('click', () => filtersDiv.classList.toggle('visible'));
-        }
-
-        function initializeDatabaseLogic() {
+        function initializeRecibirPaqueteLogic() {
             try {
                 const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
-                const tableBody = document.querySelector("table tbody");
-                const inputQ = document.getElementById('q');
-                const btnBuscar = document.getElementById('btnBuscar');
-                const fltStatus = document.getElementById('fltStatus');
-                const fltSucursal = document.getElementById('fltSucursal');
-                const fltSucursalRecibido = document.getElementById('fltSucursalRecibido');
-                const fltDesde = document.getElementById('fltDesde');
-                const fltHasta = document.getElementById('fltHasta');
+                const formRecibir = document.getElementById('form-recibir');
+                const trackingInput = document.getElementById('tracking-main');
+                const infoPaqueteDiv = document.getElementById('info-paquete-cargado');
+                const casilleroSearchInput = document.getElementById('casillero-search');
+                const clienteInput = document.getElementById('cliente');
+                const sucursalInput = document.getElementById('sucursal');
+                const step2 = document.getElementById('step2');
+                const step3 = document.getElementById('step3');
+                const tablaPendientesBody = document.getElementById('tabla-pendientes');
                 
-                // Elementos del Modal
-                const editModal = document.getElementById('edit-paquete-modal');
-                const formEdit = document.getElementById('form-edit-paquete');
-                let editingPaqueteId = null;
+                const manualModal = document.getElementById('manual-paquete-modal');
+                const openManualModalBtn = document.getElementById('add-manual-btn');
+                const formManual = document.getElementById('form-manual');
+                const manualCasilleroInput = document.getElementById('manual-casillero');
+                const manualClienteInfoInput = document.getElementById('manual-cliente-info');
 
-                const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-                const fmtNum = (n) => (n==null ? "" : (Number(n).toFixed(2)));
+                let paqueteCargadoActual = null;
+                let clienteSeleccionado = null;
+                let clienteManualSeleccionado = null;
+
                 const fmtDate = (iso) => {
-                    if (!iso) return "";
+                    if (!iso) return "N/A";
                     try {
-                        return new Date(iso).toISOString().split('T')[0];
-                    } catch { return ""; }
-                };
-                const fmtDateDisplay = (iso) => {
-                    if (!iso) return "";
-                    try {
-                        const d = new Date(iso);
-                        return d.toLocaleDateString("es-PA", { day: "2-digit", month: "2-digit", year: "2-digit" });
-                    } catch { return iso; }
+                        return new Date(iso).toLocaleDateString("es-PA", { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    } catch { return "Fecha inválida"; }
                 };
 
-                function renderEmpty(msg = "No hay paquetes para mostrar.") {
-                    tableBody.innerHTML = `<tr><td colspan="14" class="text-center p-4 text-slate-500">${msg}</td></tr>`;
-                }
-
-                function renderRows(rows) {
-                    if (!rows || !rows.length) return renderEmpty();
-                    tableBody.innerHTML = rows.map(r => `
-                        <tr class="bg-white border-b hover:bg-slate-50">
-                            <td class="px-6 py-4">${fmtDateDisplay(r.fecha_bodega)}</td>
-                            <td class="px-6 py-4">${fmtDateDisplay(r.fecha_recibido)}</td>
-                            <td class="px-6 py-4 font-medium text-slate-900">${escapeHtml(r.tracking)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.status)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.cliente_nombre)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.cliente_box)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.sucursal)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.sucursal_recibido)}</td>
-                            <td class="px-6 py-4">${fmtDateDisplay(r.fecha_sucursal)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.anaquel)}</td>
-                            <td class="px-6 py-4">${fmtNum(r.peso)}</td>
-                            <td class="px-6 py-4">$${fmtNum(r.valor)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.factura_id)}</td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-2">
-                                    <button class="text-xs bg-blue-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-blue-600" data-edit-id="${r.id}">Editar</button>
-                                    <button class="text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-red-600" data-del-id="${r.id}">Eliminar</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `).join("");
-                }
-
-                async function cargarPaquetes() {
-                    let query = sb.from('paquetes').select('*').order('created_at', { ascending: false }).limit(500);
-                    if (fltStatus.value) query = query.eq('status', fltStatus.value);
-                    if (fltSucursal.value) query = query.eq('sucursal', fltSucursal.value);
-                    if (fltSucursalRecibido.value) query = query.eq('sucursal_recibido', fltSucursalRecibido.value);
-                    if (fltDesde.value) query = query.gte('created_at', fltDesde.value);
-                    if (fltHasta.value) query = query.lte('created_at', fltHasta.value);
-                    const searchTerm = inputQ.value.trim();
-                    if (searchTerm) {
-                        query = query.or(`tracking.ilike.%${searchTerm}%,status.ilike.%${searchTerm}%,cliente_nombre.ilike.%${searchTerm}%,cliente_box.ilike.%${searchTerm}%,sucursal.ilike.%${searchTerm}%,sucursal_recibido.ilike.%${searchTerm}%,anaquel.ilike.%${searchTerm}%`);
-                    }
-                    const { data, error } = await query;
-                    if (error) return renderEmpty("Error al cargar los paquetes.");
-                    renderRows(data);
-                }
-
-                // === FUNCIÓN CORREGIDA AQUÍ ===
-                async function cargarFiltrosYDropdowns() {
-                    const { data: sucursales } = await sb.from('sucursales').select('sucursal').order('sucursal');
-                    const { data: anaqueles } = await sb.from('anaqueles').select('nombre').order('nombre');
-                    const estados = ['Recibido en Bodega', 'En Tránsito', 'En Sucursal', 'Entregado'];
-                    
-                    const editSucursalSelect = document.getElementById('edit-sucursal');
-                    const editSucursalRecibidoSelect = document.getElementById('edit-sucursal-recibido');
-                    const editAnaquelSelect = document.getElementById('edit-anaquel');
-                    const editStatusSelect = document.getElementById('edit-status');
-
-                    // Limpiar y añadir opción nula para campos opcionales
-                    editSucursalRecibidoSelect.innerHTML = '<option value="">(Ninguna)</option>';
-                    editAnaquelSelect.innerHTML = '<option value="">(Ninguno)</option>';
-                    
-                    // Limpiar el resto para evitar duplicados
-                    editSucursalSelect.innerHTML = ''; 
-                    editStatusSelect.innerHTML = '';
-
-                    if (sucursales) {
-                        sucursales.forEach(s => {
-                            const optionHTML = `<option value="${s.sucursal}">${s.sucursal}</option>`;
-                            fltSucursal.innerHTML += optionHTML;
-                            fltSucursalRecibido.innerHTML += optionHTML;
-                            editSucursalSelect.innerHTML += optionHTML;
-                            editSucursalRecibidoSelect.innerHTML += optionHTML;
-                        });
-                    }
-                    if (anaqueles) {
-                        anaqueles.forEach(a => {
-                            editAnaquelSelect.innerHTML += `<option value="${a.nombre}">${a.nombre}</option>`;
-                        });
-    
-                    }
-                    estados.forEach(e => {
-                        const optionHTML = `<option value="${e}">${e}</option>`;
-                        fltStatus.innerHTML += optionHTML;
-                        editStatusSelect.innerHTML += optionHTML;
-                    });
+                function showAlert(message) {
+                    document.getElementById('custom-alert-message').textContent = message;
+                    document.getElementById('custom-alert').classList.remove('hidden');
+                    document.getElementById('custom-alert-close').onclick = () => document.getElementById('custom-alert').classList.add('hidden');
                 }
                 
-                async function eliminarPaquete(id) {
-                    if (!confirm("¿Eliminar este paquete?")) return;
-                    const { error } = await sb.from('paquetes').delete().eq('id', id);
-                    if (error) alert("No se pudo eliminar el paquete.");
-                    else {
-                        alert("Paquete eliminado.");
-                        cargarPaquetes();
+                async function cargarPaquetesPendientes() {
+                    const { data, error } = await sb.from('paquetes_cargados').select('tracking, cliente_box').eq('cargados', false);
+                    if (error) {
+                        tablaPendientesBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`;
+                        return;
+                    }
+                    if (!data || data.length === 0) {
+                        tablaPendientesBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-slate-500">¡No hay paquetes pendientes!</td></tr>`;
+                        return;
+                    }
+                    tablaPendientesBody.innerHTML = data.map(p => `
+                        <tr class="border-b hover:bg-slate-50">
+                            <td class="px-4 py-2 font-medium">${p.tracking}</td>
+                            <td class="px-4 py-2">${p.cliente_box || 'N/A'}</td>
+                        </tr>
+                    `).join('');
+                }
+
+                async function buscarPaqueteCargado(tracking) {
+                    if (!tracking) {
+                        resetFormularioPrincipal();
+                        return;
+                    }
+                    const { data, error } = await sb.from('paquetes_cargados').select('id, tracking, peso, valor, cliente_box, status, fecha_bodega, cargados').eq('tracking', tracking).maybeSingle();
+                    
+                    if (error) {
+                        showAlert('Error al buscar el tracking en la carga.');
+                        return;
+                    }
+
+                    if (data) {
+                        if(data.cargados === true) {
+                            showAlert('Este paquete ya fue recibido y registrado en el sistema.');
+                            resetFormularioPrincipal();
+                            return;
+                        }
+
+                        paqueteCargadoActual = data;
+                        
+                        document.getElementById('info-fecha').textContent = fmtDate(data.fecha_bodega);
+                        document.getElementById('info-status').textContent = data.status || 'N/A';
+                        document.getElementById('info-box').textContent = data.cliente_box || 'N/A';
+                        document.getElementById('info-peso').textContent = data.peso ? `${data.peso} lbs` : 'N/A';
+                        document.getElementById('info-valor').textContent = data.valor ? `$${Number(data.valor).toFixed(2)}` : 'N/A';
+                        infoPaqueteDiv.classList.remove('hidden');
+
+                        if (data.cliente_box) {
+                            casilleroSearchInput.value = data.cliente_box;
+                            await buscarCliente(data.cliente_box, false);
+                        } else {
+                            casilleroSearchInput.value = '';
+                            clienteSeleccionado = null;
+                            actualizarInfoClienteUI();
+                        }
+                        step2.classList.add('visible');
+                        step3.classList.add('visible');
+                    } else {
+                        resetFormularioPrincipal();
+                        showAlert('Tracking no encontrado en la carga. Use el botón "Agregar Manualmente" para paquetes no registrados.');
                     }
                 }
 
-                async function abrirModalEdicion(id) {
-                    editingPaqueteId = id;
-                    const { data, error } = await sb.from('paquetes').select('*').eq('id', id).single();
-                    if (error) return alert('No se pudo cargar el paquete para editar.');
-
-                    document.getElementById('edit-tracking').value = data.tracking;
-                    document.getElementById('edit-cliente-nombre').value = data.cliente_nombre;
-                    document.getElementById('edit-cliente-box').value = data.cliente_box;
-                    document.getElementById('edit-status').value = data.status;
-                    document.getElementById('edit-sucursal').value = data.sucursal;
-                    document.getElementById('edit-sucursal-recibido').value = data.sucursal_recibido;
-                    document.getElementById('edit-anaquel').value = data.anaquel;
-                    document.getElementById('edit-peso').value = data.peso;
-                    document.getElementById('edit-valor').value = data.valor;
-                    document.getElementById('edit-fecha-bodega').value = fmtDate(data.fecha_bodega);
-                    // === CORRECCIÓN AQUÍ ===
-                    document.getElementById('edit-fecha-recibido').value = fmtDate(data.fecha_recibido);
-                    document.getElementById('edit-fecha-sucursal').value = fmtDate(data.fecha_sucursal);
-                    
-                    editModal.classList.remove('hidden');
-                }
-
-                formEdit.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const payload = {
-                        cliente_nombre: document.getElementById('edit-cliente-nombre').value,
-                        cliente_box: document.getElementById('edit-cliente-box').value,
-                        status: document.getElementById('edit-status').value,
-                        sucursal: document.getElementById('edit-sucursal').value,
-                        sucursal_recibido: document.getElementById('edit-sucursal-recibido').value || null,
-                        anaquel: document.getElementById('edit-anaquel').value || null,
-                        peso: parseFloat(document.getElementById('edit-peso').value) || 0,
-                        valor: parseFloat(document.getElementById('edit-valor').value) || 0,
-                        fecha_bodega: document.getElementById('edit-fecha-bodega').value || null,
-                        // === CORRECCIÓN AQUÍ ===
-                        fecha_recibido: document.getElementById('edit-fecha-recibido').value || null,
-                        fecha_sucursal: document.getElementById('edit-fecha-sucursal').value || null,
+                async function buscarCliente(terminoBusqueda, esManual = false) {
+                    if (!terminoBusqueda || terminoBusqueda.length < 1) {
+                        if (!esManual) {
+                           clienteSeleccionado = null;
+                           actualizarInfoClienteUI();
+                        }
+                        return;
                     };
 
-                    const { error } = await sb.from('paquetes').update(payload).eq('id', editingPaqueteId);
+                    const isNumeric = !isNaN(terminoBusqueda);
+                    let query = sb.from('clientes').select('nombre, box, sucursal');
+
+                    if (isNumeric) {
+                        query = query.eq('box', parseInt(terminoBusqueda));
+                    } else {
+                        query = query.ilike('nombre', `%${terminoBusqueda}%`);
+                    }
+
+                    const { data, error } = await query.limit(1).maybeSingle();
 
                     if (error) {
-                        console.error("Error al actualizar:", error);
-                        alert("Error al guardar los cambios.");
-                    } else {
-                        alert("Paquete actualizado ✅");
-                        editModal.classList.add('hidden');
-                        cargarPaquetes();
+                        showAlert("Error buscando cliente.");
+                        return;
                     }
+
+                    if (esManual) {
+                        clienteManualSeleccionado = data;
+                        manualClienteInfoInput.value = data ? `${data.nombre} (Box: ${data.box})` : "No encontrado";
+                    } else {
+                        clienteSeleccionado = data;
+                        actualizarInfoClienteUI();
+                    }
+                }
+                
+                function actualizarInfoClienteUI() {
+                    if (clienteSeleccionado) {
+                        clienteInput.value = `${clienteSeleccionado.nombre} (Box: ${clienteSeleccionado.box})`;
+                        sucursalInput.value = clienteSeleccionado.sucursal || 'No asignada';
+                    } else {
+                        clienteInput.value = 'Cliente no encontrado';
+                        sucursalInput.value = '';
+                    }
+                }
+
+                formRecibir.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    if (!paqueteCargadoActual) {
+                        showAlert("Debe escanear un tracking de la carga primero.");
+                        return;
+                    }
+                    if (!clienteSeleccionado) {
+                        showAlert("Debe asignar un cliente válido al paquete.");
+                        return;
+                    }
+
+                    const payload = {
+                        tracking: paqueteCargadoActual.tracking,
+                        peso: paqueteCargadoActual.peso || null,
+                        valor: paqueteCargadoActual.valor || null,
+                        cliente_nombre: clienteSeleccionado.nombre,
+                        cliente_box: clienteSeleccionado.box,
+                        sucursal: clienteSeleccionado.sucursal,
+                        status: 'En transito', // <-- CAMBIO DE STATUS
+                        fecha_bodega: paqueteCargadoActual.fecha_bodega || new Date().toISOString(),
+                        fecha_recibido: new Date().toISOString() // <-- NUEVA FECHA DE STATUS
+                    };
+
+                    const { error: insertError } = await sb.from('paquetes').insert(payload);
+
+                    if (insertError) {
+                        showAlert(`Error al registrar el paquete: ${insertError.message}`);
+                        return;
+                    }
+                    
+                    const { error: updateError } = await sb.from('paquetes_cargados').update({ cargados: true }).eq('tracking', paqueteCargadoActual.tracking);
+
+                    if(updateError) {
+                        showAlert(`Paquete registrado, pero hubo un error al actualizar su estado en la carga: ${updateError.message}`);
+                    } else {
+                        showAlert(`Paquete ${paqueteCargadoActual.tracking} registrado y asignado a ${clienteSeleccionado.nombre} ✅`);
+                    }
+                    
+                    resetFormularioPrincipal();
+                    await cargarPaquetesPendientes();
                 });
 
-                btnBuscar.addEventListener('click', cargarPaquetes);
-                [fltStatus, fltSucursal, fltSucursalRecibido, fltDesde, fltHasta].forEach(el => {
-                    el.addEventListener('change', cargarPaquetes);
-                });
+                formManual.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const tracking1 = document.getElementById('manual-tracking1').value.trim();
+                    if (!tracking1) {
+                        showAlert("El Tracking Principal es obligatorio.");
+                        return;
+                    }
+                    if (!clienteManualSeleccionado) {
+                        showAlert("Debe seleccionar un cliente válido.");
+                        return;
+                    }
 
-                tableBody.addEventListener('click', (e) => {
-                    const editBtn = e.target.closest('[data-edit-id]');
-                    const delBtn = e.target.closest('[data-del-id]');
-                    if (editBtn) abrirModalEdicion(editBtn.dataset.editId);
-                    if (delBtn) eliminarPaquete(delBtn.dataset.delId);
+                    const payload = {
+                        tracking: tracking1,
+                        peso: parseFloat(document.getElementById('manual-peso').value) || null,
+                        cliente_nombre: clienteManualSeleccionado.nombre,
+                        cliente_box: clienteManualSeleccionado.box,
+                        sucursal: clienteManualSeleccionado.sucursal,
+                        status: 'En transito',
+                        fecha_recibido: new Date().toISOString()
+                    };
+
+                    const { error } = await sb.from('paquetes').insert(payload);
+                    if (error) {
+                        showAlert(`Error al crear el paquete: ${error.message}`);
+                        return;
+                    }
+
+                    showAlert(`Paquete ${tracking1} creado y asignado a ${clienteManualSeleccionado.nombre} ✅`);
+                    manualModal.classList.add('hidden');
+                    formManual.reset();
                 });
                 
-                editModal.querySelectorAll('.close-modal').forEach(btn => {
-                    btn.addEventListener('click', () => editModal.classList.add('hidden'));
+                // --- MANEJO DE EVENTOS (LISTENERS) ---
+                trackingInput.addEventListener('change', (e) => buscarPaqueteCargado(e.target.value.trim()));
+                casilleroSearchInput.addEventListener('change', (e) => buscarCliente(e.target.value.trim(), false));
+                manualCasilleroInput.addEventListener('change', (e) => buscarCliente(e.target.value.trim(), true));
+
+                openManualModalBtn.addEventListener('click', () => {
+                    formManual.reset();
+                    clienteManualSeleccionado = null;
+                    manualModal.classList.remove('hidden');
+                });
+                
+                manualModal.querySelectorAll('.close-modal').forEach(btn => {
+                    btn.addEventListener('click', () => manualModal.classList.add('hidden'));
                 });
 
-                cargarFiltrosYDropdowns();
-                cargarPaquetes();
+                function resetFormularioPrincipal() {
+                    formRecibir.reset();
+                    step2.classList.remove('visible');
+                    step3.classList.remove('visible');
+                    infoPaqueteDiv.classList.add('hidden');
+                    paqueteCargadoActual = null;
+                    clienteSeleccionado = null;
+                    trackingInput.focus();
+                }
+                
+                cargarPaquetesPendientes();
 
             } catch (error) {
                 console.error("Error al inicializar:", error);
@@ -362,4 +421,5 @@
     </script>
 </body>
 </html>
+
 
