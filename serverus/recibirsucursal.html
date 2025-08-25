@@ -21,7 +21,6 @@
 <body class="bg-slate-50 text-slate-800">
 
     <div class="relative min-h-screen md:flex">
-        <!-- Menú Móvil y Barra Lateral -->
         <div class="bg-white text-slate-800 flex justify-between md:hidden sticky top-0 z-20 shadow-md">
             <a href="./index.html" class="block p-4 font-bold">SGL1</a>
             <button id="mobile-menu-button" class="p-4 focus:outline-none focus:bg-slate-200">
@@ -47,7 +46,6 @@
             </nav>
         </aside>
 
-        <!-- Contenido Principal -->
         <main class="flex-1 p-8">
             <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-8">
                 <span class="code">[OP-04A]</span>Recepción en Sucursal
@@ -60,15 +58,13 @@
                         <div class="relative">
                             <input type="text" id="tracking-sucursal-main" placeholder="Esperando escaneo de tracking interno..." class="w-full text-lg pl-4 pr-24 py-3 border-2 border-slate-300 rounded-lg">
                             <div class="absolute inset-y-0 right-0 flex items-center pr-2 gap-1">
-                                <!-- Botones de escáner (sin cambios) -->
-                            </div>
+                                </div>
                         </div>
                     </div>
                     
                     <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
                         <h2 id="sucursal-title" class="text-xl font-bold text-slate-800 mb-4">Paquetes Pendientes</h2>
                         <div class="overflow-x-auto">
-                            <!-- Título de la tabla corregido -->
                             <h3 class="text-md font-semibold text-slate-600 mb-2">"En Tránsito" (Por Llegar a Sucursal)</h3>
                             <table class="w-full text-sm">
                                 <thead class="text-xs text-slate-700 uppercase bg-slate-100">
@@ -133,7 +129,6 @@
         </main>
     </div>
 
-    <!-- Modals y Alerta -->
     <div id="custom-alert" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
         <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6 text-center">
             <p id="custom-alert-message" class="text-slate-700 mb-4">Mensaje.</p>
@@ -187,7 +182,6 @@
                     };
                 }
 
-                // --- FUNCIÓN CORREGIDA ---
                 async function cargarAnaqueles() {
                     const { data, error } = await sb.from('anaqueles').select('nombre').order('nombre');
                     if (error) {
@@ -195,22 +189,16 @@
                         anaquelSelect.innerHTML = '<option value="">Error al cargar</option>';
                         return;
                     }
-                    anaquelSelect.innerHTML = '<option value="">Seleccione un anaquel</option>';
-                    if (data) {
-                        data.forEach(a => {
-                            anaquelSelect.innerHTML += `<option value="${a.nombre}">${a.nombre}</option>`;
-                        });
-                    }
+                    const optionsHTML = data.map(a => `<option value="${a.nombre}">${a.nombre}</option>`).join('');
+                    anaquelSelect.innerHTML = '<option value="">Seleccione un anaquel</option>' + optionsHTML;
                 }
 
                 async function cargarSucursales() {
                     const { data, error } = await sb.from('sucursales').select('sucursal').order('sucursal');
                     if(error) { return; }
                     if(data && data.length > 0) {
-                        sucursalSelect.innerHTML = '';
-                        data.forEach(s => {
-                            sucursalSelect.innerHTML += `<option value="${s.sucursal}">${s.sucursal}</option>`;
-                        });
+                        const optionsHTML = data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join('');
+                        sucursalSelect.innerHTML = optionsHTML;
                         await refreshAllTables();
                     }
                 }
@@ -224,7 +212,6 @@
                     await cargarPaquetesListos(sucursal);
                 }
 
-                // --- FUNCIÓN CORREGIDA ---
                 async function cargarPaquetesPendientes(sucursal) {
                     const { data, error } = await sb.from('paquetes')
                         .select('cliente_nombre, tracking')
@@ -233,15 +220,12 @@
 
                     if (error) {
                         tablaPendientes.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-red-500">Error al cargar pendientes.</td></tr>`;
-                        console.error(error);
                         return;
                     }
-
                     if (!data || data.length === 0) {
                         tablaPendientes.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-slate-500">No hay paquetes por llegar a esta sucursal.</td></tr>`;
                         return;
                     }
-
                     tablaPendientes.innerHTML = data.map(p => `
                         <tr class="border-b hover:bg-slate-50">
                             <td class="px-6 py-3">${p.cliente_nombre || 'N/A'}</td>
@@ -255,7 +239,34 @@
                 }
 
                 async function buscarPaquete(tracking) {
-                     // Lógica para buscar paquete (sin cambios)
+                    if (!tracking) return;
+                    infoPaqueteDiv.innerHTML = '<p>Buscando...</p>';
+                    paqueteActual = null;
+
+                    const { data, error } = await sb
+                        .from('paquetes')
+                        .select('*')
+                        .eq('tracking', tracking)
+                        .single();
+
+                    if (error || !data) {
+                        showAlert(`El paquete con tracking "${tracking}" no fue encontrado.`);
+                        infoPaqueteDiv.innerHTML = '<p>Esperando escaneo...</p>';
+                        return;
+                    }
+
+                    if (data.status !== 'En transito') {
+                        showAlert(`Este paquete no puede ser recibido. Su estado actual es: "${data.status}".`);
+                        infoPaqueteDiv.innerHTML = '<p>Escanee un paquete válido.</p>';
+                        return;
+                    }
+
+                    paqueteActual = data;
+                    infoPaqueteDiv.innerHTML = `
+                        <p><strong>Tracking:</strong> ${data.tracking}</p>
+                        <p><strong>Cliente:</strong> ${data.cliente_nombre}</p>
+                        <p><strong>Destino:</strong> ${data.sucursal}</p>
+                    `;
                 }
 
                 formConfirmar.addEventListener('submit', async (e) => {
@@ -289,7 +300,18 @@
                 
                 trackingInput.addEventListener('change', (e) => buscarPaquete(e.target.value.trim()));
                 sucursalSelect.addEventListener('change', refreshAllTables);
-                lockButton.addEventListener('click', () => { /* Lógica de bloqueo sin cambios */ });
+                
+                lockButton.addEventListener('click', () => {
+                    isSucursalLocked = !isSucursalLocked;
+                    if (isSucursalLocked) {
+                        lockButton.innerHTML = lockedIcon;
+                        sucursalSelect.disabled = true;
+                    } else {
+                        lockButton.innerHTML = unlockedIcon;
+                        sucursalSelect.disabled = false;
+                    }
+                });
+
                 tablaListos.addEventListener('click', (e) => { /* Lógica de notificaciones sin cambios */ });
                 notifyAllBtn.addEventListener('click', async () => { /* Lógica de notificaciones sin cambios */ });
 
