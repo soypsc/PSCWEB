@@ -90,7 +90,6 @@
                                     <label for="sucursal" class="block text-sm font-medium text-slate-600 mb-1">Sucursal del Cliente</label>
                                     <input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
                                 </div>
-                                <!-- NUEVO CAMPO PARA ANAQUEL -->
                                 <div>
                                     <label for="anaquel-select" class="block text-sm font-medium text-slate-600 mb-1">Asignar Anaquel (Opcional)</label>
                                     <select id="anaquel-select" class="w-full p-2 border border-slate-300 rounded-md">
@@ -185,7 +184,7 @@
                 const casilleroSearchInput = document.getElementById('casillero-search');
                 const clienteInput = document.getElementById('cliente');
                 const sucursalInput = document.getElementById('sucursal');
-                const anaquelSelect = document.getElementById('anaquel-select'); // NUEVO SELECT
+                const anaquelSelect = document.getElementById('anaquel-select');
                 const step2 = document.getElementById('step2');
                 const step3 = document.getElementById('step3');
                 const tablaPendientesBody = document.getElementById('tabla-pendientes');
@@ -231,14 +230,13 @@
                     `).join('');
                 }
 
-                // NUEVA FUNCIÓN PARA CARGAR ANAQUELES
                 async function cargarAnaqueles() {
                     const { data, error } = await sb.from('anaqueles').select('nombre').order('nombre');
                     if (error) {
                         console.error("Error cargando anaqueles:", error);
                         return;
                     }
-                    anaquelSelect.innerHTML = '<option value="">(Sin anaquel)</option>'; // Reset
+                    anaquelSelect.innerHTML = '<option value="">(Sin anaquel)</option>';
                     if (data) {
                         data.forEach(a => {
                             anaquelSelect.innerHTML += `<option value="${a.nombre}">${a.nombre}</option>`;
@@ -347,6 +345,7 @@
 
                     const anaquel = anaquelSelect.value;
                     const esEnSucursal = !!anaquel;
+                    const now = new Date().toISOString();
 
                     const payload = {
                         tracking: paqueteCargadoActual.tracking,
@@ -358,8 +357,9 @@
                         anaquel: anaquel || null,
                         status: esEnSucursal ? 'En Sucursal' : 'En transito',
                         sucursal_recibido: esEnSucursal ? clienteSeleccionado.sucursal : null,
-                        fecha_bodega: paqueteCargadoActual.fecha_bodega || new Date().toISOString(),
-                        fecha_recibido: new Date().toISOString()
+                        fecha_bodega: paqueteCargadoActual.fecha_bodega || now,
+                        fecha_recibido: now,
+                        fecha_sucursal: esEnSucursal ? now : null
                     };
 
                     const { error: insertError } = await sb.from('paquetes').insert(payload);
@@ -392,7 +392,8 @@
                         showAlert("Debe seleccionar un cliente válido.");
                         return;
                     }
-
+                    
+                    const now = new Date().toISOString();
                     const payload = {
                         tracking: tracking1,
                         peso: parseFloat(document.getElementById('manual-peso').value) || null,
@@ -400,7 +401,8 @@
                         cliente_box: clienteManualSeleccionado.box,
                         sucursal: clienteManualSeleccionado.sucursal,
                         status: 'En transito',
-                        fecha_recibido: new Date().toISOString()
+                        fecha_bodega: now,
+                        fecha_recibido: now
                     };
 
                     const { error } = await sb.from('paquetes').insert(payload);
@@ -439,7 +441,7 @@
                 }
                 
                 cargarPaquetesPendientes();
-                cargarAnaqueles(); // Carga inicial de anaqueles
+                cargarAnaqueles();
 
             } catch (error) {
                 console.error("Error al inicializar:", error);
@@ -449,6 +451,7 @@
     </script>
 </body>
 </html>
+
 
 
 
