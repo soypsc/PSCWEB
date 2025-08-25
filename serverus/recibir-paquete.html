@@ -313,9 +313,12 @@
 
                 formRecibir.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    // *** CAMBIO: SE AJUSTA LA VALIDACIÓN ***
-                    if (!paqueteCargadoActual || !clienteSeleccionado) {
-                        showAlert("Debe haber un paquete cargado y un cliente asignado para registrar.");
+                    if (!paqueteCargadoActual) {
+                        showAlert("Debe escanear un tracking de la carga primero.");
+                        return;
+                    }
+                    if (!clienteSeleccionado) {
+                        showAlert("Debe asignar un cliente válido al paquete.");
                         return;
                     }
 
@@ -326,8 +329,9 @@
                         cliente_nombre: clienteSeleccionado.nombre,
                         cliente_box: clienteSeleccionado.box,
                         sucursal: clienteSeleccionado.sucursal,
-                        status: 'Recibido en Bodega',
-                        fecha_bodega: new Date().toISOString()
+                        status: 'En transito', // <-- CAMBIO DE STATUS
+                        fecha_bodega: paqueteCargadoActual.fecha_bodega || new Date().toISOString(),
+                        fecha_recibido: new Date().toISOString() // <-- NUEVA FECHA DE STATUS
                     };
 
                     const { error: insertError } = await sb.from('paquetes').insert(payload);
@@ -367,8 +371,8 @@
                         cliente_nombre: clienteManualSeleccionado.nombre,
                         cliente_box: clienteManualSeleccionado.box,
                         sucursal: clienteManualSeleccionado.sucursal,
-                        status: 'Recibido en Bodega',
-                        fecha_bodega: new Date().toISOString()
+                        status: 'En transito',
+                        fecha_recibido: new Date().toISOString()
                     };
 
                     const { error } = await sb.from('paquetes').insert(payload);
@@ -417,5 +421,6 @@
     </script>
 </body>
 </html>
+
 
 
