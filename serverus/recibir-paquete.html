@@ -17,6 +17,9 @@
         .form-section { transition: all 0.5s ease-in-out; max-height: 0; opacity: 0; overflow: hidden; transform: translateY(-10px); }
         .form-section.visible { max-height: 1000px; opacity: 1; transform: translateY(0); margin-top: 1.5rem; }
         .modal-content { transition: all 0.3s ease-in-out; }
+        .info-grid-item { background-color: #f8fafc; padding: 8px 12px; border-radius: 6px; border: 1px solid #e2e8f0; }
+        .info-grid-label { font-size: 12px; color: #64748b; font-weight: 500; }
+        .info-grid-value { font-size: 14px; color: #0f172a; font-weight: 600; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -54,37 +57,66 @@
                 <h1 class="text-3xl font-bold text-slate-900 flex items-center"><span class="code">[OP-03A]</span>Recepción de Paquete</h1>
                 <button id="add-manual-btn" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600">Agregar Paquete Manualmente</button>
             </div>
-            <form id="form-recibir" class="bg-white p-8 rounded-lg border border-slate-200 shadow-sm max-w-4xl mx-auto">
-                <div>
-                    <label for="tracking-main" class="block text-lg font-semibold text-slate-700 mb-2">1. Tracking Principal</label>
-                    <div class="relative flex items-center">
-                        <input type="text" id="tracking-main" placeholder="Ingresar o escanear tracking..." class="w-full text-lg pl-4 pr-24 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500">
-                    </div>
-                    <div id="weight-info" class="hidden mt-2 text-sm font-semibold text-emerald-600 bg-emerald-50 p-2 rounded-md"></div>
-                </div>
-                <div id="step2" class="form-section">
-                    <h2 class="text-lg font-semibold text-slate-700 mb-4">2. Asignar Cliente</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Columna Izquierda: Formulario Principal -->
+                <div class="lg:col-span-2">
+                    <form id="form-recibir" class="bg-white p-8 rounded-lg border border-slate-200 shadow-sm">
                         <div>
-                            <label for="casillero" class="block text-sm font-medium text-slate-600 mb-1">Casillero o Nombre</label>
-                            <input type="text" id="casillero" placeholder="Buscar cliente..." class="w-full p-2 border border-slate-300 rounded-md">
+                            <label for="tracking-main" class="block text-lg font-semibold text-slate-700 mb-2">1. Tracking Principal</label>
+                            <div class="relative flex items-center">
+                                <input type="text" id="tracking-main" placeholder="Ingresar o escanear tracking..." class="w-full text-lg pl-4 pr-24 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500">
+                            </div>
+                            <div id="info-paquete-cargado" class="hidden mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
+                                <div class="info-grid-item col-span-2 md:col-span-3"><p class="info-grid-label">ID Registro</p><p id="info-id" class="info-grid-value truncate"></p></div>
+                                <div class="info-grid-item"><p class="info-grid-label">Fecha Bodega (Carga)</p><p id="info-fecha" class="info-grid-value"></p></div>
+                                <div class="info-grid-item"><p class="info-grid-label">Status (Carga)</p><p id="info-status" class="info-grid-value"></p></div>
+                                <div class="info-grid-item"><p class="info-grid-label">Casillero (Carga)</p><p id="info-box" class="info-grid-value"></p></div>
+                                <div class="info-grid-item"><p class="info-grid-label">Peso (lbs)</p><p id="info-peso" class="info-grid-value"></p></div>
+                                <div class="info-grid-item"><p class="info-grid-label">Valor ($)</p><p id="info-valor" class="info-grid-value"></p></div>
+                            </div>
                         </div>
-                        <div>
-                            <label for="cliente" class="block text-sm font-medium text-slate-600 mb-1">Cliente Encontrado</label>
-                            <input type="text" id="cliente" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
+                        <div id="step2" class="form-section">
+                            <h2 class="text-lg font-semibold text-slate-700 mb-4">2. Cliente Asignado</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="cliente" class="block text-sm font-medium text-slate-600 mb-1">Cliente Encontrado</label>
+                                    <input type="text" id="cliente" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
+                                </div>
+                                <div>
+                                    <label for="sucursal" class="block text-sm font-medium text-slate-600 mb-1">Sucursal del Cliente</label>
+                                    <input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
+                                </div>
+                            </div>
                         </div>
-                        <div class="md:col-span-2">
-                            <label for="sucursal" class="block text-sm font-medium text-slate-600 mb-1">Sucursal del Cliente</label>
-                            <input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
+                        <div id="step3" class="form-section">
+                            <div class="mt-8">
+                                <button type="submit" class="w-full bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-emerald-500/20 hover:bg-emerald-600">Registrar Paquete en Sistema</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Columna Derecha: Tabla de Verificación -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+                        <h2 class="text-xl font-bold text-slate-800 mb-4">Paquetes Pendientes de Carga</h2>
+                        <div class="overflow-y-auto max-h-96">
+                            <table class="w-full text-sm">
+                                <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left">Tracking</th>
+                                        <th class="px-4 py-2 text-left">Casillero</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-pendientes">
+                                    <tr><td colspan="2" class="text-center p-4 text-slate-500">Cargando...</td></tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-                <div id="step3" class="form-section">
-                    <div class="mt-8">
-                        <button type="submit" class="w-full bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-emerald-500/20 hover:bg-emerald-600">Registrar Paquete</button>
-                    </div>
-                </div>
-            </form>
+            </div>
         </main>
     </div>
 
@@ -98,7 +130,6 @@
             <form id="form-manual">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                     <div><label for="manual-tracking1" class="block text-sm font-medium">Tracking Principal</label><input id="manual-tracking1" type="text" class="w-full p-1.5 border rounded-md text-sm" required></div>
-                    <div><label for="manual-tracking2" class="block text-sm font-medium">Tracking Secundario</label><input id="manual-tracking2" type="text" class="w-full p-1.5 border rounded-md text-sm"></div>
                     <div><label for="manual-peso" class="block text-sm font-medium">Peso (lbs)</label><input id="manual-peso" type="number" step="0.01" class="w-full p-1.5 border rounded-md text-sm"></div>
                     <div class="md:col-span-2"><hr></div>
                     <div><label for="manual-casillero" class="block text-sm font-medium">Buscar Cliente (Casillero/Nombre)</label><input id="manual-casillero" type="text" class="w-full p-1.5 border rounded-md text-sm"></div>
@@ -124,7 +155,6 @@
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
         document.addEventListener('DOMContentLoaded', () => {
-            // --- INICIALIZACIÓN BÁSICA DE UI ---
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const sidebar = document.getElementById('sidebar');
             mobileMenuButton.addEventListener('click', () => sidebar.classList.toggle('-translate-x-full'));
@@ -132,122 +162,114 @@
             document.querySelectorAll('.sidebar-link').forEach(link => {
                 if (link.dataset.path === currentPage) link.classList.add('active');
             });
-            
-            // --- INICIALIZACIÓN DE LA LÓGICA DEL MÓDULO ---
             initializeRecibirPaqueteLogic();
         });
 
         function initializeRecibirPaqueteLogic() {
             try {
-                // --- CONEXIÓN A SUPABASE ---
                 const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
-                // --- ELEMENTOS DEL FORMULARIO PRINCIPAL ---
                 const formRecibir = document.getElementById('form-recibir');
                 const trackingInput = document.getElementById('tracking-main');
-                const weightInfoDiv = document.getElementById('weight-info');
-                const casilleroInput = document.getElementById('casillero');
+                const infoPaqueteDiv = document.getElementById('info-paquete-cargado');
                 const clienteInput = document.getElementById('cliente');
                 const sucursalInput = document.getElementById('sucursal');
                 const step2 = document.getElementById('step2');
                 const step3 = document.getElementById('step3');
+                const tablaPendientesBody = document.getElementById('tabla-pendientes');
                 
-                // --- ELEMENTOS DEL MODAL MANUAL ---
                 const manualModal = document.getElementById('manual-paquete-modal');
                 const openManualModalBtn = document.getElementById('add-manual-btn');
                 const formManual = document.getElementById('form-manual');
                 const manualCasilleroInput = document.getElementById('manual-casillero');
                 const manualClienteInfoInput = document.getElementById('manual-cliente-info');
 
-                // --- ESTADO GLOBAL DEL MÓDULO ---
-                let paqueteActual = null;
+                let paqueteCargadoActual = null;
                 let clienteSeleccionado = null;
                 let clienteManualSeleccionado = null;
 
-                // --- FUNCIÓN PARA MOSTRAR ALERTAS ---
+                const fmtDate = (iso) => {
+                    if (!iso) return "N/A";
+                    try {
+                        return new Date(iso).toLocaleDateString("es-PA", { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    } catch { return "Fecha inválida"; }
+                };
+
                 function showAlert(message) {
                     document.getElementById('custom-alert-message').textContent = message;
                     document.getElementById('custom-alert').classList.remove('hidden');
                     document.getElementById('custom-alert-close').onclick = () => document.getElementById('custom-alert').classList.add('hidden');
                 }
                 
-                // --- FUNCIÓN 1: BUSCAR PAQUETE Y CARGAR PESO ---
-                async function buscarPaquetePorTracking(tracking) {
+                // --- FUNCIÓN NUEVA: CARGAR TABLA DE PENDIENTES ---
+                async function cargarPaquetesPendientes() {
+                    const { data, error } = await sb.from('paquetes_cargados').select('tracking, cliente_box').eq('cargados', false);
+                    if (error) {
+                        tablaPendientesBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`;
+                        return;
+                    }
+                    if (!data || data.length === 0) {
+                        tablaPendientesBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-slate-500">¡No hay paquetes pendientes!</td></tr>`;
+                        return;
+                    }
+                    tablaPendientesBody.innerHTML = data.map(p => `
+                        <tr class="border-b hover:bg-slate-50">
+                            <td class="px-4 py-2 font-medium">${p.tracking}</td>
+                            <td class="px-4 py-2">${p.cliente_box || 'N/A'}</td>
+                        </tr>
+                    `).join('');
+                }
+
+                async function buscarPaqueteCargado(tracking) {
                     if (!tracking) {
                         resetFormularioPrincipal();
                         return;
                     }
-                    const { data, error } = await sb.from('paquetes').select('*').eq('tracking', tracking).maybeSingle();
+                    const { data, error } = await sb.from('paquetes_cargados').select('id, tracking, peso, valor, cliente_box, status, fecha_bodega, cargados').eq('tracking', tracking).maybeSingle();
                     
                     if (error) {
-                        showAlert('Error al buscar el tracking.');
+                        showAlert('Error al buscar el tracking en la carga.');
                         return;
                     }
 
-                    paqueteActual = data;
+                    if (data) {
+                        if(data.cargados === true) {
+                            showAlert('Este paquete ya fue recibido y registrado en el sistema.');
+                            resetFormularioPrincipal();
+                            return;
+                        }
 
-                    if (paqueteActual) {
-                        // Si el paquete existe, muestra el peso si lo tiene
-                        if (paqueteActual.peso) {
-                            weightInfoDiv.textContent = `Peso registrado: ${paqueteActual.peso} lbs.`;
-                            weightInfoDiv.classList.remove('hidden');
-                        } else {
-                            weightInfoDiv.classList.add('hidden');
+                        paqueteCargadoActual = data;
+                        
+                        document.getElementById('info-id').textContent = data.id || 'N/A';
+                        document.getElementById('info-fecha').textContent = fmtDate(data.fecha_bodega);
+                        document.getElementById('info-status').textContent = data.status || 'N/A';
+                        document.getElementById('info-box').textContent = data.cliente_box || 'N/A';
+                        document.getElementById('info-peso').textContent = data.peso ? `${data.peso} lbs` : 'N/A';
+                        document.getElementById('info-valor').textContent = data.valor ? `$${Number(data.valor).toFixed(2)}` : 'N/A';
+                        infoPaqueteDiv.classList.remove('hidden');
+
+                        if (data.cliente_box) {
+                            await buscarClientePorBox(data.cliente_box);
                         }
-                         // Si ya tiene un cliente asignado, lo mostramos
-                        if (paqueteActual.cliente_nombre) {
-                            clienteSeleccionado = {
-                                nombre: paqueteActual.cliente_nombre,
-                                box: paqueteActual.cliente_box,
-                                sucursal: paqueteActual.sucursal
-                            };
-                            actualizarInfoClienteUI();
-                        }
+                        step2.classList.add('visible');
+                        step3.classList.add('visible');
                     } else {
-                        // Si el paquete NO existe, se oculta la info de peso
-                        weightInfoDiv.classList.add('hidden');
+                        resetFormularioPrincipal();
+                        showAlert('Tracking no encontrado en la carga. Use el botón "Agregar Manualmente" para paquetes no registrados.');
                     }
-                    step2.classList.add('visible');
-                    step3.classList.add('visible');
                 }
 
-                // --- FUNCIÓN 2: BUSCAR CLIENTE Y MOSTRAR INFO ---
-                async function buscarCliente(terminoBusqueda, esManual = false) {
-                    if (!terminoBusqueda || terminoBusqueda.length < 2) return;
-                    
-                    const isNumeric = !isNaN(terminoBusqueda);
-                    let query = sb.from('clientes').select('nombre, box, sucursal');
+                async function buscarClientePorBox(box) {
+                    const { data, error } = await sb.from('clientes').select('nombre, box, sucursal').eq('box', box).limit(1).single();
 
-                    if(isNumeric) {
-                        query = query.eq('box', parseInt(terminoBusqueda));
+                    if (error || !data) {
+                        showAlert(`Cliente con Box ${box} no encontrado.`);
+                        clienteSeleccionado = null;
                     } else {
-                        query = query.ilike('nombre', `%${terminoBusqueda}%`);
+                        clienteSeleccionado = data;
                     }
-
-                    const { data, error } = await query.limit(1).maybeSingle();
-
-                    if(error) {
-                        showAlert("Error buscando cliente.");
-                        return;
-                    }
-
-                    if(data) {
-                        if (esManual) {
-                            clienteManualSeleccionado = data;
-                            manualClienteInfoInput.value = `${data.nombre} (Box: ${data.box})`;
-                        } else {
-                            clienteSeleccionado = data;
-                            actualizarInfoClienteUI();
-                        }
-                    } else {
-                         if (esManual) {
-                            clienteManualSeleccionado = null;
-                            manualClienteInfoInput.value = "No encontrado";
-                        } else {
-                            clienteSeleccionado = null;
-                            actualizarInfoClienteUI();
-                        }
-                    }
+                    actualizarInfoClienteUI();
                 }
                 
                 function actualizarInfoClienteUI() {
@@ -255,25 +277,26 @@
                         clienteInput.value = `${clienteSeleccionado.nombre} (Box: ${clienteSeleccionado.box})`;
                         sucursalInput.value = clienteSeleccionado.sucursal || 'No asignada';
                     } else {
-                        clienteInput.value = 'No encontrado';
+                        clienteInput.value = 'Cliente no encontrado';
                         sucursalInput.value = '';
                     }
                 }
 
-                // --- FUNCIÓN 3: LÓGICA DE GUARDADO ---
-                // A. Actualizar paquete existente
                 formRecibir.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    if (!paqueteActual) {
-                        showAlert("No hay un paquete cargado. Escanee un tracking que NO exista y use la opción manual.");
+                    if (!paqueteCargadoActual) {
+                        showAlert("No hay un paquete de la carga seleccionado.");
                         return;
                     }
                     if (!clienteSeleccionado) {
-                        showAlert("Debe seleccionar un cliente válido para el paquete.");
+                        showAlert("No se pudo asignar un cliente válido.");
                         return;
                     }
 
                     const payload = {
+                        tracking: paqueteCargadoActual.tracking,
+                        peso: paqueteCargadoActual.peso || null,
+                        valor: paqueteCargadoActual.valor || null,
                         cliente_nombre: clienteSeleccionado.nombre,
                         cliente_box: clienteSeleccionado.box,
                         sucursal: clienteSeleccionado.sucursal,
@@ -281,18 +304,26 @@
                         fecha_bodega: new Date().toISOString()
                     };
 
-                    const { error } = await sb.from('paquetes').update(payload).eq('id', paqueteActual.id);
+                    const { error: insertError } = await sb.from('paquetes').insert(payload);
 
-                    if (error) {
-                        showAlert(`Error al actualizar el paquete: ${error.message}`);
+                    if (insertError) {
+                        showAlert(`Error al registrar el paquete: ${insertError.message}`);
                         return;
                     }
+                    
+                    // *** CAMBIO: ACTUALIZA 'cargados' A TRUE ***
+                    const { error: updateError } = await sb.from('paquetes_cargados').update({ cargados: true }).eq('tracking', paqueteCargadoActual.tracking);
 
-                    showAlert(`Paquete ${paqueteActual.tracking} actualizado y asignado a ${clienteSeleccionado.nombre} ✅`);
+                    if(updateError) {
+                        showAlert(`Paquete registrado, pero hubo un error al actualizar su estado en la carga: ${updateError.message}`);
+                    } else {
+                        showAlert(`Paquete ${paqueteCargadoActual.tracking} registrado y asignado a ${clienteSeleccionado.nombre} ✅`);
+                    }
+                    
                     resetFormularioPrincipal();
+                    await cargarPaquetesPendientes(); // Refresca la lista de pendientes
                 });
 
-                // B. Crear paquete nuevo (manual)
                 formManual.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     const tracking1 = document.getElementById('manual-tracking1').value.trim();
@@ -307,7 +338,6 @@
 
                     const payload = {
                         tracking: tracking1,
-                        tracking_secundario: document.getElementById('manual-tracking2').value.trim() || null,
                         peso: parseFloat(document.getElementById('manual-peso').value) || null,
                         cliente_nombre: clienteManualSeleccionado.nombre,
                         cliente_box: clienteManualSeleccionado.box,
@@ -326,12 +356,25 @@
                     manualModal.classList.add('hidden');
                     formManual.reset();
                 });
+                
+                manualCasilleroInput.addEventListener('change', async (e) => {
+                    const terminoBusqueda = e.target.value.trim();
+                    if (!terminoBusqueda) return;
+                    const isNumeric = !isNaN(terminoBusqueda);
+                    let query = sb.from('clientes').select('nombre, box, sucursal');
+                    if(isNumeric) query = query.eq('box', parseInt(terminoBusqueda));
+                    else query = query.ilike('nombre', `%${terminoBusqueda}%`);
+                    const { data, error } = await query.limit(1).maybeSingle();
+                    if(data) {
+                        clienteManualSeleccionado = data;
+                        manualClienteInfoInput.value = `${data.nombre} (Box: ${data.box})`;
+                    } else {
+                        clienteManualSeleccionado = null;
+                        manualClienteInfoInput.value = "No encontrado";
+                    }
+                });
 
-
-                // --- MANEJO DE EVENTOS (LISTENERS) ---
-                trackingInput.addEventListener('change', (e) => buscarPaquetePorTracking(e.target.value.trim()));
-                casilleroInput.addEventListener('change', (e) => buscarCliente(e.target.value.trim(), false));
-                manualCasilleroInput.addEventListener('change', (e) => buscarCliente(e.target.value.trim(), true));
+                trackingInput.addEventListener('change', (e) => buscarPaqueteCargado(e.target.value.trim()));
 
                 openManualModalBtn.addEventListener('click', () => {
                     formManual.reset();
@@ -343,16 +386,18 @@
                     btn.addEventListener('click', () => manualModal.classList.add('hidden'));
                 });
 
-                // --- FUNCIONES AUXILIARES ---
                 function resetFormularioPrincipal() {
                     formRecibir.reset();
                     step2.classList.remove('visible');
                     step3.classList.remove('visible');
-                    weightInfoDiv.classList.add('hidden');
-                    paqueteActual = null;
+                    infoPaqueteDiv.classList.add('hidden');
+                    paqueteCargadoActual = null;
                     clienteSeleccionado = null;
                     trackingInput.focus();
                 }
+                
+                // Carga inicial de la tabla de pendientes
+                cargarPaquetesPendientes();
 
             } catch (error) {
                 console.error("Error al inicializar:", error);
@@ -362,3 +407,4 @@
     </script>
 </body>
 </html>
+
