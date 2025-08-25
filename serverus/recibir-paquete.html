@@ -76,7 +76,7 @@
                             </div>
                         </div>
                         <div id="step2" class="form-section">
-                            <h2 class="text-lg font-semibold text-slate-700 mb-4">2. Cliente Asignado</h2>
+                            <h2 class="text-lg font-semibold text-slate-700 mb-4">2. Cliente y Anaquel</h2>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label for="casillero-search" class="block text-sm font-medium text-slate-600 mb-1">Buscar Cliente (Casillero/Nombre)</label>
@@ -86,9 +86,16 @@
                                     <label for="cliente" class="block text-sm font-medium text-slate-600 mb-1">Cliente Encontrado</label>
                                     <input type="text" id="cliente" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
                                 </div>
-                                <div class="md:col-span-2">
+                                <div>
                                     <label for="sucursal" class="block text-sm font-medium text-slate-600 mb-1">Sucursal del Cliente</label>
                                     <input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
+                                </div>
+                                <!-- NUEVO CAMPO PARA ANAQUEL -->
+                                <div>
+                                    <label for="anaquel-select" class="block text-sm font-medium text-slate-600 mb-1">Asignar Anaquel (Opcional)</label>
+                                    <select id="anaquel-select" class="w-full p-2 border border-slate-300 rounded-md">
+                                        <option value="">(Sin anaquel)</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -178,6 +185,7 @@
                 const casilleroSearchInput = document.getElementById('casillero-search');
                 const clienteInput = document.getElementById('cliente');
                 const sucursalInput = document.getElementById('sucursal');
+                const anaquelSelect = document.getElementById('anaquel-select'); // NUEVO SELECT
                 const step2 = document.getElementById('step2');
                 const step3 = document.getElementById('step3');
                 const tablaPendientesBody = document.getElementById('tabla-pendientes');
@@ -221,6 +229,21 @@
                             <td class="px-4 py-2">${p.cliente_box || 'N/A'}</td>
                         </tr>
                     `).join('');
+                }
+
+                // NUEVA FUNCIÓN PARA CARGAR ANAQUELES
+                async function cargarAnaqueles() {
+                    const { data, error } = await sb.from('anaqueles').select('nombre').order('nombre');
+                    if (error) {
+                        console.error("Error cargando anaqueles:", error);
+                        return;
+                    }
+                    anaquelSelect.innerHTML = '<option value="">(Sin anaquel)</option>'; // Reset
+                    if (data) {
+                        data.forEach(a => {
+                            anaquelSelect.innerHTML += `<option value="${a.nombre}">${a.nombre}</option>`;
+                        });
+                    }
                 }
 
                 async function buscarPaqueteCargado(tracking) {
@@ -322,6 +345,9 @@
                         return;
                     }
 
+                    const anaquel = anaquelSelect.value;
+                    const esEnSucursal = !!anaquel;
+
                     const payload = {
                         tracking: paqueteCargadoActual.tracking,
                         peso: paqueteCargadoActual.peso || null,
@@ -329,9 +355,11 @@
                         cliente_nombre: clienteSeleccionado.nombre,
                         cliente_box: clienteSeleccionado.box,
                         sucursal: clienteSeleccionado.sucursal,
-                        status: 'En transito', // <-- CAMBIO DE STATUS
+                        anaquel: anaquel || null,
+                        status: esEnSucursal ? 'En Sucursal' : 'En transito',
+                        sucursal_recibido: esEnSucursal ? clienteSeleccionado.sucursal : null,
                         fecha_bodega: paqueteCargadoActual.fecha_bodega || new Date().toISOString(),
-                        fecha_recibido: new Date().toISOString() // <-- NUEVA FECHA DE STATUS
+                        fecha_recibido: new Date().toISOString()
                     };
 
                     const { error: insertError } = await sb.from('paquetes').insert(payload);
@@ -386,7 +414,6 @@
                     formManual.reset();
                 });
                 
-                // --- MANEJO DE EVENTOS (LISTENERS) ---
                 trackingInput.addEventListener('change', (e) => buscarPaqueteCargado(e.target.value.trim()));
                 casilleroSearchInput.addEventListener('change', (e) => buscarCliente(e.target.value.trim(), false));
                 manualCasilleroInput.addEventListener('change', (e) => buscarCliente(e.target.value.trim(), true));
@@ -412,6 +439,7 @@
                 }
                 
                 cargarPaquetesPendientes();
+                cargarAnaqueles(); // Carga inicial de anaqueles
 
             } catch (error) {
                 console.error("Error al inicializar:", error);
@@ -421,6 +449,7 @@
     </script>
 </body>
 </html>
+
 
 
 
