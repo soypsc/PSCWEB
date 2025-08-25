@@ -68,7 +68,6 @@
                                 <input type="text" id="tracking-main" placeholder="Ingresar o escanear tracking..." class="w-full text-lg pl-4 pr-24 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500">
                             </div>
                             <div id="info-paquete-cargado" class="hidden mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
-                                <div class="info-grid-item col-span-2 md:col-span-3"><p class="info-grid-label">ID Registro</p><p id="info-id" class="info-grid-value truncate"></p></div>
                                 <div class="info-grid-item"><p class="info-grid-label">Fecha Bodega (Carga)</p><p id="info-fecha" class="info-grid-value"></p></div>
                                 <div class="info-grid-item"><p class="info-grid-label">Status (Carga)</p><p id="info-status" class="info-grid-value"></p></div>
                                 <div class="info-grid-item"><p class="info-grid-label">Casillero (Carga)</p><p id="info-box" class="info-grid-value"></p></div>
@@ -80,10 +79,14 @@
                             <h2 class="text-lg font-semibold text-slate-700 mb-4">2. Cliente Asignado</h2>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
+                                    <label for="casillero-search" class="block text-sm font-medium text-slate-600 mb-1">Buscar Cliente (Casillero/Nombre)</label>
+                                    <input type="text" id="casillero-search" class="w-full p-2 border border-slate-300 rounded-md">
+                                </div>
+                                <div>
                                     <label for="cliente" class="block text-sm font-medium text-slate-600 mb-1">Cliente Encontrado</label>
                                     <input type="text" id="cliente" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
                                 </div>
-                                <div>
+                                <div class="md:col-span-2">
                                     <label for="sucursal" class="block text-sm font-medium text-slate-600 mb-1">Sucursal del Cliente</label>
                                     <input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
                                 </div>
@@ -172,6 +175,7 @@
                 const formRecibir = document.getElementById('form-recibir');
                 const trackingInput = document.getElementById('tracking-main');
                 const infoPaqueteDiv = document.getElementById('info-paquete-cargado');
+                const casilleroSearchInput = document.getElementById('casillero-search');
                 const clienteInput = document.getElementById('cliente');
                 const sucursalInput = document.getElementById('sucursal');
                 const step2 = document.getElementById('step2');
@@ -201,7 +205,6 @@
                     document.getElementById('custom-alert-close').onclick = () => document.getElementById('custom-alert').classList.add('hidden');
                 }
                 
-                // --- FUNCIÓN NUEVA: CARGAR TABLA DE PENDIENTES ---
                 async function cargarPaquetesPendientes() {
                     const { data, error } = await sb.from('paquetes_cargados').select('tracking, cliente_box').eq('cargados', false);
                     if (error) {
@@ -241,7 +244,6 @@
 
                         paqueteCargadoActual = data;
                         
-                        document.getElementById('info-id').textContent = data.id || 'N/A';
                         document.getElementById('info-fecha').textContent = fmtDate(data.fecha_bodega);
                         document.getElementById('info-status').textContent = data.status || 'N/A';
                         document.getElementById('info-box').textContent = data.cliente_box || 'N/A';
@@ -250,7 +252,12 @@
                         infoPaqueteDiv.classList.remove('hidden');
 
                         if (data.cliente_box) {
-                            await buscarClientePorBox(data.cliente_box);
+                            casilleroSearchInput.value = data.cliente_box;
+                            await buscarCliente(data.cliente_box, false);
+                        } else {
+                            casilleroSearchInput.value = '';
+                            clienteSeleccionado = null;
+                            actualizarInfoClienteUI();
                         }
                         step2.classList.add('visible');
                         step3.classList.add('visible');
@@ -260,16 +267,38 @@
                     }
                 }
 
-                async function buscarClientePorBox(box) {
-                    const { data, error } = await sb.from('clientes').select('nombre, box, sucursal').eq('box', box).limit(1).single();
+                async function buscarCliente(terminoBusqueda, esManual = false) {
+                    if (!terminoBusqueda || terminoBusqueda.length < 1) {
+                        if (!esManual) {
+                           clienteSeleccionado = null;
+                           actualizarInfoClienteUI();
+                        }
+                        return;
+                    };
 
-                    if (error || !data) {
-                        showAlert(`Cliente con Box ${box} no encontrado.`);
-                        clienteSeleccionado = null;
+                    const isNumeric = !isNaN(terminoBusqueda);
+                    let query = sb.from('clientes').select('nombre, box, sucursal');
+
+                    if (isNumeric) {
+                        query = query.eq('box', parseInt(terminoBusqueda));
+                    } else {
+                        query = query.ilike('nombre', `%${terminoBusqueda}%`);
+                    }
+
+                    const { data, error } = await query.limit(1).maybeSingle();
+
+                    if (error) {
+                        showAlert("Error buscando cliente.");
+                        return;
+                    }
+
+                    if (esManual) {
+                        clienteManualSeleccionado = data;
+                        manualClienteInfoInput.value = data ? `${data.nombre} (Box: ${data.box})` : "No encontrado";
                     } else {
                         clienteSeleccionado = data;
+                        actualizarInfoClienteUI();
                     }
-                    actualizarInfoClienteUI();
                 }
                 
                 function actualizarInfoClienteUI() {
@@ -284,12 +313,9 @@
 
                 formRecibir.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    if (!paqueteCargadoActual) {
-                        showAlert("No hay un paquete de la carga seleccionado.");
-                        return;
-                    }
-                    if (!clienteSeleccionado) {
-                        showAlert("No se pudo asignar un cliente válido.");
+                    // *** CAMBIO: SE AJUSTA LA VALIDACIÓN ***
+                    if (!paqueteCargadoActual || !clienteSeleccionado) {
+                        showAlert("Debe haber un paquete cargado y un cliente asignado para registrar.");
                         return;
                     }
 
@@ -311,7 +337,6 @@
                         return;
                     }
                     
-                    // *** CAMBIO: ACTUALIZA 'cargados' A TRUE ***
                     const { error: updateError } = await sb.from('paquetes_cargados').update({ cargados: true }).eq('tracking', paqueteCargadoActual.tracking);
 
                     if(updateError) {
@@ -321,7 +346,7 @@
                     }
                     
                     resetFormularioPrincipal();
-                    await cargarPaquetesPendientes(); // Refresca la lista de pendientes
+                    await cargarPaquetesPendientes();
                 });
 
                 formManual.addEventListener('submit', async (e) => {
@@ -357,24 +382,10 @@
                     formManual.reset();
                 });
                 
-                manualCasilleroInput.addEventListener('change', async (e) => {
-                    const terminoBusqueda = e.target.value.trim();
-                    if (!terminoBusqueda) return;
-                    const isNumeric = !isNaN(terminoBusqueda);
-                    let query = sb.from('clientes').select('nombre, box, sucursal');
-                    if(isNumeric) query = query.eq('box', parseInt(terminoBusqueda));
-                    else query = query.ilike('nombre', `%${terminoBusqueda}%`);
-                    const { data, error } = await query.limit(1).maybeSingle();
-                    if(data) {
-                        clienteManualSeleccionado = data;
-                        manualClienteInfoInput.value = `${data.nombre} (Box: ${data.box})`;
-                    } else {
-                        clienteManualSeleccionado = null;
-                        manualClienteInfoInput.value = "No encontrado";
-                    }
-                });
-
+                // --- MANEJO DE EVENTOS (LISTENERS) ---
                 trackingInput.addEventListener('change', (e) => buscarPaqueteCargado(e.target.value.trim()));
+                casilleroSearchInput.addEventListener('change', (e) => buscarCliente(e.target.value.trim(), false));
+                manualCasilleroInput.addEventListener('change', (e) => buscarCliente(e.target.value.trim(), true));
 
                 openManualModalBtn.addEventListener('click', () => {
                     formManual.reset();
@@ -396,7 +407,6 @@
                     trackingInput.focus();
                 }
                 
-                // Carga inicial de la tabla de pendientes
                 cargarPaquetesPendientes();
 
             } catch (error) {
@@ -407,4 +417,5 @@
     </script>
 </body>
 </html>
+
 
