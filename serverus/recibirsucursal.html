@@ -68,7 +68,7 @@
                                 <input type="text" id="tracking-main" placeholder="Ingresar o escanear tracking..." class="w-full text-lg pl-4 pr-24 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500">
                             </div>
                             <div id="info-paquete-cargado" class="hidden mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
-                                <div class="info-grid-item col-span-2 md:col-span-3"><p class="info-grid-label">ID Registro</p><p id="info-id" class="info-grid-value truncate"></p></div>
+                                <!-- CAMPO ID REGISTRO ELIMINADO -->
                                 <div class="info-grid-item"><p class="info-grid-label">Fecha Bodega (Carga)</p><p id="info-fecha" class="info-grid-value"></p></div>
                                 <div class="info-grid-item"><p class="info-grid-label">Status (Carga)</p><p id="info-status" class="info-grid-value"></p></div>
                                 <div class="info-grid-item"><p class="info-grid-label">Casillero (Carga)</p><p id="info-box" class="info-grid-value"></p></div>
@@ -79,7 +79,6 @@
                         <div id="step2" class="form-section">
                             <h2 class="text-lg font-semibold text-slate-700 mb-4">2. Cliente Asignado</h2>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- CAMPO DE BÚSQUEDA MANUAL AÑADIDO -->
                                 <div>
                                     <label for="casillero-search" class="block text-sm font-medium text-slate-600 mb-1">Buscar Cliente (Casillero/Nombre)</label>
                                     <input type="text" id="casillero-search" class="w-full p-2 border border-slate-300 rounded-md">
@@ -177,7 +176,7 @@
                 const formRecibir = document.getElementById('form-recibir');
                 const trackingInput = document.getElementById('tracking-main');
                 const infoPaqueteDiv = document.getElementById('info-paquete-cargado');
-                const casilleroSearchInput = document.getElementById('casillero-search'); // NUEVO INPUT
+                const casilleroSearchInput = document.getElementById('casillero-search');
                 const clienteInput = document.getElementById('cliente');
                 const sucursalInput = document.getElementById('sucursal');
                 const step2 = document.getElementById('step2');
@@ -246,7 +245,7 @@
 
                         paqueteCargadoActual = data;
                         
-                        document.getElementById('info-id').textContent = data.id || 'N/A';
+                        // CAMPO ID ELIMINADO DE LA LÓGICA
                         document.getElementById('info-fecha').textContent = fmtDate(data.fecha_bodega);
                         document.getElementById('info-status').textContent = data.status || 'N/A';
                         document.getElementById('info-box').textContent = data.cliente_box || 'N/A';
@@ -254,7 +253,6 @@
                         document.getElementById('info-valor').textContent = data.valor ? `$${Number(data.valor).toFixed(2)}` : 'N/A';
                         infoPaqueteDiv.classList.remove('hidden');
 
-                        // Lógica de búsqueda automática/manual
                         if (data.cliente_box) {
                             casilleroSearchInput.value = data.cliente_box;
                             await buscarCliente(data.cliente_box, false);
@@ -271,11 +269,12 @@
                     }
                 }
 
-                // FUNCIÓN DE BÚSQUEDA DE CLIENTE REFACTORIZADA
                 async function buscarCliente(terminoBusqueda, esManual = false) {
                     if (!terminoBusqueda || terminoBusqueda.length < 1) {
-                        clienteSeleccionado = null;
-                        actualizarInfoClienteUI();
+                        if (!esManual) {
+                           clienteSeleccionado = null;
+                           actualizarInfoClienteUI();
+                        }
                         return;
                     };
 
@@ -423,3 +422,4 @@
     </script>
 </body>
 </html>
+
