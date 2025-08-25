@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGL1 - Anaqueles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-link.active { background-color: #ecfdf5; color: #059669; font-weight: 600; }
+        .code { font-size: 13px; font-weight: 600; color: #94a3b8; margin-right: 12px; background-color: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
+        #sidebar { transition: transform 0.3s ease-in-out; }
+        .modal-backdrop { transition: opacity 0.3s ease-in-out; }
+        .modal-content { transition: all 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="relative min-h-screen md:flex">
+        <div class="bg-white text-slate-800 flex justify-between md:hidden sticky top-0 z-20 shadow-md">
+            <a href="./index.html" class="block p-4 font-bold">SGL1</a>
+            <button id="mobile-menu-button" class="p-4 focus:outline-none focus:bg-slate-200">
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+            </button>
+        </div>
+
+        <div id="menu-container"></div>
+
+        <main class="flex-1 p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-slate-900 flex items-center"><span class="code">[AD-04]</span>Gestión de Anaqueles</h1>
+                <button id="add-anaquel-btn" class="bg-emerald-500 text-white font-semibold py-2 px-4 rounded-md">Crear Anaquel</button>
+            </div>
+            <div class="bg-white rounded-lg border overflow-x-auto">
+                <table class="w-full text-sm whitespace-nowrap">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left">Nombre del Anaquel</th>
+                            <th class="px-6 py-3 text-left">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="2" class="text-center p-4 text-slate-500">Cargando anaqueles...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="add-anaquel-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40 modal-backdrop">
+                <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6 modal-content">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 id="modalTitle" class="text-xl font-bold text-slate-800">Crear Nuevo Anaquel</h2>
+                        <button class="close-modal text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
+                    </div>
+                    <form id="formAnaquel">
+                        <div class="space-y-4">
+                            <div>
+                                <label for="anaquel_nombre" class="block text-sm font-medium text-slate-600 mb-1">Nombre del Anaquel</label>
+                                <input id="anaquel_nombre" type="text" class="w-full p-2 border border-slate-300 rounded-md" required placeholder="Ej: A-01">
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-4 pt-4 mt-4 border-t">
+                            <button type="button" class="close-modal bg-slate-100 text-slate-700 font-semibold py-2 px-4 rounded-md hover:bg-slate-200">Cancelar</button>
+                            <button type="submit" class="bg-emerald-500 text-white font-semibold py-2 px-6 rounded-md hover:bg-emerald-600">Guardar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+        // ===== INICIALIZACIÓN DE LA INTERFAZ (UI) =====
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeModal('add-anaquel-btn', 'add-anaquel-modal', 'close-modal');
+            initializeDatabaseLogic();
+        });
+
+        function initializeModal(openBtnId, modalId, closeBtnClass) {
+            const openBtn = document.getElementById(openBtnId);
+            const modal = document.getElementById(modalId);
+            const form = document.getElementById('formAnaquel');
+            const modalTitle = document.getElementById('modalTitle');
+            const closeBtns = modal.querySelectorAll(`.${closeBtnClass}`);
+            
+            if (openBtn && modal) {
+                openBtn.addEventListener('click', () => {
+                    if(form) form.reset();
+                    if(modalTitle) modalTitle.textContent = "Crear Nuevo Anaquel";
+                    modal.classList.remove('hidden');
+                });
+                closeBtns.forEach(btn => {
+                    btn.addEventListener('click', () => modal.classList.add('hidden'));
+                });
+            }
+        }
+
+        // ===== LÓGICA DE LA BASE DE DATOS (SUPABASE) =====
+        function initializeDatabaseLogic() {
+            try {
+                const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
+                const tableBody = document.querySelector("table tbody");
+                const modalEl = document.getElementById('add-anaquel-modal');
+                const modalTitle = document.getElementById('modalTitle');
+                const form = document.getElementById('formAnaquel');
+                const fldNombre = document.getElementById('anaquel_nombre');
+                let editingId = null;
+
+                function renderAnaqueles(anaqueles) {
+                    if (!anaqueles || anaqueles.length === 0) {
+                        tableBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-slate-500">No hay anaqueles definidos.</td></tr>`;
+                        return;
+                    }
+                    tableBody.innerHTML = anaqueles.map(a => `
+                        <tr class="bg-white border-b hover:bg-slate-50">
+                            <td class="px-6 py-4 font-medium text-slate-900">${a.nombre || ''}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    <button class="text-xs bg-blue-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-blue-600" data-edit='${JSON.stringify(a)}'>Editar</button>
+                                    <button class="text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-red-600" data-del="${a.id}">Eliminar</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+
+                async function cargarAnaqueles() {
+                    const { data, error } = await sb.from('anaqueles').select('*').order('nombre');
+                    if (error) {
+                        console.error("Error cargando anaqueles:", error);
+                        tableBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-red-500">Error al cargar anaqueles.</td></tr>`;
+                        return;
+                    }
+                    renderAnaqueles(data);
+                }
+
+                function resetModal() {
+                    editingId = null;
+                    modalTitle.textContent = "Crear Nuevo Anaquel";
+                    form.reset();
+                }
+
+                function abrirEditar(anaquelData) {
+                    const data = JSON.parse(anaquelData);
+                    editingId = data.id;
+                    modalTitle.textContent = `Editar Anaquel`;
+                    fldNombre.value = data.nombre || "";
+                    modalEl.classList.remove('hidden');
+                }
+
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const payload = {
+                        nombre: fldNombre.value.trim()
+                    };
+
+                    if (!payload.nombre) {
+                        alert("El nombre del anaquel es obligatorio.");
+                        return;
+                    }
+
+                    let error;
+                    if (editingId) {
+                        const { error: updateError } = await sb.from('anaqueles').update(payload).eq('id', editingId);
+                        error = updateError;
+                    } else {
+                        const { error: insertError } = await sb.from('anaqueles').insert(payload);
+                        error = insertError;
+                    }
+
+                    if (error) {
+                        console.error("Error al guardar:", error);
+                        alert("Error al guardar el anaquel.");
+                        return;
+                    }
+
+                    modalEl.classList.add('hidden');
+                    await cargarAnaqueles();
+                    alert("Anaquel guardado ✅");
+                });
+
+                async function eliminar(id) {
+                    if (!confirm("¿Eliminar este anaquel?")) return;
+                    const { error } = await sb.from('anaqueles').delete().eq('id', id);
+                    if (error) {
+                        console.error("Error al eliminar:", error);
+                        alert("No se pudo eliminar el anaquel.");
+                        return;
+                    }
+                    await cargarAnaqueles();
+                    alert("Anaquel eliminado 🗑️");
+                }
+
+                document.getElementById('add-anaquel-btn').addEventListener('click', resetModal);
+                
+                tableBody.addEventListener('click', (e) => {
+                    const editButton = e.target.closest('[data-edit]');
+                    const deleteButton = e.target.closest('[data-del]');
+                    if (editButton) {
+                        abrirEditar(editButton.dataset.edit);
+                    }
+                    if (deleteButton) {
+                        eliminar(deleteButton.dataset.del);
+                    }
+                });
+
+                cargarAnaqueles();
+
+            } catch (error) {
+                console.error("Error al inicializar Supabase. Verifica que tu archivo config.js esté presente y sea correcto.", error);
+                const tableBody = document.querySelector("table tbody");
+                if(tableBody) tableBody.innerHTML = `<tr><td colspan="2" class="text-center p-4"><p class="text-red-500 font-semibold">Error de conexión a la base de datos.</p><p class="text-slate-500 mt-2">Verifica la consola para más detalles.</p></td></tr>`;
+            }
+        }
+    </script>
+</body>
+</html>
