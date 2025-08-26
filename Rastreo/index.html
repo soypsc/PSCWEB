@@ -1,952 +1,947 @@
-<!DOCTYPE html> 
- <html lang="es"> 
- <head> 
-     <meta charset="UTF-8" /> 
-     <meta name="viewport" content="width=device-width, initial-scale=1.0"/> 
-     <title>Panama Shipping Co. - Historial de Seguimiento</title> 
-      
-     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"> 
-     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap"> 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Panama Shipping Co. - Historial de Seguimiento</title>
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
 
-     <style> 
-         /* ====================================================================== */ 
-         /* Estilos Globales y Reseteo */ 
-         /* ====================================================================== */ 
-         * { 
-             margin: 0; 
-             padding: 0; 
-             box-sizing: border-box; 
-         } 
+    <style>
+        /* ====================================================================== */
+        /* Estilos Globales y Reseteo */
+        /* ====================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-         html, body { 
-             height: 100%; 
-         } 
+        html, body {
+            height: 100%;
+        }
 
-         body { 
-             font-family: 'Poppins', sans-serif; 
-             background-color: #fff; 
-             color: #000; 
-             line-height: 1.6; 
-             overflow-x: hidden; 
-             display: flex; 
-             flex-direction: column; 
-             min-height: 100vh; 
-         } 
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #fff;
+            color: #000;
+            line-height: 1.6;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
 
-         a { 
-             text-decoration: none; 
-             color: inherit; 
-         } 
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
 
-         /* ====================================================================== */ 
-         /* Variables CSS (Colores, etc.) */ 
-         /* ====================================================================== */ 
-         :root{ 
-             --blue-1:#2325d4; 
-             --blue-2:#1a1cb3; 
-             --accent:#ffec00; 
-             --bg:#fff; 
-             --muted:#777; 
-             --card-border:#e6e6ee; 
-             --shadow: 0 6px 30px rgba(0,0,0,0.06); 
-             --radius:12px; 
-             --max-width:1200px; 
-             --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; 
-             --ok:#34c759; 
-             --err:#ff3b30; 
-             --warn:#ffd60a; 
-             --orange:#ff9500; 
-             --chip:#f5f5f7; 
-         } 
+        /* ====================================================================== */
+        /* Variables CSS (Colores, etc.) */
+        /* ====================================================================== */
+        :root{
+            --blue-1:#2325d4;
+            --blue-2:#1a1cb3;
+            --accent:#ffec00;
+            --bg:#fff;
+            --muted:#777;
+            --card-border:#e6e6ee;
+            --shadow: 0 6px 30px rgba(0,0,0,0.06);
+            --radius:12px;
+            --max-width:1200px;
+            --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+            --ok:#34c759;
+            --err:#ff3b30;
+            --warn:#ffd60a;
+            --orange:#ff9500;
+            --chip:#f5f5f7;
+        }
 
-         /* ====================================================================== */ 
-         /* INICIO: ESTILOS INTEGRADOS PARA HEADER Y FAB                          */ 
-         /* ====================================================================== */ 
+        /* ====================================================================== */
+        /* INICIO: ESTILOS INTEGRADOS PARA HEADER Y FAB                          */
+        /* ====================================================================== */
 
-         /* --- Estilos del Header --- */ 
-         header { 
-             background: linear-gradient(135deg, var(--blue-1), var(--blue-2)); 
-             color: white; 
-             position: fixed; 
-             width: 100%; 
-             top: 0; 
-             left: 0; 
-             z-index: 1000; 
-             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); 
-             height: 100px; 
-             display: flex; 
-             align-items: center; 
-             justify-content: center; 
-             padding: 0 25px; 
-             transition: height 0.3s ease, background-color 0.3s ease; 
-         } 
+        /* --- Estilos del Header --- */
+        header {
+            background: linear-gradient(135deg, var(--blue-1), var(--blue-2));
+            color: white;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 25px;
+            transition: height 0.3s ease, background-color 0.3s ease;
+        }
 
-         header.scrolled { 
-             height: 80px; 
-             background: var(--blue-1); 
-             box-shadow: 0 6px 20px rgba(0,0,0,0.15); 
-         } 
+        header.scrolled {
+            height: 80px;
+            background: var(--blue-1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
 
-         .header-inner { 
-             max-width: var(--max-width); 
-             width: 100%; 
-             display: flex; 
-             align-items: center; 
-             justify-content: space-between; 
-         } 
+        .header-inner {
+            max-width: var(--max-width);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-         .logo { 
-             height: 100%; 
-             display: flex; 
-             align-items: center; 
-             flex-shrink: 0; 
-         } 
+        .logo {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
 
-         .logo img { 
-             max-height: 180px; 
-             width: auto; 
-             object-fit: contain; 
-             user-select: none; 
-             pointer-events: none; 
-             transition: max-height 0.3s ease; 
-         } 
+        .logo img {
+            max-height: 180px;
+            width: auto;
+            object-fit: contain;
+            user-select: none;
+            pointer-events: none;
+            transition: max-height 0.3s ease;
+        }
 
-         header.scrolled .logo img { 
-             max-height: 140px; 
-         } 
+        header.scrolled .logo img {
+            max-height: 140px;
+        }
 
-         .desktop-nav { 
-             display: flex; 
-             gap: 20px; 
-             align-items: center; 
-         } 
+        .desktop-nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
 
-         .desktop-nav a { 
-             color: white; 
-             font-weight: 500; 
-             font-size: 14px; 
-             position: relative; 
-             transition: color 0.3s ease, transform 0.2s ease; 
-         } 
+        .desktop-nav a {
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+            position: relative;
+            transition: color 0.3s ease, transform 0.2s ease;
+        }
 
-         .desktop-nav a:hover { 
-             color: var(--accent); 
-             transform: translateY(-2px); 
-         } 
+        .desktop-nav a:hover {
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
 
-         .header-buttons { 
-             display: flex; 
-             gap: 10px; 
-             align-items: center; 
-         } 
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
 
-         .btn-header { 
-             background: var(--accent); 
-             color: var(--blue-1); 
-             padding: 8px 18px; 
-             border-radius: var(--radius); 
-             font-weight: 600; 
-          Dt-size: 13px; 
-             transition: all 0.3s ease; 
-             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-             white-space: nowrap; 
-         } 
+        .btn-header {
+            background: var(--accent);
+            color: var(--blue-1);
+            padding: 8px 18px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+        }
 
-         .btn-header:hover { 
-             background: #e6d800; 
-             transform: translateY(-2px); 
-             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); 
-         } 
+        .btn-header:hover {
+            background: #e6d800;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
 
-         .onda { 
-             position: absolute; 
-             bottom: -1px; 
-             left: 0; 
-             width: 100%; 
-             height: 20px; 
-             background: url('data:image/svg+xml;utf8,<svg width="100%" height="20" viewBox="0 0 1440 20" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0,10 C360,20 720,0 1440,10 L1440,20 L0,20 Z" /></svg>') no-repeat bottom; 
-             background-size: cover; 
-             z-index: -1; 
-             transition: opacity 0.3s ease; 
-         } 
+        .onda {
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg width="100%" height="20" viewBox="0 0 1440 20" xmlns="http://www.w3.org/2000/svg"><path fill="%23fff" d="M0,10 C360,20 720,0 1440,10 L1440,20 L0,20 Z" /></svg>') no-repeat bottom;
+            background-size: cover;
+            z-index: -1;
+            transition: opacity 0.3s ease;
+        }
 
-         header.scrolled .onda { 
-             opacity: 0; 
-         } 
+        header.scrolled .onda {
+            opacity: 0;
+        }
 
-         .dropdown { 
-             position: relative; 
-             display: inline-block; 
-         } 
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
 
-         .dropdown-content { 
-             display: none; 
-             position: absolute; 
-             background-color: var(--blue-1); 
-             min-width: 200px; 
-             box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.25); 
-             border-radius: var(--radius); 
-             z-index: 10002; 
-             overflow: hidden; 
-             margin-top: 10px; 
-         } 
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--blue-1);
+            min-width: 200px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.25);
+            border-radius: var(--radius);
+            z-index: 10002;
+            overflow: hidden;
+            margin-top: 10px;
+        }
 
-         .dropdown-content a { 
-             color: white; 
-             padding: 10px 16px; 
-             display: block; 
-             font-size: 14px; 
-             transition: background-color 0.3s ease, color 0.3s ease; 
-         } 
+        .dropdown-content a {
+            color: white;
+            padding: 10px 16px;
+            display: block;
+            font-size: 14px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
 
-         .dropdown-content a:hover { 
-             background-color: var(--blue-2); 
-             color: var(--accent); 
-         } 
+        .dropdown-content a:hover {
+            background-color: var(--blue-2);
+            color: var(--accent);
+        }
 
-         .dropdown:hover .dropdown-content { 
-             display: block; 
-         } 
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
 
-         body { 
-             padding-top: 100px; 
-         } 
+        body {
+            padding-top: 100px;
+        }
 
-         /* --- Estilos del FAB --- */ 
-         .fab-container { 
-             position: fixed; 
-             bottom: 20px; 
-             right: 20px; 
-             z-index: 1000; 
-         } 
-         .fab-screen-overlay { 
-             position: fixed; 
-             top: 0; 
-             left: 0; 
-             width: 100%; 
-             height: 100%; 
-             background-color: rgba(240, 240, 240, 0.8); 
-             z-index: 999; 
-             opacity: 0; 
-             pointer-events: none; 
-             transition: opacity 0.3s ease; 
-         } 
-         .fab-screen-overlay.show { 
-             opacity: 1; 
-             pointer-events: auto; 
-         } 
-         .fab-main-button { 
-             position: relative; 
-             z-index: 1002; 
-          `dth: 60px; 
-             height: 60px; 
-             border-radius: 50%; 
-             background-color: red; 
-             color: white; 
-             border: none; 
-             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25); 
-             display: flex; 
-             align-items: center; 
-             justify-content: center; 
-             cursor: pointer; 
-             transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), box-shadow 0.3s ease, background-color 0.3s ease; 
-         } 
-         .fab-main-button:hover { 
-             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35); 
-             transform: scale(1.05); 
-             background-color: var(--blue-2); 
-         } 
-         .fab-main-button .plus-icon { 
-             width: 30px; 
-             height: 30px; 
-             transition: transform 0.3s ease-in-out; 
-         } 
-         .fab-container.open .fab-main-button .plus-icon { 
-             transform: rotate(45deg); 
-         } 
-         .fab-actions { 
-             position: absolute; 
-             bottom: 70px; 
-             right: 0; 
-             display: flex; 
-             flex-direction: column; 
-             gap: 15px; 
-             align-items: flex-end; 
-             transform: scale(0); 
-             transform-origin: bottom right; 
-             transition: transform 0.3s ease-out; 
-             z-index: 1001; 
-         } 
-         .fab-container.open .fab-actions { 
-             transform: scale(1); 
-         } 
-         .fab-action-item { 
-             display: flex; 
-             flex-direction: row-reverse; 
-             align-items: center; 
-             gap: 10px; 
-             transition: opacity 0.3s ease-out, transform 0.3s ease-out; 
-             opacity: 0; 
-             transform: translateX(20px); 
-         } 
-         .fab-container.open .fab-action-item { 
-             opacity: 1; 
-             transform: translateX(0); 
-         } 
-         .fab-container.open .home-action { transition-delay: 0.30s; } 
-         .fab-container.open .giftcard-action { transition-delay: 0.25s; } 
-         .fab-container.open .whatsapp-action { transition-delay: 0.20s; } 
-         .fab-container.open .tracker-action { transition-delay: 0.15s; } 
-         .fab-container.open .ml-action { transition-delay: 0.10s; } 
-         .fab-container.open .quotes-action { transition-delay: 0.05s; } 
+        /* --- Estilos del FAB --- */
+        .fab-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .fab-screen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(240, 240, 240, 0.8);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .fab-screen-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .fab-main-button {
+            position: relative;
+            z-index: 1002;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: red;
+            color: white;
+            border: none;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+        .fab-main-button:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+            transform: scale(1.05);
+            background-color: var(--blue-2);
+        }
+        .fab-main-button .plus-icon {
+            width: 30px;
+            height: 30px;
+            transition: transform 0.3s ease-in-out;
+        }
+        .fab-container.open .fab-main-button .plus-icon {
+            transform: rotate(45deg);
+        }
+        .fab-actions {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-end;
+            transform: scale(0);
+            transform-origin: bottom right;
+            transition: transform 0.3s ease-out;
+            z-index: 1001;
+        }
+        .fab-container.open .fab-actions {
+            transform: scale(1);
+        }
+        .fab-action-item {
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            gap: 10px;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        .fab-container.open .fab-action-item {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .fab-container.open .home-action { transition-delay: 0.30s; }
+        .fab-container.open .giftcard-action { transition-delay: 0.25s; }
+        .fab-container.open .whatsapp-action { transition-delay: 0.20s; }
+        .fab-container.open .tracker-action { transition-delay: 0.15s; }
+        .fab-container.open .ml-action { transition-delay: 0.10s; }
+        .fab-container.open .quotes-action { transition-delay: 0.05s; }
 
-         .fab-circular-button { 
-             width: 55px; 
-             height: 55px; 
-             border-radius: 50%; 
-             background-color: var(--blue-1); 
-             color: white; 
-             border: none; 
-             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); 
-             display: flex; 
-             align-items: center; 
-             justify-content: center; 
-             cursor: pointer; 
-             flex-shrink: 0; 
-             transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; 
-         } 
-         .fab-circular-button:hover { 
-             background-color: var(--blue-2); 
-             transform: scale(1.1); 
-             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25); 
-         } 
-         .fab-circular-button svg { 
-             width: 30px; 
-             height: 30px; 
-             fill: currentColor; 
-         } 
-         .fab-action-label { 
-             background-color: white; 
-             color: var(--blue-1); 
-             padding: 8px 12px; 
-             border-radius: 18px; 
-             font-size: 13px; 
-             font-weight: 600; 
-             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); 
-             cursor: pointer; 
-             transition: transform 0.2s ease, box-shadow 0.2s ease; 
-             white-space: nowrap; 
-         } 
-         .fab-action-label:hover { 
-             transform: translateY(-2px); 
-             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); 
-         } 
+        .fab-circular-button {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background-color: var(--blue-1);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .fab-circular-button:hover {
+            background-color: var(--blue-2);
+            transform: scale(1.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+        }
+        .fab-circular-button svg {
+            width: 30px;
+            height: 30px;
+            fill: currentColor;
+        }
+        .fab-action-label {
+            background-color: white;
+            color: var(--blue-1);
+            padding: 8px 12px;
+            border-radius: 18px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            white-space: nowrap;
+        }
+        .fab-action-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
 
-         /* --- Media Queries para Responsive --- */ 
-         @media (max-width: 900px) { 
-             .desktop-nav { 
-                 display: none; 
-             } 
-             header, header.scrolled { 
-                 height: 90px; 
-             } 
-             body { 
-                 padding-top: 90px; 
-             } 
-             .logo img { 
-                 max-height: 160px; 
-             } 
-             header.scrolled .logo img { 
-                 max-height: 120px; 
-             } 
-             .btn-header { 
-                 padding: 6px 12px; 
-                 font-size: 12px; 
-             } 
-         } 
+        /* --- Media Queries para Responsive --- */
+        @media (max-width: 900px) {
+            .desktop-nav {
+                display: none;
+            }
+            header, header.scrolled {
+                height: 90px;
+            }
+            body {
+                padding-top: 90px;
+            }
+            .logo img {
+                max-height: 160px;
+            }
+            header.scrolled .logo img {
+                max-height: 120px;
+            }
+            .btn-header {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
 
-         /* ====================================================================== */ 
-         /* FIN: ESTILOS INTEGRADOS PARA HEADER Y FAB                              */ 
-         /* ====================================================================== */ 
+        /* ====================================================================== */
+        /* FIN: ESTILOS INTEGRADOS PARA HEADER Y FAB                              */
+        /* ====================================================================== */
 
-         /* ====================================================================== */ 
-         /* Estilos del Contenido Principal (Módulo de Rastreo) */ 
-         /* ====================================================================== */ 
-         main.content { 
-             flex-grow: 1; 
-         } 
-         .psc-embed{ 
-             --card:#fbfbfd; 
-             --ink:#1c1c1e; 
-             --muted:#6e6e73; 
-             --line:#e7e7ed; 
-             --shadow:0 1px 2px rgba(0,0,0,.06), 0 8px 30px rgba(0,0,0,.04); 
-             --radius:16px; 
-             --chip:#f5f5f7; 
-             --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; 
-             color:var(--ink); 
-         } 
-         .psc-wrap{max-width:1100px;margin:28px auto;padding:0 16px} 
-         .psc-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden} 
-         .psc-head{ 
-             display: grid; 
-             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
-             gap: 16px; 
-             align-items: start; 
-             padding: 18px; 
-             border-bottom: 1px solid var(--line); 
-             background: #fff; 
-         } 
-         .psc-searchBox{position:relative;max-width:660px} 
-         .psc-searchBox label{display:block;font-size:18px;color:var(--ink);font-weight:800;margin-bottom:10px} 
-         .psc-inputRow{position:relative} 
-         .psc-input{ 
-             width:100%; 
-             appearance:none;-webkit-appearance:none; 
-             border:1px solid var(--line); 
-             background:#fff;color:var(--ink); 
-             border-radius:14px; 
-             padding:14px 160px 14px 16px; 
-             outline:none; 
-             transition:border .2s ease, box-shadow .2s ease; 
-             font-size:16px; height:54px; 
-         } 
-         .psc-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(10,132,255,.12)} 
-         .psc-btn{ 
-             position:absolute;top:50%;right:10px;transform:translateY(-50%); 
-             height:46px;padding:0 20px;border:none;border-radius:999px; 
-             background:#111;color:#fff;font-weight:700;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.12) 
-         } 
-         .psc-help{font-size:12px;color:var(--muted);margin-top:6px} 
-         .psc-qsum{display:grid;grid-template-columns:1fr;gap:6px;align-content:start;text-align:right;font-family:var(--font)} 
-         .psc-qrow { 
-             display: flex; 
-             gap: 8px; 
-             align-items: flex-start; 
-             justify-content: space-between; 
-             font-size: 14px; 
-         } 
-         .psc-qrow span{color:var(--muted);min-width:90px; padding-top:2px;} 
-         .psc-qrow b {font-weight: 700; word-break: break-all;} 
-         .psc-alts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end} 
-         .psc-altChip{ 
-             display:inline-flex;align-items:center;gap:6px; 
-             background:#fff;border:1px solid var(--line); 
-             border-radius:999px;padding:6px 10px;font-size:12px; 
-             box-shadow:0 1px 3px rgba(0,0,0,.04) 
-         } 
-         .psc-altChip code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:12px} 
-         .psc-altChip button{ 
-             border:none;background:#111;color:#fff;border-radius:999px; 
-             padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer 
-         } 
-         .psc-state{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px dashed var(--line);background:#fff} 
-         .psc-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--line)} 
-         .psc-dot.ok{background:var(--ok);border-color:var(--ok)} 
-         .psc-dot.err{background:var(--err);border-color:var(--err)} 
-         .psc-dot.warn{background:var(--warn);border-color:var(--warn)} 
-         .psc-spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--ink);animation:spin 1s linear infinite} 
-         @keyframes spin{to{transform:rotate(360deg)}} 
-         .psc-grid{display:grid;grid-template-columns:1fr;gap:18px;padding:18px;background:linear-gradient(#fff,#fafafa)} 
-         .psc-panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 14px 16px} 
-         .psc-titleRow{display:flex;justify-content:space-between;align-items:center;margin:4px 6px 12px} 
-         .psc-titleRow h3{margin:0;font-size:16px} 
-         .psc-pill{background:var(--chip);border:1px solid var(--line);padding:6px 10px;border-radius:999px;font-size:12px;color:#000} 
-         .psc-timeline{position:relative;padding-left:22px} 
-         .psc-timeline::before{content:"";position:absolute;left:10px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#e9e9ee,#dcdcde)} 
-         .psc-event{position:relative;margin:0 0 14px 0;padding:12px 12px 12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:0 0 0 rgba(0,0,0,0);transition:box-shadow .2s ease, background .2s ease} 
-         .psc-event:hover{background:#fafafa;box-shadow:0 4px 16px rgba(0,0,0,.05)} 
-         .psc-event::before{content:"";position:absolute;left:-6px;top:18px;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--line)} 
-         .psc-desc{font-weight:700;margin-bottom:6px} 
-         .psc-meta{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:12px;flex-wrap:wrap} 
-         .psc-icon{display:inline-flex;width:18px;height:18px;border-radius:6px;align-items:center;justify-content:center;border:1px solid var(--line);background:#fff} 
-         .psc-src-pn .psc-icon{border-color:rgba(255,149,0,.35);background:rgba(255,149,0,.10)} 
-         .psc-src-fz .psc-icon{border-color:rgba(255,214,10,.45);background:rgba(255,214,10,.16)} 
-         .psc-src-psc .psc-icon{border-color:rgba(10,132,255,.35);background:rgba(10,132,255,.12)} 
-         .psc-src-pn{border-left:3px solid var(--orange)} 
-         .psc-src-fz{border-left:3px solid var(--warn)} 
-         .psc-src-psc{border-left:3px solid var(--blue-1)} 
-         .psc-event.psc-src-pn::before{background:var(--orange);border-color:var(--orange)} 
-         .psc-event.psc-src-fz::before{background:var(--warn);border-color:var(--warn)} 
-         .psc-event.psc-src-psc::before { 
-             width: 24px; 
-             height: 24px; 
-             left: -14px; 
-             top: 10px; 
-             background: #fff; 
-             border-color: var(--blue-1); 
-             background-image: url('https://static.wixstatic.com/media/f7f5e1_66b4f06d762d42dd83ca81d5b63ba450~mv2.png'); 
-             background-size: 22px 22px; 
-             background-repeat: no-repeat; 
-             background-position: center; 
-         } 
-         .psc-more{display:flex;justify-content:center;margin-top:8px} 
-         .psc-more button{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer} 
-         .psc-btn-link { 
-             display: inline-block; 
-             background-color: var(--warn); 
-             color: var(--ink); 
-             padding: 6px 12px; 
-             border-radius: 8px; 
-             font-weight: 600; 
-             font-size: 13px; 
-             text-decoration: none; 
-             border: 1px solid rgba(0,0,0,0.1); 
-             box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
-             transition: all 0.2s ease-in-out; 
-             margin-left: 8px; 
-         } 
-         .psc-btn-link:hover { 
-             transform: translateY(-2px); 
-             box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
-             filter: brightness(1.05); 
-         } 
-         @media (max-width:900px){ 
-             .psc-head{grid-template-columns:1fr} 
-             .psc-qsum{text-align:left} 
-             .psc-alts{justify-content:flex-start} 
-         } 
+        /* ====================================================================== */
+        /* Estilos del Contenido Principal (Módulo de Rastreo) */
+        /* ====================================================================== */
+        main.content {
+            flex-grow: 1;
+        }
+        .psc-embed{
+            --card:#fbfbfd;
+            --ink:#1c1c1e;
+            --muted:#6e6e73;
+            --line:#e7e7ed;
+            --shadow:0 1px 2px rgba(0,0,0,.06), 0 8px 30px rgba(0,0,0,.04);
+            --radius:16px;
+            --chip:#f5f5f7;
+            --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+            color:var(--ink);
+        }
+        .psc-wrap{max-width:1100px;margin:28px auto;padding:0 16px}
+        .psc-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+        .psc-head{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+            align-items: start;
+            padding: 18px;
+            border-bottom: 1px solid var(--line);
+            background: #fff;
+        }
+        .psc-searchBox{position:relative;max-width:660px}
+        .psc-searchBox label{display:block;font-size:18px;color:var(--ink);font-weight:800;margin-bottom:10px}
+        .psc-inputRow{position:relative}
+        .psc-input{
+            width:100%;
+            appearance:none;-webkit-appearance:none;
+            border:1px solid var(--line);
+            background:#fff;color:var(--ink);
+            border-radius:14px;
+            padding:14px 160px 14px 16px;
+            outline:none;
+            transition:border .2s ease, box-shadow .2s ease;
+            font-size:16px; height:54px;
+        }
+        .psc-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(10,132,255,.12)}
+        .psc-btn{
+            position:absolute;top:50%;right:10px;transform:translateY(-50%);
+            height:46px;padding:0 20px;border:none;border-radius:999px;
+            background:#111;color:#fff;font-weight:700;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.12)
+        }
+        .psc-help{font-size:12px;color:var(--muted);margin-top:6px}
+        .psc-qsum{display:grid;grid-template-columns:1fr;gap:6px;align-content:start;text-align:right;font-family:var(--font)}
+        .psc-qrow {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        .psc-qrow span{color:var(--muted);min-width:90px; padding-top:2px;}
+        .psc-qrow b {font-weight: 700; word-break: break-all;}
+        .psc-alts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+        .psc-altChip{
+            display:inline-flex;align-items:center;gap:6px;
+            background:#fff;border:1px solid var(--line);
+            border-radius:999px;padding:6px 10px;font-size:12px;
+            box-shadow:0 1px 3px rgba(0,0,0,.04)
+        }
+        .psc-altChip code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:12px}
+        .psc-altChip button{
+            border:none;background:#111;color:#fff;border-radius:999px;
+            padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer
+        }
+        .psc-state{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px dashed var(--line);background:#fff}
+        .psc-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--line)}
+        .psc-dot.ok{background:var(--ok);border-color:var(--ok)}
+        .psc-dot.err{background:var(--err);border-color:var(--err)}
+        .psc-dot.warn{background:var(--warn);border-color:var(--warn)}
+        .psc-spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--ink);animation:spin 1s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .psc-grid{display:grid;grid-template-columns:1fr;gap:18px;padding:18px;background:linear-gradient(#fff,#fafafa)}
+        .psc-panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 14px 16px}
+        .psc-titleRow{display:flex;justify-content:space-between;align-items:center;margin:4px 6px 12px}
+        .psc-titleRow h3{margin:0;font-size:16px}
+        .psc-pill{background:var(--chip);border:1px solid var(--line);padding:6px 10px;border-radius:999px;font-size:12px;color:#000}
+        .psc-timeline{position:relative;padding-left:22px}
+        .psc-timeline::before{content:"";position:absolute;left:10px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#e9e9ee,#dcdcde)}
+        .psc-event{position:relative;margin:0 0 14px 0;padding:12px 12px 12px 14px;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:0 0 0 rgba(0,0,0,0);transition:box-shadow .2s ease, background .2s ease}
+        .psc-event:hover{background:#fafafa;box-shadow:0 4px 16px rgba(0,0,0,.05)}
+        .psc-event::before{content:"";position:absolute;left:-6px;top:18px;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--line)}
+        .psc-desc{font-weight:700;margin-bottom:6px}
+        .psc-meta{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:12px;flex-wrap:wrap}
+        .psc-icon{display:inline-flex;width:18px;height:18px;border-radius:6px;align-items:center;justify-content:center;border:1px solid var(--line);background:#fff}
+        .psc-src-pn .psc-icon{border-color:rgba(255,149,0,.35);background:rgba(255,149,0,.10)}
+        .psc-src-fz .psc-icon{border-color:rgba(255,214,10,.45);background:rgba(255,214,10,.16)}
+        .psc-src-psc .psc-icon{border-color:rgba(10,132,255,.35);background:rgba(10,132,255,.12)}
+        .psc-src-pn{border-left:3px solid var(--orange)}
+        .psc-src-fz{border-left:3px solid var(--warn)}
+        .psc-src-psc{border-left:3px solid var(--blue-1)}
+        .psc-event.psc-src-pn::before{background:var(--orange);border-color:var(--orange)}
+        .psc-event.psc-src-fz::before{background:var(--warn);border-color:var(--warn)}
+        .psc-event.psc-src-psc::before {
+            width: 24px;
+            height: 24px;
+            left: -14px;
+            top: 10px;
+            background: #fff;
+            border-color: var(--blue-1);
+            background-image: url('https://static.wixstatic.com/media/f7f5e1_66b4f06d762d42dd83ca81d5b63ba450~mv2.png');
+            background-size: 22px 22px;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        .psc-more{display:flex;justify-content:center;margin-top:8px}
+        .psc-more button{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
+        .psc-btn-link {
+            display: inline-block;
+            background-color: var(--warn);
+            color: var(--ink);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            text-decoration: none;
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: all 0.2s ease-in-out;
+            margin-left: 8px;
+        }
+        .psc-btn-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            filter: brightness(1.05);
+        }
+        @media (max-width:900px){
+            .psc-head{grid-template-columns:1fr}
+            .psc-qsum{text-align:left}
+            .psc-alts{justify-content:flex-start}
+        }
 
-         /* ====================================================================== */ 
-         /* FOOTER (Plantilla PSC) */ 
-         /* ====================================================================== */ 
-         footer { 
-             background: #fff; 
-             color: #000; 
-             padding: 40px 20px; 
-             margin-top: auto; 
-             box-shadow: 0 -4px 15px rgba(0,0,0,0.08); 
-             flex-shrink: 0; 
-         } 
-         .footer-container { 
-             max-width: 1200px; 
-             margin: auto; 
-             display: grid; 
-             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-             gap: 30px; 
-         } 
-         .footer-col h3 { 
-             font-size: 1.2rem; 
-             margin-bottom: 12px; 
-             color: #333; 
-         } 
-         .footer-col p, .footer-col a { 
-             font-size: 14px; 
-             color: #555; 
-             transition: color 0.3s ease; 
-         } 
-         .footer-col a:hover { 
-             color: #2325d4; 
-         } 
-         .social-icons { 
-             display: flex; 
-             flex-direction: column; 
-             gap: 8px; 
-         } 
-         .footer-bottom { 
-             text-align: center; 
-             margin-top: 30px; 
-             font-size: 12px; 
-             color: #777; 
-             border-top: 1px solid rgba(0,0,0,0.1); 
-             padding-top: 15px; 
-         } 
+        /* ====================================================================== */
+        /* FOOTER (Plantilla PSC) */
+        /* ====================================================================== */
+        footer {
+            background: #fff;
+            color: #000;
+            padding: 40px 20px;
+            margin-top: auto;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
+            flex-shrink: 0;
+        }
+        .footer-container {
+            max-width: 1200px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        .footer-col h3 {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        .footer-col p, .footer-col a {
+            font-size: 14px;
+            color: #555;
+            transition: color 0.3s ease;
+        }
+        .footer-col a:hover {
+            color: #2325d4;
+        }
+        .social-icons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: #777;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            padding-top: 15px;
+        }
 
-     </style> 
+    </style>
 
- </head> 
- <body> 
+</head>
+<body>
 
-     <header id="main-header"> 
-         <div class="header-inner"> 
-             <div class="logo"> 
-                 <a href="/"><img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co."></a> 
-             </div> 
-             <nav class="desktop-nav"> 
-                 <a href="/">Inicio</a> 
-                 <a href="/Rastreo/">Rastreador de Paquetes</a> 
-                 <a href="/Cotizador/">Cotiza tus Compras</a> 
-                 <a href="/ML/">Mal identificado</a> 
-                 <div class="dropdown"> 
-                     <a href="#">Más ▾</a> 
-                     <div class="dropdown-content"> 
-                         <a href="/Tarjetas/">Tarjetas de Regalo</a> 
-                         <a href="/DG/">Mercancía Peligrosa</a> 
-                         <a href="/Politicas/">Términos y Condiciones</a> 
-                     </div> 
-                 </div> 
-             </nav> 
-             <div class="header-buttons"> 
-                 <a href="https://psc.e-rmez.com/zonacliente/" class="btn-header">Zona de Clientes</a> 
-                 <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-header">Regístrate</a> 
-             </div> 
-         </div> 
-         <div class="onda"></div> 
-     </header> 
-     <main class="content"> 
-         <div id="psc-embed" class="psc-embed"> 
-             <div class="psc-wrap"> 
-                 <div class="psc-card"> 
-                     <div class="psc-head"> 
-                         <div class="psc-searchBox"> 
-                             <label>Ingrese Tracking</label> 
-                             <div class="psc-inputRow"> 
-                                 <input id="psc_trk" class="psc-input" type="text" placeholder="Ej. 1Z48537W0441418748" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" /> 
-                                 <button id="psc_go" class="psc-btn">BUSCAR</button> 
-                             </div> 
-                             <div class="psc-help">Seguimiento en vivo de tus paquetes.</div> 
-                         </div> 
-                         <div class="psc-qsum"> 
-                             <div class="psc-qrow"><span>Tracking:</span><b id="psc_qsTracking">—</b></div> 
-                             <div class="psc-qrow"><span>Status:</span><b id="psc_qsStatus">—</b></div> 
-                             <div class="psc-qrow"><span>Courier:</span><b id="psc_qsCourier">—</b></div> 
-                             <div class="psc-qrow"><span>Peso:</span><b id="psc_qsPeso">—</b></div> 
-                             <div class="psc-qrow"> 
-                                 <span>Alterno(s):</span> 
-                                 <div id="psc_qsAlt" class="psc-alts">—</div> 
-                             </div> 
-                         </div> 
-                     </div> 
+    <header id="main-header">
+        <div class="header-inner">
+            <div class="logo">
+                <a href="/"><img src="https://static.wixstatic.com/media/f7f5e1_8e6b42f370a3408ea4c305089fadc49c~mv2.png" alt="Logo de Panama Shipping Co."></a>
+            </div>
+            <nav class="desktop-nav">
+                <a href="/">Inicio</a>
+                <a href="/Rastreo/">Rastreador de Paquetes</a>
+                <a href="/Cotizador/">Cotiza tus Compras</a>
+                <a href="/ML/">Mal identificado</a>
+                <div class="dropdown">
+                    <a href="#">Más ▾</a>
+                    <div class="dropdown-content">
+                        <a href="/Tarjetas/">Tarjetas de Regalo</a>
+                        <a href="/DG/">Mercancía Peligrosa</a>
+                        <a href="/Politicas/">Términos y Condiciones</a>
+                    </div>
+                </div>
+            </nav>
+            <div class="header-buttons">
+                <a href="https://psc.e-rmez.com/zonacliente/" class="btn-header">Zona de Clientes</a>
+                <a href="https://psc.e-rmez.com/casillero_register.php" class="btn-header">Regístrate</a>
+            </div>
+        </div>
+        <div class="onda"></div>
+    </header>
+    <main class="content">
+        <div id="psc-embed" class="psc-embed">
+            <div class="psc-wrap">
+                <div class="psc-card">
+                    <div class="psc-head">
+                        <div class="psc-searchBox">
+                            <label>Ingrese Tracking</label>
+                            <div class="psc-inputRow">
+                                <input id="psc_trk" class="psc-input" type="text" placeholder="Ej. 1Z48537W0441418748" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="text" />
+                                <button id="psc_go" class="psc-btn">BUSCAR</button>
+                            </div>
+                            <div class="psc-help">Seguimiento en vivo de tus paquetes.</div>
+                        </div>
+                        <div class="psc-qsum">
+                            <div class="psc-qrow"><span>Tracking:</span><b id="psc_qsTracking">—</b></div>
+                            <div class="psc-qrow"><span>Status:</span><b id="psc_qsStatus">—</b></div>
+                            <div class="psc-qrow"><span>Courier:</span><b id="psc_qsCourier">—</b></div>
+                            <div class="psc-qrow"><span>Peso:</span><b id="psc_qsPeso">—</b></div>
+                            <div class="psc-qrow">
+                                <span>Alterno(s):</span>
+                                <div id="psc_qsAlt" class="psc-alts">—</div>
+                            </div>
+                        </div>
+                    </div>
 
-                     <div class="psc-state"> 
-                         <div id="psc_stateDot" class="psc-dot"></div> 
-                         <div id="psc_stateSpin" class="psc-spin" style="display:none"></div> 
-                         <div id="psc_stateMsg">Listo.</div> 
-                     </div> 
+                    <div class="psc-state">
+                        <div id="psc_stateDot" class="psc-dot"></div>
+                        <div id="psc_stateSpin" class="psc-spin" style="display:none"></div>
+                        <div id="psc_stateMsg">Listo.</div>
+                    </div>
 
-                     <div class="psc-grid"> 
-                         <div class="psc-panel"> 
-                             <div class="psc-titleRow"> 
-                                 <h3>Historial de seguimiento</h3> 
-                                 <span class="psc-pill">Eventos: <b id="psc_evCount">0</b></span> 
-                             </div> 
-                             <div class="psc-timeline" id="psc_events"></div> 
-                             <div class="psc-more"><button id="psc_toggleMore" style="display:none">Mostrar más</button></div> 
-                         </div> 
-                     </div> 
-                 </div> 
-             </div> 
-         </div> 
-     </main> 
+                    <div class="psc-grid">
+                        <div class="psc-panel">
+                            <div class="psc-titleRow">
+                                <h3>Historial de seguimiento</h3>
+                                <span class="psc-pill">Eventos: <b id="psc_evCount">0</b></span>
+                            </div>
+                            <div class="psc-timeline" id="psc_events"></div>
+                            <div class="psc-more"><button id="psc_toggleMore" style="display:none">Mostrar más</button></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 
-     <footer> 
-         <div class="footer-container"> 
-             <div class="footer-col"> 
-                 <h3>Contacto</h3> 
-                 <p>Asistencia personalizada</p> 
-                 <div class="social-icons"> 
-                     <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a> 
-                     <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a> 
-                     <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a> 
-                 </div> 
-             </div> 
-             <div class="footer-col"> 
-                 <h3>Enlaces Rápidos</h3> 
-                 <a href="/Politicas/">Términos y Condiciones</a><br> 
-                 <a href="/DG/">Mercancía Restringida</a> 
-             </div> 
-             <div class="footer-col"> 
-                 <h3>Sobre Nosotros</h3> 
-                 <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p> 
-             </div> 
-         </div> 
-         <div class="footer-bottom"> 
-             &copy; 2024 Panama Shipping Co. Todos los derechos reservados. 
-         </div> 
-     </footer> 
+    <footer>
+        <div class="footer-container">
+            <div class="footer-col">
+                <h3>Contacto</h3>
+                <p>Asistencia personalizada</p>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/soypsc?igsh=MWQwdHl6eXJjcmRqYg%3D%3D&utm_source=qr" target="_blank" rel="noopener">📸 Instagram</a>
+                    <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener">📞 +507 67906781</a>
+                    <a href="mailto:info@soypsc.com">✉️ info@soypsc.com</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Enlaces Rápidos</h3>
+                <a href="/Politicas/">Términos y Condiciones</a><br>
+                <a href="/DG/">Mercancía Restringida</a>
+            </div>
+            <div class="footer-col">
+                <h3>Sobre Nosotros</h3>
+                <p>Panama Shipping Co. facilita tus compras en línea y envíos a Panamá con rapidez y seguridad.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2024 Panama Shipping Co. Todos los derechos reservados.
+        </div>
+    </footer>
 
-     <div class="fab-container"> 
-         <div class="fab-screen-overlay"></div> 
-         <div class="fab-actions"> 
-              <a href="/" class="fab-action-item home-action"> 
-                 <span class="fab-action-label">Inicio</span> 
-                 <button class="fab-circular-button"> 
-                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> 
-                 </button> 
-             </a> 
-              <a href="/Tarjetas/" class="fab-action-item giftcard-action"> 
-                 <span class="fab-action-label">Tarjetas Lbs</span> 
-                 <button class="fab-circular-button"> 
-                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg> 
-                 </button> 
-             </a> 
-             <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener" class="fab-action-item whatsapp-action"> 
-                 <span class="fab-action-label">WhatsApp</span> 
-                 <button class="fab-circular-button" style="background-color: #25D366;"> 
-                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01s-.52.074-.792.372c-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.289.173-1.414z"/></svg> 
-                 </button> 
-             </a> 
-             <a href="/Rastreo/" class="fab-action-item tracker-action"> 
-                 <span class="fab-action-label">Rastreador</span> 
-                 <button class="fab-circular-button"> 
-                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg> 
-                 </button> 
-             </a> 
-             <a href="/ML/" class="fab-action-item ml-action"> 
-                 <span class="fab-action-label">Mal Identificado</span> 
-                 <button class="fab-circular-button"> 
-                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg> 
-                 </button> 
-             </a> 
-             <a href="/Cotizador/" class="fab-action-item quotes-action"> 
-                 <span class="fab-action-label">Cotizador</span> 
-                 <button class="fab-circular-button"> 
-                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7V8h10v7zm-5-3c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg> 
-                 </button> 
-             </a> 
-         </div> 
-         <button class="fab-main-button"> 
-             <svg class="plus-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> 
-                 <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line> 
-             </svg> 
-         </button> 
-     </div> 
-     <script> 
-         document.addEventListener('DOMContentLoaded', () => { 
+    <div class="fab-container">
+        <div class="fab-screen-overlay"></div>
+        <div class="fab-actions">
+             <a href="/" class="fab-action-item home-action">
+                <span class="fab-action-label">Inicio</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                </button>
+            </a>
+             <a href="/Tarjetas/" class="fab-action-item giftcard-action">
+                <span class="fab-action-label">Tarjetas Lbs</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+                </button>
+            </a>
+            <a href="https://api.whatsapp.com/send?phone=50767906781&text=Hola%20quiero%20mas%20informacion" target="_blank" rel="noopener" class="fab-action-item whatsapp-action">
+                <span class="fab-action-label">WhatsApp</span>
+                <button class="fab-circular-button" style="background-color: #25D366;">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01s-.52.074-.792.372c-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.289.173-1.414z"/></svg>
+                </button>
+            </a>
+            <a href="/Rastreo/" class="fab-action-item tracker-action">
+                <span class="fab-action-label">Rastreador</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                </button>
+            </a>
+            <a href="/ML/" class="fab-action-item ml-action">
+                <span class="fab-action-label">Mal Identificado</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                </button>
+            </a>
+            <a href="/Cotizador/" class="fab-action-item quotes-action">
+                <span class="fab-action-label">Cotizador</span>
+                <button class="fab-circular-button">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 16H7v-2h10v2zm0-4H7V8h10v7zm-5-3c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>
+                </button>
+            </a>
+        </div>
+        <button class="fab-main-button">
+            <svg class="plus-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </button>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
 
-             // --- Funcionalidad del Header con efecto Scroll --- 
-             const header = document.getElementById('main-header'); 
-             if(header) { 
-                 window.addEventListener('scroll', () => { 
-                     if (window.scrollY > 50) { 
-                         header.classList.add('scrolled'); 
-                     } else { 
-                         header.classList.remove('scrolled'); 
-                     } 
-                 }); 
-             } 
+            // --- Funcionalidad del Header con efecto Scroll ---
+            const header = document.getElementById('main-header');
+            if(header) {
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 50) {
+                        header.classList.add('scrolled');
+                    } else {
+                        header.classList.remove('scrolled');
+                    }
+                });
+            }
 
-             // --- Funcionalidad del Menú FAB --- 
-             const fabContainer = document.querySelector('.fab-container'); 
-             if (fabContainer) { 
-                 const mainFabButton = fabContainer.querySelector('.fab-main-button'); 
-                 const overlay = fabContainer.querySelector('.fab-screen-overlay'); 
-                  
-                 function toggleFabMenu() { 
-                     fabContainer.classList.toggle('open'); 
-                     overlay.classList.toggle('show'); 
-                 } 
+            // --- Funcionalidad del Menú FAB ---
+            const fabContainer = document.querySelector('.fab-container');
+            if (fabContainer) {
+                const mainFabButton = fabContainer.querySelector('.fab-main-button');
+                const overlay = fabContainer.querySelector('.fab-screen-overlay');
+                
+                function toggleFabMenu() {
+                    fabContainer.classList.toggle('open');
+                    overlay.classList.toggle('show');
+                }
 
-                 mainFabButton.addEventListener('click', toggleFabMenu); 
-                 overlay.addEventListener('click', toggleFabMenu); 
-             } 
+                mainFabButton.addEventListener('click', toggleFabMenu);
+                overlay.addEventListener('click', toggleFabMenu);
+            }
 
-             // --- SCRIPT DEL MÓDULO DE RASTREO --- 
-             (function(){ 
-                 const root = document.getElementById('psc-embed'); 
-                 if (!root) return; 
+            // --- SCRIPT DEL MÓDULO DE RASTREO ---
+            (function(){
+                const root = document.getElementById('psc-embed');
+                if (!root) return;
 
-                 const params = new URLSearchParams(location.search); 
-                 const PARAM_ENDPOINT = params.get('endpoint'); 
-                 const PARAM_ANON = params.get('anon'); 
-                 const ENDPOINT = (PARAM_ENDPOINT || localStorage.getItem('psc:url') || "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/track_v2").trim(); 
-                 const ANON_KEY = (PARAM_ANON || localStorage.getItem('psc:anon') || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0ZGtheGJncG9ndWR0cmRnemljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NDE2MDYsImV4cCI6MjA3MDQxNzYwNn0.mpjY5nWiS48O0DAUkCL7Jl6agF6LurGneaY8d1u70Po").trim(); 
-                  
-                 const $ = (sel)=> root.querySelector(sel); 
-                 const trk = $('#psc_trk'); 
-                 const go = $('#psc_go'); 
-                 const dot = $('#psc_stateDot'); 
-                 const spin = $('#psc_stateSpin'); 
-                 const msg = $('#psc_stateMsg'); 
-                 const eventsEl = $('#psc_events'); 
-                 const evCountEl = $('#psc_evCount'); 
-                 const qsTracking = $('#psc_qsTracking'); 
-                 const qsStatus = $('#psc_qsStatus'); 
-                 const qsCourier = $('#psc_qsCourier'); 
-                 const qsPeso = $('#psc_qsPeso'); 
-                 const qsAlt = $('#psc_qsAlt'); 
-                 const toggleMoreBtn = $('#psc_toggleMore'); 
+                const params = new URLSearchParams(location.search);
+                const PARAM_ENDPOINT = params.get('endpoint');
+                const PARAM_ANON = params.get('anon');
+                const ENDPOINT = (PARAM_ENDPOINT || localStorage.getItem('psc:url') || "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/track_v2").trim();
+                const ANON_KEY = (PARAM_ANON || localStorage.getItem('psc:anon') || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0ZGtheGJncG9ndWR0cmRnemljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NDE2MDYsImV4cCI6MjA3MDQxNzYwNn0.mpjY5nWiS48O0DAUkCL7Jl6agF6LurGneaY8d1u70Po").trim();
+                
+                const $ = (sel)=> root.querySelector(sel);
+                const trk = $('#psc_trk');
+                const go = $('#psc_go');
+                const dot = $('#psc_stateDot');
+                const spin = $('#psc_stateSpin');
+                const msg = $('#psc_stateMsg');
+                const eventsEl = $('#psc_events');
+                const evCountEl = $('#psc_evCount');
+                const qsTracking = $('#psc_qsTracking');
+                const qsStatus = $('#psc_qsStatus');
+                const qsCourier = $('#psc_qsCourier');
+                const qsPeso = $('#psc_qsPeso');
+                const qsAlt = $('#psc_qsAlt');
+                const toggleMoreBtn = $('#psc_toggleMore');
 
-                 try{ const last = localStorage.getItem('psc_last_tracking'); if(last) trk.value = last; }catch{} 
+                try{ const last = localStorage.getItem('psc_last_tracking'); if(last) trk.value = last; }catch{}
 
-                 function setState(kind, text, loading=false){ 
-                     dot.className = 'psc-dot ' + (kind||''); 
-                     msg.textContent = text || ''; 
-                     spin.style.display = loading ? 'inline-block' : 'none'; 
-                     try{ go.disabled = !!loading; }catch{} 
-                 } 
-                 function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return new Intl.DateTimeFormat(undefined,{year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(d); } 
-                 function esc(s){ return String(s??'').replace(/[<>&]/g, m=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[m])) } 
+                function setState(kind, text, loading=false){
+                    dot.className = 'psc-dot ' + (kind||'');
+                    msg.textContent = text || '';
+                    spin.style.display = loading ? 'inline-block' : 'none';
+                    try{ go.disabled = !!loading; }catch{}
+                }
+                function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return new Intl.DateTimeFormat(undefined,{year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(d); }
+                function esc(s){ return String(s??'').replace(/[<>&]/g, m=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[m])) }
 
-                 function iconSVG(kind){ 
-                     if(kind==='pn') return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7l9-4 9 4-9 4-9-4z" stroke="#a64f00"/><path d="M3 7v10l9 4 9-4V7" stroke="#a64f00"/></svg>'; 
-                     if(kind==='fz') return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 10h18v8H3z" stroke="#7a5c00"/><path d="M7 10V6h10v4" stroke="#7a5c00"/></svg>'; 
-                     return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 16h11v-6H3v6z" stroke="#0752a0"/><path d="M14 14h4l3 3v-7h-7v4z" stroke="#0752a0"/><circle cx="7" cy="19" r="2" stroke="#0752a0"/><circle cx="18" cy="19" r="2" stroke="#0752a0"/></svg>'; 
-                 } 
+                function iconSVG(kind){
+                    if(kind==='pn') return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7l9-4 9 4-9 4-9-4z" stroke="#a64f00"/><path d="M3 7v10l9 4 9-4V7" stroke="#a64f00"/></svg>';
+                    if(kind==='fz') return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 10h18v8H3z" stroke="#7a5c00"/><path d="M7 10V6h10v4" stroke="#7a5c00"/></svg>';
+                    return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 16h11v-6H3v6z" stroke="#0752a0"/><path d="M14 14h4l3 3v-7h-7v4z" stroke="#0752a0"/><circle cx="7" cy="19" r="2" stroke="#0752a0"/><circle cx="18" cy="19" r="2" stroke="#0752a0"/></svg>';
+                }
 
-                 function eventSource(ev, resp){ 
-                     try{ 
-                         if((ev.location||'').toUpperCase()==='DB') return 'psc'; 
-                         const fz = resp.sources && resp.sources.fuzion && Array.isArray(resp.sources.fuzion.events) ? resp.sources.fuzion.events : []; 
-                         const matchFz = fz.some((e)=> e.time_iso===ev.time_iso && e.description===ev.description && (e.location||'')===(ev.location||'')); 
-                         return matchFz ? 'fz' : 'pn'; 
-                     }catch{ return 'pn' } 
-                 } 
+                function eventSource(ev, resp){
+                    try{
+                        if((ev.location||'').toUpperCase()==='DB') return 'psc';
+                        const fz = resp.sources && resp.sources.fuzion && Array.isArray(resp.sources.fuzion.events) ? resp.sources.fuzion.events : [];
+                        const matchFz = fz.some((e)=> e.time_iso===ev.time_iso && e.description===ev.description && (e.location||'')===(ev.location||''));
+                        return matchFz ? 'fz' : 'pn';
+                    }catch{ return 'pn' }
+                }
 
-                 function transformDesc(src, ev, resp){ 
-                     let d = String(ev.description||''); 
-                     if(src==='fz'){ 
-                         const low = d.toLowerCase().trim(); 
-                         if(low==='miami') d='Doral - Miami'; 
-                         if(low==='mal') d='Mal Identificado <a href="https://www.soypsc.com/ml/" class="psc-btn-link" target="_blank" rel="noopener noreferrer">Solicitar aquí</a>'; 
-                         if(low==='panama' || low==='panamá') d='Aduanas - Panama City'; 
-                     } 
-                     if(src==='psc'){ 
-                         const m = d.match(/peso\s*=?\s*(\d+(?:\.\d+)?)\s*lb/i); 
-                         const lbs = m ? m[1] : (resp && resp.weight_lbs ? resp.weight_lbs : null); 
-                         const dbStatus = (resp && resp.db_status) || (resp && resp.sources && resp.sources.db && resp.sources.db.selected && resp.sources.db.selected.status) || ''; 
-                         const label = String(dbStatus).trim() || 'Centro de Dist. PSC'; 
-                         d = `${label} - Peso(Aprox.)` + (lbs ? ` ${lbs} lbs` : ''); 
-                     } 
-                     return d; 
-                 } 
+                function transformDesc(src, ev, resp){
+                    let d = String(ev.description||'');
+                    if(src==='fz'){
+                        const low = d.toLowerCase().trim();
+                        if(low==='miami') d='Doral - Miami';
+                        if(low==='mal') d='Mal Identificado <a href="https://www.soypsc.com/ml/" class="psc-btn-link" target="_blank" rel="noopener noreferrer">Solicitar aquí</a>';
+                        if(low==='panama' || low==='panamá') d='Aduanas - Panama City';
+                    }
+                    if(src==='psc'){
+                        const m = d.match(/peso\s*=?\s*(\d+(?:\.\d+)?)\s*lb/i);
+                        const lbs = m ? m[1] : (resp && resp.weight_lbs ? resp.weight_lbs : null);
+                        const dbStatus = (resp && resp.db_status) || (resp && resp.sources && resp.sources.db && resp.sources.db.selected && resp.sources.db.selected.status) || '';
+                        const label = String(dbStatus).trim() || 'Centro de Dist. PSC';
+                        d = `${label} - Peso(Aprox.)` + (lbs ? ` ${lbs} lbs` : '');
+                    }
+                    return d;
+                }
 
-                 function computeOrderedList(r){ 
-                     const all = Array.isArray(r.events) ? r.events : []; 
-                     const groups = { psc: [], fz: [], pn: [] }; 
-                     for(const ev of all){ 
-                         const s = eventSource(ev, r); 
-                         if(s==='psc') groups.psc.push(ev); else if(s==='fz') groups.fz.push(ev); else groups.pn.push(ev); 
-                     } 
-                     groups.pn.sort((a,b)=> String(b.time_iso||'').localeCompare(String(a.time_iso||''))); 
-                     return [...groups.psc, ...groups.fz, ...groups.pn]; 
-                 } 
+                function computeOrderedList(r){
+                    const all = Array.isArray(r.events) ? r.events : [];
+                    const groups = { psc: [], fz: [], pn: [] };
+                    for(const ev of all){
+                        const s = eventSource(ev, r);
+                        if(s==='psc') groups.psc.push(ev); else if(s==='fz') groups.fz.push(ev); else groups.pn.push(ev);
+                    }
+                    groups.pn.sort((a,b)=> String(b.time_iso||'').localeCompare(String(a.time_iso||'')));
+                    return [...groups.psc, ...groups.fz, ...groups.pn];
+                }
 
-                 function getAltList(r){ 
-                     const a1 = Array.isArray(r.alt_trackings) ? r.alt_trackings : []; 
-                     const a2 = (r.sources && r.sources.postal_ninja && Array.isArray(r.sources.postal_ninja.alt_trackings)) 
-                         ? r.sources.postal_ninja.alt_trackings : []; 
-                     const all = [...a1, ...a2].map(v=>String(v||'').trim()).filter(Boolean); 
-                     const primary = String(r.tracking||'').toUpperCase(); 
-                     const seen = new Set(); 
-                     const out = []; 
-                     for(const x of all){ 
-                         const key = x.toUpperCase(); 
-                         if(!key || key===primary || seen.has(key)) continue; 
-                         seen.add(key); out.push(x); 
-                     } 
-                     return out; 
-                 } 
+                function getAltList(r){
+                    const a1 = Array.isArray(r.alt_trackings) ? r.alt_trackings : [];
+                    const a2 = (r.sources && r.sources.postal_ninja && Array.isArray(r.sources.postal_ninja.alt_trackings))
+                        ? r.sources.postal_ninja.alt_trackings : [];
+                    const all = [...a1, ...a2].map(v=>String(v||'').trim()).filter(Boolean);
+                    const primary = String(r.tracking||'').toUpperCase();
+                    const seen = new Set();
+                    const out = [];
+                    for(const x of all){
+                        const key = x.toUpperCase();
+                        if(!key || key===primary || seen.has(key)) continue;
+                        seen.add(key); out.push(x);
+                    }
+                    return out;
+                }
 
-                 function renderAltTrackings(r){ 
-                     const alts = getAltList(r); 
-                     if(!alts.length){ qsAlt.textContent='—'; return; } 
-                     qsAlt.innerHTML=''; 
-                     alts.slice(0,6).forEach(code=>{ 
-                         const chip = document.createElement('div'); 
-                         chip.className = 'psc-altChip'; 
-                         chip.innerHTML = `<code>${esc(code)}</code><button type="button">Buscar</button>`; 
-                         const btn = chip.querySelector('button'); 
-                         if (btn) { 
-                             btn.addEventListener('click', ()=>{ 
-                                 trk.value = code; 
-                                 doSearch(); 
-                             }); 
-                         } 
-                         qsAlt.appendChild(chip); 
-                     }); 
-                     if(alts.length>6){ 
-                         const more = document.createElement('div'); 
-                         more.className = 'psc-altChip'; 
-                         more.textContent = `+${alts.length-6} más`; 
-                         qsAlt.appendChild(more); 
-                     } 
-                 } 
-                  
-                 function renderTopSummary(r){ 
-                     qsTracking.textContent = r.tracking || '—'; 
-                     const dbStatus = (r.db_status || (r.sources && r.sources.db && r.sources.db.selected && r.sources.db.selected.status)) || null; 
-                     if (dbStatus && String(dbStatus).trim().length > 0) { 
-                         qsStatus.textContent = String(dbStatus).trim(); 
-                     } else { 
-                         const list = computeOrderedList(r); 
-                         const chosen = list[0]; 
-                         if (chosen){ 
-                             const src = eventSource(chosen, r); 
-                             let label=''; 
-                             if(src==='psc') { 
-                                 label='Centro de Dist. PSC'; 
-                             } else if(src==='fz'){ 
-                                const rawDesc = String(chosen.description || '').toLowerCase().trim();
-                                if (rawDesc === 'mal') {
-                                    label = 'Mal Identificado';
-                                } else {
-                                     const td = transformDesc(src, chosen, r); 
-                                     label = /Aduanas - Panama City/i.test(td) ? 'Aduanas' : td;
-                                } 
-                             } else { 
-                                 const d = String(chosen.description||''); 
-                                 label = /delivered/i.test(d) ? 'Delivered' : 'In transit'; 
-                             } 
-                             qsStatus.textContent = label || '—'; 
-                         } else { 
-                             qsStatus.textContent = '—'; 
-                         } 
-                     } 
-                     qsCourier.textContent = r.detected_courier || r.courier_detected || '—'; 
-                     qsPeso.textContent    = r.weight_lbs ? `${r.weight_lbs} lbs` : '—'; 
-                     renderAltTrackings(r); 
-                 } 
+                function renderAltTrackings(r){
+                    const alts = getAltList(r);
+                    if(!alts.length){ qsAlt.textContent='—'; return; }
+                    qsAlt.innerHTML='';
+                    alts.slice(0,6).forEach(code=>{
+                        const chip = document.createElement('div');
+                        chip.className = 'psc-altChip';
+                        chip.innerHTML = `<code>${esc(code)}</code><button type="button">Buscar</button>`;
+                        const btn = chip.querySelector('button');
+                        if (btn) {
+                            btn.addEventListener('click', ()=>{
+                                trk.value = code;
+                                doSearch();
+                            });
+                        }
+                        qsAlt.appendChild(chip);
+                    });
+                    if(alts.length>6){
+                        const more = document.createElement('div');
+                        more.className = 'psc-altChip';
+                        more.textContent = `+${alts.length-6} más`;
+                        qsAlt.appendChild(more);
+                    }
+                }
+                
+                function renderTopSummary(r){
+                    qsTracking.textContent = r.tracking || '—';
+                    const dbStatus = (r.db_status || (r.sources && r.sources.db && r.sources.db.selected && r.sources.db.selected.status)) || null;
+                    if (dbStatus && String(dbStatus).trim().length > 0) {
+                        qsStatus.textContent = String(dbStatus).trim();
+                    } else {
+                        const list = computeOrderedList(r);
+                        const chosen = list[0];
+                        if (chosen){
+                            const src = eventSource(chosen, r);
+                            let label='';
+                            if(src==='psc') {
+                                label='Centro de Dist. PSC';
+                            } else if(src==='fz'){
+                                const td = transformDesc(src, chosen, r);
+                                label = /Aduanas - Panama City/i.test(td) ? 'Aduanas' : td;
+                            } else {
+                                const d = String(chosen.description||'');
+                                label = /delivered/i.test(d) ? 'Delivered' : 'In transit';
+                            }
+                            qsStatus.textContent = label || '—';
+                        } else {
+                            qsStatus.textContent = '—';
+                        }
+                    }
+                    qsCourier.textContent = r.detected_courier || r.courier_detected || '—';
+                    qsPeso.textContent    = r.weight_lbs ? `${r.weight_lbs} lbs` : '—';
+                    renderAltTrackings(r);
+                }
 
-                 function renderTimeline(r){ 
-                     eventsEl.innerHTML=''; 
-                     const list = computeOrderedList(r); 
-                     evCountEl.textContent = list.length || 0; 
-                     if(!list.length){ const empty=document.createElement('div'); empty.style.color='var(--muted)'; empty.textContent='Sin eventos.'; eventsEl.appendChild(empty); return; } 
-                     const MAX=5; 
-                     list.forEach((ev,idx)=>{ 
-                         const src = eventSource(ev,r); 
-                         const item=document.createElement('div'); 
-                         item.className=`psc-event psc-src-${src}` + (idx>=MAX?' hiddenEvt':''); 
-                         const desc=transformDesc(src,ev,r); 
-                         const loc=(ev.location||'—'); 
-                         const when=fmtDate(ev.time_iso); 
-                         item.innerHTML=`<div class="psc-desc">${desc}</div><div class="psc-meta"><span class="psc-icon">${iconSVG(src)}</span><span>${esc(loc)}</span><span>•</span><span>${when}</span></div>`; 
-                         if(idx>=MAX) item.style.display='none'; 
-                         eventsEl.appendChild(item); 
-                     }); 
-                     const hidden=eventsEl.querySelectorAll('.hiddenEvt'); 
-                     toggleMoreBtn.style.display = hidden.length ? 'inline-block' : 'none'; 
-                     toggleMoreBtn.textContent = 'Mostrar más'; 
-                 } 
+                function renderTimeline(r){
+                    eventsEl.innerHTML='';
+                    const list = computeOrderedList(r);
+                    evCountEl.textContent = list.length || 0;
+                    if(!list.length){ const empty=document.createElement('div'); empty.style.color='var(--muted)'; empty.textContent='Sin eventos.'; eventsEl.appendChild(empty); return; }
+                    const MAX=5;
+                    list.forEach((ev,idx)=>{
+                        const src = eventSource(ev,r);
+                        const item=document.createElement('div');
+                        item.className=`psc-event psc-src-${src}` + (idx>=MAX?' hiddenEvt':'');
+                        const desc=transformDesc(src,ev,r);
+                        const loc=(ev.location||'—');
+                        const when=fmtDate(ev.time_iso);
+                        item.innerHTML=`<div class="psc-desc">${desc}</div><div class="psc-meta"><span class="psc-icon">${iconSVG(src)}</span><span>${esc(loc)}</span><span>•</span><span>${when}</span></div>`;
+                        if(idx>=MAX) item.style.display='none';
+                        eventsEl.appendChild(item);
+                    });
+                    const hidden=eventsEl.querySelectorAll('.hiddenEvt');
+                    toggleMoreBtn.style.display = hidden.length ? 'inline-block' : 'none';
+                    toggleMoreBtn.textContent = 'Mostrar más';
+                }
 
-                 async function doSearch(){ 
-                     try{ localStorage.setItem('psc_last_tracking', trk.value.trim()); }catch{} 
-                     const code = trk.value.trim(); 
-                     if(!code){ setState('err','Ingresa un tracking.'); return; } 
-                      
-                     setState('warn','Buscando…',true); 
-                     try{ 
-                         const res = await fetch(ENDPOINT,{ 
-                             method:'POST', mode:'cors', cache:'no-store', 
-                             headers:{ 'Content-Type':'application/json', 'Accept':'application/json', Authorization:`Bearer ${ANON_KEY}`, apikey: ANON_KEY }, 
-                             body: JSON.stringify({ tracking: code }) 
-                         }); 
-                         if(!res.ok){ setState('err',`Error HTTP ${res.status}`); return; } 
-                         const data = await res.json(); 
-                         setState('ok','Listo.'); 
-                         renderTopSummary(data); 
-                         renderTimeline(data); 
-                     }catch(e){  
-                         console.error(e);  
-                         setState('err','Fallo de red o CORS.');  
-                     } 
-       _20_25
- 
-                 go.addEventListener('click', doSearch); 
-                 trk.addEventListener('keydown', e=>{ if(e.key==='Enter') doSearch(); }); 
+                async function doSearch(){
+                    try{ localStorage.setItem('psc_last_tracking', trk.value.trim()); }catch{}
+                    const code = trk.value.trim();
+                    if(!code){ setState('err','Ingresa un tracking.'); return; }
+                    
+                    setState('warn','Buscando…',true);
+                    try{
+                        const res = await fetch(ENDPOINT,{
+                            method:'POST', mode:'cors', cache:'no-store',
+                            headers:{ 'Content-Type':'application/json', 'Accept':'application/json', Authorization:`Bearer ${ANON_KEY}`, apikey: ANON_KEY },
+                            body: JSON.stringify({ tracking: code })
+                        });
+                        if(!res.ok){ setState('err',`Error HTTP ${res.status}`); return; }
+                        const data = await res.json();
+                        setState('ok','Listo.');
+                        renderTopSummary(data);
+                        renderTimeline(data);
+                    }catch(e){ 
+                        console.error(e); 
+                        setState('err','Fallo de red o CORS.'); 
+                    }
+                }
 
-                 toggleMoreBtn.addEventListener('click', ()=>{ 
-                     const hidden = eventsEl.querySelectorAll('.hiddenEvt'); 
-                     const expanding = hidden.length && hidden[0].style.display==='none'; 
-                     hidden.forEach(el=> el.style.display = expanding ? 'block' : 'none'); 
-                     toggleMoreBtn.textContent = expanding ? 'Mostrar menos' : 'Mostrar más'; 
-                 }); 
-             })(); 
-         }); 
-     </script> 
- </body> 
- </html>
+                go.addEventListener('click', doSearch);
+                trk.addEventListener('keydown', e=>{ if(e.key==='Enter') doSearch(); });
+
+                toggleMoreBtn.addEventListener('click', ()=>{
+                    const hidden = eventsEl.querySelectorAll('.hiddenEvt');
+                    const expanding = hidden.length && hidden[0].style.display==='none';
+                    hidden.forEach(el=> el.style.display = expanding ? 'block' : 'none');
+                    toggleMoreBtn.textContent = expanding ? 'Mostrar menos' : 'Mostrar más';
+                });
+            })();
+        });
+    </script>
+</body>
+</html>
 
 
 
