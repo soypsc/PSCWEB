@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototipo - Sistema de Gestión de Cupones</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Simple transition for screen changes */
+        .screen { display: none; transition: opacity 0.3s ease-in-out; }
+        .active-screen { display: block; }
+        /* Custom styles for QR scanner feedback */
+        .scan-success { border: 4px solid #22c55e; }
+        .scan-error { border: 4px solid #ef4444; }
+        .scan-neutral { border: 4px dashed #6b7280; }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-7xl mx-auto p-4 md:p-8">
+
+        <!-- ======================================================= -->
+        <!-- SCREEN 1: LOGIN                                         -->
+        <!-- ======================================================= -->
+        <div id="login-screen" class="screen active-screen bg-white p-8 rounded-2xl shadow-lg max-w-md mx-auto">
+            <h1 class="text-3xl font-bold text-center text-gray-800 mb-2">Sistema de Cupones</h1>
+            <p class="text-center text-gray-500 mb-8">Iniciar Sesión</p>
+            <div class="space-y-4">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="email" value="admin@restaurante.com" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                    <input type="password" id="password" value="••••••••" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+            </div>
+            <div class="mt-8 space-y-3">
+                <button onclick="loginAs('admin')" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Entrar como Administrador
+                </button>
+                <button onclick="loginAs('sucursal')" class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Entrar como Sucursal
+                </button>
+            </div>
+        </div>
+
+        <!-- ======================================================= -->
+        <!-- SCREEN 2: ADMIN DASHBOARD                               -->
+        <!-- ======================================================= -->
+        <div id="admin-dashboard-screen" class="screen">
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Dashboard de Administrador</h1>
+                    <p class="text-gray-500">Resumen de actividad en tiempo real.</p>
+                </div>
+                <button onclick="logout()" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Cerrar Sesión</button>
+            </header>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Card: Canjeados Hoy -->
+                <div class="bg-white p-6 rounded-2xl shadow">
+                    <h3 class="text-sm font-medium text-gray-500">Cupones Canjeados Hoy</h3>
+                    <p class="mt-1 text-4xl font-bold text-indigo-600">1,284</p>
+                </div>
+                <!-- Card: Valor Canjeado -->
+                <div class="bg-white p-6 rounded-2xl shadow">
+                    <h3 class="text-sm font-medium text-gray-500">Valor Real Canjeado (Hoy)</h3>
+                    <p class="mt-1 text-4xl font-bold text-green-600">$25,680.00</p>
+                </div>
+                <!-- Card: Lotes Activos -->
+                <div class="bg-white p-6 rounded-2xl shadow">
+                    <h3 class="text-sm font-medium text-gray-500">Lotes de Cupones Activos</h3>
+                    <p class="mt-1 text-4xl font-bold text-gray-800">15</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-2xl shadow">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900">Reporte por Sucursal</h2>
+                        <p class="text-gray-500">Canjes realizados en el día de hoy.</p>
+                    </div>
+                    <button onclick="showScreen('admin-create-screen')" class="py-3 px-5 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+                        + Crear Nuevo Lote
+                    </button>
+                </div>
+                <ul class="space-y-4">
+                    <!-- Sucursal Item -->
+                    <li class="flex items-center justify-between">
+                        <span class="font-medium text-gray-800">Sucursal Albrook</span>
+                        <span class="text-lg font-semibold text-gray-700">215 canjes</span>
+                    </li>
+                    <li class="w-full h-px bg-gray-200"></li>
+                    <!-- Sucursal Item -->
+                    <li class="flex items-center justify-between">
+                        <span class="font-medium text-gray-800">Sucursal El Dorado</span>
+                        <span class="text-lg font-semibold text-gray-700">189 canjes</span>
+                    </li>
+                    <li class="w-full h-px bg-gray-200"></li>
+                    <!-- Sucursal Item -->
+                    <li class="flex items-center justify-between">
+                        <span class="font-medium text-gray-800">Sucursal Costa del Este</span>
+                        <span class="text-lg font-semibold text-gray-700">155 canjes</span>
+                    </li>
+                    <li class="w-full h-px bg-gray-200"></li>
+                    <!-- Sucursal Item -->
+                    <li class="flex items-center justify-between">
+                        <span class="font-medium text-gray-800">Sucursal Metromall</span>
+                        <span class="text-lg font-semibold text-gray-700">148 canjes</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ======================================================= -->
+        <!-- SCREEN 3: ADMIN CREATE COUPON                             -->
+        <!-- ======================================================= -->
+        <div id="admin-create-screen" class="screen">
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Crear Lote de Cupones</h1>
+                    <p class="text-gray-500">Define los parámetros para la nueva promoción.</p>
+                </div>
+                <button onclick="showScreen('admin-dashboard-screen')" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">&larr; Volver al Dashboard</button>
+            </header>
+
+            <div class="bg-white p-8 rounded-2xl shadow-lg">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Columna 1: Datos principales -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nombre de la Promoción</label>
+                            <input type="text" placeholder="Ej: 2x1 en Hamburguesas" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Precio Real</label>
+                                <input type="number" placeholder="20.00" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Precio con Descuento</label>
+                                <input type="number" placeholder="10.00" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Fecha de Vencimiento</label>
+                            <input type="date" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Restricciones de Consumo</label>
+                            <textarea rows="4" placeholder="Ej: Válido solo para comidas. No aplica con otras promociones. Válido de Lunes a Jueves." class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md"></textarea>
+                        </div>
+                    </div>
+                    <!-- Columna 2: Sucursales y Cantidad -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Sucursales Válidas</label>
+                            <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-2 border rounded-md">
+                                <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 mr-2" checked><span>Albrook</span></label>
+                                <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 mr-2" checked><span>El Dorado</span></label>
+                                <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 mr-2" checked><span>Costa del Este</span></label>
+                                <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 mr-2" checked><span>Metromall</span></label>
+                                <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 mr-2"><span>Multiplaza</span></label>
+                                <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 mr-2"><span>Altaplaza</span></label>
+                                <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 mr-2"><span>Westland Mall</span></label>
+                                <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 mr-2"><span>Anclas Mall</span></label>
+                                <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 mr-2"><span>Chiriquí</span></label>
+                                <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 mr-2"><span>Coronado</span></label>
+                                <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 mr-2"><span>Santiago</span></label>
+                                <label class="flex items-center"><input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 mr-2"><span>David</span></label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Cantidad de Cupones a Generar</label>
+                            <input type="number" value="1000" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md">
+                        </div>
+                        <div class="pt-4">
+                            <button onclick="alert('Simulación: Se ha creado un lote de 1000 cupones. El sistema ahora generaría los códigos QR y únicos para ser exportados.')" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+                                Generar Lote de Cupones
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================================================= -->
+        <!-- SCREEN 4: BRANCH VALIDATOR                              -->
+        <!-- ======================================================= -->
+        <div id="validator-screen" class="screen max-w-md mx-auto">
+            <header class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Sucursal Albrook</h1>
+                    <p class="text-gray-500">Validador de Cupones</p>
+                </div>
+                <button onclick="logout()" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Cerrar Sesión</button>
+            </header>
+
+            <div class="bg-white p-6 rounded-2xl shadow-lg">
+                <!-- QR Scanner Area -->
+                <div id="scanner-area" class="w-full aspect-square bg-gray-900 rounded-lg flex flex-col items-center justify-center text-white p-4 scan-neutral mb-4">
+                     <svg class="w-16 h-16 text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <p class="font-medium">Apunte la cámara al código QR</p>
+                    <p class="text-sm text-gray-400">La validación es automática</p>
+                </div>
+                
+                <!-- Manual Input -->
+                <div class="text-center mb-4">
+                    <p class="text-sm text-gray-500 mb-2">O ingrese el código manualmente</p>
+                    <input type="text" placeholder="RESTA-2024-XXXXX" class="text-center tracking-widest block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md">
+                </div>
+
+                <!-- Validation Result Area -->
+                <div id="validation-result" class="hidden">
+                    <!-- Dynamic content will be injected here by JS -->
+                </div>
+
+                <!-- Simulation Buttons (for demo purposes) -->
+                <div id="simulation-buttons" class="mt-4 pt-4 border-t border-gray-200">
+                    <p class="text-center text-xs text-gray-400 mb-2">-- Solo para fines de demostración --</p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="simulateScan('valid')" class="text-xs py-2 px-2 border rounded-md bg-green-50 hover:bg-green-100 text-green-700">Simular Válido</button>
+                        <button onclick="simulateScan('used')" class="text-xs py-2 px-2 border rounded-md bg-yellow-50 hover:bg-yellow-100 text-yellow-700">Simular Usado</button>
+                        <button onclick="simulateScan('expired')" class="text-xs py-2 px-2 border rounded-md bg-red-50 hover:bg-red-100 text-red-700">Simular Expirado</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Basic Navigation ---
+        const screens = document.querySelectorAll('.screen');
+        
+        function showScreen(screenId) {
+            screens.forEach(screen => {
+                screen.classList.remove('active-screen');
+            });
+            document.getElementById(screenId).classList.add('active-screen');
+        }
+
+        function loginAs(role) {
+            if (role === 'admin') {
+                showScreen('admin-dashboard-screen');
+            } else if (role === 'sucursal') {
+                showScreen('validator-screen');
+            }
+        }
+
+        function logout() {
+            // Reset validator screen on logout
+            resetValidator();
+            showScreen('login-screen');
+        }
+
+        // --- Validator Screen Logic ---
+        const scannerArea = document.getElementById('scanner-area');
+        const validationResult = document.getElementById('validation-result');
+        const simButtons = document.getElementById('simulation-buttons');
+        
+        function resetValidator() {
+            scannerArea.classList.remove('scan-success', 'scan-error');
+            scannerArea.classList.add('scan-neutral');
+            validationResult.classList.add('hidden');
+            validationResult.innerHTML = '';
+            simButtons.classList.remove('hidden');
+        }
+
+        function simulateScan(status) {
+            scannerArea.classList.remove('scan-neutral', 'scan-success', 'scan-error');
+            validationResult.classList.remove('hidden');
+            simButtons.classList.add('hidden');
+            
+            let resultHTML = '';
+
+            switch (status) {
+                case 'valid':
+                    scannerArea.classList.add('scan-success');
+                    resultHTML = `
+                        <div class="text-center">
+                            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-2">
+                                <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-green-800">CUPÓN VÁLIDO</h3>
+                            <div class="bg-gray-50 p-3 rounded-lg mt-4 text-left">
+                                <p class="text-sm"><span class="font-semibold">Promoción:</span> 2x1 en Hamburguesas</p>
+                                <p class="text-sm"><span class="font-semibold">Vence:</span> 31 Dic, 2024</p>
+                                <p class="text-sm"><span class="font-semibold">Código:</span> RESTA-2024-A8B2C</p>
+                            </div>
+                            <button onclick="canjearCupon()" class="mt-4 w-full py-3 px-4 rounded-lg text-white font-bold bg-indigo-600 hover:bg-indigo-700">CANJEAR AHORA</button>
+                        </div>
+                    `;
+                    break;
+                case 'used':
+                    scannerArea.classList.add('scan-error');
+                    resultHTML = `
+                        <div class="text-center">
+                             <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-2">
+                                <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-yellow-800">CUPÓN YA UTILIZADO</h3>
+                            <p class="text-sm text-gray-600 mt-2">Este cupón fue canjeado el día 24 de Agosto, 2024 en la Sucursal El Dorado.</p>
+                            <button onclick="resetValidator()" class="mt-4 w-full py-2 px-4 rounded-lg text-gray-700 font-medium bg-gray-200 hover:bg-gray-300">Escanear Otro</button>
+                        </div>
+                    `;
+                    break;
+                case 'expired':
+                    scannerArea.classList.add('scan-error');
+                    resultHTML = `
+                        <div class="text-center">
+                            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-2">
+                                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-red-800">CUPÓN EXPIRADO</h3>
+                            <p class="text-sm text-gray-600 mt-2">La fecha de vencimiento de este cupón era 31 de Julio, 2024.</p>
+                            <button onclick="resetValidator()" class="mt-4 w-full py-2 px-4 rounded-lg text-gray-700 font-medium bg-gray-200 hover:bg-gray-300">Escanear Otro</button>
+                        </div>
+                    `;
+                    break;
+            }
+            validationResult.innerHTML = resultHTML;
+        }
+
+        function canjearCupon() {
+            let resultHTML = `
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-2">
+                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-green-800">¡CANJEADO EXITOSAMENTE!</h3>
+                    <p class="text-sm text-gray-600 mt-2">El cupón ha sido invalidado. Procede a aplicar el descuento.</p>
+                    <button onclick="resetValidator()" class="mt-4 w-full py-2 px-4 rounded-lg text-gray-700 font-medium bg-gray-200 hover:bg-gray-300">Escanear Siguiente Cupón</button>
+                </div>
+            `;
+            validationResult.innerHTML = resultHTML;
+        }
+
+        // Initial screen setup
+        document.addEventListener('DOMContentLoaded', () => {
+            showScreen('login-screen');
+        });
+    </script>
+</body>
+</html>
+
