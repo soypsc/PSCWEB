@@ -867,8 +867,13 @@
                             if(src==='psc') {
                                 label='Centro de Dist. PSC';
                             } else if(src==='fz'){
-                                const td = transformDesc(src, chosen, r);
-                                label = /Aduanas - Panama City/i.test(td) ? 'Aduanas' : td;
+                                const rawDesc = String(chosen.description || '').toLowerCase().trim();
+                                if (rawDesc === 'mal') {
+                                    label = 'Mal Identificado';
+                                } else {
+                                    const td = transformDesc(src, chosen, r); 
+                                    label = /Aduanas - Panama City/i.test(td) ? 'Aduanas' : td;
+                                }
                             } else {
                                 const d = String(chosen.description||'');
                                 label = /delivered/i.test(d) ? 'Delivered' : 'In transit';
@@ -942,7 +947,3 @@
     </script>
 </body>
 </html>
-
-
-
-
