@@ -118,7 +118,7 @@
          .desktop-nav { 
              display: flex; 
              gap: 20px; 
-       _20_25
+             align-items: center; 
          } 
 
          .desktop-nav a { 
@@ -146,7 +146,7 @@
              padding: 8px 18px; 
              border-radius: var(--radius); 
              font-weight: 600; 
-             font-size: 13px; 
+          Dt-size: 13px; 
              transition: all 0.3s ease; 
              box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
              white-space: nowrap; 
@@ -238,7 +238,7 @@
          .fab-main-button { 
              position: relative; 
              z-index: 1002; 
-             width: 60px; 
+          `dth: 60px; 
              height: 60px; 
              border-radius: 50%; 
              background-color: red; 
@@ -931,8 +931,8 @@
                          console.error(e);  
                          setState('err','Fallo de red o CORS.');  
                      } 
-                 } 
-
+       _20_25
+ 
                  go.addEventListener('click', doSearch); 
                  trk.addEventListener('keydown', e=>{ if(e.key==='Enter') doSearch(); }); 
 
