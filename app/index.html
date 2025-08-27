@@ -31,6 +31,8 @@
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
+        .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; }
+        @keyframes spin{ to{transform:rotate(360deg)} }
     </style>
 </head>
 <body class="bg-black text-gray-200">
@@ -107,18 +109,30 @@
             <header class="p-6"><div class="flex items-center justify-between"><img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo de PSC" class="h-10"><div class="flex items-center space-x-4"><i data-lucide="bell" class="text-gray-400 cursor-pointer hover:text-white transition"></i><div id="logout-button" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center cursor-pointer" title="Cerrar Sesión"><i data-lucide="log-out" class="text-gray-400"></i></div></div></div></header>
             <main class="px-6 pb-8 space-y-10"><section><p class="text-gray-400 text-lg">Hola,</p><h1 id="user-name-display" class="text-3xl font-bold text-white">Usuario</h1></section><section class="bg-gray-800 rounded-xl p-6 shadow-lg"><h2 class="text-xl font-bold text-white">Envíos Rápidos y Seguros</h2><p class="text-gray-400 mt-1 mb-4">Cotiza tu próximo envío.</p><a href="#" data-target="page-cotizar" class="nav-link bg-blue-500 text-white font-semibold px-5 py-2 rounded-lg hover:bg-blue-600 transition no-underline">Cotizar ahora</a></section><section><h2 class="text-lg font-semibold text-white mb-3">Mi dirección de casillero</h2><div class="bg-gray-800 p-4 rounded-xl cursor-pointer hover:bg-gray-700 transition"><p class="font-mono text-gray-300">PSC-12345 Alvin Herrera</p><p class="font-mono text-gray-400 text-sm">2610 NW 89 TH, Doral, FL 33172</p></div></section><section><div class="flex items-center justify-between mb-4"><h2 class="text-lg font-semibold text-white">Acceso directo</h2></div><div class="grid grid-cols-3 gap-4"><a href="#" data-target="page-rastreo" class="nav-link text-center p-2 flex flex-col items-center cursor-pointer group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-blue-500 transition"><i data-lucide="search" class="text-blue-400 h-7 w-7 group-hover:text-white transition"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Rastrear</span></a><a href="#" data-target="page-casillero" class="nav-link text-center p-2 flex flex-col items-center cursor-pointer group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-green-500 transition"><i data-lucide="archive" class="text-green-400 h-7 w-7 group-hover:text-white transition"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Casillero</span></a><a href="#" data-target="page-paquetes" class="nav-link text-center p-2 flex flex-col items-center cursor-pointer group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-yellow-500 transition"><i data-lucide="package" class="text-yellow-400 h-7 w-7 group-hover:text-white transition"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Paquetes</span></a></div></section><section><h2 class="text-lg font-semibold text-white mb-3">Otros Servicios</h2><div class="bg-gray-800 rounded-xl divide-y divide-gray-700"><a href="#" data-target="page-cotizar" class="nav-link p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-700 transition rounded-t-xl no-underline"><i data-lucide="calculator" class="text-purple-400"></i><span class="font-semibold text-gray-300">Cotizar Compra</span></a><a href="#" data-target="page-mal-identificado" class="nav-link p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-700 transition rounded-b-xl no-underline"><i data-lucide="alert-triangle" class="text-yellow-400"></i><span class="font-semibold text-gray-300">Mal Identificado</span></a></div></section></main>
         </div>
+
+        <div id="page-paquetes" class="page">
+             <header class="p-6 flex items-center space-x-4">
+                <a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition">
+                    <i data-lucide="arrow-left" class="h-6 w-6"></i>
+                </a>
+                <h1 class="text-xl font-bold text-white">Mis Paquetes</h1>
+            </header>
+            <main class="px-6 pb-24">
+                <div id="paquetes-list-container" class="space-y-4">
+                    </div>
+            </main>
+        </div>
+        
         <div id="page-rastreo" class="page"></div>
         <div id="page-casillero" class="page"></div>
         <div id="page-cotizar" class="page"></div>
         <div id="page-mal-identificado" class="page"></div>
-        <div id="page-paquetes" class="page"></div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- CONFIG & INITIALIZATION ---
             const { createClient } = supabase;
-            // Make sure your config.js file has: const PSC_CONFIG = { supabaseUrl: '...', supabaseAnonKey: '...' };
             const supabaseClient = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
             // --- ELEMENT SELECTORS ---
@@ -132,6 +146,7 @@
             const logoutButton = document.getElementById('logout-button');
             const userNameDisplay = document.getElementById('user-name-display');
             const navLinks = document.querySelectorAll('.nav-link');
+            const paquetesListContainer = document.getElementById('paquetes-list-container');
 
             // --- HELPER FUNCTIONS ---
             const showPage = (pageId) => {
@@ -139,6 +154,10 @@
                 const targetPage = document.getElementById(pageId);
                 if (targetPage) targetPage.classList.add('active');
                 window.scrollTo(0, 0);
+
+                if (pageId === 'page-paquetes') {
+                    loadPaquetes();
+                }
             };
 
             const showAuth = () => {
@@ -154,6 +173,23 @@
                     userNameDisplay.textContent = user.user_metadata.nombre_completo || 'Usuario';
                 }
                 showPage('page-home');
+            };
+            
+            const getStatusBadge = (status) => {
+                const statusMap = {
+                    'En Bodega': 'bg-blue-500/20 text-blue-300',
+                    'En transito': 'bg-yellow-500/20 text-yellow-300',
+                    'En Sucursal': 'bg-green-500/20 text-green-300',
+                    'Entregado': 'bg-gray-500/20 text-gray-400'
+                };
+                return statusMap[status] || 'bg-gray-500/20 text-gray-400';
+            };
+
+            const formatDate = (dateString) => {
+                if (!dateString) return 'N/A';
+                return new Date(dateString).toLocaleDateString('es-PA', {
+                    day: '2-digit', month: 'short', year: 'numeric'
+                });
             };
 
             // --- EVENT HANDLERS ---
@@ -230,6 +266,40 @@
                     });
                 }
             };
+            
+            const loadPaquetes = async () => {
+                paquetesListContainer.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 rounded-full mx-auto"></div><p class="text-gray-400 mt-4">Cargando tus paquetes...</p></div>`;
+
+                const { data: paquetes, error } = await supabaseClient
+                    .from('paquetes')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    paquetesListContainer.innerHTML = `<p class="text-red-400 text-center">Error al cargar los paquetes.</p>`;
+                    console.error('Error fetching paquetes:', error);
+                    return;
+                }
+
+                if (!paquetes || paquetes.length === 0) {
+                    paquetesListContainer.innerHTML = `<div class="text-center p-8"><i data-lucide="package-search" class="h-16 w-16 text-gray-700 mx-auto"></i><p class="text-gray-500 mt-4">Aún no tienes paquetes registrados.</p></div>`;
+                    lucide.createIcons();
+                    return;
+                }
+
+                paquetesListContainer.innerHTML = paquetes.map(p => `
+                    <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 fade-in">
+                        <div class="flex justify-between items-center mb-2">
+                            <p class="font-mono text-white font-semibold">${p.tracking}</p>
+                            <span class="text-xs font-bold px-2 py-1 rounded-full ${getStatusBadge(p.status)}">${p.status || 'Desconocido'}</span>
+                        </div>
+                        <div class="text-sm text-gray-400 flex justify-between">
+                            <span>Recibido en Bodega: ${formatDate(p.fecha_bodega)}</span>
+                            <span>${p.peso ? p.peso.toFixed(2) + ' lbs' : ''}</span>
+                        </div>
+                    </div>
+                `).join('');
+            };
 
             // --- ATTACH EVENT LISTENERS ---
             loginForm.addEventListener('submit', handleLogin);
@@ -253,7 +323,6 @@
                 } else {
                     showAuth();
                 }
-                // Initialize icons after elements are visible
                 lucide.createIcons();
             };
 
@@ -263,6 +332,7 @@
     </script>
 </body>
 </html>
+
 
 
 
