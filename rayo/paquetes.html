@@ -88,7 +88,7 @@
                 <button class="close-modal text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
             </div>
             <form id="form-edit-paquete">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
+                 <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
                     <div><label class="block text-sm font-medium">Tracking</label><input id="edit-tracking" type="text" class="w-full p-1.5 border rounded-md text-sm bg-slate-100" readonly></div>
                     <div><label class="block text-sm font-medium">Nombre Cliente</label><input id="edit-cliente-nombre" type="text" class="w-full p-1.5 border rounded-md text-sm"></div>
                     <div><label class="block text-sm font-medium">Box Cliente</label><input id="edit-cliente-box" type="text" class="w-full p-1.5 border rounded-md text-sm"></div>
@@ -131,6 +131,8 @@
         function initializeDatabaseLogic() {
             try {
                 const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+                
+                let todosLosPaquetes = []; // Caché para guardar todos los paquetes y no pedirlos cada vez
 
                 const tableBody = document.querySelector("table tbody");
                 const inputQ = document.getElementById('q');
@@ -141,26 +143,14 @@
                 const fltDesde = document.getElementById('fltDesde');
                 const fltHasta = document.getElementById('fltHasta');
                 
-                // Elementos del Modal
                 const editModal = document.getElementById('edit-paquete-modal');
                 const formEdit = document.getElementById('form-edit-paquete');
                 let editingPaqueteId = null;
 
                 const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
                 const fmtNum = (n) => (n==null ? "" : (Number(n).toFixed(2)));
-                const fmtDate = (iso) => {
-                    if (!iso) return "";
-                    try {
-                        return new Date(iso).toISOString().split('T')[0];
-                    } catch { return ""; }
-                };
-                const fmtDateDisplay = (iso) => {
-                    if (!iso) return "";
-                    try {
-                        const d = new Date(iso);
-                        return d.toLocaleDateString("es-PA", { day: "2-digit", month: "2-digit", year: "2-digit" });
-                    } catch { return iso; }
-                };
+                const fmtDate = (iso) => (iso ? new Date(iso).toISOString().split('T')[0] : "");
+                const fmtDateDisplay = (iso) => (iso ? new Date(iso).toLocaleDateString("es-PA", { day: "2-digit", month: "2-digit", year: "2-digit" }) : "");
 
                 function renderEmpty(msg = "No hay paquetes para mostrar.") {
                     tableBody.innerHTML = `<tr><td colspan="14" class="text-center p-4 text-slate-500">${msg}</td></tr>`;
@@ -192,27 +182,56 @@
                         </tr>
                     `).join("");
                 }
+                
+                function aplicarFiltrosYRenderizar() {
+                    const statusVal = fltStatus.value;
+                    const sucursalVal = fltSucursal.value;
+                    const sucursalRecibidoVal = fltSucursalRecibido.value;
+                    const desdeVal = fltDesde.value;
+                    const hastaVal = fltHasta.value;
+                    const searchTerm = inputQ.value.trim().toLowerCase();
+
+                    let paquetesFiltrados = todosLosPaquetes.filter(p => {
+                        if (statusVal && p.status !== statusVal) return false;
+                        if (sucursalVal && p.sucursal !== sucursalVal) return false;
+                        if (sucursalRecibidoVal && p.sucursal_recibido !== sucursalRecibidoVal) return false;
+                        
+                        const fechaPaquete = p.created_at ? p.created_at.split('T')[0] : null;
+                        if (desdeVal && fechaPaquete && fechaPaquete < desdeVal) return false;
+                        if (hastaVal && fechaPaquete && fechaPaquete > hastaVal) return false;
+
+                        if (searchTerm) {
+                            const busqueda = `${p.tracking || ''} ${p.status || ''} ${p.cliente_nombre || ''} ${p.cliente_box || ''} ${p.sucursal || ''} ${p.sucursal_recibido || ''} ${p.anaquel || ''}`.toLowerCase();
+                            if (!busqueda.includes(searchTerm)) return false;
+                        }
+                        return true;
+                    });
+                    
+                    paquetesFiltrados.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    renderRows(paquetesFiltrados);
+                }
 
                 async function cargarPaquetes() {
-                    let query = sb.from('paquetes').select('*').order('created_at', { ascending: false }).limit(500);
-                    if (fltStatus.value) query = query.eq('status', fltStatus.value);
-                    if (fltSucursal.value) query = query.eq('sucursal', fltSucursal.value);
-                    if (fltSucursalRecibido.value) query = query.eq('sucursal_recibido', fltSucursalRecibido.value);
-                    if (fltDesde.value) query = query.gte('created_at', fltDesde.value);
-                    if (fltHasta.value) query = query.lte('created_at', fltHasta.value);
-                    const searchTerm = inputQ.value.trim();
-                    if (searchTerm) {
-                        query = query.or(`tracking.ilike.%${searchTerm}%,status.ilike.%${searchTerm}%,cliente_nombre.ilike.%${searchTerm}%,cliente_box.ilike.%${searchTerm}%,sucursal.ilike.%${searchTerm}%,sucursal_recibido.ilike.%${searchTerm}%,anaquel.ilike.%${searchTerm}%`);
+                    renderEmpty("Cargando paquetes...");
+                    
+                    // Llamamos a la función RPC para obtener TODOS los paquetes de forma segura
+                    const { data, error } = await sb.rpc('get_all_paquetes');
+
+                    if (error) {
+                        return renderEmpty("Error al cargar los paquetes.");
                     }
-                    const { data, error } = await query;
-                    if (error) return renderEmpty("Error al cargar los paquetes.");
-                    renderRows(data);
+                    if (!data || data.length === 0) {
+                        return renderEmpty("No se encontraron paquetes.");
+                    }
+                    
+                    todosLosPaquetes = data; // Guardamos la lista completa en caché
+                    aplicarFiltrosYRenderizar(); // Aplicamos los filtros y mostramos
                 }
 
                 async function cargarFiltrosYDropdowns() {
                     const { data: sucursales } = await sb.from('sucursales').select('sucursal').order('sucursal');
                     const { data: anaqueles } = await sb.from('anaqueles').select('nombre').order('nombre');
-                    const estados = ['Recibido en Bodega', 'En Tránsito', 'En Sucursal', 'Entregado'];
+                    const estados = ['Recibido en Bodega', 'En transito', 'En Sucursal', 'Entregado'];
                     
                     const editSucursalSelect = document.getElementById('edit-sucursal');
                     const editSucursalRecibidoSelect = document.getElementById('edit-sucursal-recibido');
@@ -237,7 +256,6 @@
                         anaqueles.forEach(a => {
                             editAnaquelSelect.innerHTML += `<option value="${a.nombre}">${a.nombre}</option>`;
                         });
-    
                     }
                     estados.forEach(e => {
                         const optionHTML = `<option value="${e}">${e}</option>`;
@@ -252,14 +270,15 @@
                     if (error) alert("No se pudo eliminar el paquete.");
                     else {
                         alert("Paquete eliminado.");
-                        cargarPaquetes();
+                        cargarPaquetes(); // Recargar la lista completa
                     }
                 }
 
                 async function abrirModalEdicion(id) {
                     editingPaqueteId = id;
-                    const { data, error } = await sb.from('paquetes').select('*').eq('id', id).single();
-                    if (error) return alert('No se pudo cargar el paquete para editar.');
+                    // Buscamos el paquete en nuestra lista local en lugar de hacer una nueva consulta
+                    const data = todosLosPaquetes.find(p => p.id === id);
+                    if (!data) return alert('No se pudo encontrar el paquete para editar.');
 
                     document.getElementById('edit-tracking').value = data.tracking;
                     document.getElementById('edit-cliente-nombre').value = data.cliente_nombre;
@@ -301,13 +320,13 @@
                     } else {
                         alert("Paquete actualizado ✅");
                         editModal.classList.add('hidden');
-                        cargarPaquetes();
+                        cargarPaquetes(); // Recargar la lista completa
                     }
                 });
 
-                btnBuscar.addEventListener('click', cargarPaquetes);
+                btnBuscar.addEventListener('click', aplicarFiltrosYRenderizar);
                 [fltStatus, fltSucursal, fltSucursalRecibido, fltDesde, fltHasta].forEach(el => {
-                    el.addEventListener('change', cargarPaquetes);
+                    el.addEventListener('change', aplicarFiltrosYRenderizar);
                 });
 
                 tableBody.addEventListener('click', (e) => {
