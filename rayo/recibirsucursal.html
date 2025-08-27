@@ -327,6 +327,7 @@
 
                     const updates = todosLosPaquetesVerificados.map(p => ({
                         id: p.id,
+                        tracking: p.tracking, // <-- LÍNEA AÑADIDA PARA LA CORRECCIÓN
                         status: 'En Sucursal',
                         sucursal_recibido: sucursal,
                         anaquel: anaquel,
