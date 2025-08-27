@@ -118,6 +118,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             // --- CONFIG & INITIALIZATION ---
             const { createClient } = supabase;
+            // Make sure your config.js file has: const PSC_CONFIG = { supabaseUrl: '...', supabaseAnonKey: '...' };
             const supabaseClient = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
             // --- ELEMENT SELECTORS ---
@@ -262,6 +263,7 @@
     </script>
 </body>
 </html>
+
 
 
 
