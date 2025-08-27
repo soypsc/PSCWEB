@@ -132,7 +132,7 @@
             try {
                 const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
                 
-                let todosLosPaquetes = []; // Caché para guardar todos los paquetes y no pedirlos cada vez
+                let todosLosPaquetes = []; 
 
                 const tableBody = document.querySelector("table tbody");
                 const inputQ = document.getElementById('q');
@@ -265,9 +265,13 @@
                 
                 async function eliminarPaquete(id) {
                     if (!confirm("¿Eliminar este paquete?")) return;
-                    const { error } = await sb.from('paquetes').delete().eq('id', id);
-                    if (error) alert("No se pudo eliminar el paquete.");
-                    else {
+
+                    const { error } = await sb.rpc('delete_paquete', { paquete_id: id });
+
+                    if (error) {
+                        console.error("Error al eliminar:", error);
+                        alert("No se pudo eliminar el paquete.");
+                    } else {
                         alert("Paquete eliminado.");
                         await cargarPaquetes();
                     }
@@ -310,7 +314,10 @@
                         fecha_sucursal: document.getElementById('edit-fecha-sucursal').value || null,
                     };
 
-                    const { error } = await sb.from('paquetes').update(payload).eq('id', editingPaqueteId);
+                    const { error } = await sb.rpc('update_paquete', {
+                        paquete_id: editingPaqueteId,
+                        new_data: payload
+                    });
 
                     if (error) {
                         console.error("Error al actualizar:", error);
