@@ -23,7 +23,7 @@
         <div class="bg-white text-slate-800 flex justify-between md:hidden sticky top-0 z-20 shadow-md">
             <a href="./index.html" class="block p-4 font-bold">SGL1</a>
             <button id="mobile-menu-button" class="p-4 focus:outline-none focus:bg-slate-200">
-                <svg class="h-6 w-6" xmlns="http://www.w.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
             </button>
         </div>
 
@@ -63,7 +63,10 @@
                     </div>
 
                     <div class="bg-white p-6 rounded-lg border-2 border-emerald-500 shadow-sm">
-                        <h2 class="text-xl font-bold text-emerald-700 mb-4">Paquetes Verificados (Agrupados por Cliente)</h2>
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-emerald-700">Paquetes Verificados (Agrupados por Cliente)</h2>
+                            <button id="btn-notificar-todos" class="bg-orange-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-orange-600 disabled:bg-slate-400" disabled>Notificar a Todos</button>
+                        </div>
                         <div id="verificados-container" class="space-y-4">
                             <p id="verificados-placeholder" class="text-center p-4 text-slate-500">Aún no se han verificado paquetes.</p>
                         </div>
@@ -122,7 +125,6 @@
             try {
                 const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
                 
-                // --- ELEMENTOS DEL DOM ---
                 const mainSucursalTitle = document.getElementById('main-sucursal-title');
                 const sucursalTitle = document.getElementById('sucursal-title');
                 const anaquelSelect = document.getElementById('anaquel-destino');
@@ -132,30 +134,25 @@
                 const infoPaqueteDiv = document.getElementById('info-paquete-sucursal');
                 const formConfirmar = document.getElementById('form-confirmar');
                 const btnConfirmarLote = document.getElementById('btn-confirmar-lote');
-
                 const tablaTransitoBody = document.getElementById('tabla-paquetes-transito');
                 const verificadosContainer = document.getElementById('verificados-container');
                 const verificadosPlaceholder = document.getElementById('verificados-placeholder');
+                const btnNotificarTodos = document.getElementById('btn-notificar-todos');
 
-                // --- ESTADO DE LA APLICACIÓN ---
                 let paquetesEnTransito = [];
-                let gruposVerificados = {}; // Formato: { 'BOX-123': { info: {}, paquetes: [] } }
+                let gruposVerificados = {}; 
                 let isSucursalLocked = false;
-                const DEFAULT_TARIFA = 4.00; // Tarifa por defecto si el cliente no tiene una asignada
+                const DEFAULT_TARIFA = 4.00;
                 
-                // --- ÍCONOS ---
                 const unlockedIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v3m-6 4h12a2 2 0 002-2v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7a2 2 0 002 2z" /></svg>`;
                 const lockedIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7a2 2 0 002 2z" /></svg>`;
-                const whatsappIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.886-.001 2.269.655 4.357 1.846 6.097l-1.2 4.387 4.61-1.205zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.523.074-.797.347-.272.272-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>`;
-
-                // --- FUNCIONES DE UTILIDAD ---
+                
                 function showAlert(message) {
                     document.getElementById('custom-alert-message').textContent = message;
                     document.getElementById('custom-alert').classList.remove('hidden');
                     document.getElementById('custom-alert-close').onclick = () => document.getElementById('custom-alert').classList.add('hidden');
                 }
 
-                // --- FUNCIONES DE CARGA INICIAL ---
                 async function cargarDependencias() {
                     const { data: anaqueles, error: errAnaqueles } = await sb.from('anaqueles').select('nombre').order('nombre');
                     if (errAnaqueles) return console.error("Error cargando anaqueles:", errAnaqueles);
@@ -169,42 +166,50 @@
                     }
                 }
 
-                // --- FUNCIONES DE RENDERIZADO ---
                 function renderTablaEnTransito() {
                     if (paquetesEnTransito.length === 0) {
                         tablaTransitoBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500">No hay paquetes en tránsito para esta sucursal.</td></tr>`;
                         return;
                     }
-                    tablaTransitoBody.innerHTML = paquetesEnTransito.map(p => {
-                        const mensaje = encodeURIComponent(`¡Hola ${p.cliente_nombre}! Tu paquete con tracking ${p.tracking} ha sido verificado en nuestra sucursal. Gracias.`);
-                        const whatsappLink = p.clientes.telefono ? `https://wa.me/${p.clientes.telefono.replace(/\D/g, '')}?text=${mensaje}` : '';
-                        return `
-                            <tr class="border-b hover:bg-slate-50">
-                                <td class="px-6 py-3">${p.cliente_nombre || 'N/A'}</td>
-                                <td class="px-6 py-3 font-semibold">${p.cliente_box || 'N/A'}</td>
-                                <td class="px-6 py-3 font-medium">${p.tracking}</td>
-                                <td class="px-6 py-3 text-center">
-                                    ${whatsappLink ? `<a href="${whatsappLink}" target="_blank" class="inline-block" title="Notificar por WhatsApp">${whatsappIcon}</a>` : ''}
-                                </td>
-                            </tr>`;
-                    }).join('');
+                    tablaTransitoBody.innerHTML = paquetesEnTransito.map(p => `
+                        <tr class="border-b hover:bg-slate-50">
+                            <td class="px-6 py-3">${p.cliente_nombre || 'N/A'}</td>
+                            <td class="px-6 py-3 font-semibold">${p.cliente_box || 'N/A'}</td>
+                            <td class="px-6 py-3 font-medium">${p.tracking}</td>
+                            <td class="px-6 py-3 text-center text-slate-300" title="Escanee el paquete primero">Whatsapp</td>
+                        </tr>`).join('');
                 }
 
                 function renderGruposVerificados() {
-                    const hayVerificados = Object.keys(gruposVerificados).length > 0;
+                    const grupos = Object.values(gruposVerificados);
+                    const hayVerificados = grupos.length > 0;
                     verificadosPlaceholder.classList.toggle('hidden', hayVerificados);
                     btnConfirmarLote.disabled = !hayVerificados;
+                    
+                    const hayPendientesDeNotificar = grupos.some(g => !g.notificado && g.info.telefono);
+                    btnNotificarTodos.disabled = !hayPendientesDeNotificar;
 
                     if (!hayVerificados) {
                         verificadosContainer.innerHTML = '';
                         return;
                     }
 
-                    verificadosContainer.innerHTML = Object.values(gruposVerificados).map(grupo => {
-                        const totalPeso = grupo.paquetes.reduce((sum, p) => sum + (p.peso || 0), 0);
+                    verificadosContainer.innerHTML = grupos.map(grupo => {
                         const totalCosto = grupo.paquetes.reduce((sum, p) => sum + ((p.peso || 0) * (grupo.info.tarifa_1 || DEFAULT_TARIFA)), 0);
                         const mensaje = encodeURIComponent(`¡Hola ${grupo.info.nombre}! Han llegado tus paquetes a la sucursal. Trackings: ${grupo.paquetes.map(p => p.tracking).join(', ')}. El total a pagar es $${totalCosto.toFixed(2)}. ¡Te esperamos!`);
                         const whatsappLink = grupo.info.telefono ? `https://wa.me/${grupo.info.telefono.replace(/\D/g, '')}?text=${mensaje}` : '';
+                        
+                        const notificado = grupo.notificado;
+                        const noTelefono = !grupo.info.telefono;
+
+                        let botonHTML = '';
+                        if (notificado) {
+                            botonHTML = `<button class="bg-green-200 text-green-800 font-bold py-2 px-3 rounded-md text-xs cursor-default">Notificado ✔</button>`;
+                        } else if (noTelefono) {
+                            botonHTML = `<button class="bg-slate-200 text-slate-500 font-semibold py-2 px-3 rounded-md text-xs cursor-not-allowed" title="Cliente sin teléfono registrado">Notificar</button>`;
+                        } else {
+                            botonHTML = `<button data-casillero="${grupo.info.box}" data-link="${whatsappLink}" class="btn-notificar-individual bg-green-500 text-white font-semibold py-2 px-3 rounded-md text-xs hover:bg-green-600">Notificar Cliente</button>`;
+                        }
 
                         return `
                             <div class="p-4 border rounded-lg bg-slate-50 fade-in">
@@ -213,7 +218,7 @@
                                         <h3 class="font-bold text-slate-800">${grupo.info.nombre}</h3>
                                         <p class="text-sm text-slate-500">Casillero: ${grupo.info.box}</p>
                                     </div>
-                                    ${whatsappLink ? `<a href="${whatsappLink}" target="_blank" class="bg-green-500 text-white font-semibold py-2 px-3 rounded-md text-xs hover:bg-green-600">Notificar Cliente</a>` : ''}
+                                    ${botonHTML}
                                 </div>
                                 <ul class="text-sm list-disc list-inside mb-2">
                                     ${grupo.paquetes.map(p => `<li>${p.tracking} (${(p.peso || 0).toFixed(2)} lbs)</li>`).join('')}
@@ -226,7 +231,6 @@
                     }).join('');
                 }
 
-                // --- LÓGICA PRINCIPAL ---
                 async function refrescarListaPrincipal() {
                     const sucursal = sucursalSelect.value;
                     if (!sucursal) return;
@@ -235,32 +239,32 @@
                     sucursalTitle.textContent = `Paquetes "En Tránsito" para: ${sucursal}`;
                     tablaTransitoBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500">Cargando...</td></tr>`;
 
-                    const { data: paquetes, error } = await sb.from('paquetes')
-                        .select('*, clientes(telefono, tarifa_1)')
+                    const { data, error } = await sb.from('paquetes')
+                        .select('*, clientes!inner(telefono, tarifa_1)')
                         .eq('sucursal', sucursal)
                         .eq('status', 'En transito');
                     
                     if (error) {
-                        tablaTransitoBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Error al cargar paquetes.</td></tr>`;
+                        tablaTransitoBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Error al cargar paquetes. Verifique la relación de clave externa.</td></tr>`;
+                        console.error("Error al cargar paquetes:", error);
                         return;
                     }
 
-                    paquetesEnTransito = paquetes;
+                    paquetesEnTransito = data;
                     renderTablaEnTransito();
-                    renderGruposVerificados(); // Limpia los verificados si se cambia de sucursal
+                    gruposVerificados = {};
+                    renderGruposVerificados();
                 }
                 
                 async function procesarEscaneo(tracking) {
                     if (!tracking) return;
                     trackingInput.value = '';
                     
-                    // Buscar si ya fue verificado
                     if (Object.values(gruposVerificados).some(g => g.paquetes.some(p => p.tracking === tracking))) {
                         showAlert(`El paquete ${tracking} ya fue verificado en esta sesión.`);
                         return;
                     }
 
-                    // Buscar en la lista de tránsito
                     const paqueteIndex = paquetesEnTransito.findIndex(p => p.tracking === tracking);
                     if (paqueteIndex === -1) {
                         showAlert(`Paquete "${tracking}" no fue encontrado en la lista de "En Tránsito" para esta sucursal.`);
@@ -272,7 +276,6 @@
                     const clienteBox = paquete.cliente_box;
 
                     if (!gruposVerificados[clienteBox]) {
-                        // Si es el primer paquete de este cliente, crear el grupo
                         const { data: clienteInfo, error } = await sb.from('clientes')
                             .select('nombre, box, telefono, tarifa_1')
                             .eq('box', clienteBox)
@@ -280,10 +283,10 @@
                         
                         if (error) {
                             showAlert(`Error obteniendo información del cliente para el casillero ${clienteBox}`);
-                            paquetesEnTransito.push(paquete); // Devolver paquete a la lista de tránsito
+                            paquetesEnTransito.push(paquete); 
                             return;
                         }
-                        gruposVerificados[clienteBox] = { info: clienteInfo, paquetes: [] };
+                        gruposVerificados[clienteBox] = { info: clienteInfo, paquetes: [], notificado: false };
                     }
 
                     gruposVerificados[clienteBox].paquetes.push(paquete);
@@ -296,6 +299,14 @@
                     `;
                     
                     renderTablaEnTransito();
+                    renderGruposVerificados();
+                }
+                
+                function notificarCliente(casillero, link) {
+                    window.open(link, '_blank');
+                    if(gruposVerificados[casillero]) {
+                        gruposVerificados[casillero].notificado = true;
+                    }
                     renderGruposVerificados();
                 }
 
@@ -319,7 +330,7 @@
                         status: 'En Sucursal',
                         sucursal_recibido: sucursal,
                         anaquel: anaquel,
-                        fecha_sucursal: new Date().toISOString()
+                        fecha_sucursal: new Date().toISOString().split('T')[0] 
                     }));
 
                     btnConfirmarLote.textContent = "Procesando...";
@@ -330,22 +341,17 @@
                     if (error) {
                         showAlert("Error al actualizar los paquetes. Intente de nuevo.");
                         console.error("Error en upsert:", error);
-                        btnConfirmarLote.textContent = "Confirmar Recepción de Lote";
-                        btnConfirmarLote.disabled = false;
-                        return;
+                    } else {
+                        showAlert(`Lote de ${updates.length} paquetes confirmado exitosamente en el anaquel ${anaquel}. ✅`);
+                        gruposVerificados = {};
+                        infoPaqueteDiv.innerHTML = '<p>Esperando escaneo...</p>';
+                        anaquelSelect.value = '';
+                        renderGruposVerificados();
                     }
                     
-                    showAlert(`Lote de ${updates.length} paquetes confirmado exitosamente en el anaquel ${anaquel}. ✅`);
-                    
-                    // Resetear estado
-                    gruposVerificados = {};
-                    infoPaqueteDiv.innerHTML = '<p>Esperando escaneo...</p>';
-                    anaquelSelect.value = '';
                     btnConfirmarLote.textContent = "Confirmar Recepción de Lote";
-                    renderGruposVerificados();
                 });
-
-                // --- EVENT LISTENERS ---
+                
                 trackingInput.addEventListener('change', (e) => procesarEscaneo(e.target.value.trim()));
                 sucursalSelect.addEventListener('change', refrescarListaPrincipal);
                 lockButton.addEventListener('click', () => {
@@ -353,8 +359,20 @@
                     sucursalSelect.disabled = isSucursalLocked;
                     lockButton.innerHTML = isSucursalLocked ? lockedIcon : unlockedIcon;
                 });
+                
+                verificadosContainer.addEventListener('click', (e) => {
+                    const target = e.target.closest('.btn-notificar-individual');
+                    if (target) {
+                        notificarCliente(target.dataset.casillero, target.dataset.link);
+                    }
+                });
 
-                // --- INICIALIZACIÓN ---
+                btnNotificarTodos.addEventListener('click', () => {
+                    document.querySelectorAll('.btn-notificar-individual').forEach(btn => {
+                        btn.click(); 
+                    });
+                });
+
                 lockButton.innerHTML = unlockedIcon;
                 cargarDependencias();
 
