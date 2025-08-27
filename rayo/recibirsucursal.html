@@ -330,7 +330,7 @@
                         status: 'En Sucursal',
                         sucursal_recibido: sucursal,
                         anaquel: anaquel,
-                        fecha_sucursal: new Date().toISOString().split('T')[0] 
+                        fecha_sucursal: new Date().toISOString().split('T')[0]
                     }));
 
                     btnConfirmarLote.textContent = "Procesando...";
@@ -339,7 +339,7 @@
                     const { error } = await sb.from('paquetes').upsert(updates);
 
                     if (error) {
-                        showAlert("Error al actualizar los paquetes. Intente de nuevo.");
+                        showAlert(`Error de base de datos: ${error.message}`);
                         console.error("Error en upsert:", error);
                     } else {
                         showAlert(`Lote de ${updates.length} paquetes confirmado exitosamente en el anaquel ${anaquel}. ✅`);
@@ -350,6 +350,9 @@
                     }
                     
                     btnConfirmarLote.textContent = "Confirmar Recepción de Lote";
+                    if (error) {
+                        btnConfirmarLote.disabled = Object.keys(gruposVerificados).length === 0;
+                    }
                 });
                 
                 trackingInput.addEventListener('change', (e) => procesarEscaneo(e.target.value.trim()));
