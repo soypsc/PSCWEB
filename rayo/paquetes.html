@@ -214,7 +214,6 @@
                 async function cargarPaquetes() {
                     renderEmpty("Cargando paquetes...");
                     
-                    // Llamamos a la función RPC para obtener TODOS los paquetes de forma segura
                     const { data, error } = await sb.rpc('get_all_paquetes');
 
                     if (error) {
@@ -224,8 +223,8 @@
                         return renderEmpty("No se encontraron paquetes.");
                     }
                     
-                    todosLosPaquetes = data; // Guardamos la lista completa en caché
-                    aplicarFiltrosYRenderizar(); // Aplicamos los filtros y mostramos
+                    todosLosPaquetes = data;
+                    aplicarFiltrosYRenderizar();
                 }
 
                 async function cargarFiltrosYDropdowns() {
@@ -270,13 +269,12 @@
                     if (error) alert("No se pudo eliminar el paquete.");
                     else {
                         alert("Paquete eliminado.");
-                        cargarPaquetes(); // Recargar la lista completa
+                        await cargarPaquetes();
                     }
                 }
 
                 async function abrirModalEdicion(id) {
                     editingPaqueteId = id;
-                    // Buscamos el paquete en nuestra lista local en lugar de hacer una nueva consulta
                     const data = todosLosPaquetes.find(p => p.id === id);
                     if (!data) return alert('No se pudo encontrar el paquete para editar.');
 
@@ -320,7 +318,7 @@
                     } else {
                         alert("Paquete actualizado ✅");
                         editModal.classList.add('hidden');
-                        cargarPaquetes(); // Recargar la lista completa
+                        await cargarPaquetes();
                     }
                 });
 
