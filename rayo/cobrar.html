@@ -242,13 +242,7 @@
             
             clienteActual = data;
             
-            // =================================================================
-            // INICIO DEL CAMBIO IMPORTANTE: Usar RPC en lugar de consulta directa
-            // =================================================================
             const { data: paquetes, error: paquetesError } = await sb.rpc('get_paquetes_para_entrega', { p_cliente_box: clienteActual.box });
-            // =================================================================
-            // FIN DEL CAMBIO IMPORTANTE
-            // =================================================================
 
             if (paquetesError) {
                 alert("Error al cargar paquetes del cliente.");
@@ -329,7 +323,6 @@
 
             try {
                 const filePath = `public/${paqueteParaEditar.tracking}-${Date.now()}.jpg`;
-                // AÑADIMOS LA OPCIÓN PARA FORZAR EL TIPO DE CONTENIDO
                 const { error: uploadError } = await sb.storage.from('ajustes-peso').upload(filePath, foto, { contentType: 'image/jpeg' });
                 if (uploadError) throw new Error(`Error al subir foto: ${uploadError.message}`);
 
@@ -382,9 +375,89 @@
             btnCompletarVenta.disabled = carrito.length === 0 || restante > 0.001;
         }
 
-        function handlePago(metodo) { /* ... Lógica de pago sin cambios ... */ }
-        async function completarVenta() { /* ... Lógica de completar venta sin cambios ... */ }
+        async function completarVenta() {
+            if (btnCompletarVenta.disabled) return;
+            btnCompletarVenta.textContent = "Procesando...";
+            btnCompletarVenta.disabled = true;
 
+            const montoTotal = carrito.reduce((acc, p) => acc + (p.costo_flete || 0) + (p.costo_impuestos || 0), 0);
+
+            try {
+                // 1. Crear factura
+                const { data: factura, error: errFactura } = await sb.from('facturas').insert({
+                    cliente_box: clienteActual.box,
+                    cliente_nombre: clienteActual.nombre,
+                    monto_total: montoTotal,
+                    status: 'Pagada'
+                }).select().single();
+                if (errFactura) throw errFactura;
+                const facturaId = factura.id;
+
+                // 2. Preparar datos para inserts masivos
+                const itemsData = carrito.map(p => ({
+                    factura_id: facturaId,
+                    paquete_id: p.id,
+                    paquete_tracking: p.tracking,
+                    monto_cobrado: (p.costo_flete || 0) + (p.costo_impuestos || 0)
+                }));
+                const pagosData = pagos.map(p => ({
+                    factura_id: facturaId,
+                    monto: p.monto,
+                    metodo_pago: p.metodo
+                }));
+                const paquetesUpdateData = carrito.map(p => ({
+                    id: p.id,
+                    status: 'Entregado',
+                    factura_id: facturaId
+                }));
+                
+                // 3. Ejecutar inserts
+                const [resItems, resPagos, resPaquetes] = await Promise.all([
+                    sb.from('factura_items').insert(itemsData),
+                    sb.from('pagos').insert(pagosData),
+                    sb.from('paquetes').upsert(paquetesUpdateData)
+                ]);
+
+                if (resItems.error) throw resItems.error;
+                if (resPagos.error) throw resPagos.error;
+                if (resPaquetes.error) throw resPaquetes.error;
+
+                alert(`¡Venta completada! Factura #${facturaId} creada.`);
+                resetTerminal(true);
+
+            } catch (error) {
+                console.error("Error al completar la venta:", error);
+                alert(`Error: ${error.message}`);
+                btnCompletarVenta.textContent = "Completar Venta";
+                btnCompletarVenta.disabled = false;
+            }
+        }
+        
+        function handlePago(metodo) {
+            if (carrito.length === 0) {
+                alert("Agregue paquetes al carrito antes de registrar un pago.");
+                return;
+            }
+            const total = carrito.reduce((acc, p) => acc + (p.costo_flete || 0) + (p.costo_impuestos || 0), 0);
+            const totalPagado = pagos.reduce((acc, p) => acc + p.monto, 0);
+            const restante = total - totalPagado;
+
+            if (restante <= 0) {
+                alert("La cuenta ya está saldada.");
+                return;
+            }
+
+            const montoStr = prompt(`Ingrese el monto a pagar con ${metodo}:`, restante.toFixed(2));
+            const monto = parseFloat(montoStr);
+
+            if (!isNaN(monto) && monto > 0 && monto <= restante + 0.001) {
+                pagos.push({ metodo, monto });
+                renderPagos();
+                calcularTotal();
+            } else {
+                alert("Monto inválido. No puede ser mayor al restante ni ser cero.");
+            }
+        }
         // --- Utilidades y Reseteo ---
 
         function resetTerminal(limpiarBuscador = false) {
