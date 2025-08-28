@@ -1,0 +1,21 @@
+<div id="page-login" class="page active">
+     <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
+        <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo de PSC" class="h-16 mx-auto"><h1 class="text-3xl font-bold text-white mt-4">Bienvenido</h1><p class="text-gray-400">Inicia sesión para continuar</p></div>
+        <form id="login-form" class="space-y-4">
+            <div><label for="login-email" class="text-sm font-medium text-gray-400">Email</label><input id="login-email" type="email" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
+            <div class="relative"><label for="login-password" class="text-sm font-medium text-gray-400">Contraseña</label><input id="login-password" type="password" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg pr-10"><button type="button" class="toggle-password absolute inset-y-0 right-0 top-6 pr-3 flex items-center text-gray-400 hover:text-white"><i data-lucide="eye" class="h-5 w-5"></i></button></div>
+            <p id="login-error" class="text-red-400 text-sm text-center h-5"></p><button type="submit" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 transition !mt-6">Ingresar</button>
+        </form>
+        <p class="text-center text-sm text-gray-400 mt-6">¿No tienes una cuenta? <a href="#" id="show-register-link" class="font-semibold text-blue-400 hover:underline">Regístrate aquí</a></p>
+    </div>
+</div>
+
+<div id="page-register" class="page">
+    <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
+        <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo de PSC" class="h-16 mx-auto"><h1 class="text-3xl font-bold text-white mt-4">Crear Cuenta</h1><p class="text-gray-400">Completa tus datos para registrarte</p></div>
+        <form id="register-form" class="space-y-4">
+            <p id="register-error" class="text-red-400 text-sm text-center h-5"></p><button type="submit" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 transition !mt-6">Crear Cuenta</button>
+        </form>
+        <p class="text-center text-sm text-gray-400 mt-6">¿Ya tienes una cuenta? <a href="#" id="show-login-link" class="font-semibold text-blue-400 hover:underline">Inicia sesión</a></p>
+    </div>
+</div>
