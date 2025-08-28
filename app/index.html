@@ -77,7 +77,20 @@
 
     <div id="app-container" class="max-w-md mx-auto bg-black min-h-screen hidden">
         <div id="page-home" class="page">
-            <header class="p-6"><div class="flex items-center justify-between"><img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo de PSC" class="h-10"><div class="flex items-center space-x-4"><i data-lucide="bell" class="text-gray-400 cursor-pointer hover:text-white transition"></i><div id="logout-button" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center cursor-pointer" title="Cerrar Sesión"><i data-lucide="log-out" class="text-gray-400"></i></div></div></div></header>
+            <header class="p-6">
+                <div class="flex items-center justify-between">
+                    <img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo de PSC" class="h-10">
+                    <div class="flex items-center space-x-4">
+                        <!-- MODIFICADO: Botón de campana cambiado por perfil -->
+                        <a href="#" data-target="page-profile" class="nav-link text-gray-400 hover:text-white transition" title="Mi Perfil">
+                            <i data-lucide="user-circle-2"></i>
+                        </a>
+                        <div id="logout-button" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center cursor-pointer" title="Cerrar Sesión">
+                            <i data-lucide="log-out" class="text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
             <main class="px-6 pb-24 space-y-10">
                 <section>
                     <p class="text-gray-400 text-lg">Hola,</p><div class="flex items-baseline space-x-2"><h1 id="user-name-display" class="text-3xl font-bold text-white">Usuario</h1><span id="user-box-display" class="font-mono text-lg text-blue-400"></span></div>
@@ -124,6 +137,73 @@
              <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mal Identificado</h1></header>
             <main class="px-6 pb-8 space-y-8"><section><h2 class="text-lg font-semibold text-white">Buscar Paquete</h2><p class="text-sm text-gray-400 mt-1">Busca tu paquete por número de tracking para solicitar la corrección.</p><div class="mt-4"><label for="ml_trk" class="text-sm font-medium text-gray-400">Tracking</label><div class="flex items-center space-x-2 mt-1"><input id="ml_trk" type="text" placeholder="Ej: 1Z999999..." class="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg"><button id="ml_go" class="bg-blue-500 text-white p-2.5 rounded-lg hover:bg-blue-600 transition"><i data-lucide="search" class="h-5 w-5"></i></button><button id="ml_clear" class="bg-gray-700 text-white p-2.5 rounded-lg hover:bg-gray-600 transition"><i data-lucide="x" class="h-5 w-5"></i></button></div><div id="ml_status" class="status text-sm mt-2 min-h-[20px]"></div></div></section><section id="ml_result-container" class="form-section"><div class="space-y-6"><div><h3 class="text-base font-semibold text-white">Resultado de la Búsqueda</h3><pre id="ml_out" class="text-sm mt-2 p-3 bg-gray-800 rounded-lg whitespace-pre-wrap word-break-break-word min-h-[50px]"></pre></div><div class="ml_question hidden"><p class="text-sm font-medium text-white">¿Se encontró información de tu paquete?</p><p class="text-xs text-gray-400 mt-1">Si se mostró fecha de ingreso, saco o un párrafo con fecha, lo más probable es que tu paquete esté mal identificado.</p><div class="ml_choices custom-radio flex space-x-2 mt-3"><input type="radio" id="ml_seen_si" name="ml_seen" value="si"><label for="ml_seen_si">Sí, se encontró</label><input type="radio" id="ml_seen_no" name="ml_seen" value="no"><label for="ml_seen_no">No, no se encontró</label></div><div id="ml_noMsg" class="hint text-sm text-yellow-400 p-3 bg-yellow-900/50 rounded-lg mt-3"></div></div><div class="form" id="ml_mlForm"><h3 class="text-base font-semibold text-white">Completa tu solicitud</h3><div class="space-y-3 mt-3"><div><label for="ml_cas" class="text-sm font-medium text-gray-400">N.º de casillero (obligatorio)</label><input id="ml_cas" type="text" placeholder="Ej: 12345" class="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg"></div><div><label for="ml_name" class="text-sm font-medium text-gray-400">Nombre</label><input id="ml_name" type="text" placeholder="Tu nombre" class="w-full mt-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg"></div><button id="ml_ask" class="w-full bg-blue-500 text-white font-semibold py-2.5 rounded-lg hover:bg-blue-600 transition">Solicitar</button></div><div id="ml_msg" class="toast text-center mt-3 text-sm"></div></div></div></section></main>
         </div>
+        
+        <!-- INICIO PÁGINA DE PERFIL -->
+        <div id="page-profile" class="page">
+            <header class="p-6 flex items-center space-x-4">
+                <a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition">
+                    <i data-lucide="arrow-left" class="h-6 w-6"></i>
+                </a>
+                <h1 class="text-xl font-bold text-white">Mi Perfil</h1>
+            </header>
+            <main class="px-6 pb-24 space-y-8">
+                <!-- Formulario de Datos Personales -->
+                <section>
+                    <h2 class="text-lg font-semibold text-white">Datos Personales</h2>
+                    <form id="profile-form" class="mt-4 space-y-4">
+                        <div>
+                            <label for="profile-email" class="text-sm font-medium text-gray-400">Email</label>
+                            <input id="profile-email" type="email" disabled class="w-full mt-1 px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-gray-500 cursor-not-allowed">
+                        </div>
+                        <div>
+                            <label for="profile-name" class="text-sm font-medium text-gray-400">Nombre Completo</label>
+                            <input id="profile-name" type="text" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg">
+                        </div>
+                        <div>
+                            <label for="profile-whatsapp" class="text-sm font-medium text-gray-400">WhatsApp</label>
+                            <input id="profile-whatsapp" type="tel" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg">
+                        </div>
+                        <div>
+                            <label for="profile-birthday" class="text-sm font-medium text-gray-400">Fecha de Nacimiento</label>
+                            <input id="profile-birthday" type="date" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg">
+                        </div>
+                        <div>
+                            <label for="profile-address" class="text-sm font-medium text-gray-400">Dirección</label>
+                            <textarea id="profile-address" required rows="3" class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></textarea>
+                        </div>
+                        <div>
+                            <label for="profile-sucursal" class="text-sm font-medium text-gray-400">Sucursal Preferida</label>
+                            <select id="profile-sucursal" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg appearance-none">
+                                <option value="">Cargando...</option>
+                            </select>
+                        </div>
+                        <p id="profile-message" class="text-sm text-center h-5"></p>
+                        <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 transition !mt-6">Guardar Cambios</button>
+                    </form>
+                </section>
+
+                <!-- Formulario de Cambio de Contraseña -->
+                <section>
+                    <h2 class="text-lg font-semibold text-white">Cambiar Contraseña</h2>
+                    <form id="password-form" class="mt-4 space-y-4">
+                        <div class="relative">
+                            <label for="new-password" class="text-sm font-medium text-gray-400">Nueva Contraseña</label>
+                            <input id="new-password" type="password" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg pr-10">
+                            <button type="button" class="toggle-password absolute inset-y-0 right-0 top-6 pr-3 flex items-center text-gray-400 hover:text-white"><i data-lucide="eye" class="h-5 w-5"></i></button>
+                        </div>
+                        <div class="relative">
+                            <label for="confirm-password" class="text-sm font-medium text-gray-400">Confirmar Nueva Contraseña</label>
+                            <input id="confirm-password" type="password" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg pr-10">
+                            <button type="button" class="toggle-password absolute inset-y-0 right-0 top-6 pr-3 flex items-center text-gray-400 hover:text-white"><i data-lucide="eye" class="h-5 w-5"></i></button>
+                        </div>
+                        <p id="password-message" class="text-sm text-center h-5"></p>
+                        <button type="submit" class="w-full bg-gray-700 text-white font-semibold py-3 rounded-lg hover:bg-gray-600 transition !mt-6">Actualizar Contraseña</button>
+                    </form>
+                </section>
+            </main>
+        </div>
+        <!-- FIN PÁGINA DE PERFIL -->
+
     </div>
 
     <script>
@@ -164,6 +244,7 @@
                 window.scrollTo(0, 0);
                 if (pageId === 'page-paquetes') { loadPaquetes(); }
                 if (pageId === 'page-casillero') { initializeDireccionesPage(); }
+                if (pageId === 'page-profile') { loadProfileData(); } // NUEVO: Cargar datos del perfil
             };
             const showAuth = () => { authContainer.style.display = 'block'; appContainer.classList.add('hidden'); showPage('page-login'); };
             const showApp = async (user) => {
@@ -208,12 +289,24 @@
             const handleLogout = async () => { await supabaseClient.auth.signOut(); currentUserProfile = null; showAuth(); };
             
             // --- DATA LOADING & PAGE LOGIC ---
-            const loadSucursales = async () => {
-                const sucursalSelect = document.getElementById('register-sucursal');
+            // MODIFICADO: Función reutilizable para poblar dropdowns de sucursales
+            const populateSucursalesDropdown = async (selectId) => {
+                const selectElement = document.getElementById(selectId);
+                if (!selectElement) return;
+
                 const { data, error } = await supabaseClient.from('sucursales').select('sucursal').order('sucursal');
-                if (error) { sucursalSelect.innerHTML = '<option value="">No se pudieron cargar</option>'; return; }
-                if (data) { sucursalSelect.innerHTML = '<option value="">Selecciona una sucursal</option>'; data.forEach(s => { sucursalSelect.innerHTML += `<option value="${s.sucursal}">${s.sucursal}</option>`; }); }
+                if (error) {
+                    selectElement.innerHTML = '<option value="">No se pudieron cargar</option>';
+                    return;
+                }
+                if (data) {
+                    selectElement.innerHTML = '<option value="">Selecciona una sucursal</option>';
+                    data.forEach(s => {
+                        selectElement.innerHTML += `<option value="${s.sucursal}">${s.sucursal}</option>`;
+                    });
+                }
             };
+
             const loadPaquetes = async () => {
                 paquetesListContainer.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 rounded-full mx-auto"></div><p class="text-gray-400 mt-4">Cargando...</p></div>`;
                 summaryTransito.textContent = '-'; summarySucursal.textContent = '-'; summarySaldo.textContent = '$...'; summaryEntregado.textContent = '-';
@@ -289,6 +382,112 @@
                 initializeCotizarPage();
                 initializeMalIdentificadoPage();
             }
+            
+            // --- PROFILE PAGE LOGIC ---
+            const profileForm = document.getElementById('profile-form');
+            const passwordForm = document.getElementById('password-form');
+            const profileMessage = document.getElementById('profile-message');
+            const passwordMessage = document.getElementById('password-message');
+
+            const loadProfileData = async () => {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) return;
+
+                // Cargar sucursales en el dropdown de perfil
+                await populateSucursalesDropdown('profile-sucursal');
+                
+                // Poblar email (deshabilitado)
+                document.getElementById('profile-email').value = user.email;
+
+                // Obtener y poblar el resto de los datos del cliente
+                const { data: cliente, error } = await supabaseClient
+                    .from('clientes')
+                    .select('nombre, whatsapp, fecha_nac, direccion, sucursal_preferida')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (error) {
+                    profileMessage.textContent = 'Error al cargar tus datos.';
+                    profileMessage.className = 'text-red-400 text-sm text-center h-5';
+                    return;
+                }
+
+                if (cliente) {
+                    document.getElementById('profile-name').value = cliente.nombre || '';
+                    document.getElementById('profile-whatsapp').value = cliente.whatsapp || '';
+                    document.getElementById('profile-birthday').value = cliente.fecha_nac || '';
+                    document.getElementById('profile-address').value = cliente.direccion || '';
+                    document.getElementById('profile-sucursal').value = cliente.sucursal_preferida || '';
+                }
+            };
+            
+            const handleProfileUpdate = async (e) => {
+                e.preventDefault();
+                profileMessage.textContent = 'Guardando...';
+                profileMessage.className = 'text-yellow-400 text-sm text-center h-5';
+
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) {
+                    profileMessage.textContent = 'Error de autenticación.';
+                    profileMessage.className = 'text-red-400 text-sm text-center h-5';
+                    return;
+                }
+
+                const updatedProfile = {
+                    nombre: document.getElementById('profile-name').value,
+                    whatsapp: document.getElementById('profile-whatsapp').value,
+                    fecha_nac: document.getElementById('profile-birthday').value,
+                    direccion: document.getElementById('profile-address').value,
+                    sucursal_preferida: document.getElementById('profile-sucursal').value
+                };
+
+                const { error } = await supabaseClient
+                    .from('clientes')
+                    .update(updatedProfile)
+                    .eq('user_id', user.id);
+                
+                if (error) {
+                    profileMessage.textContent = 'Error al guardar los datos.';
+                    profileMessage.className = 'text-red-400 text-sm text-center h-5';
+                } else {
+                    profileMessage.textContent = '¡Datos guardados con éxito!';
+                    profileMessage.className = 'text-green-400 text-sm text-center h-5';
+                    // Actualizar el nombre en la pantalla de inicio
+                    userNameDisplay.textContent = updatedProfile.nombre;
+                }
+            };
+
+            const handlePasswordUpdate = async (e) => {
+                e.preventDefault();
+                passwordMessage.textContent = '';
+                const newPassword = document.getElementById('new-password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+
+                if (newPassword.length < 6) {
+                    passwordMessage.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+                    passwordMessage.className = 'text-red-400 text-sm text-center h-5';
+                    return;
+                }
+                if (newPassword !== confirmPassword) {
+                    passwordMessage.textContent = 'Las contraseñas no coinciden.';
+                    passwordMessage.className = 'text-red-400 text-sm text-center h-5';
+                    return;
+                }
+
+                passwordMessage.textContent = 'Actualizando...';
+                passwordMessage.className = 'text-yellow-400 text-sm text-center h-5';
+
+                const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+
+                if (error) {
+                    passwordMessage.textContent = 'Error al actualizar la contraseña.';
+                    passwordMessage.className = 'text-red-400 text-sm text-center h-5';
+                } else {
+                    passwordMessage.textContent = '¡Contraseña actualizada!';
+                    passwordMessage.className = 'text-green-400 text-sm text-center h-5';
+                    passwordForm.reset();
+                }
+            };
 
             // --- ATTACH EVENT LISTENERS ---
             loginForm.addEventListener('submit', handleLogin);
@@ -300,6 +499,8 @@
             promoRadios.forEach(radio => { radio.addEventListener('change', () => { promoContainer.classList.toggle('hidden', radio.value !== 'yes'); }); });
             togglePasswordButtons.forEach(button => { button.addEventListener('click', () => { const input = button.previousElementSibling; const isPwd = input.type === 'password'; input.type = isPwd ? 'text' : 'password'; button.innerHTML = isPwd ? '<i data-lucide="eye-off"></i>' : '<i data-lucide="eye"></i>'; lucide.createIcons(); }); });
             enableNotificationsBtn.addEventListener('click', subscribeUser);
+            profileForm.addEventListener('submit', handleProfileUpdate); // NUEVO
+            passwordForm.addEventListener('submit', handlePasswordUpdate); // NUEVO
 
             // --- STARTUP LOGIC ---
             const checkUserSession = async () => {
@@ -308,12 +509,14 @@
                 lucide.createIcons();
             };
 
-            loadSucursales();
+            populateSucursalesDropdown('register-sucursal'); // MODIFICADO
             checkUserSession();
         });
     </script>
 </body>
 </html>
+
+
 
 
 
