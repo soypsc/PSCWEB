@@ -171,12 +171,7 @@
                 let clienteSeleccionado = null;
                 let clienteManualSeleccionado = null;
 
-                const fmtDate = (iso) => {
-                    if (!iso) return "N/A";
-                    try {
-                        return new Date(iso).toLocaleDateString("es-PA", { day: '2-digit', month: '2-digit', year: 'numeric' });
-                    } catch { return "Fecha inválida"; }
-                };
+                const fmtDate = (iso) => (iso ? new Date(iso).toLocaleDateString("es-PA", { day: '2-digit', month: '2-digit', year: 'numeric' }) : "N/A");
 
                 function showAlert(message) {
                     document.getElementById('custom-alert-message').textContent = message;
@@ -303,15 +298,21 @@
                         sucursalInput.value = '';
                     }
                 }
+                
+                function resetFormularioPrincipal() {
+                    formRecibir.reset();
+                    step2.classList.remove('visible');
+                    step3.classList.remove('visible');
+                    infoPaqueteDiv.classList.add('hidden');
+                    paqueteCargadoActual = null;
+                    clienteSeleccionado = null;
+                    trackingInput.focus();
+                }
 
                 formRecibir.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    if (!paqueteCargadoActual) {
-                        showAlert("Debe escanear un tracking de la carga primero.");
-                        return;
-                    }
-                    if (!clienteSeleccionado) {
-                        showAlert("Debe asignar un cliente válido al paquete.");
+                    if (!paqueteCargadoActual || !clienteSeleccionado) {
+                        showAlert("Debe escanear un tracking y asignar un cliente válido.");
                         return;
                     }
 
@@ -333,11 +334,11 @@
                         fecha_recibido: now,
                         fecha_sucursal: esEnSucursal ? now : null
                     };
+                    
+                    const { error } = await sb.rpc('crear_paquete_admin', { paquete_data: payload });
 
-                    const { error: insertError } = await sb.from('paquetes').insert(payload);
-
-                    if (insertError) {
-                        showAlert(`Error al registrar el paquete: ${insertError.message}`);
+                    if (error) {
+                        showAlert(`Error al registrar el paquete: ${error.message}`);
                         return;
                     }
                     
@@ -356,12 +357,8 @@
                 formManual.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     const tracking1 = document.getElementById('manual-tracking1').value.trim();
-                    if (!tracking1) {
-                        showAlert("El Tracking Principal es obligatorio.");
-                        return;
-                    }
-                    if (!clienteManualSeleccionado) {
-                        showAlert("Debe seleccionar un cliente válido.");
+                    if (!tracking1 || !clienteManualSeleccionado) {
+                        showAlert("El Tracking y el Cliente son obligatorios.");
                         return;
                     }
                     
@@ -374,10 +371,15 @@
                         sucursal: clienteManualSeleccionado.sucursal,
                         status: 'En transito',
                         fecha_bodega: now,
-                        fecha_recibido: now
+                        fecha_recibido: now,
+                        valor: null,
+                        anaquel: null,
+                        sucursal_recibido: null,
+                        fecha_sucursal: null
                     };
 
-                    const { error } = await sb.from('paquetes').insert(payload);
+                    const { error } = await sb.rpc('crear_paquete_admin', { paquete_data: payload });
+                    
                     if (error) {
                         showAlert(`Error al crear el paquete: ${error.message}`);
                         return;
@@ -401,16 +403,6 @@
                 manualModal.querySelectorAll('.close-modal').forEach(btn => {
                     btn.addEventListener('click', () => manualModal.classList.add('hidden'));
                 });
-
-                function resetFormularioPrincipal() {
-                    formRecibir.reset();
-                    step2.classList.remove('visible');
-                    step3.classList.remove('visible');
-                    infoPaqueteDiv.classList.add('hidden');
-                    paqueteCargadoActual = null;
-                    clienteSeleccionado = null;
-                    trackingInput.focus();
-                }
                 
                 cargarPaquetesPendientes();
                 cargarAnaqueles();
