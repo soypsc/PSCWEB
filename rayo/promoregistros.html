@@ -30,7 +30,7 @@
                             <th class="px-6 py-3 text-left">Código</th>
                             <th class="px-6 py-3 text-left">Descripción</th>
                             <th class="px-6 py-3 text-left">Tarifas (1/2/3)</th>
-                            <th class="px-6 py-3 text-center">Usos</th>
+                            <th class="px-6 py-3 text-center">Usos Exitosos</th>
                             <th class="px-6 py-3 text-left">Expira</th>
                             <th class="px-6 py-3 text-center">Estado</th>
                             <th class="px-6 py-3 text-left">Acciones</th>
@@ -123,8 +123,9 @@
                             ${p.is_activo ? 'Activo' : 'Inactivo'}
                         </span>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-4 flex items-center gap-4">
                         <button class="text-blue-600 font-semibold hover:underline" data-edit='${JSON.stringify(p)}'>Editar</button>
+                        <button class="text-red-600 font-semibold hover:underline" data-delete-id="${p.id}">Eliminar</button>
                     </td>
                 </tr>
             `).join('');
@@ -138,6 +139,19 @@
                 return;
             }
             renderRows(data);
+        }
+        
+        async function deletePromo(id) {
+            if (!confirm('¿Estás seguro de que quieres eliminar esta promoción? Esta acción no se puede deshacer.')) return;
+
+            const { error } = await sb.from('promo_registros').delete().eq('id', id);
+
+            if (error) {
+                console.error("Error al eliminar:", error);
+                alert(`No se pudo eliminar: ${error.message}`);
+                return;
+            }
+            await loadPromos();
         }
 
         function openModal(promo = null) {
@@ -198,6 +212,11 @@
             const editButton = e.target.closest('[data-edit]');
             if (editButton) {
                 openModal(JSON.parse(editButton.dataset.edit));
+            }
+            
+            const deleteButton = e.target.closest('[data-delete-id]');
+            if (deleteButton) {
+                deletePromo(deleteButton.dataset.deleteId);
             }
         });
 
