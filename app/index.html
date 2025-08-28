@@ -5,21 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PSC App</title>
     
+    <!-- PWA Manifest Details -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="PSC App">
     <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png">
 
+    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
+    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Lucide Icons for modern icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
+    <!-- Your config file with Supabase URL and Key -->
     <script src="config.js"></script>
 
     <style>
@@ -34,6 +40,7 @@
 <body class="bg-black text-gray-200">
 
     <div id="auth-container">
+        <!-- PAGE: LOGIN -->
         <div id="page-login" class="page">
              <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
                 <div class="text-center mb-8">
@@ -59,6 +66,7 @@
             </div>
         </div>
 
+        <!-- PAGE: REGISTER -->
         <div id="page-register" class="page">
             <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
                 <div class="text-center mb-8">
@@ -67,28 +75,25 @@
                     <p class="text-gray-400">Completa tus datos para registrarte</p>
                 </div>
                 <form id="register-form" class="space-y-4">
+                    <div><label for="register-name" class="text-sm font-medium text-gray-400">Nombre Completo</label><input id="register-name" type="text" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
+                    <div><label for="register-email" class="text-sm font-medium text-gray-400">Email</label><input id="register-email" type="email" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
+                    <div><label for="register-whatsapp" class="text-sm font-medium text-gray-400">WhatsApp</label><input id="register-whatsapp" type="tel" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
+                    <div><label for="register-sucursal" class="text-sm font-medium text-gray-400">Sucursal Preferida</label><select id="register-sucursal" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg appearance-none"><option value="">Cargando...</option></select></div>
+                    
                     <div>
-                        <label for="register-name" class="text-sm font-medium text-gray-400">Nombre Completo</label>
-                        <input id="register-name" type="text" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white">
+                        <label class="text-sm font-medium text-gray-400">¿Tienes un código promocional?</label>
+                        <div class="flex items-center space-x-4 mt-2">
+                            <label class="flex items-center"><input type="radio" name="hasPromo" value="no" checked class="h-4 w-4 text-blue-500 bg-gray-700 border-gray-600 focus:ring-blue-500"><span class="ml-2">No</span></label>
+                            <label class="flex items-center"><input type="radio" name="hasPromo" value="yes" class="h-4 w-4 text-blue-500 bg-gray-700 border-gray-600 focus:ring-blue-500"><span class="ml-2">Sí</span></label>
+                        </div>
                     </div>
-                    <div>
-                        <label for="register-email" class="text-sm font-medium text-gray-400">Email</label>
-                        <input id="register-email" type="email" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white">
+                    <div id="promo-code-container" class="hidden transition-all duration-300">
+                        <label for="register-promo" class="text-sm font-medium text-gray-400">Código Promocional</label>
+                        <input id="register-promo" type="text" placeholder="Ingresa tu código" class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg">
                     </div>
-                     <div>
-                        <label for="register-whatsapp" class="text-sm font-medium text-gray-400">WhatsApp</label>
-                        <input id="register-whatsapp" type="tel" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white">
-                    </div>
-                    <div>
-                        <label for="register-sucursal" class="text-sm font-medium text-gray-400">Sucursal Preferida</label>
-                        <select id="register-sucursal" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white appearance-none">
-                            <option value="">Cargando sucursales...</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="register-password" class="text-sm font-medium text-gray-400">Contraseña</label>
-                        <input id="register-password" type="password" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white">
-                    </div>
+                    
+                    <div><label for="register-password" class="text-sm font-medium text-gray-400">Contraseña</label><input id="register-password" type="password" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
+
                     <p id="register-error" class="text-red-400 text-sm text-center h-5"></p>
                     <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 transition !mt-6">Crear Cuenta</button>
                 </form>
@@ -149,17 +154,19 @@
                 <section>
                     <h2 class="text-lg font-semibold text-white mb-3">Historial</h2>
                     <div id="paquetes-list-container" class="space-y-4">
-                        </div>
+                        <!-- El contenido se generará con JavaScript -->
+                    </div>
                 </section>
             </main>
         </div>
         
-        <div id="page-rastreo" class="page"></div>
-        <div id="page-casillero" class="page"></div>
-        <div id="page-cotizar" class="page"></div>
-        <div id="page-mal-identificado" class="page"></div>
+        <div id="page-rastreo" class="page"><!-- Contenido de Rastreo --></div>
+        <div id="page-casillero" class="page"><!-- Contenido de Casillero --></div>
+        <div id="page-cotizar" class="page"><!-- Contenido de Cotizar --></div>
+        <div id="page-mal-identificado" class="page"><!-- Contenido de Mal Identificado --></div>
     </div>
 
+    <!-- MAIN APP SCRIPT -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- CONFIG & INITIALIZATION ---
@@ -186,6 +193,8 @@
             const summarySucursal = document.getElementById('summary-sucursal');
             const summarySaldo = document.getElementById('summary-saldo');
             const summaryEntregado = document.getElementById('summary-entregado');
+            const promoRadios = document.querySelectorAll('input[name="hasPromo"]');
+            const promoContainer = document.getElementById('promo-code-container');
 
             // --- HELPER FUNCTIONS ---
             const showPage = (pageId) => {
@@ -269,6 +278,7 @@
                 const whatsapp = document.getElementById('register-whatsapp').value;
                 const sucursal = document.getElementById('register-sucursal').value;
                 const password = document.getElementById('register-password').value;
+                const promoCode = document.getElementById('register-promo').value.trim();
                 
                 if (!sucursal) {
                     registerError.textContent = 'Por favor, selecciona una sucursal.';
@@ -278,7 +288,14 @@
                 const { data, error } = await supabaseClient.auth.signUp({
                     email,
                     password,
-                    options: { data: { nombre_completo: name, whatsapp: whatsapp, sucursal_preferida: sucursal } }
+                    options: { 
+                        data: { 
+                            nombre_completo: name, 
+                            whatsapp: whatsapp, 
+                            sucursal_preferida: sucursal,
+                            codigo_promo: promoCode 
+                        } 
+                    }
                 });
 
                 if (error) {
@@ -352,8 +369,8 @@
                 paquetesListContainer.innerHTML = paquetes.map(p => `
                     <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 fade-in">
                         <div class="flex justify-between items-center mb-2">
-                            <p class="font-mono text-white font-semibold">${p.tracking}</p>
-                            <span class="text-xs font-bold px-2 py-1 rounded-full ${getStatusBadge(p.status)}">${p.status || 'Desconocido'}</span>
+                            <p class="font-mono text-white font-semibold">${escapeHtml(p.tracking)}</p>
+                            <span class="text-xs font-bold px-2 py-1 rounded-full ${getStatusBadge(p.status)}">${escapeHtml(p.status) || 'Desconocido'}</span>
                         </div>
                         <div class="text-sm text-gray-400 flex justify-between">
                             <span>Recibido en Bodega: ${formatDate(p.fecha_bodega)}</span>
@@ -376,6 +393,15 @@
                     showPage(targetId);
                 });
             });
+            promoRadios.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    if (radio.value === 'yes') {
+                        promoContainer.classList.remove('hidden');
+                    } else {
+                        promoContainer.classList.add('hidden');
+                    }
+                });
+            });
 
             // --- STARTUP LOGIC ---
             const checkUserSession = async () => {
@@ -394,6 +420,7 @@
     </script>
 </body>
 </html>
+
 
 
 
