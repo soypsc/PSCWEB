@@ -329,7 +329,8 @@
 
             try {
                 const filePath = `public/${paqueteParaEditar.tracking}-${Date.now()}.jpg`;
-                const { error: uploadError } = await sb.storage.from('ajustes-peso').upload(filePath, foto);
+                // AÑADIMOS LA OPCIÓN PARA FORZAR EL TIPO DE CONTENIDO
+                const { error: uploadError } = await sb.storage.from('ajustes-peso').upload(filePath, foto, { contentType: 'image/jpeg' });
                 if (uploadError) throw new Error(`Error al subir foto: ${uploadError.message}`);
 
                 const { data: urlData } = sb.storage.from('ajustes-peso').getPublicUrl(filePath);
