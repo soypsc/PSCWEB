@@ -29,7 +29,7 @@
                         <tr>
                             <th class="px-6 py-3 text-left">Código</th>
                             <th class="px-6 py-3 text-left">Descripción</th>
-                            <th class="px-6 py-3 text-left">Tarifa 1</th>
+                            <th class="px-6 py-3 text-left">Tarifas (1/2/3)</th>
                             <th class="px-6 py-3 text-center">Usos</th>
                             <th class="px-6 py-3 text-left">Expira</th>
                             <th class="px-6 py-3 text-center">Estado</th>
@@ -59,14 +59,15 @@
                            <button type="button" id="generate-code-btn" class="p-2 border rounded-md" title="Generar código aleatorio">🎲</button>
                         </div>
                     </div>
-                     <div>
-                        <label for="tarifa_1" class="block text-sm font-medium">Tarifa 1 (Obligatoria)</label>
-                        <input id="tarifa_1" type="number" step="0.01" required class="w-full p-2 border rounded-md">
-                    </div>
                 </div>
                 <div>
                     <label for="descripcion" class="block text-sm font-medium">Descripción</label>
                     <textarea id="descripcion" rows="2" class="w-full p-2 border rounded-md"></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div><label for="tarifa_1" class="block text-sm font-medium">Tarifa 1 (Obligatoria)</label><input id="tarifa_1" type="number" step="0.01" required class="w-full p-2 border rounded-md"></div>
+                    <div><label for="tarifa_2" class="block text-sm font-medium">Tarifa 2 (Opcional)</label><input id="tarifa_2" type="number" step="0.01" class="w-full p-2 border rounded-md"></div>
+                    <div><label for="tarifa_3" class="block text-sm font-medium">Tarifa 3 (Opcional)</label><input id="tarifa_3" type="number" step="0.01" class="w-full p-2 border rounded-md"></div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -103,6 +104,7 @@
         let editingId = null;
 
         const formatDate = (iso) => (iso ? new Date(iso).toLocaleDateString('es-PA') : 'Nunca');
+        const formatTarifas = (p) => `$${Number(p.tarifa_1).toFixed(2)} / ${p.tarifa_2 ? '$'+Number(p.tarifa_2).toFixed(2) : '-'} / ${p.tarifa_3 ? '$'+Number(p.tarifa_3).toFixed(2) : '-'}`;
 
         function renderRows(promos) {
             if (!promos || promos.length === 0) {
@@ -113,7 +115,7 @@
                 <tr class="border-b">
                     <td class="px-6 py-4 font-mono font-bold">${p.codigo}</td>
                     <td class="px-6 py-4">${p.descripcion || ''}</td>
-                    <td class="px-6 py-4 font-mono">$${Number(p.tarifa_1).toFixed(2)}</td>
+                    <td class="px-6 py-4 font-mono">${formatTarifas(p)}</td>
                     <td class="px-6 py-4 text-center">${p.usos_actuales} / ${p.usos_maximos || '∞'}</td>
                     <td class="px-6 py-4">${formatDate(p.fecha_expiracion)}</td>
                     <td class="px-6 py-4 text-center">
@@ -129,11 +131,10 @@
         }
 
         async function loadPromos() {
-            // Usamos la función RPC segura para leer los datos
             const { data, error } = await sb.from('promo_registros').select('*').order('created_at', { ascending: false });
             if (error) {
                 console.error(error);
-                tableBody.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-red-500">Error al cargar promociones.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-red-500">Error al cargar. Revisa los permisos RLS.</td></tr>`;
                 return;
             }
             renderRows(data);
@@ -147,6 +148,8 @@
                 document.getElementById('codigo').value = promo.codigo;
                 document.getElementById('descripcion').value = promo.descripcion;
                 document.getElementById('tarifa_1').value = promo.tarifa_1;
+                document.getElementById('tarifa_2').value = promo.tarifa_2;
+                document.getElementById('tarifa_3').value = promo.tarifa_3;
                 document.getElementById('usos_maximos').value = promo.usos_maximos;
                 document.getElementById('fecha_expiracion').value = promo.fecha_expiracion ? promo.fecha_expiracion.split('T')[0] : '';
                 document.getElementById('is_activo').checked = promo.is_activo;
@@ -164,6 +167,8 @@
                 codigo: document.getElementById('codigo').value.trim().toUpperCase(),
                 descripcion: document.getElementById('descripcion').value.trim(),
                 tarifa_1: parseFloat(document.getElementById('tarifa_1').value),
+                tarifa_2: parseFloat(document.getElementById('tarifa_2').value) || null,
+                tarifa_3: parseFloat(document.getElementById('tarifa_3').value) || null,
                 usos_maximos: parseInt(document.getElementById('usos_maximos').value) || null,
                 fecha_expiracion: document.getElementById('fecha_expiracion').value || null,
                 is_activo: document.getElementById('is_activo').checked,
