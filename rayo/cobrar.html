@@ -136,7 +136,7 @@
         let paquetesPendientes = [];
         let carrito = [];
         let pagos = [];
-        let paqueteParaEditar = null; // Para saber qué paquete se edita en el modal
+        let paqueteParaEditar = null; 
 
         // --- Elementos del DOM ---
         const searchClienteInput = document.getElementById('search-cliente');
@@ -149,7 +149,6 @@
         const pagoRestanteSpan = document.getElementById('pago-restante');
         const pagosRealizadosList = document.getElementById('pagos-realizados-list');
         const btnCompletarVenta = document.getElementById('btn-completar-venta');
-        // --- Modal de Edición ---
         const editPesoModal = document.getElementById('edit-peso-modal');
         const formEditPeso = document.getElementById('form-edit-peso');
         const editPesoTracking = document.getElementById('edit-peso-tracking');
@@ -243,16 +242,20 @@
             
             clienteActual = data;
             
-            // Usamos la RPC para obtener los paquetes con el costo ya calculado
+            // =================================================================
+            // INICIO DEL CAMBIO IMPORTANTE: Usar RPC en lugar de consulta directa
+            // =================================================================
             const { data: paquetes, error: paquetesError } = await sb.rpc('get_paquetes_para_entrega', { p_cliente_box: clienteActual.box });
+            // =================================================================
+            // FIN DEL CAMBIO IMPORTANTE
+            // =================================================================
 
             if (paquetesError) {
                 alert("Error al cargar paquetes del cliente.");
                 console.error(paquetesError);
                 return;
             }
-
-            // El costo ya viene en el campo `costo_total` de la RPC
+            
             paquetesPendientes = paquetes.map(p => ({ ...p, costo_flete: p.costo_total, costo_impuestos: 0 }));
             
             clienteNombreTitulo.textContent = clienteActual.nombre;
@@ -325,16 +328,13 @@
             }
 
             try {
-                // 1. Subir la foto a Supabase Storage
                 const filePath = `public/${paqueteParaEditar.tracking}-${Date.now()}.jpg`;
                 const { error: uploadError } = await sb.storage.from('ajustes-peso').upload(filePath, foto);
                 if (uploadError) throw new Error(`Error al subir foto: ${uploadError.message}`);
 
-                // 2. Obtener la URL pública
                 const { data: urlData } = sb.storage.from('ajustes-peso').getPublicUrl(filePath);
                 if (!urlData) throw new Error("No se pudo obtener la URL de la foto.");
                 
-                // 3. Actualizar el paquete en la base de datos
                 const { error: updateError } = await sb
                     .from('paquetes')
                     .update({
@@ -345,13 +345,11 @@
                     .eq('id', paqueteParaEditar.id);
                 if (updateError) throw new Error(`Error al actualizar paquete: ${updateError.message}`);
 
-                // 4. Refrescar los datos del paquete para obtener el nuevo costo
                 const { data: paqueteActualizado, error: fetchError } = await sb.rpc('get_paquetes_para_entrega', { p_cliente_box: clienteActual.box })
                     .eq('id', paqueteParaEditar.id)
                     .single();
                 if (fetchError) throw new Error(`Error al refrescar datos: ${fetchError.message}`);
 
-                // 5. Actualizar el carrito en el frontend
                 const indexEnCarrito = carrito.findIndex(p => p.id === paqueteParaEditar.id);
                 if (indexEnCarrito > -1) {
                     carrito[indexEnCarrito] = { ...paqueteActualizado, costo_flete: paqueteActualizado.costo_total, costo_impuestos: 0 };
@@ -420,7 +418,6 @@
             });
             btnCompletarVenta.addEventListener('click', completarVenta);
             
-            // Listeners para el carrito
             carritoItemsDiv.addEventListener('click', (e) => {
                 const deleteBtn = e.target.closest('.btn-delete-item');
                 const editBtn = e.target.closest('.btn-edit-item');
@@ -432,7 +429,6 @@
                 }
             });
             
-            // Listeners para el modal de edición
             formEditPeso.addEventListener('submit', handleEditPesoSubmit);
             document.getElementById('close-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
             document.getElementById('cancel-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
