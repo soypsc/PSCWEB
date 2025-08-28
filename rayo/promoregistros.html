@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGL1 - Promos de Registro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .code { font-size: 13px; font-weight: 600; color: #94a3b8; margin-right: 12px; background-color: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="relative min-h-screen md:flex">
+        <div id="menu-container"></div>
+
+        <main class="flex-1 p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-slate-900 flex items-center"><span class="code">[AD-01]</span>Promociones de Registro</h1>
+                <button id="add-promo-btn" class="bg-emerald-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-emerald-600">Crear Promoción</button>
+            </div>
+
+            <div class="bg-white rounded-lg border overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left">Código</th>
+                            <th class="px-6 py-3 text-left">Descripción</th>
+                            <th class="px-6 py-3 text-left">Tarifa 1</th>
+                            <th class="px-6 py-3 text-center">Usos</th>
+                            <th class="px-6 py-3 text-left">Expira</th>
+                            <th class="px-6 py-3 text-center">Estado</th>
+                            <th class="px-6 py-3 text-left">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="7" class="text-center p-4 text-slate-500">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    
+    <div id="promo-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
+        <div class="bg-white w-full max-w-2xl rounded-lg shadow-xl p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="modal-title" class="text-xl font-bold text-slate-800">Crear Promoción</h2>
+                <button class="close-modal text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
+            </div>
+            <form id="promo-form" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="codigo" class="block text-sm font-medium">Código</label>
+                        <div class="flex items-center gap-2">
+                           <input id="codigo" type="text" required class="w-full p-2 border rounded-md">
+                           <button type="button" id="generate-code-btn" class="p-2 border rounded-md" title="Generar código aleatorio">🎲</button>
+                        </div>
+                    </div>
+                     <div>
+                        <label for="tarifa_1" class="block text-sm font-medium">Tarifa 1 (Obligatoria)</label>
+                        <input id="tarifa_1" type="number" step="0.01" required class="w-full p-2 border rounded-md">
+                    </div>
+                </div>
+                <div>
+                    <label for="descripcion" class="block text-sm font-medium">Descripción</label>
+                    <textarea id="descripcion" rows="2" class="w-full p-2 border rounded-md"></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="usos_maximos" class="block text-sm font-medium">Usos Máximos (dejar vacío para ilimitado)</label>
+                        <input id="usos_maximos" type="number" min="1" class="w-full p-2 border rounded-md">
+                    </div>
+                    <div>
+                        <label for="fecha_expiracion" class="block text-sm font-medium">Fecha de Expiración (opcional)</label>
+                        <input id="fecha_expiracion" type="date" class="w-full p-2 border rounded-md">
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <input id="is_activo" type="checkbox" class="h-4 w-4 rounded">
+                    <label for="is_activo" class="ml-2 font-medium">Activo</label>
+                </div>
+                <div class="flex justify-end gap-4 pt-4 mt-4 border-t">
+                    <button type="button" class="close-modal bg-slate-100 font-semibold py-2 px-4 rounded-md">Cancelar</button>
+                    <button type="submit" class="bg-emerald-500 text-white font-semibold py-2 px-6 rounded-md">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
+        const tableBody = document.querySelector("table tbody");
+        const modal = document.getElementById('promo-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const form = document.getElementById('promo-form');
+        let editingId = null;
+
+        const formatDate = (iso) => (iso ? new Date(iso).toLocaleDateString('es-PA') : 'Nunca');
+
+        function renderRows(promos) {
+            if (!promos || promos.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="7" class="text-center p-4">No hay promociones creadas.</td></tr>`;
+                return;
+            }
+            tableBody.innerHTML = promos.map(p => `
+                <tr class="border-b">
+                    <td class="px-6 py-4 font-mono font-bold">${p.codigo}</td>
+                    <td class="px-6 py-4">${p.descripcion || ''}</td>
+                    <td class="px-6 py-4 font-mono">$${Number(p.tarifa_1).toFixed(2)}</td>
+                    <td class="px-6 py-4 text-center">${p.usos_actuales} / ${p.usos_maximos || '∞'}</td>
+                    <td class="px-6 py-4">${formatDate(p.fecha_expiracion)}</td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="px-2 py-1 text-xs rounded-full ${p.is_activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            ${p.is_activo ? 'Activo' : 'Inactivo'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <button class="text-blue-600 font-semibold hover:underline" data-edit='${JSON.stringify(p)}'>Editar</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadPromos() {
+            // Usamos la función RPC segura para leer los datos
+            const { data, error } = await sb.from('promo_registros').select('*').order('created_at', { ascending: false });
+            if (error) {
+                console.error(error);
+                tableBody.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-red-500">Error al cargar promociones.</td></tr>`;
+                return;
+            }
+            renderRows(data);
+        }
+
+        function openModal(promo = null) {
+            form.reset();
+            if (promo) {
+                editingId = promo.id;
+                modalTitle.textContent = 'Editar Promoción';
+                document.getElementById('codigo').value = promo.codigo;
+                document.getElementById('descripcion').value = promo.descripcion;
+                document.getElementById('tarifa_1').value = promo.tarifa_1;
+                document.getElementById('usos_maximos').value = promo.usos_maximos;
+                document.getElementById('fecha_expiracion').value = promo.fecha_expiracion ? promo.fecha_expiracion.split('T')[0] : '';
+                document.getElementById('is_activo').checked = promo.is_activo;
+            } else {
+                editingId = null;
+                modalTitle.textContent = 'Crear Promoción';
+                document.getElementById('is_activo').checked = true;
+            }
+            modal.classList.remove('hidden');
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                codigo: document.getElementById('codigo').value.trim().toUpperCase(),
+                descripcion: document.getElementById('descripcion').value.trim(),
+                tarifa_1: parseFloat(document.getElementById('tarifa_1').value),
+                usos_maximos: parseInt(document.getElementById('usos_maximos').value) || null,
+                fecha_expiracion: document.getElementById('fecha_expiracion').value || null,
+                is_activo: document.getElementById('is_activo').checked,
+            };
+
+            const { error } = editingId
+                ? await sb.from('promo_registros').update(payload).eq('id', editingId)
+                : await sb.from('promo_registros').insert(payload);
+            
+            if (error) {
+                console.error(error);
+                alert(`Error al guardar: ${error.message}`);
+                return;
+            }
+            modal.classList.add('hidden');
+            await loadPromos();
+        });
+        
+        document.getElementById('add-promo-btn').addEventListener('click', () => openModal());
+        document.querySelectorAll('.close-modal').forEach(btn => btn.addEventListener('click', () => modal.classList.add('hidden')));
+
+        document.getElementById('generate-code-btn').addEventListener('click', () => {
+             document.getElementById('codigo').value = `PROMO-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+        });
+        
+        tableBody.addEventListener('click', e => {
+            const editButton = e.target.closest('[data-edit]');
+            if (editButton) {
+                openModal(JSON.parse(editButton.dataset.edit));
+            }
+        });
+
+        loadPromos();
+    </script>
+</body>
+</html>
