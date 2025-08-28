@@ -27,10 +27,6 @@
         .page { display: none; }
         .page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
         .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; }
         @keyframes spin{ to{transform:rotate(360deg)} }
     </style>
@@ -103,7 +99,6 @@
         </div>
     </div>
 
-
     <div id="app-container" class="max-w-md mx-auto bg-black min-h-screen hidden">
         <div id="page-home" class="page">
             <header class="p-6"><div class="flex items-center justify-between"><img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo de PSC" class="h-10"><div class="flex items-center space-x-4"><i data-lucide="bell" class="text-gray-400 cursor-pointer hover:text-white transition"></i><div id="logout-button" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center cursor-pointer" title="Cerrar Sesión"><i data-lucide="log-out" class="text-gray-400"></i></div></div></div></header>
@@ -129,9 +124,33 @@
                 </a>
                 <h1 class="text-xl font-bold text-white">Mis Paquetes</h1>
             </header>
-            <main class="px-6 pb-24">
-                <div id="paquetes-list-container" class="space-y-4">
+            <main class="px-6 pb-24 space-y-6">
+                <section id="paquetes-summary" class="space-y-4">
+                    <div class="bg-green-500/10 border border-green-500/50 p-4 rounded-xl text-center">
+                        <p class="text-sm font-semibold text-green-300">EN SUCURSAL (LISTOS PARA RETIRAR)</p>
+                        <div class="flex items-baseline justify-center space-x-3 mt-1">
+                            <span id="summary-sucursal" class="text-3xl font-bold text-white">0</span>
+                            <span class="text-white">Paquetes</span>
+                        </div>
+                        <p id="summary-saldo" class="text-lg font-semibold text-green-300 font-mono mt-1">$0.00</p>
                     </div>
+                    <div class="grid grid-cols-2 gap-4">
+                         <div class="bg-gray-800 p-4 rounded-xl text-center">
+                            <p class="text-xs font-medium text-yellow-300">EN TRÁNSITO</p>
+                            <p id="summary-transito" class="text-2xl font-bold text-white mt-1">0</p>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-xl text-center">
+                            <p class="text-xs font-medium text-gray-400">ENTREGADOS</p>
+                            <p id="summary-entregado" class="text-2xl font-bold text-white mt-1">0</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2 class="text-lg font-semibold text-white mb-3">Historial</h2>
+                    <div id="paquetes-list-container" class="space-y-4">
+                        </div>
+                </section>
             </main>
         </div>
         
@@ -147,6 +166,9 @@
             const { createClient } = supabase;
             const supabaseClient = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
+            // --- GLOBAL STATE ---
+            let currentUserProfile = null;
+
             // --- ELEMENT SELECTORS ---
             const authContainer = document.getElementById('auth-container');
             const appContainer = document.getElementById('app-container');
@@ -160,6 +182,10 @@
             const userBoxDisplay = document.getElementById('user-box-display');
             const navLinks = document.querySelectorAll('.nav-link');
             const paquetesListContainer = document.getElementById('paquetes-list-container');
+            const summaryTransito = document.getElementById('summary-transito');
+            const summarySucursal = document.getElementById('summary-sucursal');
+            const summarySaldo = document.getElementById('summary-saldo');
+            const summaryEntregado = document.getElementById('summary-entregado');
 
             // --- HELPER FUNCTIONS ---
             const showPage = (pageId) => {
@@ -185,11 +211,12 @@
                 
                 const { data: cliente, error } = await supabaseClient
                     .from('clientes')
-                    .select('nombre, box')
+                    .select('nombre, box, tarifa_1')
                     .eq('user_id', user.id)
                     .single();
 
                 if (cliente) {
+                    currentUserProfile = cliente;
                     userNameDisplay.textContent = cliente.nombre || 'Usuario';
                     userBoxDisplay.textContent = `(Box ${cliente.box || 'N/A'})`;
                 } else {
@@ -213,12 +240,8 @@
             const formatDate = (dateString) => {
                 if (!dateString) return 'N/A';
                 try {
-                    return new Date(dateString).toLocaleDateString('es-PA', {
-                        day: '2-digit', month: 'short', year: 'numeric'
-                    });
-                } catch (e) {
-                    return 'Fecha inválida';
-                }
+                    return new Date(dateString).toLocaleDateString('es-PA', { day: '2-digit', month: 'short', year: 'numeric' });
+                } catch (e) { return 'Fecha inválida'; }
             };
 
             // --- EVENT HANDLERS ---
@@ -228,7 +251,6 @@
                 loginError.textContent = '';
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('login-password').value;
-
                 const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
                 if (error) {
@@ -256,13 +278,7 @@
                 const { data, error } = await supabaseClient.auth.signUp({
                     email,
                     password,
-                    options: {
-                        data: {
-                            nombre_completo: name,
-                            whatsapp: whatsapp,
-                            sucursal_preferida: sucursal
-                        }
-                    }
+                    options: { data: { nombre_completo: name, whatsapp: whatsapp, sucursal_preferida: sucursal } }
                 });
 
                 if (error) {
@@ -275,6 +291,7 @@
             
             const handleLogout = async () => {
                 await supabaseClient.auth.signOut();
+                currentUserProfile = null;
                 showAuth();
             };
 
@@ -282,12 +299,10 @@
             const loadSucursales = async () => {
                 const sucursalSelect = document.getElementById('register-sucursal');
                 const { data, error } = await supabaseClient.from('sucursales').select('sucursal').order('sucursal');
-
                 if (error) {
                     sucursalSelect.innerHTML = '<option value="">No se pudieron cargar</option>';
                     return;
                 }
-                
                 if (data) {
                     sucursalSelect.innerHTML = '<option value="">Selecciona una sucursal</option>';
                     data.forEach(s => {
@@ -297,7 +312,11 @@
             };
             
             const loadPaquetes = async () => {
-                paquetesListContainer.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 rounded-full mx-auto"></div><p class="text-gray-400 mt-4">Cargando tus paquetes...</p></div>`;
+                paquetesListContainer.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 rounded-full mx-auto"></div><p class="text-gray-400 mt-4">Cargando...</p></div>`;
+                summaryTransito.textContent = '-';
+                summarySucursal.textContent = '-';
+                summarySaldo.textContent = '$...';
+                summaryEntregado.textContent = '-';
 
                 const { data: paquetes, error } = await supabaseClient
                     .from('paquetes')
@@ -306,16 +325,30 @@
 
                 if (error) {
                     paquetesListContainer.innerHTML = `<p class="text-red-400 text-center">Error al cargar los paquetes.</p>`;
-                    console.error('Error fetching paquetes:', error);
                     return;
                 }
+                
+                const tarifaCliente = currentUserProfile?.tarifa_1 || 4.00;
+                const enTransito = paquetes.filter(p => p.status === 'En transito');
+                const enSucursal = paquetes.filter(p => p.status === 'En Sucursal');
+                const entregados = paquetes.filter(p => p.status === 'Entregado');
+                
+                const saldoEnSucursal = enSucursal.reduce((total, p) => {
+                    const costoFlete = (p.peso || 0) * tarifaCliente;
+                    return total + costoFlete;
+                }, 0);
+
+                summaryTransito.textContent = enTransito.length;
+                summarySucursal.textContent = enSucursal.length;
+                summarySaldo.textContent = `$${saldoEnSucursal.toFixed(2)}`;
+                summaryEntregado.textContent = entregados.length;
 
                 if (!paquetes || paquetes.length === 0) {
                     paquetesListContainer.innerHTML = `<div class="text-center p-8"><i data-lucide="package-search" class="h-16 w-16 text-gray-700 mx-auto"></i><p class="text-gray-500 mt-4">Aún no tienes paquetes registrados.</p></div>`;
                     lucide.createIcons();
                     return;
                 }
-
+                
                 paquetesListContainer.innerHTML = paquetes.map(p => `
                     <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 fade-in">
                         <div class="flex justify-between items-center mb-2">
@@ -361,6 +394,7 @@
     </script>
 </body>
 </html>
+
 
 
 
