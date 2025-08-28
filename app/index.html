@@ -259,7 +259,7 @@
                 }
             }
             async function subscribeUser() {
-                const vapidPublicKey = 'PEGA_AQUÍ_TU_CLAVE_PÚBLICA_VAPID';
+                const vapidPublicKey = 'BAvG_C3MpMYMLIX-S8tJfYekZl-zUB5SbeEwbpvpufirBj6rXQ7YxLLi03vgYRU6NmdpElMxlRPk3nGIPzvIBsQ';
                 if (!vapidPublicKey.startsWith('B')) { alert('Error: La clave pública VAPID no está configurada.'); return; }
                 try {
                     const subscription = await swRegistration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: vapidPublicKey });
@@ -309,4 +309,5 @@
     </script>
 </body>
 </html>
+
 
