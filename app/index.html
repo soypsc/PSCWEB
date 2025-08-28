@@ -5,27 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PSC App</title>
     
-    <!-- PWA Manifest Details -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="PSC App">
     <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png">
 
-    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Lucide Icons for modern icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Your config file with Supabase URL and Key -->
     <script src="config.js"></script>
 
     <style>
@@ -34,13 +28,12 @@
         .page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; }
-        @keyframes spin{ to{transform:rotate(360deg)} }
+        @keyframes spin{ to{transform:rotate(3deg)} }
     </style>
 </head>
 <body class="bg-black text-gray-200">
 
     <div id="auth-container">
-        <!-- PAGE: LOGIN -->
         <div id="page-login" class="page">
              <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
                 <div class="text-center mb-8">
@@ -51,11 +44,14 @@
                 <form id="login-form" class="space-y-4">
                     <div>
                         <label for="login-email" class="text-sm font-medium text-gray-400">Email</label>
-                        <input id="login-email" type="email" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white">
+                        <input id="login-email" type="email" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg">
                     </div>
-                    <div>
+                    <div class="relative">
                         <label for="login-password" class="text-sm font-medium text-gray-400">Contraseña</label>
-                        <input id="login-password" type="password" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition text-white">
+                        <input id="login-password" type="password" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg pr-10">
+                        <button type="button" class="toggle-password absolute inset-y-0 right-0 top-6 pr-3 flex items-center text-gray-400 hover:text-white">
+                            <i data-lucide="eye" class="h-5 w-5"></i>
+                        </button>
                     </div>
                     <p id="login-error" class="text-red-400 text-sm text-center h-5"></p>
                     <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 transition !mt-6">Ingresar</button>
@@ -66,7 +62,6 @@
             </div>
         </div>
 
-        <!-- PAGE: REGISTER -->
         <div id="page-register" class="page">
             <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
                 <div class="text-center mb-8">
@@ -78,21 +73,36 @@
                     <div><label for="register-name" class="text-sm font-medium text-gray-400">Nombre Completo</label><input id="register-name" type="text" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
                     <div><label for="register-email" class="text-sm font-medium text-gray-400">Email</label><input id="register-email" type="email" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
                     <div><label for="register-whatsapp" class="text-sm font-medium text-gray-400">WhatsApp</label><input id="register-whatsapp" type="tel" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
+                    <div><label for="register-birthday" class="text-sm font-medium text-gray-400">Fecha de Nacimiento</label><input id="register-birthday" type="date" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
+                    <div><label for="register-address" class="text-sm font-medium text-gray-400">Dirección</label><textarea id="register-address" required rows="3" class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></textarea></div>
                     <div><label for="register-sucursal" class="text-sm font-medium text-gray-400">Sucursal Preferida</label><select id="register-sucursal" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg appearance-none"><option value="">Cargando...</option></select></div>
                     
                     <div>
                         <label class="text-sm font-medium text-gray-400">¿Tienes un código promocional?</label>
                         <div class="flex items-center space-x-4 mt-2">
-                            <label class="flex items-center"><input type="radio" name="hasPromo" value="no" checked class="h-4 w-4 text-blue-500 bg-gray-700 border-gray-600 focus:ring-blue-500"><span class="ml-2">No</span></label>
-                            <label class="flex items-center"><input type="radio" name="hasPromo" value="yes" class="h-4 w-4 text-blue-500 bg-gray-700 border-gray-600 focus:ring-blue-500"><span class="ml-2">Sí</span></label>
+                            <label class="flex items-center"><input type="radio" name="hasPromo" value="no" checked class="h-4 w-4"><span class="ml-2">No</span></label>
+                            <label class="flex items-center"><input type="radio" name="hasPromo" value="yes" class="h-4 w-4"><span class="ml-2">Sí</span></label>
                         </div>
                     </div>
-                    <div id="promo-code-container" class="hidden transition-all duration-300">
+                    <div id="promo-code-container" class="hidden">
                         <label for="register-promo" class="text-sm font-medium text-gray-400">Código Promocional</label>
                         <input id="register-promo" type="text" placeholder="Ingresa tu código" class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg">
                     </div>
                     
-                    <div><label for="register-password" class="text-sm font-medium text-gray-400">Contraseña</label><input id="register-password" type="password" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
+                    <div class="relative">
+                        <label for="register-password" class="text-sm font-medium text-gray-400">Contraseña</label>
+                        <input id="register-password" type="password" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg pr-10">
+                        <button type="button" class="toggle-password absolute inset-y-0 right-0 top-6 pr-3 flex items-center text-gray-400 hover:text-white">
+                             <i data-lucide="eye" class="h-5 w-5"></i>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <label for="register-password-confirm" class="text-sm font-medium text-gray-400">Confirmar Contraseña</label>
+                        <input id="register-password-confirm" type="password" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg pr-10">
+                        <button type="button" class="toggle-password absolute inset-y-0 right-0 top-6 pr-3 flex items-center text-gray-400 hover:text-white">
+                             <i data-lucide="eye" class="h-5 w-5"></i>
+                        </button>
+                    </div>
 
                     <p id="register-error" class="text-red-400 text-sm text-center h-5"></p>
                     <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 transition !mt-6">Crear Cuenta</button>
@@ -124,9 +134,7 @@
 
         <div id="page-paquetes" class="page">
              <header class="p-6 flex items-center space-x-4">
-                <a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition">
-                    <i data-lucide="arrow-left" class="h-6 w-6"></i>
-                </a>
+                <a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition"><i data-lucide="arrow-left" class="h-6 w-6"></i></a>
                 <h1 class="text-xl font-bold text-white">Mis Paquetes</h1>
             </header>
             <main class="px-6 pb-24 space-y-6">
@@ -134,8 +142,7 @@
                     <div class="bg-green-500/10 border border-green-500/50 p-4 rounded-xl text-center">
                         <p class="text-sm font-semibold text-green-300">EN SUCURSAL (LISTOS PARA RETIRAR)</p>
                         <div class="flex items-baseline justify-center space-x-3 mt-1">
-                            <span id="summary-sucursal" class="text-3xl font-bold text-white">0</span>
-                            <span class="text-white">Paquetes</span>
+                            <span id="summary-sucursal" class="text-3xl font-bold text-white">0</span><span class="text-white">Paquetes</span>
                         </div>
                         <p id="summary-saldo" class="text-lg font-semibold text-green-300 font-mono mt-1">$0.00</p>
                     </div>
@@ -150,33 +157,25 @@
                         </div>
                     </div>
                 </section>
-
                 <section>
                     <h2 class="text-lg font-semibold text-white mb-3">Historial</h2>
-                    <div id="paquetes-list-container" class="space-y-4">
-                        <!-- El contenido se generará con JavaScript -->
-                    </div>
+                    <div id="paquetes-list-container" class="space-y-4"></div>
                 </section>
             </main>
         </div>
         
-        <div id="page-rastreo" class="page"><!-- Contenido de Rastreo --></div>
-        <div id="page-casillero" class="page"><!-- Contenido de Casillero --></div>
-        <div id="page-cotizar" class="page"><!-- Contenido de Cotizar --></div>
-        <div id="page-mal-identificado" class="page"><!-- Contenido de Mal Identificado --></div>
+        <div id="page-rastreo" class="page"></div>
+        <div id="page-casillero" class="page"></div>
+        <div id="page-cotizar" class="page"></div>
+        <div id="page-mal-identificado" class="page"></div>
     </div>
 
-    <!-- MAIN APP SCRIPT -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- CONFIG & INITIALIZATION ---
             const { createClient } = supabase;
             const supabaseClient = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
-
-            // --- GLOBAL STATE ---
             let currentUserProfile = null;
 
-            // --- ELEMENT SELECTORS ---
             const authContainer = document.getElementById('auth-container');
             const appContainer = document.getElementById('app-container');
             const allPages = document.querySelectorAll('.page');
@@ -195,14 +194,13 @@
             const summaryEntregado = document.getElementById('summary-entregado');
             const promoRadios = document.querySelectorAll('input[name="hasPromo"]');
             const promoContainer = document.getElementById('promo-code-container');
+            const togglePasswordButtons = document.querySelectorAll('.toggle-password');
 
-            // --- HELPER FUNCTIONS ---
             const showPage = (pageId) => {
                 allPages.forEach(page => page.classList.remove('active'));
                 const targetPage = document.getElementById(pageId);
                 if (targetPage) targetPage.classList.add('active');
                 window.scrollTo(0, 0);
-
                 if (pageId === 'page-paquetes') {
                     loadPaquetes();
                 }
@@ -217,13 +215,7 @@
             const showApp = async (user) => {
                 authContainer.style.display = 'none';
                 appContainer.classList.remove('hidden');
-                
-                const { data: cliente, error } = await supabaseClient
-                    .from('clientes')
-                    .select('nombre, box, tarifa_1')
-                    .eq('user_id', user.id)
-                    .single();
-
+                const { data: cliente } = await supabaseClient.from('clientes').select('nombre, box, tarifa_1').eq('user_id', user.id).single();
                 if (cliente) {
                     currentUserProfile = cliente;
                     userNameDisplay.textContent = cliente.nombre || 'Usuario';
@@ -232,28 +224,19 @@
                      userNameDisplay.textContent = user.user_metadata.nombre_completo || 'Usuario';
                      userBoxDisplay.textContent = '(Casillero no asignado)';
                 }
-                
                 showPage('page-home');
             };
             
             const getStatusBadge = (status) => {
-                const statusMap = {
-                    'Recibido en Bodega': 'bg-blue-500/20 text-blue-300',
-                    'En transito': 'bg-yellow-500/20 text-yellow-300',
-                    'En Sucursal': 'bg-green-500/20 text-green-300',
-                    'Entregado': 'bg-gray-500/20 text-gray-400'
-                };
+                const statusMap = { 'Recibido en Bodega': 'bg-blue-500/20 text-blue-300', 'En transito': 'bg-yellow-500/20 text-yellow-300', 'En Sucursal': 'bg-green-500/20 text-green-300', 'Entregado': 'bg-gray-500/20 text-gray-400' };
                 return statusMap[status] || 'bg-gray-500/20 text-gray-400';
             };
 
             const formatDate = (dateString) => {
                 if (!dateString) return 'N/A';
-                try {
-                    return new Date(dateString).toLocaleDateString('es-PA', { day: '2-digit', month: 'short', year: 'numeric' });
-                } catch (e) { return 'Fecha inválida'; }
+                try { return new Date(dateString).toLocaleDateString('es-PA', { day: '2-digit', month: 'short', year: 'numeric' }); } catch (e) { return 'Fecha inválida'; }
             };
 
-            // --- EVENT HANDLERS ---
             const handleLogin = async (e) => {
                 e.preventDefault();
                 const loginError = document.getElementById('login-error');
@@ -261,12 +244,7 @@
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('login-password').value;
                 const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-                if (error) {
-                    loginError.textContent = 'Email o contraseña incorrectos.';
-                } else {
-                    await showApp(data.user);
-                }
+                if (error) { loginError.textContent = 'Email o contraseña incorrectos.'; } else { await showApp(data.user); }
             };
 
             const handleRegister = async (e) => {
@@ -276,34 +254,23 @@
                 const name = document.getElementById('register-name').value;
                 const email = document.getElementById('register-email').value;
                 const whatsapp = document.getElementById('register-whatsapp').value;
+                const birthday = document.getElementById('register-birthday').value;
+                const address = document.getElementById('register-address').value;
                 const sucursal = document.getElementById('register-sucursal').value;
                 const password = document.getElementById('register-password').value;
+                const passwordConfirm = document.getElementById('register-password-confirm').value;
                 const promoCode = document.getElementById('register-promo').value.trim();
-                
-                if (!sucursal) {
-                    registerError.textContent = 'Por favor, selecciona una sucursal.';
-                    return;
-                }
+
+                if (password !== passwordConfirm) { registerError.textContent = 'Las contraseñas no coinciden.'; return; }
+                if (password.length < 6) { registerError.textContent = 'La contraseña debe tener al menos 6 caracteres.'; return; }
 
                 const { data, error } = await supabaseClient.auth.signUp({
-                    email,
-                    password,
-                    options: { 
-                        data: { 
-                            nombre_completo: name, 
-                            whatsapp: whatsapp, 
-                            sucursal_preferida: sucursal,
-                            codigo_promo: promoCode 
-                        } 
-                    }
+                    email, password,
+                    options: { data: { nombre_completo: name, whatsapp, sucursal_preferida: sucursal, codigo_promo: promoCode, fecha_nac: birthday, direccion: address } }
                 });
 
-                if (error) {
-                    registerError.textContent = 'No se pudo registrar. El email ya podría existir.';
-                } else {
-                    alert('¡Registro exitoso! Revisa tu correo electrónico para confirmar tu cuenta.');
-                    showPage('page-login');
-                }
+                if (error) { registerError.textContent = 'No se pudo registrar. El email ya podría existir.'; } 
+                else { alert('¡Registro exitoso! Revisa tu correo para confirmar tu cuenta.'); showPage('page-login'); }
             };
             
             const handleLogout = async () => {
@@ -312,48 +279,28 @@
                 showAuth();
             };
 
-            // --- DATA LOADING ---
             const loadSucursales = async () => {
                 const sucursalSelect = document.getElementById('register-sucursal');
                 const { data, error } = await supabaseClient.from('sucursales').select('sucursal').order('sucursal');
-                if (error) {
-                    sucursalSelect.innerHTML = '<option value="">No se pudieron cargar</option>';
-                    return;
-                }
+                if (error) { sucursalSelect.innerHTML = '<option value="">No se pudieron cargar</option>'; return; }
                 if (data) {
                     sucursalSelect.innerHTML = '<option value="">Selecciona una sucursal</option>';
-                    data.forEach(s => {
-                        sucursalSelect.innerHTML += `<option value="${s.sucursal}">${s.sucursal}</option>`;
-                    });
+                    data.forEach(s => { sucursalSelect.innerHTML += `<option value="${s.sucursal}">${s.sucursal}</option>`; });
                 }
             };
             
             const loadPaquetes = async () => {
                 paquetesListContainer.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 rounded-full mx-auto"></div><p class="text-gray-400 mt-4">Cargando...</p></div>`;
-                summaryTransito.textContent = '-';
-                summarySucursal.textContent = '-';
-                summarySaldo.textContent = '$...';
-                summaryEntregado.textContent = '-';
+                summaryTransito.textContent = '-'; summarySucursal.textContent = '-'; summarySaldo.textContent = '$...'; summaryEntregado.textContent = '-';
 
-                const { data: paquetes, error } = await supabaseClient
-                    .from('paquetes')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) {
-                    paquetesListContainer.innerHTML = `<p class="text-red-400 text-center">Error al cargar los paquetes.</p>`;
-                    return;
-                }
+                const { data: paquetes, error } = await supabaseClient.from('paquetes').select('*').order('created_at', { ascending: false });
+                if (error) { paquetesListContainer.innerHTML = `<p class="text-red-400 text-center">Error al cargar los paquetes.</p>`; return; }
                 
                 const tarifaCliente = currentUserProfile?.tarifa_1 || 4.00;
                 const enTransito = paquetes.filter(p => p.status === 'En transito');
                 const enSucursal = paquetes.filter(p => p.status === 'En Sucursal');
                 const entregados = paquetes.filter(p => p.status === 'Entregado');
-                
-                const saldoEnSucursal = enSucursal.reduce((total, p) => {
-                    const costoFlete = (p.peso || 0) * tarifaCliente;
-                    return total + costoFlete;
-                }, 0);
+                const saldoEnSucursal = enSucursal.reduce((total, p) => total + ((p.peso || 0) * tarifaCliente), 0);
 
                 summaryTransito.textContent = enTransito.length;
                 summarySucursal.textContent = enSucursal.length;
@@ -369,8 +316,8 @@
                 paquetesListContainer.innerHTML = paquetes.map(p => `
                     <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 fade-in">
                         <div class="flex justify-between items-center mb-2">
-                            <p class="font-mono text-white font-semibold">${escapeHtml(p.tracking)}</p>
-                            <span class="text-xs font-bold px-2 py-1 rounded-full ${getStatusBadge(p.status)}">${escapeHtml(p.status) || 'Desconocido'}</span>
+                            <p class="font-mono text-white font-semibold">${p.tracking}</p>
+                            <span class="text-xs font-bold px-2 py-1 rounded-full ${getStatusBadge(p.status)}">${p.status || 'Desconocido'}</span>
                         </div>
                         <div class="text-sm text-gray-400 flex justify-between">
                             <span>Recibido en Bodega: ${formatDate(p.fecha_bodega)}</span>
@@ -380,7 +327,6 @@
                 `).join('');
             };
 
-            // --- ATTACH EVENT LISTENERS ---
             loginForm.addEventListener('submit', handleLogin);
             registerForm.addEventListener('submit', handleRegister);
             logoutButton.addEventListener('click', handleLogout);
@@ -395,22 +341,22 @@
             });
             promoRadios.forEach(radio => {
                 radio.addEventListener('change', () => {
-                    if (radio.value === 'yes') {
-                        promoContainer.classList.remove('hidden');
-                    } else {
-                        promoContainer.classList.add('hidden');
-                    }
+                    promoContainer.classList.toggle('hidden', radio.value !== 'yes');
+                });
+            });
+            togglePasswordButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const passwordInput = button.previousElementSibling;
+                    const isPassword = passwordInput.type === 'password';
+                    passwordInput.type = isPassword ? 'text' : 'password';
+                    button.innerHTML = isPassword ? '<i data-lucide="eye-off"></i>' : '<i data-lucide="eye"></i>';
+                    lucide.createIcons();
                 });
             });
 
-            // --- STARTUP LOGIC ---
             const checkUserSession = async () => {
                 const { data: { session } } = await supabaseClient.auth.getSession();
-                if (session) {
-                    await showApp(session.user);
-                } else {
-                    showAuth();
-                }
+                if (session) { await showApp(session.user); } else { showAuth(); }
                 lucide.createIcons();
             };
 
@@ -420,6 +366,7 @@
     </script>
 </body>
 </html>
+
 
 
 
