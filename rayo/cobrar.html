@@ -216,29 +216,36 @@
             }).join('');
         }
         
-        async function buscarCliente(searchTerm) {
-            resetTerminal();
-            if (!searchTerm) return;
-            const isNumeric = !isNaN(searchTerm);
-            let query = sb.from('clientes').select('*');
-            if (isNumeric) query = query.eq('box', parseInt(searchTerm));
-            else query = query.ilike('nombre', `%${searchTerm}%`);
-            const { data, error } = await query.limit(1).single();
-            if (error || !data) { alert("Cliente no encontrado."); return; }
-            clienteActual = data;
-            const { data: paquetes, error: paquetesError } = await sb.rpc('get_paquetes_para_entrega', { p_cliente_box: clienteActual.box });
-            if (paquetesError) { alert("Error al cargar paquetes del cliente."); console.error(paquetesError); return; }
-            paquetesPendientes = paquetes.map(p => ({ ...p, costo_flete: p.costo_total, costo_impuestos: 0, descuento_porcentaje: 0 }));
-            clienteNombreTitulo.textContent = clienteActual.nombre;
-            terminalContent.classList.remove('hidden');
-            if (clienteActual.saldo_a_favor > 0) {
-                creditBalanceSpan.textContent = `$${clienteActual.saldo_a_favor.toFixed(2)}`;
-                creditPanel.classList.remove('hidden');
-            }
-            renderPendientes();
-            await loadPaymentMethods();
-            scanInput.focus();
-        }
+        async function buscarCliente(searchTerm, isContinuation = false) {
+    if (!isContinuation) {
+        resetTerminal();
+    }
+    if (!searchTerm) return;
+    const isNumeric = !isNaN(searchTerm);
+    let query = sb.from('clientes').select('*');
+    if (isNumeric) query = query.eq('box', parseInt(searchTerm));
+    else query = query.ilike('nombre', `%${searchTerm}%`);
+    const { data, error } = await query.limit(1).single();
+    if (error || !data) { alert("Cliente no encontrado."); return; }
+
+    clienteActual = data;
+
+    if (!isContinuation) {
+        const { data: paquetes, error: paquetesError } = await sb.rpc('get_paquetes_para_entrega', { p_cliente_box: clienteActual.box });
+        if (paquetesError) { alert("Error al cargar paquetes del cliente."); console.error(paquetesError); return; }
+        paquetesPendientes = paquetes.map(p => ({ ...p, costo_flete: p.costo_total, costo_impuestos: 0, descuento_porcentaje: 0 }));
+        renderPendientes();
+    }
+
+    clienteNombreTitulo.textContent = clienteActual.nombre;
+    terminalContent.classList.remove('hidden');
+    if (clienteActual.saldo_a_favor > 0) {
+        creditBalanceSpan.textContent = `$${clienteActual.saldo_a_favor.toFixed(2)}`;
+        creditPanel.classList.remove('hidden');
+    }
+    await loadPaymentMethods();
+    scanInput.focus();
+}
         
         function handleScan() {
             const tracking = scanInput.value.trim().toLowerCase();
@@ -540,28 +547,24 @@
         alert("No se pudo cargar la venta suspendida.");
         return;
     }
-    
-    await resetTerminal();
-    
-    ventaSuspendidaActual = { ...data, trackings_pendientes: data.carrito_data.map(p => p.tracking) };
-    
-    // --- INICIO DE LA LÍNEA DE ESPIONAJE ---
-    // Esta línea imprimirá la lista de trackings pendientes en la consola automáticamente.
-    console.log("Trackings pendientes de verificación:", ventaSuspendidaActual.trackings_pendientes);
-    // --- FIN DE LA LÍNEA DE ESPIONAJE ---
 
-    await buscarCliente(String(data.cliente_box));
-    
+    resetTerminal(); // Reseteamos aquí, una sola vez.
+
+    ventaSuspendidaActual = { ...data, trackings_pendientes: data.carrito_data.map(p => p.tracking) };
+
+    // Llamamos a buscarCliente en modo "continuación" para que NO borre nuestros datos.
+    await buscarCliente(String(data.cliente_box), true); 
+
     paquetesPendientes = []; 
     carrito = data.carrito_data;
     pagos = data.pagos_data || [];
     descuentoGeneralPorcentaje = data.descuento_general_porcentaje || 0;
     modoVerificacion = true;
-    
+
     renderCarrito();
     renderPagos();
     renderVerificationList();
-    
+
     btnCompletarVenta.disabled = true;
     btnSuspenderVenta.disabled = true;
     scanInput.placeholder = "ESCANEAR PARA VERIFICAR...";
