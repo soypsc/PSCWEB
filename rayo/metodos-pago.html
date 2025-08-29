@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGL1 - Métodos de Pago</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .code { font-size: 13px; font-weight: 600; color: #94a3b8; margin-right: 12px; background-color: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="relative min-h-screen md:flex">
+        <div id="menu-container"></div>
+
+        <main class="flex-1 p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-slate-900 flex items-center"><span class="code">[AD-03]</span>Gestión de Métodos de Pago</h1>
+                <button id="add-metodo-btn" class="bg-emerald-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-emerald-600">Crear Método</button>
+            </div>
+
+            <div class="bg-white rounded-lg border overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left">Nombre del Método</th>
+                            <th class="px-6 py-3 text-center">Estado</th>
+                            <th class="px-6 py-3 text-left">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="3" class="text-center p-4 text-slate-500">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    
+    <div id="metodo-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
+        <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="modal-title" class="text-xl font-bold text-slate-800">Crear Nuevo Método</h2>
+                <button class="close-modal text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
+            </div>
+            <form id="metodo-form" class="space-y-4">
+                <div>
+                    <label for="nombre" class="block text-sm font-medium">Nombre</label>
+                    <input id="nombre" type="text" required placeholder="Ej: Yappy" class="w-full p-2 border rounded-md">
+                </div>
+                <div class="flex items-center">
+                    <input id="is_activo" type="checkbox" class="h-4 w-4 rounded">
+                    <label for="is_activo" class="ml-2 font-medium">Activo</label>
+                </div>
+                <div class="flex justify-end gap-4 pt-4 mt-4 border-t">
+                    <button type="button" class="close-modal bg-slate-100 font-semibold py-2 px-4 rounded-md">Cancelar</button>
+                    <button type="submit" class="bg-emerald-500 text-white font-semibold py-2 px-6 rounded-md">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
+        const tableBody = document.querySelector("table tbody");
+        const modal = document.getElementById('metodo-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const form = document.getElementById('metodo-form');
+        let editingId = null;
+
+        function renderRows(metodos) {
+            if (!metodos || metodos.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="3" class="text-center p-4">No hay métodos de pago creados.</td></tr>`;
+                return;
+            }
+            tableBody.innerHTML = metodos.map(m => `
+                <tr class="border-b hover:bg-slate-50">
+                    <td class="px-6 py-4 font-semibold">${m.nombre}</td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="px-2 py-1 text-xs rounded-full ${m.is_activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            ${m.is_activo ? 'Activo' : 'Inactivo'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <button class="text-xs bg-blue-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-blue-600" data-edit='${JSON.stringify(m)}'>Editar</button>
+                            <button class="text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-red-600" data-delete-id="${m.id}">Eliminar</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadMetodos() {
+            tableBody.innerHTML = `<tr><td colspan="3" class="text-center p-4">Cargando...</td></tr>`;
+            const { data, error } = await sb.from('metodos_pago').select('*').order('nombre', { ascending: true });
+            if (error) {
+                console.error(error);
+                tableBody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`;
+                return;
+            }
+            renderRows(data);
+        }
+        
+        async function deleteMetodo(id) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este método de pago?')) return;
+            const { error } = await sb.from('metodos_pago').delete().eq('id', id);
+            if (error) {
+                alert(`No se pudo eliminar: ${error.message}`);
+                return;
+            }
+            await loadMetodos();
+        }
+
+        function openModal(metodo = null) {
+            form.reset();
+            if (metodo) {
+                editingId = metodo.id;
+                modalTitle.textContent = 'Editar Método de Pago';
+                document.getElementById('nombre').value = metodo.nombre;
+                document.getElementById('is_activo').checked = metodo.is_activo;
+            } else {
+                editingId = null;
+                modalTitle.textContent = 'Crear Nuevo Método de Pago';
+                document.getElementById('is_activo').checked = true;
+            }
+            modal.classList.remove('hidden');
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                nombre: document.getElementById('nombre').value.trim(),
+                is_activo: document.getElementById('is_activo').checked,
+            };
+            if (!payload.nombre) {
+                alert("El nombre es obligatorio.");
+                return;
+            }
+            const { error } = editingId
+                ? await sb.from('metodos_pago').update(payload).eq('id', editingId)
+                : await sb.from('metodos_pago').insert(payload);
+            
+            if (error) {
+                alert(`Error al guardar: ${error.message}`);
+                return;
+            }
+            modal.classList.add('hidden');
+            await loadMetodos();
+        });
+        
+        document.getElementById('add-metodo-btn').addEventListener('click', () => openModal());
+        document.querySelectorAll('.close-modal').forEach(btn => btn.addEventListener('click', () => modal.classList.add('hidden')));
+        
+        tableBody.addEventListener('click', e => {
+            const editButton = e.target.closest('[data-edit]');
+            if (editButton) openModal(JSON.parse(editButton.dataset.edit));
+            
+            const deleteButton = e.target.closest('[data-delete-id]');
+            if (deleteButton) deleteMetodo(deleteButton.dataset.deleteId);
+        });
+
+        loadMetodos();
+    </script>
+</body>
+</html>
