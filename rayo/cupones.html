@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGL1 - Gestión de Cupones</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .code { font-size: 13px; font-weight: 600; color: #94a3b8; margin-right: 12px; background-color: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="relative min-h-screen md:flex">
+        <div id="menu-container"></div>
+
+        <main class="flex-1 p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-slate-900 flex items-center"><span class="code">[AD-02]</span>Gestión de Cupones</h1>
+                <button id="add-cupon-btn" class="bg-emerald-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-emerald-600">Crear Cupón</button>
+            </div>
+
+            <div class="bg-white rounded-lg border overflow-x-auto">
+                <table class="w-full text-sm whitespace-nowrap">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left">Código</th>
+                            <th class="px-6 py-3 text-left">Descripción</th>
+                            <th class="px-6 py-3 text-left">Tipo</th>
+                            <th class="px-6 py-3 text-left">Valor</th>
+                            <th class="px-6 py-3 text-center">Usos</th>
+                            <th class="px-6 py-3 text-left">Expira</th>
+                            <th class="px-6 py-3 text-center">Estado</th>
+                            <th class="px-6 py-3 text-left">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="8" class="text-center p-4 text-slate-500">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    
+    <div id="cupon-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
+        <div class="bg-white w-full max-w-2xl rounded-lg shadow-xl p-6 overflow-y-auto max-h-[95vh]">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="modal-title" class="text-xl font-bold text-slate-800">Crear Nuevo Cupón</h2>
+                <button class="close-modal text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
+            </div>
+            <form id="cupon-form" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="codigo" class="block text-sm font-medium">Código</label>
+                        <input id="codigo" type="text" required placeholder="Ej: VERANO25" class="w-full p-2 border rounded-md uppercase">
+                    </div>
+                     <div>
+                        <label for="descripcion" class="block text-sm font-medium">Descripción</label>
+                        <input id="descripcion" type="text" placeholder="Campaña de Verano" class="w-full p-2 border rounded-md">
+                    </div>
+                </div>
+               
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="tipo_descuento" class="block text-sm font-medium">Tipo de Descuento</label>
+                        <select id="tipo_descuento" required class="w-full p-2 border rounded-md">
+                            <option value="porcentaje">Porcentaje (%)</option>
+                            <option value="monto_fijo">Monto Fijo ($)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="valor_descuento" class="block text-sm font-medium">Valor del Descuento</label>
+                        <input id="valor_descuento" type="number" step="0.01" required placeholder="Ej: 15.00" class="w-full p-2 border rounded-md">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="usos_maximos" class="block text-sm font-medium">Usos Máximos (vacío para ilimitado)</label>
+                        <input id="usos_maximos" type="number" min="1" class="w-full p-2 border rounded-md">
+                    </div>
+                    <div>
+                        <label for="fecha_expiracion" class="block text-sm font-medium">Fecha de Expiración (opcional)</label>
+                        <input id="fecha_expiracion" type="date" class="w-full p-2 border rounded-md">
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <input id="is_activo" type="checkbox" class="h-4 w-4 rounded">
+                    <label for="is_activo" class="ml-2 font-medium">Activo</label>
+                </div>
+                <div class="flex justify-end gap-4 pt-4 mt-4 border-t">
+                    <button type="button" class="close-modal bg-slate-100 font-semibold py-2 px-4 rounded-md">Cancelar</button>
+                    <button type="submit" class="bg-emerald-500 text-white font-semibold py-2 px-6 rounded-md">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
+        const tableBody = document.querySelector("table tbody");
+        const modal = document.getElementById('cupon-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const form = document.getElementById('cupon-form');
+        let editingId = null;
+
+        const formatDate = (iso) => (iso ? new Date(iso).toLocaleDateString('es-PA') : 'Nunca');
+        const formatValue = (cupon) => {
+            if (cupon.tipo_descuento === 'porcentaje') return `${Number(cupon.valor_descuento)}%`;
+            if (cupon.tipo_descuento === 'monto_fijo') return `$${Number(cupon.valor_descuento).toFixed(2)}`;
+            return cupon.valor_descuento;
+        };
+
+        function renderRows(cupones) {
+            if (!cupones || cupones.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-4">No hay cupones creados.</td></tr>`;
+                return;
+            }
+            tableBody.innerHTML = cupones.map(c => `
+                <tr class="border-b hover:bg-slate-50">
+                    <td class="px-6 py-4 font-mono font-bold">${c.codigo}</td>
+                    <td class="px-6 py-4">${c.descripcion || ''}</td>
+                    <td class="px-6 py-4">${c.tipo_descuento}</td>
+                    <td class="px-6 py-4 font-semibold">${formatValue(c)}</td>
+                    <td class="px-6 py-4 text-center">${c.usos_actuales} / ${c.usos_maximos || '∞'}</td>
+                    <td class="px-6 py-4">${formatDate(c.fecha_expiracion)}</td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="px-2 py-1 text-xs rounded-full ${c.is_activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            ${c.is_activo ? 'Activo' : 'Inactivo'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <button class="text-xs bg-blue-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-blue-600" data-edit='${JSON.stringify(c)}'>Editar</button>
+                            <button class="text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-red-600" data-delete-id="${c.id}">Eliminar</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadCupones() {
+            tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-4">Cargando...</td></tr>`;
+            const { data, error } = await sb.from('cupones').select('*').order('created_at', { ascending: false });
+            if (error) {
+                console.error(error);
+                tableBody.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`;
+                return;
+            }
+            renderRows(data);
+        }
+        
+        async function deleteCupon(id) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este cupón? Esta acción no se puede deshacer.')) return;
+
+            const { error } = await sb.from('cupones').delete().eq('id', id);
+
+            if (error) {
+                console.error("Error al eliminar:", error);
+                alert(`No se pudo eliminar: ${error.message}`);
+                return;
+            }
+            await loadCupones();
+        }
+
+        function openModal(cupon = null) {
+            form.reset();
+            if (cupon) {
+                editingId = cupon.id;
+                modalTitle.textContent = 'Editar Cupón';
+                document.getElementById('codigo').value = cupon.codigo;
+                document.getElementById('descripcion').value = cupon.descripcion;
+                document.getElementById('tipo_descuento').value = cupon.tipo_descuento;
+                document.getElementById('valor_descuento').value = cupon.valor_descuento;
+                document.getElementById('usos_maximos').value = cupon.usos_maximos;
+                document.getElementById('fecha_expiracion').value = cupon.fecha_expiracion ? cupon.fecha_expiracion.split('T')[0] : '';
+                document.getElementById('is_activo').checked = cupon.is_activo;
+            } else {
+                editingId = null;
+                modalTitle.textContent = 'Crear Nuevo Cupón';
+                document.getElementById('is_activo').checked = true;
+            }
+            modal.classList.remove('hidden');
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                codigo: document.getElementById('codigo').value.trim().toUpperCase(),
+                descripcion: document.getElementById('descripcion').value.trim() || null,
+                tipo_descuento: document.getElementById('tipo_descuento').value,
+                valor_descuento: parseFloat(document.getElementById('valor_descuento').value),
+                usos_maximos: parseInt(document.getElementById('usos_maximos').value) || null,
+                fecha_expiracion: document.getElementById('fecha_expiracion').value || null,
+                is_activo: document.getElementById('is_activo').checked,
+            };
+
+            if (!payload.codigo || !payload.valor_descuento) {
+                alert("El código y el valor del descuento son obligatorios.");
+                return;
+            }
+
+            const { error } = editingId
+                ? await sb.from('cupones').update(payload).eq('id', editingId)
+                : await sb.from('cupones').insert(payload);
+            
+            if (error) {
+                console.error(error);
+                alert(`Error al guardar: ${error.message}`);
+                return;
+            }
+            modal.classList.add('hidden');
+            await loadCupones();
+        });
+        
+        document.getElementById('add-cupon-btn').addEventListener('click', () => openModal());
+        document.querySelectorAll('.close-modal').forEach(btn => btn.addEventListener('click', () => modal.classList.add('hidden')));
+        
+        tableBody.addEventListener('click', e => {
+            const editButton = e.target.closest('[data-edit]');
+            if (editButton) {
+                openModal(JSON.parse(editButton.dataset.edit));
+            }
+            
+            const deleteButton = e.target.closest('[data-delete-id]');
+            if (deleteButton) {
+                deleteCupon(deleteButton.dataset.deleteId);
+            }
+        });
+
+        loadCupones();
+    </script>
+</body>
+</html>
