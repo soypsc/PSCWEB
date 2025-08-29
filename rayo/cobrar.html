@@ -241,41 +241,46 @@
         }
         
         function handleScan() {
-            const tracking = scanInput.value.trim().toLowerCase();
-            if (!tracking) return;
-            scanInput.value = '';
-            scanInput.focus();
-            if (modoVerificacion) {
-                const itemIndex = ventaSuspendidaActual.trackings_pendientes.findIndex(t => t.toLowerCase() === tracking);
-                if (itemIndex > -1) {
-                    ventaSuspendidaActual.trackings_pendientes.splice(itemIndex, 1);
-                    flashInputColor('scan-success');
-                    renderVerificationList();
-                    if (ventaSuspendidaActual.trackings_pendientes.length === 0) {
-                        modoVerificacion = false;
-                        verificationPanel.classList.add('hidden');
-                        alert("¡Verificación completada! El carrito está desbloqueado.");
-                        scanInput.placeholder = "Escanear paquete para AÑADIR";
-                        calcularTotal();
-                    }
-                } else {
-                    flashInputColor('scan-error');
-                    alert("Este tracking no pertenece a la venta suspendida o ya fue verificado.");
-                }
-            } else {
-                const paqueteIndex = paquetesPendientes.findIndex(p => p.tracking.toLowerCase() === tracking);
-                if (paqueteIndex > -1) {
-                    const [paquete] = paquetesPendientes.splice(paqueteIndex, 1);
-                    carrito.push(paquete);
-                    renderPendientes();
-                    renderCarrito();
-                    flashInputColor('scan-success');
-                } else {
-                    alert(`Error: Paquete ${tracking} no está en la lista de pendientes o ya fue escaneado.`);
-                    flashInputColor('scan-error');
-                }
+    const tracking = scanInput.value.trim().toLowerCase();
+    if (!tracking) return;
+    scanInput.value = '';
+    scanInput.focus();
+
+    if (modoVerificacion) {
+        // --- INICIO DE LA CORRECCIÓN ---
+        // Se añade .trim() a la comparación para ignorar espacios en blanco
+        const itemIndex = ventaSuspendidaActual.trackings_pendientes.findIndex(t => t.trim().toLowerCase() === tracking);
+        // --- FIN DE LA CORRECCIÓN ---
+
+        if (itemIndex > -1) {
+            ventaSuspendidaActual.trackings_pendientes.splice(itemIndex, 1);
+            flashInputColor('scan-success');
+            renderVerificationList();
+            if (ventaSuspendidaActual.trackings_pendientes.length === 0) {
+                modoVerificacion = false;
+                verificationPanel.classList.add('hidden');
+                alert("¡Verificación completada! El carrito está desbloqueado.");
+                scanInput.placeholder = "Escanear paquete para AÑADIR";
+                calcularTotal();
             }
+        } else {
+            flashInputColor('scan-error');
+            alert("Este tracking no pertenece a la venta suspendida o ya fue verificado.");
         }
+    } else {
+        const paqueteIndex = paquetesPendientes.findIndex(p => p.tracking.toLowerCase() === tracking);
+        if (paqueteIndex > -1) {
+            const [paquete] = paquetesPendientes.splice(paqueteIndex, 1);
+            carrito.push(paquete);
+            renderPendientes();
+            renderCarrito();
+            flashInputColor('scan-success');
+        } else {
+            alert(`Error: Paquete ${tracking} no está en la lista de pendientes o ya fue escaneado.`);
+            flashInputColor('scan-error');
+        }
+    }
+}
         
         function handleRemoveFromCart(tracking) {
             const paqueteIndex = carrito.findIndex(p => p.tracking === tracking);
