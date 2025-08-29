@@ -426,11 +426,14 @@
                 if (errFactura) throw errFactura;
                 const facturaId = factura.id;
                 if (cuponAplicado) await sb.rpc('incrementar_uso_cupon', { p_codigo: cuponAplicado.codigo });
+                
+                const paqueteIds = carrito.map(p => p.id);
                 if (ventaSuspendidaActual) {
                     await sb.from('ventas_suspendidas').delete().eq('id', ventaSuspendidaActual.id);
-                    const paqueteIds = ventaSuspendidaActual.carrito_data.map(p => p.id);
-                    await sb.rpc('cambiar_estado_paquetes', { p_paquete_ids: paqueteIds, p_nuevo_estado: 'disponible' }); // Liberar por si acaso
+                } else {
+                    // Si no era una venta suspendida, los paquetes estaban 'disponible', no necesitan cambio de estado a disponible.
                 }
+
                 const itemsData = carrito.map(p => ({
                     factura_id: facturaId, paquete_id: p.id, paquete_tracking: p.tracking,
                     monto_cobrado: (p.costo_flete || 0) + (p.costo_impuestos || 0),
@@ -438,9 +441,11 @@
                 }));
                 const pagosData = pagos.map(p => ({ factura_id: facturaId, monto: p.monto, metodo_pago: p.metodo }));
                 const paquetesUpdateData = carrito.map(p => ({ id: p.id, status: 'Entregado', factura_id: facturaId, estado_interno: 'disponible' }));
+                
                 const [resItems, resPagos, resPaquetes] = await Promise.all([
                     sb.from('factura_items').insert(itemsData), sb.from('pagos').insert(pagosData), sb.from('paquetes').upsert(paquetesUpdateData)
                 ]);
+
                 if (resItems.error) throw resItems.error; if (resPagos.error) throw resPagos.error; if (resPaquetes.error) throw resPaquetes.error;
                 alert(`¡Venta completada! Factura #${facturaId} creada.`);
                 resetTerminal(true);
