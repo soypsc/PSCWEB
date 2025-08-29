@@ -89,10 +89,7 @@
 
     <div id="edit-peso-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
         <div class="bg-white w-full max-w-lg rounded-lg shadow-xl p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-slate-800">Ajustar Peso del Paquete</h2>
-                <button id="close-edit-modal" class="text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
-            </div>
+            <div class="flex justify-between items-center mb-6"><h2 class="text-xl font-bold text-slate-800">Ajustar Peso del Paquete</h2><button id="close-edit-modal" class="text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button></div>
             <form id="form-edit-peso" class="space-y-4">
                 <div><label class="block text-sm font-medium">Tracking</label><p id="edit-peso-tracking" class="mt-1 p-2 bg-slate-100 rounded-md font-mono text-slate-700"></p></div>
                 <div><label for="edit-peso-nuevo" class="block text-sm font-medium">Nuevo Peso (lbs)</label><input id="edit-peso-nuevo" type="number" step="0.01" required class="w-full mt-1 p-2 border border-slate-300 rounded-md"></div>
@@ -429,14 +426,18 @@
                 if (errFactura) throw errFactura;
                 const facturaId = factura.id;
                 if (cuponAplicado) await sb.rpc('incrementar_uso_cupon', { p_codigo: cuponAplicado.codigo });
-                if (ventaSuspendidaActual) await sb.from('ventas_suspendidas').delete().eq('id', ventaSuspendidaActual.id);
+                if (ventaSuspendidaActual) {
+                    await sb.from('ventas_suspendidas').delete().eq('id', ventaSuspendidaActual.id);
+                    const paqueteIds = ventaSuspendidaActual.carrito_data.map(p => p.id);
+                    await sb.rpc('cambiar_estado_paquetes', { p_paquete_ids: paqueteIds, p_nuevo_estado: 'disponible' }); // Liberar por si acaso
+                }
                 const itemsData = carrito.map(p => ({
                     factura_id: facturaId, paquete_id: p.id, paquete_tracking: p.tracking,
                     monto_cobrado: (p.costo_flete || 0) + (p.costo_impuestos || 0),
                     descuento_porcentaje: p.descuento_porcentaje || 0
                 }));
                 const pagosData = pagos.map(p => ({ factura_id: facturaId, monto: p.monto, metodo_pago: p.metodo }));
-                const paquetesUpdateData = carrito.map(p => ({ id: p.id, status: 'Entregado', factura_id: facturaId }));
+                const paquetesUpdateData = carrito.map(p => ({ id: p.id, status: 'Entregado', factura_id: facturaId, estado_interno: 'disponible' }));
                 const [resItems, resPagos, resPaquetes] = await Promise.all([
                     sb.from('factura_items').insert(itemsData), sb.from('pagos').insert(pagosData), sb.from('paquetes').upsert(paquetesUpdateData)
                 ]);
@@ -477,9 +478,13 @@
                 carrito_data: carrito, descuento_general_porcentaje: descuentoGeneralPorcentaje,
                 cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null, monto_abonado: abono,
             };
+            const paqueteIds = carrito.map(p => p.id);
             const { error } = await sb.from('ventas_suspendidas').insert(payload);
             if (error) { alert(`Error al suspender la venta: ${error.message}`); } 
-            else { alert(`Venta suspendida con estado: ${status}`); resetTerminal(true); }
+            else { 
+                await sb.rpc('cambiar_estado_paquetes', { p_paquete_ids: paqueteIds, p_nuevo_estado: 'suspendido' });
+                alert(`Venta suspendida con estado: ${status}`); resetTerminal(true); 
+            }
             suspendModal.classList.add('hidden');
         }
         
@@ -519,7 +524,8 @@
             btnSuspenderVenta.addEventListener('click', () => { if(carrito.length > 0) suspendModal.classList.remove('hidden'); });
             formSuspend.addEventListener('submit', handleSuspendSaleSubmit);
             document.getElementById('cancel-suspend-modal').addEventListener('click', () => suspendModal.classList.add('hidden'));
-            document.getElementById('btn-cargar-suspendida').addEventListener('click', handleOpenLoadSuspendedModal);
+            const btnCargarSuspendida = document.getElementById('btn-cargar-suspendida');
+            if(btnCargarSuspendida) btnCargarSuspendida.addEventListener('click', handleOpenLoadSuspendedModal);
             document.getElementById('close-load-suspended-modal').addEventListener('click', () => loadSuspendedModal.classList.add('hidden'));
             suspendedSalesList.addEventListener('click', e => {
                 const btn = e.target.closest('.btn-load-sale');
@@ -529,7 +535,6 @@
                 const btn = e.target.closest('.payment-method-btn');
                 if (btn) handlePago(btn.dataset.metodo);
             });
-            const formEditPeso = document.getElementById('form-edit-peso');
             if(formEditPeso) formEditPeso.addEventListener('submit', handleEditPesoSubmit);
             document.getElementById('close-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
             document.getElementById('cancel-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
