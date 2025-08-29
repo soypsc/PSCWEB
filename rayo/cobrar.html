@@ -211,7 +211,6 @@
             }).join('');
         }
 
-        // --- Lógica de Negocio ---
         async function loadPaymentMethods() {
             const { data, error } = await sb.from('metodos_pago').select('nombre').eq('is_activo', true).order('nombre');
             if (error || !data) {
@@ -488,6 +487,44 @@
             }
             suspendModal.classList.add('hidden');
         }
+
+        async function handleOpenLoadSuspendedModal() {
+            console.log("Función handleOpenLoadSuspendedModal INICIADA.");
+            suspendedSalesList.innerHTML = '<p>Cargando...</p>';
+            loadSuspendedModal.classList.remove('hidden');
+            try {
+                const { data, error } = await sb.from('ventas_suspendidas').select('*').order('created_at', { ascending: false });
+                if (error) throw error;
+                if (!data || data.length === 0) {
+                    suspendedSalesList.innerHTML = '<p>No hay ventas suspendidas.</p>'; return;
+                }
+                suspendedSalesList.innerHTML = data.map(v => `<div class="border rounded-md p-3 mb-2 flex justify-between items-center"><div><p class="font-semibold">${v.cliente_nombre} (Box: ${v.cliente_box})</p><p class="text-sm text-slate-500">${new Date(v.created_at).toLocaleString('es-PA')}</p><p class="text-sm font-bold ${v.status === 'Pagado' ? 'text-green-600' : v.status === 'Abonado' ? 'text-blue-600' : ''}">${v.status}</p></div><button data-id="${v.id}" class="btn-load-sale bg-emerald-500 text-white font-semibold py-1 px-3 rounded-md">Cargar</button></div>`).join('');
+                console.log("Lista de ventas suspendidas cargada en el modal.");
+            } catch (error) {
+                console.error("Error al cargar ventas suspendidas:", error);
+                suspendedSalesList.innerHTML = `<p class="text-red-500">Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function handleLoadSuspendedSale(id) {
+            const { data, error } = await sb.from('ventas_suspendidas').select('*').eq('id', id).single();
+            if (error || !data) { alert("No se pudo cargar la venta suspendida."); return; }
+            await resetTerminal();
+            ventaSuspendidaActual = { ...data, trackings_pendientes: data.carrito_data.map(p => p.tracking) };
+            await buscarCliente(String(data.cliente_box));
+            carrito = data.carrito_data;
+            pagos = data.monto_abonado > 0 ? [{ metodo: 'Abono Previo', monto: data.monto_abonado }] : [];
+            descuentoGeneralPorcentaje = data.descuento_general_porcentaje || 0;
+            // Aquí se podría cargar y aplicar el cupón si se guardó
+            modoVerificacion = true;
+            renderCarrito();
+            renderPagos();
+            renderVerificationList();
+            btnCompletarVenta.disabled = true;
+            btnSuspenderVenta.disabled = true;
+            scanInput.placeholder = "ESCANEAR PARA VERIFICAR...";
+            loadSuspendedModal.classList.add('hidden');
+        }
         
         function resetTerminal(limpiarBuscador = false) {
             clienteActual=null; paquetesPendientes=[]; carrito=[]; pagos=[]; paqueteParaEditar=null;
@@ -512,10 +549,7 @@
             
             const btnCargarSuspendida = document.getElementById('btn-cargar-suspendida');
             if (btnCargarSuspendida) {
-                btnCargarSuspendida.addEventListener('click', () => {
-                    console.log("Botón 'Cargar Venta' fue clickeado.");
-                    handleOpenLoadSuspendedModal();
-                });
+                btnCargarSuspendida.addEventListener('click', handleOpenLoadSuspendedModal);
             } else {
                 console.error("ERROR CRÍTICO: El botón 'btn-cargar-suspendida' no fue encontrado.");
             }
