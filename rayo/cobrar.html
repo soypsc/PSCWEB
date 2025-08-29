@@ -506,7 +506,7 @@
         }
 
         async function handleCancelSuspendedSale(ventaId) {
-            if (!confirm("¿Estás seguro de que quieres cancelar esta venta suspendida? Los paquetes serán liberados.")) return;
+            if (!confirm("¿Estás seguro de que quieres cancelar esta venta suspendida? Los paquetes serán liberados y cualquier abono se añadirá como crédito al cliente.")) return;
             try {
                 const { error } = await sb.rpc('cancelar_y_liberar_venta', { p_venta_id: ventaId });
                 if (error) throw error;
