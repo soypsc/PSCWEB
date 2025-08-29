@@ -71,14 +71,14 @@
                                 <button id="btn-descuento-general" class="w-full text-sm py-2 bg-amber-100 text-amber-800 font-semibold rounded-md hover:bg-amber-200">Aplicar Descuento General (%)</button>
                             </div>
                             <div id="pago-modulo" class="mt-6 border-t pt-6">
-                                <div class="flex gap-2 mb-4">
-                                    <button id="btn-suspender-venta" class="w-full bg-orange-500 text-white font-semibold py-3 rounded-lg hover:bg-orange-600 disabled:bg-slate-400" disabled>Suspender Venta</button>
-                                    <button id="btn-completar-venta" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-emerald-700 disabled:bg-slate-400" disabled>Completar Venta</button>
-                                </div>
                                 <h3 class="text-lg font-semibold text-slate-700 mb-2">Registrar Pago</h3>
                                 <div class="flex justify-between font-medium text-xl text-red-600 mb-4"><span>Restante:</span><span id="pago-restante">$0.00</span></div>
                                 <div id="payment-methods-container" class="grid grid-cols-2 gap-2 mb-4"></div>
                                 <div id="pagos-realizados-list" class="text-sm space-y-1 mb-4"></div>
+                            </div>
+                            <div class="mt-6 border-t pt-6 flex gap-2">
+                                <button id="btn-suspender-venta" class="w-full bg-orange-500 text-white font-semibold py-3 rounded-lg hover:bg-orange-600 disabled:bg-slate-400" disabled>Suspender Venta</button>
+                                <button id="btn-completar-venta" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-emerald-700 disabled:bg-slate-400" disabled>Completar Venta</button>
                             </div>
                         </div>
                     </div>
@@ -424,7 +424,6 @@
                 const facturaId = factura.id;
                 if (cuponAplicado) await sb.rpc('incrementar_uso_cupon', { p_codigo: cuponAplicado.codigo });
                 
-                const paqueteIds = carrito.map(p => p.id);
                 if (ventaSuspendidaActual) {
                     await sb.from('ventas_suspendidas').delete().eq('id', ventaSuspendidaActual.id);
                 }
@@ -465,28 +464,6 @@
                 calcularTotal();
             } else { alert("Monto inválido."); }
         }
-        
-        async function handleSuspendSaleSubmit(e) {
-            e.preventDefault();
-            const abono = parseFloat(montoAbonoInput.value) || 0;
-            const total = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
-            let status = 'Suspendida';
-            if (abono >= total - 0.001) status = 'Pagado';
-            else if (abono > 0) status = 'Abonado';
-            const payload = {
-                cliente_box: clienteActual.box, cliente_nombre: clienteActual.nombre, status,
-                carrito_data: carrito, descuento_general_porcentaje: descuentoGeneralPorcentaje,
-                cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null, monto_abonado: abono,
-            };
-            const paqueteIds = carrito.map(p => p.id);
-            const { error } = await sb.from('ventas_suspendidas').insert(payload);
-            if (error) { alert(`Error al suspender la venta: ${error.message}`); } 
-            else { 
-                await sb.rpc('cambiar_estado_paquetes', { p_paquete_ids: paqueteIds, p_nuevo_estado: 'suspendido' });
-                alert(`Venta suspendida con estado: ${status}`); resetTerminal(true); 
-            }
-            suspendModal.classList.add('hidden');
-        }
 
         async function handleOpenLoadSuspendedModal() {
             console.log("Función handleOpenLoadSuspendedModal INICIADA.");
@@ -512,8 +489,10 @@
             await resetTerminal();
             ventaSuspendidaActual = { ...data, trackings_pendientes: data.carrito_data.map(p => p.tracking) };
             await buscarCliente(String(data.cliente_box));
+            // Sobreescribir paquetes pendientes con los del carrito suspendido
+            paquetesPendientes = []; 
             carrito = data.carrito_data;
-            pagos = data.monto_abonado > 0 ? [{ metodo: 'Abono Previo', monto: data.monto_abonado }] : [];
+            pagos = data.pagos_data || [];
             descuentoGeneralPorcentaje = data.descuento_general_porcentaje || 0;
             // Aquí se podría cargar y aplicar el cupón si se guardó
             modoVerificacion = true;
@@ -524,6 +503,27 @@
             btnSuspenderVenta.disabled = true;
             scanInput.placeholder = "ESCANEAR PARA VERIFICAR...";
             loadSuspendedModal.classList.add('hidden');
+        }
+        
+        async function handleSuspendSaleSubmit() {
+            const montoAbonado = pagos.reduce((acc, p) => acc + p.monto, 0);
+            const total = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
+            let status = 'Suspendida';
+            if (montoAbonado >= total - 0.001) status = 'Pagado';
+            else if (montoAbonado > 0) status = 'Abonado';
+            const payload = {
+                cliente_box: clienteActual.box, cliente_nombre: clienteActual.nombre, status,
+                carrito_data: carrito, descuento_general_porcentaje: descuentoGeneralPorcentaje,
+                cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null, monto_abonado: montoAbonado,
+                pagos_data: pagos,
+            };
+            const paqueteIds = carrito.map(p => p.id);
+            const { error } = await sb.from('ventas_suspendidas').insert(payload);
+            if (error) { alert(`Error al suspender la venta: ${error.message}`); } 
+            else { 
+                await sb.rpc('cambiar_estado_paquetes', { p_paquete_ids: paqueteIds, p_nuevo_estado: 'suspendido' });
+                alert(`Venta suspendida con estado: ${status}`); resetTerminal(true); 
+            }
         }
         
         function resetTerminal(limpiarBuscador = false) {
@@ -567,9 +567,9 @@
             });
             btnDescuentoGeneral.addEventListener('click', handleGeneralDiscount);
             btnAplicarCupon.addEventListener('click', handleAplicarCupon);
-            btnSuspenderVenta.addEventListener('click', () => { if(carrito.length > 0) suspendModal.classList.remove('hidden'); });
-            formSuspend.addEventListener('submit', handleSuspendSaleSubmit);
-            document.getElementById('cancel-suspend-modal').addEventListener('click', () => suspendModal.classList.add('hidden'));
+            btnSuspenderVenta.addEventListener('click', handleSuspendSaleSubmit);
+            // formSuspend.addEventListener('submit', handleSuspendSaleSubmit); // Ya no se usa el modal
+            document.getElementById('cancel-suspend-modal')?.addEventListener('click', () => suspendModal.classList.add('hidden')); // Por si acaso
             
             document.getElementById('close-load-suspended-modal').addEventListener('click', () => loadSuspendedModal.classList.add('hidden'));
             suspendedSalesList.addEventListener('click', e => {
