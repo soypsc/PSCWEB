@@ -445,41 +445,49 @@
         }
 
         async function completarVenta() {
-            if (btnCompletarVenta.disabled) return;
-            btnCompletarVenta.textContent = "Procesando...";
-            btnCompletarVenta.disabled = true;
-            const montoTotalFinal = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
-            try {
-                const { data: factura, error: errFactura } = await sb.from('facturas').insert({
-                    cliente_box: clienteActual.box, cliente_nombre: clienteActual.nombre, monto_total: montoTotalFinal,
-                    descuento_general_porcentaje: descuentoGeneralPorcentaje, cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null, status: 'Pagada'
-                }).select().single();
-                if (errFactura) throw errFactura;
-                const facturaId = factura.id;
-                if (cuponAplicado) await sb.rpc('incrementar_uso_cupon', { p_codigo: cuponAplicado.codigo });
-                if (ventaSuspendidaActual) {
-                    await sb.from('ventas_suspendidas').delete().eq('id', ventaSuspendidaActual.id);
-                }
-                const itemsData = carrito.map(p => ({
-                    factura_id: facturaId, paquete_id: p.id, paquete_tracking: p.tracking,
-                    monto_cobrado: (p.costo_flete || 0) + (p.costo_impuestos || 0),
-                    descuento_porcentaje: p.descuento_porcentaje || 0
-                }));
-                const pagosData = pagos.map(p => ({ factura_id: facturaId, monto: p.monto, metodo_pago: p.metodo }));
-                const paquetesUpdateData = carrito.map(p => ({ id: p.id, status: 'Entregado', factura_id: facturaId, estado_interno: 'disponible' }));
-                const [resItems, resPagos, resPaquetes] = await Promise.all([
-                    sb.from('factura_items').insert(itemsData), sb.from('pagos').insert(pagosData), sb.from('paquetes').upsert(paquetesUpdateData)
-                ]);
-                if (resItems.error) throw resItems.error; if (resPagos.error) throw resPagos.error; if (resPaquetes.error) throw resPaquetes.error;
-                alert(`¡Venta completada! Factura #${facturaId} creada.`);
-                resetTerminal(true);
-            } catch (error) {
-                console.error("Error al completar la venta:", error);
-                alert(`Error: ${error.message}`);
-                btnCompletarVenta.textContent = "Completar Venta";
-                btnCompletarVenta.disabled = false;
-            }
-        }
+    if (btnCompletarVenta.disabled) return;
+    btnCompletarVenta.textContent = "Procesando...";
+    btnCompletarVenta.disabled = true;
+
+    const montoTotalFinal = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
+
+    // Preparar los datos para enviar a la función RPC
+    const carritoData = carrito.map(p => ({
+        id: p.id,
+        tracking: p.tracking,
+        costo_flete: (p.costo_flete || 0) + (p.costo_impuestos || 0),
+        descuento_porcentaje: p.descuento_porcentaje || 0
+    }));
+
+    const pagosData = pagos.map(p => ({
+        metodo: p.metodo,
+        monto: p.monto
+    }));
+
+    try {
+        const { data: facturaId, error } = await sb.rpc('finalizar_venta', {
+            p_cliente_box: clienteActual.box,
+            p_cliente_nombre: clienteActual.nombre,
+            p_monto_total: montoTotalFinal,
+            p_descuento_general_porcentaje: descuentoGeneralPorcentaje,
+            p_cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null,
+            p_venta_suspendida_id: ventaSuspendidaActual ? ventaSuspendidaActual.id : null,
+            p_carrito: carritoData,
+            p_pagos: pagosData
+        });
+
+        if (error) throw error;
+
+        alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.`);
+        resetTerminal(true);
+
+    } catch (error) {
+        console.error("Error al completar la venta:", error);
+        alert(`Error al finalizar la venta: ${error.message}`);
+        btnCompletarVenta.textContent = "Completar Venta";
+        btnCompletarVenta.disabled = false;
+    }
+}
         
         function handlePago(metodo) {
             const total = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
