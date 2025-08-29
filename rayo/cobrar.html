@@ -70,12 +70,20 @@
                                 <div class="flex justify-between font-bold text-3xl text-emerald-600 mt-2"><span>TOTAL:</span><span id="total-carrito">$0.00</span></div>
                                 <button id="btn-descuento-general" class="w-full text-sm py-2 bg-amber-100 text-amber-800 font-semibold rounded-md hover:bg-amber-200">Aplicar Descuento General (%)</button>
                             </div>
+                            
                             <div id="pago-modulo" class="mt-6 border-t pt-6">
                                 <h3 class="text-lg font-semibold text-slate-700 mb-2">Registrar Pago</h3>
+                                <div id="credit-panel" class="hidden mb-4 p-3 bg-blue-100 text-blue-800 rounded-lg">
+                                    <div class="flex justify-between items-center">
+                                        <p>Saldo a favor: <span id="credit-balance" class="font-bold"></span></p>
+                                        <button id="btn-apply-credit" class="font-semibold hover:underline text-sm bg-blue-200 px-3 py-1 rounded-md">Aplicar Saldo</button>
+                                    </div>
+                                </div>
                                 <div class="flex justify-between font-medium text-xl text-red-600 mb-4"><span>Restante:</span><span id="pago-restante">$0.00</span></div>
                                 <div id="payment-methods-container" class="grid grid-cols-2 gap-2 mb-4"></div>
                                 <div id="pagos-realizados-list" class="text-sm space-y-1 mb-4"></div>
                             </div>
+                            
                             <div class="mt-6 border-t pt-6 flex gap-2">
                                 <button id="btn-suspender-venta" class="w-full bg-orange-500 text-white font-semibold py-3 rounded-lg hover:bg-orange-600 disabled:bg-slate-400" disabled>Suspender Venta</button>
                                 <button id="btn-completar-venta" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-emerald-700 disabled:bg-slate-400" disabled>Completar Venta</button>
@@ -147,6 +155,9 @@
         const editPesoNota = document.getElementById('edit-peso-nota');
         const editPesoFoto = document.getElementById('edit-peso-foto');
         const editPesoMessage = document.getElementById('edit-peso-message');
+        const creditPanel = document.getElementById('credit-panel');
+        const creditBalanceSpan = document.getElementById('credit-balance');
+        const btnApplyCredit = document.getElementById('btn-apply-credit');
 
         // --- Lógica de Renderizado ---
         function renderPendientes() {
@@ -160,9 +171,7 @@
                 acc[anaquel].push(p);
                 return acc;
             }, {});
-            pendientesListDiv.innerHTML = Object.entries(agrupados).map(([anaquel, paquetes]) => `<div class="p-3 bg-slate-100 rounded-md"><h4 class="font-bold text-slate-600 mb-2">📍 Anaquel: ${anaquel}</h4><div class="space-y-2">
-                ${paquetes.map(p => `<div id="pendiente-${p.tracking}" class="p-2 border bg-white rounded flex justify-between items-center"><span>${p.tracking}</span><span class="text-sm text-slate-500">${(p.peso || 0).toFixed(2)} lbs</span></div>`).join('')}
-                </div></div>`).join('');
+            pendientesListDiv.innerHTML = Object.entries(agrupados).map(([anaquel, paquetes]) => `<div class="p-3 bg-slate-100 rounded-md"><h4 class="font-bold text-slate-600 mb-2">📍 Anaquel: ${anaquel}</h4><div class="space-y-2">${paquetes.map(p => `<div id="pendiente-${p.tracking}" class="p-2 border bg-white rounded flex justify-between items-center"><span>${p.tracking}</span><span class="text-sm text-slate-500">${(p.peso || 0).toFixed(2)} lbs</span></div>`).join('')}</div></div>`).join('');
         }
         
         function renderCarrito() {
@@ -222,6 +231,10 @@
             paquetesPendientes = paquetes.map(p => ({ ...p, costo_flete: p.costo_total, costo_impuestos: 0, descuento_porcentaje: 0 }));
             clienteNombreTitulo.textContent = clienteActual.nombre;
             terminalContent.classList.remove('hidden');
+            if (clienteActual.saldo_a_favor > 0) {
+                creditBalanceSpan.textContent = `$${clienteActual.saldo_a_favor.toFixed(2)}`;
+                creditPanel.classList.remove('hidden');
+            }
             renderPendientes();
             await loadPaymentMethods();
             scanInput.focus();
@@ -367,6 +380,38 @@
             }
         }
         
+        async function handleApplyCredit() {
+            if (!clienteActual || clienteActual.saldo_a_favor <= 0) return;
+            const restante = parseFloat(pagoRestanteSpan.textContent.replace('$', ''));
+            const montoAAplicar = Math.min(clienteActual.saldo_a_favor, restante);
+            if (montoAAplicar <= 0) {
+                alert("No hay monto restante que cubrir.");
+                return;
+            }
+            btnApplyCredit.disabled = true;
+            btnApplyCredit.textContent = "Aplicando...";
+            try {
+                const { data: nuevoSaldo, error } = await sb.rpc('aplicar_saldo_a_favor', {
+                    p_cliente_box: clienteActual.box,
+                    p_monto_a_aplicar: montoAAplicar
+                });
+                if (error) throw error;
+                clienteActual.saldo_a_favor = nuevoSaldo;
+                pagos.push({ metodo: 'Saldo a Favor', monto: montoAAplicar });
+                renderPagos();
+                calcularTotal();
+                creditBalanceSpan.textContent = `$${nuevoSaldo.toFixed(2)}`;
+                if (nuevoSaldo <= 0) {
+                    creditPanel.classList.add('hidden');
+                }
+            } catch (error) {
+                alert(`Error al aplicar saldo: ${error.message}`);
+            } finally {
+                btnApplyCredit.disabled = false;
+                btnApplyCredit.textContent = "Aplicar Saldo";
+            }
+        }
+
         function calcularTotal() {
             let subtotal=0, descuentoTotalItems=0;
             carrito.forEach(p => {
@@ -406,11 +451,9 @@
                 if (errFactura) throw errFactura;
                 const facturaId = factura.id;
                 if (cuponAplicado) await sb.rpc('incrementar_uso_cupon', { p_codigo: cuponAplicado.codigo });
-                
                 if (ventaSuspendidaActual) {
                     await sb.from('ventas_suspendidas').delete().eq('id', ventaSuspendidaActual.id);
                 }
-                
                 const itemsData = carrito.map(p => ({
                     factura_id: facturaId, paquete_id: p.id, paquete_tracking: p.tracking,
                     monto_cobrado: (p.costo_flete || 0) + (p.costo_impuestos || 0),
@@ -418,11 +461,9 @@
                 }));
                 const pagosData = pagos.map(p => ({ factura_id: facturaId, monto: p.monto, metodo_pago: p.metodo }));
                 const paquetesUpdateData = carrito.map(p => ({ id: p.id, status: 'Entregado', factura_id: facturaId, estado_interno: 'disponible' }));
-                
                 const [resItems, resPagos, resPaquetes] = await Promise.all([
                     sb.from('factura_items').insert(itemsData), sb.from('pagos').insert(pagosData), sb.from('paquetes').upsert(paquetesUpdateData)
                 ]);
-
                 if (resItems.error) throw resItems.error; if (resPagos.error) throw resPagos.error; if (resPaquetes.error) throw resPaquetes.error;
                 alert(`¡Venta completada! Factura #${facturaId} creada.`);
                 resetTerminal(true);
@@ -506,11 +547,11 @@
         }
 
         async function handleCancelSuspendedSale(ventaId) {
-            if (!confirm("¿Estás seguro de que quieres cancelar esta venta suspendida? Los paquetes serán liberados y cualquier abono se añadirá como crédito al cliente.")) return;
+            if (!confirm("¿Cancelar venta? Los paquetes serán liberados y los abonos irán a crédito.")) return;
             try {
                 const { error } = await sb.rpc('cancelar_y_liberar_venta', { p_venta_id: ventaId });
                 if (error) throw error;
-                alert("Venta suspendida cancelada exitosamente.");
+                alert("Venta cancelada exitosamente.");
                 await handleOpenLoadSuspendedModal();
             } catch (error) {
                 console.error("Error al cancelar la venta:", error);
@@ -525,8 +566,11 @@
             verificationPanel.classList.add('hidden');
             if (limpiarBuscador) searchClienteInput.value = '';
             cuponCodeInput.value = ''; cuponCodeInput.disabled = false;
-            btnAplicarCupon.disabled = false; cuponMessage.textContent = '';
-            renderCarrito(); renderPagos();
+            btnAplicarCupon.disabled = false;
+            cuponMessage.textContent = '';
+            creditPanel.classList.add('hidden');
+            renderCarrito();
+            renderPagos();
             btnCompletarVenta.textContent = "Completar Venta";
             scanInput.placeholder = "Esperando escaneo...";
         }
@@ -567,6 +611,7 @@
             if(formEditPeso) formEditPeso.addEventListener('submit', handleEditPesoSubmit);
             document.getElementById('close-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
             document.getElementById('cancel-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
+            btnApplyCredit.addEventListener('click', handleApplyCredit);
             lucide.createIcons();
         });
     </script>
