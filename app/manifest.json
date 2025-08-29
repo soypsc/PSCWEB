@@ -4,7 +4,7 @@
   "start_url": "/app",
   "display": "standalone",
   "background_color": "#251CFF",
-  "theme_color": "#000000",
+  "theme_color": "#251CFF",
   "icons": [
     {
       "src": "https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png",
