@@ -490,25 +490,45 @@
         }
         
         async function handleSuspendSaleSubmit() {
-            const montoAbonado = pagos.reduce((acc, p) => acc + p.monto, 0);
-            const total = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
-            let status = 'Suspendida';
-            if (montoAbonado >= total - 0.001) status = 'Pagado';
-            else if (montoAbonado > 0) status = 'Abonado';
-            const payload = {
-                cliente_box: clienteActual.box, cliente_nombre: clienteActual.nombre, status,
-                carrito_data: carrito, descuento_general_porcentaje: descuentoGeneralPorcentaje,
-                cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null, monto_abonado: montoAbonado,
-                pagos_data: pagos
-            };
-            const paqueteIds = carrito.map(p => p.id);
-            const { error } = await sb.from('ventas_suspendidas').insert(payload);
-            if (error) { alert(`Error al suspender la venta: ${error.message}`); } 
-            else { 
-                await sb.rpc('cambiar_estado_paquetes', { p_paquete_ids: paqueteIds, p_nuevo_estado: 'suspendido' });
-                alert(`Venta suspendida con estado: ${status}`); resetTerminal(true); 
-            }
+    const montoAbonado = pagos.reduce((acc, p) => acc + p.monto, 0);
+    const total = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
+    let status = 'Suspendida';
+    if (montoAbonado >= total - 0.001) status = 'Pagado';
+    else if (montoAbonado > 0) status = 'Abonado';
+
+    const payload = {
+        cliente_box: clienteActual.box,
+        cliente_nombre: clienteActual.nombre,
+        status: status,
+        carrito_data: carrito,
+        descuento_general_porcentaje: descuentoGeneralPorcentaje,
+        cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null,
+        monto_abonado: montoAbonado,
+        pagos_data: pagos
+    };
+
+    if (ventaSuspendidaActual) {
+        // --- LÓGICA DE ACTUALIZACIÓN (SI LA VENTA YA EXISTÍA) ---
+        const { error } = await sb.from('ventas_suspendidas').update(payload).eq('id', ventaSuspendidaActual.id);
+        if (error) {
+            alert(`Error al actualizar la venta suspendida: ${error.message}`);
+        } else {
+            alert(`Venta suspendida actualizada con estado: ${status}`);
+            resetTerminal(true);
         }
+    } else {
+        // --- LÓGICA DE CREACIÓN (SI ES UNA VENTA NUEVA) ---
+        const paqueteIds = carrito.map(p => p.id);
+        const { error } = await sb.from('ventas_suspendidas').insert(payload);
+        if (error) {
+            alert(`Error al suspender la venta: ${error.message}`);
+        } else { 
+            await sb.rpc('cambiar_estado_paquetes', { p_paquete_ids: paqueteIds, p_nuevo_estado: 'suspendido' });
+            alert(`Venta suspendida con estado: ${status}`);
+            resetTerminal(true); 
+        }
+    }
+}
 
         async function handleOpenLoadSuspendedModal() {
             suspendedSalesList.innerHTML = '<p>Cargando...</p>';
