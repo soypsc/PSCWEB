@@ -535,24 +535,38 @@
         }
         
         async function handleLoadSuspendedSale(id) {
-            const { data, error } = await sb.from('ventas_suspendidas').select('*').eq('id', id).single();
-            if (error || !data) { alert("No se pudo cargar la venta suspendida."); return; }
-            await resetTerminal();
-            ventaSuspendidaActual = { ...data, trackings_pendientes: data.carrito_data.map(p => p.tracking) };
-            await buscarCliente(String(data.cliente_box));
-            paquetesPendientes = []; 
-            carrito = data.carrito_data;
-            pagos = data.pagos_data || [];
-            descuentoGeneralPorcentaje = data.descuento_general_porcentaje || 0;
-            modoVerificacion = true;
-            renderCarrito();
-            renderPagos();
-            renderVerificationList();
-            btnCompletarVenta.disabled = true;
-            btnSuspenderVenta.disabled = true;
-            scanInput.placeholder = "ESCANEAR PARA VERIFICAR...";
-            loadSuspendedModal.classList.add('hidden');
-        }
+    const { data, error } = await sb.from('ventas_suspendidas').select('*').eq('id', id).single();
+    if (error || !data) {
+        alert("No se pudo cargar la venta suspendida.");
+        return;
+    }
+    
+    await resetTerminal();
+    
+    ventaSuspendidaActual = { ...data, trackings_pendientes: data.carrito_data.map(p => p.tracking) };
+    
+    // --- INICIO DE LA LÍNEA DE ESPIONAJE ---
+    // Esta línea imprimirá la lista de trackings pendientes en la consola automáticamente.
+    console.log("Trackings pendientes de verificación:", ventaSuspendidaActual.trackings_pendientes);
+    // --- FIN DE LA LÍNEA DE ESPIONAJE ---
+
+    await buscarCliente(String(data.cliente_box));
+    
+    paquetesPendientes = []; 
+    carrito = data.carrito_data;
+    pagos = data.pagos_data || [];
+    descuentoGeneralPorcentaje = data.descuento_general_porcentaje || 0;
+    modoVerificacion = true;
+    
+    renderCarrito();
+    renderPagos();
+    renderVerificationList();
+    
+    btnCompletarVenta.disabled = true;
+    btnSuspenderVenta.disabled = true;
+    scanInput.placeholder = "ESCANEAR PARA VERIFICAR...";
+    loadSuspendedModal.classList.add('hidden');
+}
 
         async function handleCancelSuspendedSale(ventaId) {
             if (!confirm("¿Cancelar venta? Los paquetes serán liberados y los abonos irán a crédito.")) return;
