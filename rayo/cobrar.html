@@ -100,7 +100,6 @@
             </form>
         </div>
     </div>
-    
     <div id="load-suspended-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
         <div class="bg-white w-full max-w-2xl rounded-lg shadow-xl p-6">
             <h2 class="text-xl font-bold text-slate-800 mb-4">Cargar Venta Suspendida</h2>
@@ -108,7 +107,6 @@
             <button id="close-load-suspended-modal" class="mt-4 w-full bg-slate-200 text-slate-700 font-semibold py-2 rounded-md">Cerrar</button>
         </div>
     </div>
-    
     <div id="suspend-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
         <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6">
             <h2 class="text-xl font-bold text-slate-800 mb-4">Suspender Venta</h2>
@@ -421,7 +419,7 @@
             try {
                 const { data: factura, error: errFactura } = await sb.from('facturas').insert({
                     cliente_box: clienteActual.box, cliente_nombre: clienteActual.nombre, monto_total: montoTotalFinal,
-                    descuento_general_porcentaje: descuentoGeneralPorcentaje, cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null
+                    descuento_general_porcentaje: descuentoGeneralPorcentaje, cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null, status: 'Pagada'
                 }).select().single();
                 if (errFactura) throw errFactura;
                 const facturaId = factura.id;
@@ -430,10 +428,8 @@
                 const paqueteIds = carrito.map(p => p.id);
                 if (ventaSuspendidaActual) {
                     await sb.from('ventas_suspendidas').delete().eq('id', ventaSuspendidaActual.id);
-                } else {
-                    // Si no era una venta suspendida, los paquetes estaban 'disponible', no necesitan cambio de estado a disponible.
                 }
-
+                
                 const itemsData = carrito.map(p => ({
                     factura_id: facturaId, paquete_id: p.id, paquete_tracking: p.tracking,
                     monto_cobrado: (p.costo_flete || 0) + (p.costo_impuestos || 0),
@@ -511,8 +507,19 @@
             setTimeout(() => scanInput.classList.remove(className), 500);
         }
 
-        // --- Inicialización y Event Listeners ---
         document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM completamente cargado. Adjuntando event listeners.");
+            
+            const btnCargarSuspendida = document.getElementById('btn-cargar-suspendida');
+            if (btnCargarSuspendida) {
+                btnCargarSuspendida.addEventListener('click', () => {
+                    console.log("Botón 'Cargar Venta' fue clickeado.");
+                    handleOpenLoadSuspendedModal();
+                });
+            } else {
+                console.error("ERROR CRÍTICO: El botón 'btn-cargar-suspendida' no fue encontrado.");
+            }
+
             searchClienteInput.addEventListener('change', (e) => buscarCliente(e.target.value.trim()));
             scanInput.addEventListener('change', handleScan);
             btnCompletarVenta.addEventListener('click', completarVenta);
@@ -529,8 +536,7 @@
             btnSuspenderVenta.addEventListener('click', () => { if(carrito.length > 0) suspendModal.classList.remove('hidden'); });
             formSuspend.addEventListener('submit', handleSuspendSaleSubmit);
             document.getElementById('cancel-suspend-modal').addEventListener('click', () => suspendModal.classList.add('hidden'));
-            const btnCargarSuspendida = document.getElementById('btn-cargar-suspendida');
-            if(btnCargarSuspendida) btnCargarSuspendida.addEventListener('click', handleOpenLoadSuspendedModal);
+            
             document.getElementById('close-load-suspended-modal').addEventListener('click', () => loadSuspendedModal.classList.add('hidden'));
             suspendedSalesList.addEventListener('click', e => {
                 const btn = e.target.closest('.btn-load-sale');
@@ -540,9 +546,11 @@
                 const btn = e.target.closest('.payment-method-btn');
                 if (btn) handlePago(btn.dataset.metodo);
             });
+            
             if(formEditPeso) formEditPeso.addEventListener('submit', handleEditPesoSubmit);
             document.getElementById('close-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
             document.getElementById('cancel-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
+
             lucide.createIcons();
         });
     </script>
