@@ -107,21 +107,7 @@
             <button id="close-load-suspended-modal" class="mt-4 w-full bg-slate-200 text-slate-700 font-semibold py-2 rounded-md">Cerrar</button>
         </div>
     </div>
-    <div id="suspend-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
-        <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6">
-            <h2 class="text-xl font-bold text-slate-800 mb-4">Suspender Venta</h2>
-            <form id="form-suspend">
-                <p class="mb-4">Se guardará el estado actual del carrito. Puedes registrar un abono opcional ahora.</p>
-                <label for="monto-abono" class="block text-sm font-medium">Monto a Abonar (Opcional)</label>
-                <input type="number" id="monto-abono" step="0.01" class="w-full mt-1 p-2 border rounded-md" placeholder="0.00">
-                <div class="flex justify-end gap-4 mt-6">
-                    <button type="button" id="cancel-suspend-modal" class="bg-slate-100 font-semibold py-2 px-4 rounded-md">Cancelar</button>
-                    <button type="submit" class="bg-orange-500 text-white font-semibold py-2 px-6 rounded-md">Confirmar Suspensión</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
+    
     <script src="app.js"></script>
     <script type="module">
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -152,9 +138,6 @@
         const cuponCodeInput = document.getElementById('cupon-code-input');
         const btnAplicarCupon = document.getElementById('btn-aplicar-cupon');
         const cuponMessage = document.getElementById('cupon-message');
-        const suspendModal = document.getElementById('suspend-modal');
-        const formSuspend = document.getElementById('form-suspend');
-        const montoAbonoInput = document.getElementById('monto-abono');
         const loadSuspendedModal = document.getElementById('load-suspended-modal');
         const suspendedSalesList = document.getElementById('suspended-sales-list');
         const editPesoModal = document.getElementById('edit-peso-modal');
@@ -464,9 +447,29 @@
                 calcularTotal();
             } else { alert("Monto inválido."); }
         }
+        
+        async function handleSuspendSaleSubmit() {
+            const montoAbonado = pagos.reduce((acc, p) => acc + p.monto, 0);
+            const total = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
+            let status = 'Suspendida';
+            if (montoAbonado >= total - 0.001) status = 'Pagado';
+            else if (montoAbonado > 0) status = 'Abonado';
+            const payload = {
+                cliente_box: clienteActual.box, cliente_nombre: clienteActual.nombre, status,
+                carrito_data: carrito, descuento_general_porcentaje: descuentoGeneralPorcentaje,
+                cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null, monto_abonado: montoAbonado,
+                pagos_data: pagos
+            };
+            const paqueteIds = carrito.map(p => p.id);
+            const { error } = await sb.from('ventas_suspendidas').insert(payload);
+            if (error) { alert(`Error al suspender la venta: ${error.message}`); } 
+            else { 
+                await sb.rpc('cambiar_estado_paquetes', { p_paquete_ids: paqueteIds, p_nuevo_estado: 'suspendido' });
+                alert(`Venta suspendida con estado: ${status}`); resetTerminal(true); 
+            }
+        }
 
         async function handleOpenLoadSuspendedModal() {
-            console.log("Función handleOpenLoadSuspendedModal INICIADA.");
             suspendedSalesList.innerHTML = '<p>Cargando...</p>';
             loadSuspendedModal.classList.remove('hidden');
             try {
@@ -475,8 +478,7 @@
                 if (!data || data.length === 0) {
                     suspendedSalesList.innerHTML = '<p>No hay ventas suspendidas.</p>'; return;
                 }
-                suspendedSalesList.innerHTML = data.map(v => `<div class="border rounded-md p-3 mb-2 flex justify-between items-center"><div><p class="font-semibold">${v.cliente_nombre} (Box: ${v.cliente_box})</p><p class="text-sm text-slate-500">${new Date(v.created_at).toLocaleString('es-PA')}</p><p class="text-sm font-bold ${v.status === 'Pagado' ? 'text-green-600' : v.status === 'Abonado' ? 'text-blue-600' : ''}">${v.status}</p></div><button data-id="${v.id}" class="btn-load-sale bg-emerald-500 text-white font-semibold py-1 px-3 rounded-md">Cargar</button></div>`).join('');
-                console.log("Lista de ventas suspendidas cargada en el modal.");
+                suspendedSalesList.innerHTML = data.map(v => `<div class="border rounded-md p-3 mb-2 flex justify-between items-center"><div><p class="font-semibold">${v.cliente_nombre} (Box: ${v.cliente_box})</p><p class="text-sm text-slate-500">${new Date(v.created_at).toLocaleString('es-PA')}</p><p class="text-sm font-bold ${v.status === 'Pagado' ? 'text-green-600' : v.status === 'Abonado' ? 'text-blue-600' : ''}">${v.status}</p></div><div class="flex gap-2"><button data-id="${v.id}" class="btn-cancel-sale bg-red-500 text-white font-semibold py-1 px-3 rounded-md">Cancelar</button><button data-id="${v.id}" class="btn-load-sale bg-emerald-500 text-white font-semibold py-1 px-3 rounded-md">Cargar</button></div></div>`).join('');
             } catch (error) {
                 console.error("Error al cargar ventas suspendidas:", error);
                 suspendedSalesList.innerHTML = `<p class="text-red-500">Error: ${error.message}</p>`;
@@ -489,12 +491,10 @@
             await resetTerminal();
             ventaSuspendidaActual = { ...data, trackings_pendientes: data.carrito_data.map(p => p.tracking) };
             await buscarCliente(String(data.cliente_box));
-            // Sobreescribir paquetes pendientes con los del carrito suspendido
             paquetesPendientes = []; 
             carrito = data.carrito_data;
             pagos = data.pagos_data || [];
             descuentoGeneralPorcentaje = data.descuento_general_porcentaje || 0;
-            // Aquí se podría cargar y aplicar el cupón si se guardó
             modoVerificacion = true;
             renderCarrito();
             renderPagos();
@@ -504,25 +504,17 @@
             scanInput.placeholder = "ESCANEAR PARA VERIFICAR...";
             loadSuspendedModal.classList.add('hidden');
         }
-        
-        async function handleSuspendSaleSubmit() {
-            const montoAbonado = pagos.reduce((acc, p) => acc + p.monto, 0);
-            const total = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
-            let status = 'Suspendida';
-            if (montoAbonado >= total - 0.001) status = 'Pagado';
-            else if (montoAbonado > 0) status = 'Abonado';
-            const payload = {
-                cliente_box: clienteActual.box, cliente_nombre: clienteActual.nombre, status,
-                carrito_data: carrito, descuento_general_porcentaje: descuentoGeneralPorcentaje,
-                cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null, monto_abonado: montoAbonado,
-                pagos_data: pagos,
-            };
-            const paqueteIds = carrito.map(p => p.id);
-            const { error } = await sb.from('ventas_suspendidas').insert(payload);
-            if (error) { alert(`Error al suspender la venta: ${error.message}`); } 
-            else { 
-                await sb.rpc('cambiar_estado_paquetes', { p_paquete_ids: paqueteIds, p_nuevo_estado: 'suspendido' });
-                alert(`Venta suspendida con estado: ${status}`); resetTerminal(true); 
+
+        async function handleCancelSuspendedSale(ventaId) {
+            if (!confirm("¿Estás seguro de que quieres cancelar esta venta suspendida? Los paquetes serán liberados.")) return;
+            try {
+                const { error } = await sb.rpc('cancelar_y_liberar_venta', { p_venta_id: ventaId });
+                if (error) throw error;
+                alert("Venta suspendida cancelada exitosamente.");
+                await handleOpenLoadSuspendedModal();
+            } catch (error) {
+                console.error("Error al cancelar la venta:", error);
+                alert(`No se pudo cancelar la venta: ${error.message}`);
             }
         }
         
@@ -545,15 +537,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            console.log("DOM completamente cargado. Adjuntando event listeners.");
-            
-            const btnCargarSuspendida = document.getElementById('btn-cargar-suspendida');
-            if (btnCargarSuspendida) {
-                btnCargarSuspendida.addEventListener('click', handleOpenLoadSuspendedModal);
-            } else {
-                console.error("ERROR CRÍTICO: El botón 'btn-cargar-suspendida' no fue encontrado.");
-            }
-
             searchClienteInput.addEventListener('change', (e) => buscarCliente(e.target.value.trim()));
             scanInput.addEventListener('change', handleScan);
             btnCompletarVenta.addEventListener('click', completarVenta);
@@ -568,23 +551,22 @@
             btnDescuentoGeneral.addEventListener('click', handleGeneralDiscount);
             btnAplicarCupon.addEventListener('click', handleAplicarCupon);
             btnSuspenderVenta.addEventListener('click', handleSuspendSaleSubmit);
-            // formSuspend.addEventListener('submit', handleSuspendSaleSubmit); // Ya no se usa el modal
-            document.getElementById('cancel-suspend-modal')?.addEventListener('click', () => suspendModal.classList.add('hidden')); // Por si acaso
-            
+            const btnCargarSuspendida = document.getElementById('btn-cargar-suspendida');
+            if(btnCargarSuspendida) btnCargarSuspendida.addEventListener('click', handleOpenLoadSuspendedModal);
             document.getElementById('close-load-suspended-modal').addEventListener('click', () => loadSuspendedModal.classList.add('hidden'));
             suspendedSalesList.addEventListener('click', e => {
-                const btn = e.target.closest('.btn-load-sale');
-                if (btn) handleLoadSuspendedSale(btn.dataset.id);
+                const loadBtn = e.target.closest('.btn-load-sale');
+                const cancelBtn = e.target.closest('.btn-cancel-sale');
+                if (loadBtn) handleLoadSuspendedSale(loadBtn.dataset.id);
+                if (cancelBtn) handleCancelSuspendedSale(cancelBtn.dataset.id);
             });
             paymentMethodsContainer.addEventListener('click', e => {
                 const btn = e.target.closest('.payment-method-btn');
                 if (btn) handlePago(btn.dataset.metodo);
             });
-            
             if(formEditPeso) formEditPeso.addEventListener('submit', handleEditPesoSubmit);
             document.getElementById('close-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
             document.getElementById('cancel-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
-
             lucide.createIcons();
         });
     </script>
