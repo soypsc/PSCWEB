@@ -241,46 +241,41 @@
         }
         
         function handleScan() {
-    const tracking = scanInput.value.trim().toLowerCase();
-    if (!tracking) return;
-    scanInput.value = '';
-    scanInput.focus();
-
-    if (modoVerificacion) {
-        // --- INICIO DE LA CORRECCIÓN ---
-        // Se añade .trim() a la comparación para ignorar espacios en blanco
-        const itemIndex = ventaSuspendidaActual.trackings_pendientes.findIndex(t => t.trim().toLowerCase() === tracking);
-        // --- FIN DE LA CORRECCIÓN ---
-
-        if (itemIndex > -1) {
-            ventaSuspendidaActual.trackings_pendientes.splice(itemIndex, 1);
-            flashInputColor('scan-success');
-            renderVerificationList();
-            if (ventaSuspendidaActual.trackings_pendientes.length === 0) {
-                modoVerificacion = false;
-                verificationPanel.classList.add('hidden');
-                alert("¡Verificación completada! El carrito está desbloqueado.");
-                scanInput.placeholder = "Escanear paquete para AÑADIR";
-                calcularTotal();
+            const tracking = scanInput.value.trim().toLowerCase();
+            if (!tracking) return;
+            scanInput.value = '';
+            scanInput.focus();
+            if (modoVerificacion) {
+                const itemIndex = ventaSuspendidaActual.trackings_pendientes.findIndex(t => t.trim().toLowerCase() === tracking);
+                if (itemIndex > -1) {
+                    ventaSuspendidaActual.trackings_pendientes.splice(itemIndex, 1);
+                    flashInputColor('scan-success');
+                    renderVerificationList();
+                    if (ventaSuspendidaActual.trackings_pendientes.length === 0) {
+                        modoVerificacion = false;
+                        verificationPanel.classList.add('hidden');
+                        alert("¡Verificación completada! El carrito está desbloqueado.");
+                        scanInput.placeholder = "Escanear paquete para AÑADIR";
+                        calcularTotal();
+                    }
+                } else {
+                    flashInputColor('scan-error');
+                    alert("Este tracking no pertenece a la venta suspendida o ya fue verificado.");
+                }
+            } else {
+                const paqueteIndex = paquetesPendientes.findIndex(p => p.tracking.toLowerCase() === tracking);
+                if (paqueteIndex > -1) {
+                    const [paquete] = paquetesPendientes.splice(paqueteIndex, 1);
+                    carrito.push(paquete);
+                    renderPendientes();
+                    renderCarrito();
+                    flashInputColor('scan-success');
+                } else {
+                    alert(`Error: Paquete ${tracking} no está en la lista de pendientes o ya fue escaneado.`);
+                    flashInputColor('scan-error');
+                }
             }
-        } else {
-            flashInputColor('scan-error');
-            alert("Este tracking no pertenece a la venta suspendida o ya fue verificado.");
         }
-    } else {
-        const paqueteIndex = paquetesPendientes.findIndex(p => p.tracking.toLowerCase() === tracking);
-        if (paqueteIndex > -1) {
-            const [paquete] = paquetesPendientes.splice(paqueteIndex, 1);
-            carrito.push(paquete);
-            renderPendientes();
-            renderCarrito();
-            flashInputColor('scan-success');
-        } else {
-            alert(`Error: Paquete ${tracking} no está en la lista de pendientes o ya fue escaneado.`);
-            flashInputColor('scan-error');
-        }
-    }
-}
         
         function handleRemoveFromCart(tracking) {
             const paqueteIndex = carrito.findIndex(p => p.tracking === tracking);
@@ -495,45 +490,33 @@
         }
         
         async function handleSuspendSaleSubmit() {
-    const montoAbonado = pagos.reduce((acc, p) => acc + p.monto, 0);
-    const total = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
-    let status = 'Suspendida';
-    if (montoAbonado >= total - 0.001) status = 'Pagado';
-    else if (montoAbonado > 0) status = 'Abonado';
+            const montoAbonado = pagos.reduce((acc, p) => acc + p.monto, 0);
+            const total = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
+            let status = 'Suspendida';
+            if (montoAbonado >= total - 0.001) status = 'Pagado';
+            else if (montoAbonado > 0) status = 'Abonado';
+            
+            const payload = {
+                cliente_box: clienteActual.box, cliente_nombre: clienteActual.nombre, status,
+                carrito_data: carrito, descuento_general_porcentaje: descuentoGeneralPorcentaje,
+                cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null, monto_abonado: montoAbonado,
+                pagos_data: pagos
+            };
 
-    const payload = {
-        cliente_box: clienteActual.box,
-        cliente_nombre: clienteActual.nombre,
-        status: status,
-        carrito_data: carrito,
-        descuento_general_porcentaje: descuentoGeneralPorcentaje,
-        cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null,
-        monto_abonado: montoAbonado,
-        pagos_data: pagos
-    };
-
-    if (ventaSuspendidaActual) {
-        // --- LÓGICA DE ACTUALIZACIÓN (SI LA VENTA YA EXISTÍA) ---
-        const { error } = await sb.from('ventas_suspendidas').update(payload).eq('id', ventaSuspendidaActual.id);
-        if (error) {
-            alert(`Error al actualizar la venta suspendida: ${error.message}`);
-        } else {
-            alert(`Venta suspendida actualizada con estado: ${status}`);
-            resetTerminal(true);
+            if (ventaSuspendidaActual) {
+                const { error } = await sb.from('ventas_suspendidas').update(payload).eq('id', ventaSuspendidaActual.id);
+                if (error) { alert(`Error al actualizar la venta: ${error.message}`); } 
+                else { alert(`Venta suspendida actualizada como: ${status}`); resetTerminal(true); }
+            } else {
+                const paqueteIds = carrito.map(p => p.id);
+                const { error } = await sb.from('ventas_suspendidas').insert(payload);
+                if (error) { alert(`Error al suspender la venta: ${error.message}`); } 
+                else { 
+                    await sb.rpc('cambiar_estado_paquetes', { p_paquete_ids: paqueteIds, p_nuevo_estado: 'suspendido' });
+                    alert(`Venta suspendida como: ${status}`); resetTerminal(true); 
+                }
+            }
         }
-    } else {
-        // --- LÓGICA DE CREACIÓN (SI ES UNA VENTA NUEVA) ---
-        const paqueteIds = carrito.map(p => p.id);
-        const { error } = await sb.from('ventas_suspendidas').insert(payload);
-        if (error) {
-            alert(`Error al suspender la venta: ${error.message}`);
-        } else { 
-            await sb.rpc('cambiar_estado_paquetes', { p_paquete_ids: paqueteIds, p_nuevo_estado: 'suspendido' });
-            alert(`Venta suspendida con estado: ${status}`);
-            resetTerminal(true); 
-        }
-    }
-}
 
         async function handleOpenLoadSuspendedModal() {
             suspendedSalesList.innerHTML = '<p>Cargando...</p>';
@@ -576,7 +559,7 @@
             try {
                 const { error } = await sb.rpc('cancelar_y_liberar_venta', { p_venta_id: ventaId });
                 if (error) throw error;
-                alert("Venta cancelada exitosamente.");
+                alert("Venta suspendida cancelada exitosamente.");
                 await handleOpenLoadSuspendedModal();
             } catch (error) {
                 console.error("Error al cancelar la venta:", error);
