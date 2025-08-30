@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGL1 - Gestión de Plantillas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .code { font-size: 13px; font-weight: 600; color: #94a3b8; margin-right: 12px; background-color: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
+        .template-item.active { background-color: #e0f2fe; border-left-color: #0284c7; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="relative min-h-screen md:flex">
+        <div id="menu-container"></div>
+
+        <main class="flex-1 p-8">
+            <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-6"><span class="code">[AD-04]</span>Editor de Plantillas</h1>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="md:col-span-1">
+                    <h2 class="text-lg font-semibold mb-3">Plantillas del Sistema</h2>
+                    <div id="templates-list" class="bg-white rounded-lg border divide-y">
+                        <p class="p-4 text-center text-slate-500">Cargando...</p>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <div id="editor-panel" class="bg-white rounded-lg border p-6 hidden">
+                        <form id="template-form" class="space-y-4">
+                            <div>
+                                <label for="nombre_plantilla" class="block text-sm font-medium">Nombre de la Plantilla</label>
+                                <input id="nombre_plantilla" type="text" required class="w-full p-2 border rounded-md mt-1">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium">Identificador Único</label>
+                                <p id="identificador_unico" class="mt-1 p-2 bg-slate-100 rounded-md font-mono text-sm text-slate-500"></p>
+                            </div>
+                             <div>
+                                <label for="asunto_o_titulo" class="block text-sm font-medium">Asunto / Título</label>
+                                <input id="asunto_o_titulo" type="text" class="w-full p-2 border rounded-md mt-1">
+                            </div>
+                            <div>
+                                <label for="cuerpo_html" class="block text-sm font-medium">Cuerpo HTML</label>
+                                <textarea id="cuerpo_html" rows="12" class="w-full p-2 border rounded-md mt-1 font-mono text-xs"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium">Variables Disponibles</label>
+                                <div id="variables_disponibles" class="mt-1 p-3 bg-slate-50 border rounded-md text-xs text-slate-600 flex flex-wrap gap-2"></div>
+                            </div>
+                            <div class="flex justify-end pt-4 border-t">
+                                <button type="submit" class="bg-emerald-500 text-white font-semibold py-2 px-6 rounded-md">Guardar Cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="placeholder-panel" class="bg-white rounded-lg border p-12 text-center text-slate-500">
+                        <p>Seleccione una plantilla de la lista para comenzar a editar.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
+        const templatesListDiv = document.getElementById('templates-list');
+        const editorPanel = document.getElementById('editor-panel');
+        const placeholderPanel = document.getElementById('placeholder-panel');
+        const form = document.getElementById('template-form');
+        let currentEditingId = null;
+        let allTemplates = [];
+
+        function renderTemplatesList() {
+            if (!allTemplates.length) {
+                templatesListDiv.innerHTML = '<p class="p-4 text-center text-slate-500">No hay plantillas.</p>';
+                return;
+            }
+            templatesListDiv.innerHTML = allTemplates.map(t => `
+                <div data-id="${t.id}" class="template-item p-4 cursor-pointer hover:bg-slate-50 border-l-4 ${currentEditingId === t.id ? 'active' : 'border-transparent'}">
+                    <p class="font-semibold text-slate-800">${t.nombre_plantilla}</p>
+                    <p class="text-xs text-slate-500">${t.canal} / ${t.identificador_unico}</p>
+                </div>
+            `).join('');
+        }
+        
+        function displayTemplateInEditor(templateId) {
+            currentEditingId = templateId;
+            const template = allTemplates.find(t => t.id === templateId);
+            if (!template) return;
+
+            placeholderPanel.classList.add('hidden');
+            editorPanel.classList.remove('hidden');
+
+            document.getElementById('nombre_plantilla').value = template.nombre_plantilla;
+            document.getElementById('identificador_unico').textContent = template.identificador_unico;
+            document.getElementById('asunto_o_titulo').value = template.asunto_o_titulo || '';
+            document.getElementById('cuerpo_html').value = template.cuerpo_html || '';
+            
+            const variablesDiv = document.getElementById('variables_disponibles');
+            if (template.variables_disponibles && template.variables_disponibles.length) {
+                variablesDiv.innerHTML = template.variables_disponibles.map(v => `<code class="bg-slate-200 px-1.5 py-0.5 rounded">${v}</code>`).join('');
+            } else {
+                variablesDiv.innerHTML = '<p>No hay variables predefinidas para esta plantilla.</p>';
+            }
+            renderTemplatesList(); // Re-render para mostrar el item activo
+        }
+
+        async function loadTemplates() {
+            const { data, error } = await sb.from('plantillas').select('*').order('nombre_plantilla');
+            if (error) {
+                templatesListDiv.innerHTML = `<p class="p-4 text-center text-red-500">Error al cargar plantillas.</p>`;
+                console.error(error);
+                return;
+            }
+            allTemplates = data;
+            renderTemplatesList();
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentEditingId) return;
+
+            const payload = {
+                nombre_plantilla: document.getElementById('nombre_plantilla').value,
+                asunto_o_titulo: document.getElementById('asunto_o_titulo').value,
+                cuerpo_html: document.getElementById('cuerpo_html').value,
+                updated_at: new Date().toISOString()
+            };
+
+            const { error } = await sb.from('plantillas').update(payload).eq('id', currentEditingId);
+
+            if (error) {
+                alert(`Error al guardar: ${error.message}`);
+            } else {
+                alert("¡Plantilla guardada con éxito!");
+                await loadTemplates();
+                displayTemplateInEditor(currentEditingId);
+            }
+        });
+
+        templatesListDiv.addEventListener('click', (e) => {
+            const item = e.target.closest('.template-item');
+            if (item && item.dataset.id) {
+                displayTemplateInEditor(item.dataset.id);
+            }
+        });
+
+        loadTemplates();
+    </script>
+</body>
+</html>
