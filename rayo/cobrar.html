@@ -13,8 +13,8 @@
         .code { font-size: 13px; font-weight: 600; color: #94a3b8; margin-right: 12px; background-color: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
         .fade-in { animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .scan-success { background-color: #dcfce7 !important; transition: background-color 0.3s; }
-        .scan-error { background-color: #fee2e2 !important; transition: background-color 0.3s; }
+        .scan-success { background-color: #dcfce7 !important; transition: background-color: 0.3s; }
+        .scan-error { background-color: #fee2e2 !important; transition: background-color: 0.3s; }
         .verified-item { text-decoration: line-through; color: #9ca3af; }
     </style>
 </head>
@@ -125,6 +125,7 @@
         let descuentoGeneralPorcentaje=0, cuponAplicado=null;
         let ventaSuspendidaActual=null, modoVerificacion=false;
 
+        // --- Selectores del DOM ---
         const searchClienteInput = document.getElementById('search-cliente');
         const terminalContent = document.getElementById('terminal-content');
         const clienteNombreTitulo = document.getElementById('cliente-nombre-titulo');
@@ -158,6 +159,7 @@
         const creditBalanceSpan = document.getElementById('credit-balance');
         const btnApplyCredit = document.getElementById('btn-apply-credit');
 
+        // --- Lógica de Renderizado ---
         function renderPendientes() {
             if (paquetesPendientes.length === 0) {
                 pendientesListDiv.innerHTML = '<p class="text-center text-slate-500 p-4">¡No hay más paquetes pendientes para este cliente!</p>';
@@ -250,6 +252,7 @@
             if (!tracking) return;
             scanInput.value = '';
             scanInput.focus();
+
             if (modoVerificacion) {
                 const itemIndex = ventaSuspendidaActual.trackings_pendientes.findIndex(t => t.trim().toLowerCase() === tracking);
                 if (itemIndex > -1) {
@@ -449,7 +452,7 @@
             btnCompletarVenta.disabled = true;
             const montoTotalFinal = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
             try {
-                const { data: facturaId, error } = await sb.rpc('finalizar_venta', {
+                const { data: facturaId, error: ventaError } = await sb.rpc('finalizar_venta', {
                     p_cliente_box: clienteActual.box,
                     p_cliente_nombre: clienteActual.nombre,
                     p_monto_total: montoTotalFinal,
@@ -459,8 +462,27 @@
                     p_carrito: carrito.map(p=>({id:p.id, tracking:p.tracking, costo_flete:(p.costo_flete||0)+(p.costo_impuestos||0), descuento_porcentaje:p.descuento_porcentaje||0})),
                     p_pagos: pagos
                 });
-                if (error) throw error;
-                alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.`);
+                if (ventaError) throw ventaError;
+
+                const htmlRecibo = await generarReciboHTML(facturaId);
+                const { data: { session } } = await sb.auth.getSession();
+                if (!session) throw new Error("Sesión no encontrada.");
+
+                const { data: pdfData, error: pdfError } = await sb.functions.invoke('generar-factura-pdf', {
+                    headers: { 'Authorization': `Bearer ${session.access_token}` },
+                    body: { htmlContent: htmlRecibo, facturaId: facturaId }
+                });
+
+                if (pdfError || (pdfData && pdfData.error)) {
+                    const errorMessage = pdfError ? pdfError.message : (pdfData.error || "Error desconocido");
+                    alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.\n\nADVERTENCIA: No se pudo generar el PDF. Error: ${errorMessage}`);
+                } else {
+                    await sb.from('facturas').update({ url_pdf: pdfData.url }).eq('id', facturaId);
+                    alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.`);
+                    if (confirm("¿Desea abrir el recibo en PDF para imprimir?")) {
+                        window.open(pdfData.url, '_blank');
+                    }
+                }
                 resetTerminal(true);
             } catch (error) {
                 console.error("Error al completar la venta:", error);
@@ -470,6 +492,28 @@
             }
         }
         
+        async function generarReciboHTML(facturaId) {
+            const { data: plantilla, error } = await sb.from('plantillas').select('cuerpo_html').eq('identificador_unico', 'RECIBO_IMPRESION').single();
+            if (error || !plantilla) {
+                console.error("No se encontró la plantilla de recibo.");
+                return "<h1>Error: Plantilla de recibo no encontrada.</h1>";
+            }
+            let html = plantilla.cuerpo_html;
+            const itemsHTML = carrito.map(p => `<tr><td style="padding: 5px;">${p.tracking}</td><td style="padding: 5px;">${(p.peso || 0).toFixed(2)} lbs</td><td style="text-align: right; padding: 5px;">$${((p.costo_flete||0)+(p.costo_impuestos||0)).toFixed(2)}</td></tr>`).join('');
+            const desgloseItems = `<table width="100%" style="font-size: 12px; border-collapse: collapse;"><thead><tr style="background-color: #eee;"><th style="padding: 5px; text-align: left;">Tracking</th><th style="padding: 5px; text-align: left;">Peso</th><th style="padding: 5px; text-align: right;">Costo</th></tr></thead><tbody>${itemsHTML}</tbody></table>`;
+            const pagosHTML = pagos.map(p => `<div>${p.metodo}: $${p.monto.toFixed(2)}</div>`).join('');
+            html = html.replace(/{{fecha_factura}}/g, new Date().toLocaleDateString('es-PA'));
+            html = html.replace(/{{numero_factura}}/g, facturaId.substring(0, 8).toUpperCase());
+            html = html.replace(/{{nombre_cliente}}/g, clienteActual.nombre);
+            html = html.replace(/{{box}}/g, clienteActual.box);
+            html = html.replace(/{{desglose_items_html}}/g, desgloseItems);
+            html = html.replace(/{{subtotal}}/g, subtotalCarritoSpan.textContent.replace('$', ''));
+            html = html.replace(/{{descuentos}}/g, descuentosCarritoSpan.textContent.replace('-$', ''));
+            html = html.replace(/{{total_pagado}}/g, totalCarritoSpan.textContent.replace('$', ''));
+            html = html.replace(/{{metodos_pago_html}}/g, pagosHTML);
+            return html;
+        }
+
         function handlePago(metodo) {
             const total = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
             const totalPagado = pagos.reduce((acc, p) => acc + p.monto, 0);
@@ -490,14 +534,12 @@
             let status = 'Suspendida';
             if (montoAbonado >= total - 0.001) status = 'Pagado';
             else if (montoAbonado > 0) status = 'Abonado';
-            
             const payload = {
                 cliente_box: clienteActual.box, cliente_nombre: clienteActual.nombre, status,
                 carrito_data: carrito, descuento_general_porcentaje: descuentoGeneralPorcentaje,
                 cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null, monto_abonado: montoAbonado,
                 pagos_data: pagos
             };
-
             if (ventaSuspendidaActual) {
                 const { error } = await sb.from('ventas_suspendidas').update(payload).eq('id', ventaSuspendidaActual.id);
                 if (error) { alert(`Error al actualizar la venta: ${error.message}`); } 
@@ -535,7 +577,7 @@
                 alert("No se pudo cargar la venta suspendida.");
                 return;
             }
-            await buscarCliente(String(suspendedSale.cliente_box));
+            await buscarCliente(String(suspendedSale.cliente_box), true);
             
             ventaSuspendidaActual = { ...suspendedSale, trackings_pendientes: suspendedSale.carrito_data.map(p => p.tracking) };
             
