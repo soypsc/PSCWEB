@@ -446,54 +446,64 @@
         }
 
         async function completarVenta() {
-            if (btnCompletarVenta.disabled) return;
-            btnCompletarVenta.textContent = "Procesando...";
-            btnCompletarVenta.disabled = true;
-            
-            const montoTotalFinal = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
+    if (btnCompletarVenta.disabled) return;
+    btnCompletarVenta.textContent = "Procesando...";
+    btnCompletarVenta.disabled = true;
+    
+    const montoTotalFinal = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
 
-            try {
-                // Primero, registrar la venta y obtener el ID de la factura
-                const { data: facturaId, error: ventaError } = await sb.rpc('finalizar_venta', {
-                    p_cliente_box: clienteActual.box,
-                    p_cliente_nombre: clienteActual.nombre,
-                    p_monto_total: montoTotalFinal,
-                    p_descuento_general_porcentaje: descuentoGeneralPorcentaje,
-                    p_cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null,
-                    p_venta_suspendida_id: ventaSuspendidaActual ? ventaSuspendidaActual.id : null,
-                    p_carrito: carrito.map(p=>({id:p.id, tracking:p.tracking, costo_flete:(p.costo_flete||0)+(p.costo_impuestos||0), descuento_porcentaje:p.descuento_porcentaje||0})),
-                    p_pagos: pagos
-                });
-                if (ventaError) throw ventaError;
+    try {
+        const { data: facturaId, error: ventaError } = await sb.rpc('finalizar_venta', {
+            p_cliente_box: clienteActual.box,
+            p_cliente_nombre: clienteActual.nombre,
+            p_monto_total: montoTotalFinal,
+            p_descuento_general_porcentaje: descuentoGeneralPorcentaje,
+            p_cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null,
+            p_venta_suspendida_id: ventaSuspendidaActual ? ventaSuspendidaActual.id : null,
+            p_carrito: carrito.map(p=>({id:p.id, tracking:p.tracking, costo_flete:(p.costo_flete||0)+(p.costo_impuestos||0), descuento_porcentaje:p.descuento_porcentaje||0})),
+            p_pagos: pagos
+        });
 
-                // Ahora, generar el recibo HTML
-                const htmlRecibo = await generarReciboHTML(facturaId);
+        if (ventaError) throw ventaError;
 
-                // Llamar a la Edge Function para generar y guardar el PDF
-                const { data: pdfData, error: pdfError } = await sb.functions.invoke('generar-factura-pdf', {
-                    body: { htmlContent: htmlRecibo, facturaId: facturaId }
-                });
-                if (pdfError) {
-                    // La venta se guardó, pero el PDF falló. Informar pero no detener.
-                    alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.\n\nADVERTENCIA: No se pudo generar el PDF del recibo. Error: ${pdfError.message}`);
-                } else {
-                    // Guardar la URL del PDF en la factura
-                    await sb.from('facturas').update({ url_pdf: pdfData.url }).eq('id', facturaId);
-                    alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.`);
-                    if (confirm("¿Desea abrir el recibo en PDF para imprimir?")) {
-                        window.open(pdfData.url, '_blank');
-                    }
-                }
-                
-                resetTerminal(true);
+        const htmlRecibo = await generarReciboHTML(facturaId);
+        
+        // --- INICIO DE LA CORRECCIÓN ---
+        // 1. Obtener el token de sesión actual del usuario.
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) throw new Error("Sesión de usuario no encontrada. No se puede generar PDF.");
 
-            } catch (error) {
-                console.error("Error al completar la venta:", error);
-                alert(`Error al finalizar la venta: ${error.message}`);
-                btnCompletarVenta.textContent = "Completar Venta";
-                btnCompletarVenta.disabled = false;
+        // 2. Llamar a la Edge Function, pasando el token manualmente en los headers.
+        const { data: pdfData, error: pdfError } = await sb.functions.invoke('generar-factura-pdf', {
+            headers: {
+                'Authorization': `Bearer ${session.access_token}`
+            },
+            body: { 
+                htmlContent: htmlRecibo, 
+                facturaId: facturaId 
+            }
+        });
+        // --- FIN DE LA CORRECCIÓN ---
+
+        if (pdfError) {
+            alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.\n\nADVERTENCIA: No se pudo generar el PDF del recibo. Error: ${pdfError.message}`);
+        } else {
+            await sb.from('facturas').update({ url_pdf: pdfData.url }).eq('id', facturaId);
+            alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.`);
+            if (confirm("¿Desea abrir el recibo en PDF para imprimir?")) {
+                window.open(pdfData.url, '_blank');
             }
         }
+        
+        resetTerminal(true);
+
+    } catch (error) {
+        console.error("Error al completar la venta:", error);
+        alert(`Error al finalizar la venta: ${error.message}`);
+        btnCompletarVenta.textContent = "Completar Venta";
+        btnCompletarVenta.disabled = false;
+    }
+}
         
         async function generarReciboHTML(facturaId) {
             const { data: plantilla, error } = await sb.from('plantillas').select('cuerpo_html').eq('identificador_unico', 'RECIBO_IMPRESION').single();
