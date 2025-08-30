@@ -588,12 +588,16 @@
                 alert("No se pudo cargar la venta suspendida.");
                 return;
             }
-            await buscarCliente(String(suspendedSale.cliente_box));
             
+            // MODIFICACIÓN IMPORTANTE: No llamar a buscarCliente() que resetea todo.
+            // Llamar a una versión que no reinicie los paquetes pendientes.
+            await buscarClienteSinReseteo(String(suspendedSale.cliente_box));
+
             ventaSuspendidaActual = { ...suspendedSale, trackings_pendientes: suspendedSale.carrito_data.map(p => p.tracking) };
             
             const cartTrackings = new Set(suspendedSale.carrito_data.map(p => p.tracking));
-            paquetesPendientes = paquetesPendientes.filter(p => !cartTrackings.has(p.tracking));
+            // Esta línea ahora funciona correctamente porque paquetesPendientes ya está cargado.
+            paquetesPendientes = paquetesPendientes.filter(p => !cartTrackings.has(p.tracking)); 
             
             carrito = suspendedSale.carrito_data;
             pagos = suspendedSale.pagos_data || [];
@@ -610,6 +614,36 @@
             scanInput.placeholder = "ESCANEAR TODOS LOS PAQUETES PARA VERIFICAR...";
             loadSuspendedModal.classList.add('hidden');
         }
+
+        // --- ¡NUEVA FUNCIÓN ASISTENTE! ---
+        async function buscarClienteSinReseteo(searchTerm) {
+            // No llama a resetTerminal()
+            if (!searchTerm) return;
+            const isNumeric = !isNaN(searchTerm);
+            let query = sb.from('clientes').select('*');
+            if (isNumeric) query = query.eq('box', parseInt(searchTerm));
+            else query = query.ilike('nombre', `%${searchTerm}%`);
+            const { data, error } = await query.limit(1).single();
+            if (error || !data) { alert("Cliente no encontrado."); return; }
+            clienteActual = data;
+            
+            const { data: paquetes, error: paquetesError } = await sb.rpc('get_paquetes_para_entrega', { p_cliente_box: clienteActual.box });
+            if (paquetesError) { alert("Error al cargar paquetes del cliente."); console.error(paquetesError); return; }
+            
+            // Carga los paquetes pendientes en la variable global para que handleLoadSuspendedSale los pueda usar.
+            paquetesPendientes = paquetes.map(p => ({ ...p, costo_flete: p.costo_total, costo_impuestos: 0, descuento_porcentaje: 0 }));
+
+            clienteNombreTitulo.textContent = clienteActual.nombre;
+            terminalContent.classList.remove('hidden');
+            if (clienteActual.saldo_a_favor > 0) {
+                creditBalanceSpan.textContent = `$${clienteActual.saldo_a_favor.toFixed(2)}`;
+                creditPanel.classList.remove('hidden');
+            }
+            // No renderiza pendientes aquí, lo hará handleLoadSuspendedSale
+            await loadPaymentMethods();
+            scanInput.focus();
+        }
+
 
         async function handleCancelSuspendedSale(ventaId) {
             if (!confirm("¿Cancelar venta? Los paquetes serán liberados y los abonos irán a crédito.")) return;
