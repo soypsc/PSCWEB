@@ -216,10 +216,8 @@
             }).join('');
         }
         
-        async function buscarCliente(searchTerm, isContinuation = false) {
-            if (!isContinuation) {
-                resetTerminal();
-            }
+        async function buscarCliente(searchTerm) {
+            resetTerminal();
             if (!searchTerm) return;
             const isNumeric = !isNaN(searchTerm);
             let query = sb.from('clientes').select('*');
@@ -227,15 +225,12 @@
             else query = query.ilike('nombre', `%${searchTerm}%`);
             const { data, error } = await query.limit(1).single();
             if (error || !data) { alert("Cliente no encontrado."); return; }
-            
             clienteActual = data;
             
-            if (!isContinuation) {
-                const { data: paquetes, error: paquetesError } = await sb.rpc('get_paquetes_para_entrega', { p_cliente_box: clienteActual.box });
-                if (paquetesError) { alert("Error al cargar paquetes del cliente."); console.error(paquetesError); return; }
-                paquetesPendientes = paquetes.map(p => ({ ...p, costo_flete: p.costo_total, costo_impuestos: 0, descuento_porcentaje: 0 }));
-                renderPendientes();
-            }
+            const { data: paquetes, error: paquetesError } = await sb.rpc('get_paquetes_para_entrega', { p_cliente_box: clienteActual.box });
+            if (paquetesError) { alert("Error al cargar paquetes del cliente."); console.error(paquetesError); return; }
+            
+            paquetesPendientes = paquetes.map(p => ({ ...p, costo_flete: p.costo_total, costo_impuestos: 0, descuento_porcentaje: 0 }));
 
             clienteNombreTitulo.textContent = clienteActual.nombre;
             terminalContent.classList.remove('hidden');
@@ -243,6 +238,8 @@
                 creditBalanceSpan.textContent = `$${clienteActual.saldo_a_favor.toFixed(2)}`;
                 creditPanel.classList.remove('hidden');
             }
+            
+            renderPendientes();
             await loadPaymentMethods();
             scanInput.focus();
         }
@@ -446,64 +443,60 @@
         }
 
         async function completarVenta() {
-    if (btnCompletarVenta.disabled) return;
-    btnCompletarVenta.textContent = "Procesando...";
-    btnCompletarVenta.disabled = true;
-    
-    const montoTotalFinal = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
+            if (btnCompletarVenta.disabled) return;
+            btnCompletarVenta.textContent = "Procesando...";
+            btnCompletarVenta.disabled = true;
+            
+            const montoTotalFinal = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
 
-    try {
-        const { data: facturaId, error: ventaError } = await sb.rpc('finalizar_venta', {
-            p_cliente_box: clienteActual.box,
-            p_cliente_nombre: clienteActual.nombre,
-            p_monto_total: montoTotalFinal,
-            p_descuento_general_porcentaje: descuentoGeneralPorcentaje,
-            p_cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null,
-            p_venta_suspendida_id: ventaSuspendidaActual ? ventaSuspendidaActual.id : null,
-            p_carrito: carrito.map(p=>({id:p.id, tracking:p.tracking, costo_flete:(p.costo_flete||0)+(p.costo_impuestos||0), descuento_porcentaje:p.descuento_porcentaje||0})),
-            p_pagos: pagos
-        });
+            try {
+                const { data: facturaId, error: ventaError } = await sb.rpc('finalizar_venta', {
+                    p_cliente_box: clienteActual.box,
+                    p_cliente_nombre: clienteActual.nombre,
+                    p_monto_total: montoTotalFinal,
+                    p_descuento_general_porcentaje: descuentoGeneralPorcentaje,
+                    p_cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null,
+                    p_venta_suspendida_id: ventaSuspendidaActual ? ventaSuspendidaActual.id : null,
+                    p_carrito: carrito.map(p=>({id:p.id, tracking:p.tracking, costo_flete:(p.costo_flete||0)+(p.costo_impuestos||0), descuento_porcentaje:p.descuento_porcentaje||0})),
+                    p_pagos: pagos
+                });
 
-        if (ventaError) throw ventaError;
+                if (ventaError) throw ventaError;
 
-        const htmlRecibo = await generarReciboHTML(facturaId);
-        
-        // --- INICIO DE LA CORRECCIÓN ---
-        // 1. Obtener el token de sesión actual del usuario.
-        const { data: { session } } = await sb.auth.getSession();
-        if (!session) throw new Error("Sesión de usuario no encontrada. No se puede generar PDF.");
+                const htmlRecibo = await generarReciboHTML(facturaId);
+                
+                const { data: { session } } = await sb.auth.getSession();
+                if (!session) throw new Error("Sesión de usuario no encontrada. No se puede generar PDF.");
 
-        // 2. Llamar a la Edge Function, pasando el token manualmente en los headers.
-        const { data: pdfData, error: pdfError } = await sb.functions.invoke('generar-factura-pdf', {
-            headers: {
-                'Authorization': `Bearer ${session.access_token}`
-            },
-            body: { 
-                htmlContent: htmlRecibo, 
-                facturaId: facturaId 
-            }
-        });
-        // --- FIN DE LA CORRECCIÓN ---
+                const { data: pdfData, error: pdfError } = await sb.functions.invoke('generar-factura-pdf', {
+                    headers: {
+                        'Authorization': `Bearer ${session.access_token}`
+                    },
+                    body: { 
+                        htmlContent: htmlRecibo, 
+                        facturaId: facturaId 
+                    }
+                });
 
-        if (pdfError) {
-            alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.\n\nADVERTENCIA: No se pudo generar el PDF del recibo. Error: ${pdfError.message}`);
-        } else {
-            await sb.from('facturas').update({ url_pdf: pdfData.url }).eq('id', facturaId);
-            alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.`);
-            if (confirm("¿Desea abrir el recibo en PDF para imprimir?")) {
-                window.open(pdfData.url, '_blank');
+                if (pdfError) {
+                    alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.\n\nADVERTENCIA: No se pudo generar el PDF del recibo. Error: ${pdfError.message}`);
+                } else {
+                    await sb.from('facturas').update({ url_pdf: pdfData.url }).eq('id', facturaId);
+                    alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.`);
+                    if (confirm("¿Desea abrir el recibo en PDF para imprimir?")) {
+                        window.open(pdfData.url, '_blank');
+                    }
+                }
+                
+                resetTerminal(true);
+
+            } catch (error) {
+                console.error("Error al completar la venta:", error);
+                alert(`Error al finalizar la venta: ${error.message}`);
+                btnCompletarVenta.textContent = "Completar Venta";
+                btnCompletarVenta.disabled = false;
             }
         }
-        
-        resetTerminal(true);
-
-    } catch (error) {
-        console.error("Error al completar la venta:", error);
-        alert(`Error al finalizar la venta: ${error.message}`);
-        btnCompletarVenta.textContent = "Completar Venta";
-        btnCompletarVenta.disabled = false;
-    }
-}
         
         async function generarReciboHTML(facturaId) {
             const { data: plantilla, error } = await sb.from('plantillas').select('cuerpo_html').eq('identificador_unico', 'RECIBO_IMPRESION').single();
@@ -514,11 +507,8 @@
 
             let html = plantilla.cuerpo_html;
 
-            const itemsHTML = carrito.map(p => {
-                const costoOriginal = (p.costo_flete || 0) + (p.costo_impuestos || 0);
-                return `<tr><td>${p.tracking}</td><td>${(p.peso || 0).toFixed(2)} lbs</td><td>$${costoOriginal.toFixed(2)}</td></tr>`;
-            }).join('');
-            const desgloseItems = `<table width="100%"><thead><tr><th>Tracking</th><th>Peso</th><th>Costo</th></tr></thead><tbody>${itemsHTML}</tbody></table>`;
+            const itemsHTML = carrito.map(p => `<tr><td style="padding: 5px;">${p.tracking}</td><td style="padding: 5px;">${(p.peso || 0).toFixed(2)} lbs</td><td style="text-align: right; padding: 5px;">$${((p.costo_flete||0)+(p.costo_impuestos||0)).toFixed(2)}</td></tr>`).join('');
+            const desgloseItems = `<table width="100%" style="font-size: 12px; border-collapse: collapse;"><thead><tr style="background-color: #eee;"><th style="padding: 5px; text-align: left;">Tracking</th><th style="padding: 5px; text-align: left;">Peso</th><th style="padding: 5px; text-align: right;">Costo</th></tr></thead><tbody>${itemsHTML}</tbody></table>`;
             
             const pagosHTML = pagos.map(p => `<div>${p.metodo}: $${p.monto.toFixed(2)}</div>`).join('');
 
