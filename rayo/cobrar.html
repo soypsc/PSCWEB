@@ -41,7 +41,7 @@
                         <div>
                             <div id="verification-panel" class="hidden mb-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800">
                                 <h3 class="font-bold">Verificación Requerida</h3>
-                                <p class="text-sm">Por favor, re-escanee los siguientes paquetes para desbloquear la venta:</p>
+                                <p class="text-sm">Escanee todos los paquetes de la lista para desbloquear la venta:</p>
                                 <ul id="verification-list" class="list-disc list-inside mt-2 text-sm font-mono"></ul>
                             </div>
                             <h2 class="text-xl font-bold text-slate-800 mb-2">Paquetes Pendientes de <span id="cliente-nombre-titulo"></span></h2>
@@ -216,10 +216,8 @@
             }).join('');
         }
         
-        async function buscarCliente(searchTerm, isContinuation = false) {
-            if (!isContinuation) {
-                resetTerminal();
-            }
+        async function buscarCliente(searchTerm) {
+            resetTerminal();
             if (!searchTerm) return;
             const isNumeric = !isNaN(searchTerm);
             let query = sb.from('clientes').select('*');
@@ -227,22 +225,17 @@
             else query = query.ilike('nombre', `%${searchTerm}%`);
             const { data, error } = await query.limit(1).single();
             if (error || !data) { alert("Cliente no encontrado."); return; }
-            
             clienteActual = data;
-            
-            if (!isContinuation) {
-                const { data: paquetes, error: paquetesError } = await sb.rpc('get_paquetes_para_entrega', { p_cliente_box: clienteActual.box });
-                if (paquetesError) { alert("Error al cargar paquetes del cliente."); console.error(paquetesError); return; }
-                paquetesPendientes = paquetes.map(p => ({ ...p, costo_flete: p.costo_total, costo_impuestos: 0, descuento_porcentaje: 0 }));
-                renderPendientes();
-            }
-
+            const { data: paquetes, error: paquetesError } = await sb.rpc('get_paquetes_para_entrega', { p_cliente_box: clienteActual.box });
+            if (paquetesError) { alert("Error al cargar paquetes del cliente."); console.error(paquetesError); return; }
+            paquetesPendientes = paquetes.map(p => ({ ...p, costo_flete: p.costo_total, costo_impuestos: 0, descuento_porcentaje: 0 }));
             clienteNombreTitulo.textContent = clienteActual.nombre;
             terminalContent.classList.remove('hidden');
             if (clienteActual.saldo_a_favor > 0) {
                 creditBalanceSpan.textContent = `$${clienteActual.saldo_a_favor.toFixed(2)}`;
                 creditPanel.classList.remove('hidden');
             }
+            renderPendientes();
             await loadPaymentMethods();
             scanInput.focus();
         }
@@ -255,15 +248,19 @@
             if (modoVerificacion) {
                 const itemIndex = ventaSuspendidaActual.trackings_pendientes.findIndex(t => t.trim().toLowerCase() === tracking);
                 if (itemIndex > -1) {
-                    modoVerificacion = false;
-                    verificationPanel.classList.add('hidden');
+                    ventaSuspendidaActual.trackings_pendientes.splice(itemIndex, 1);
                     flashInputColor('scan-success');
-                    alert("¡Verificación Exitosa! El carrito está desbloqueado y puede agregar más paquetes.");
-                    scanInput.placeholder = "Escanear paquete para AÑADIR";
-                    calcularTotal();
+                    renderVerificationList();
+                    if (ventaSuspendidaActual.trackings_pendientes.length === 0) {
+                        modoVerificacion = false;
+                        verificationPanel.classList.add('hidden');
+                        alert("¡Verificación completada! El carrito está desbloqueado.");
+                        scanInput.placeholder = "Escanear paquete para AÑADIR";
+                        calcularTotal();
+                    }
                 } else {
                     flashInputColor('scan-error');
-                    alert("Este tracking no pertenece a la venta suspendida.");
+                    alert("Este tracking no pertenece a la venta suspendida o ya fue verificado.");
                 }
             } else {
                 const paqueteIndex = paquetesPendientes.findIndex(p => p.tracking.toLowerCase() === tracking);
@@ -457,7 +454,6 @@
                     p_carrito: carrito.map(p=>({id:p.id, tracking:p.tracking, costo_flete:(p.costo_flete||0)+(p.costo_impuestos||0), descuento_porcentaje:p.descuento_porcentaje||0})),
                     p_pagos: pagos
                 });
-
                 if (error) throw error;
                 alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.`);
                 resetTerminal(true);
@@ -489,14 +485,12 @@
             let status = 'Suspendida';
             if (montoAbonado >= total - 0.001) status = 'Pagado';
             else if (montoAbonado > 0) status = 'Abonado';
-            
             const payload = {
                 cliente_box: clienteActual.box, cliente_nombre: clienteActual.nombre, status,
                 carrito_data: carrito, descuento_general_porcentaje: descuentoGeneralPorcentaje,
                 cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null, monto_abonado: montoAbonado,
                 pagos_data: pagos
             };
-
             if (ventaSuspendidaActual) {
                 const { error } = await sb.from('ventas_suspendidas').update(payload).eq('id', ventaSuspendidaActual.id);
                 if (error) { alert(`Error al actualizar la venta: ${error.message}`); } 
@@ -553,7 +547,7 @@
             
             btnCompletarVenta.disabled = true;
             btnSuspenderVenta.disabled = false;
-            scanInput.placeholder = "ESCANEAR 1 PAQUETE PARA VERIFICAR...";
+            scanInput.placeholder = "ESCANEAR TODOS LOS PAQUETES PARA VERIFICAR...";
             loadSuspendedModal.classList.add('hidden');
         }
 
