@@ -41,7 +41,7 @@
                         <div>
                             <div id="verification-panel" class="hidden mb-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800">
                                 <h3 class="font-bold">Verificación Requerida</h3>
-                                <p class="text-sm">Escanee al menos un paquete de la lista para desbloquear la venta:</p>
+                                <p class="text-sm">Por favor, re-escanee los siguientes paquetes para desbloquear la venta:</p>
                                 <ul id="verification-list" class="list-disc list-inside mt-2 text-sm font-mono"></ul>
                             </div>
                             <h2 class="text-xl font-bold text-slate-800 mb-2">Paquetes Pendientes de <span id="cliente-nombre-titulo"></span></h2>
@@ -216,8 +216,10 @@
             }).join('');
         }
         
-        async function buscarCliente(searchTerm) {
-            resetTerminal();
+        async function buscarCliente(searchTerm, isContinuation = false) {
+            if (!isContinuation) {
+                resetTerminal();
+            }
             if (!searchTerm) return;
             const isNumeric = !isNaN(searchTerm);
             let query = sb.from('clientes').select('*');
@@ -225,63 +227,58 @@
             else query = query.ilike('nombre', `%${searchTerm}%`);
             const { data, error } = await query.limit(1).single();
             if (error || !data) { alert("Cliente no encontrado."); return; }
+            
             clienteActual = data;
-            const { data: paquetes, error: paquetesError } = await sb.rpc('get_paquetes_para_entrega', { p_cliente_box: clienteActual.box });
-            if (paquetesError) { alert("Error al cargar paquetes del cliente."); console.error(paquetesError); return; }
-            paquetesPendientes = paquetes.map(p => ({ ...p, costo_flete: p.costo_total, costo_impuestos: 0, descuento_porcentaje: 0 }));
+            
+            if (!isContinuation) {
+                const { data: paquetes, error: paquetesError } = await sb.rpc('get_paquetes_para_entrega', { p_cliente_box: clienteActual.box });
+                if (paquetesError) { alert("Error al cargar paquetes del cliente."); console.error(paquetesError); return; }
+                paquetesPendientes = paquetes.map(p => ({ ...p, costo_flete: p.costo_total, costo_impuestos: 0, descuento_porcentaje: 0 }));
+                renderPendientes();
+            }
+
             clienteNombreTitulo.textContent = clienteActual.nombre;
             terminalContent.classList.remove('hidden');
             if (clienteActual.saldo_a_favor > 0) {
                 creditBalanceSpan.textContent = `$${clienteActual.saldo_a_favor.toFixed(2)}`;
                 creditPanel.classList.remove('hidden');
             }
-            renderPendientes();
             await loadPaymentMethods();
             scanInput.focus();
         }
         
         function handleScan() {
-    const tracking = scanInput.value.trim().toLowerCase();
-    if (!tracking) return;
-    scanInput.value = '';
-    scanInput.focus();
-
-    if (modoVerificacion) {
-        const itemIndex = ventaSuspendidaActual.trackings_pendientes.findIndex(t => t.trim().toLowerCase() === tracking);
-        
-        if (itemIndex > -1) {
-            // Si encuentra el paquete, lo quita de la lista de pendientes de verificación
-            ventaSuspendidaActual.trackings_pendientes.splice(itemIndex, 1);
-            flashInputColor('scan-success');
-            renderVerificationList(); // Actualiza la lista en la pantalla
-            
-            // --- LÓGICA CORREGIDA ---
-            // Solo si la lista de pendientes de verificación está vacía, desbloquea la venta
-            if (ventaSuspendidaActual.trackings_pendientes.length === 0) {
-                modoVerificacion = false;
-                verificationPanel.classList.add('hidden');
-                alert("¡Verificación completada! El carrito está desbloqueado.");
-                scanInput.placeholder = "Escanear paquete para AÑADIR";
-                calcularTotal();
+            const tracking = scanInput.value.trim().toLowerCase();
+            if (!tracking) return;
+            scanInput.value = '';
+            scanInput.focus();
+            if (modoVerificacion) {
+                const itemIndex = ventaSuspendidaActual.trackings_pendientes.findIndex(t => t.trim().toLowerCase() === tracking);
+                if (itemIndex > -1) {
+                    modoVerificacion = false;
+                    verificationPanel.classList.add('hidden');
+                    flashInputColor('scan-success');
+                    alert("¡Verificación Exitosa! El carrito está desbloqueado y puede agregar más paquetes.");
+                    scanInput.placeholder = "Escanear paquete para AÑADIR";
+                    calcularTotal();
+                } else {
+                    flashInputColor('scan-error');
+                    alert("Este tracking no pertenece a la venta suspendida.");
+                }
+            } else {
+                const paqueteIndex = paquetesPendientes.findIndex(p => p.tracking.toLowerCase() === tracking);
+                if (paqueteIndex > -1) {
+                    const [paquete] = paquetesPendientes.splice(paqueteIndex, 1);
+                    carrito.push(paquete);
+                    renderPendientes();
+                    renderCarrito();
+                    flashInputColor('scan-success');
+                } else {
+                    alert(`Error: Paquete ${tracking} no está en la lista de pendientes o ya fue escaneado.`);
+                    flashInputColor('scan-error');
+                }
             }
-        } else {
-            flashInputColor('scan-error');
-            alert("Este tracking no pertenece a la venta suspendida o ya fue verificado.");
         }
-    } else {
-        const paqueteIndex = paquetesPendientes.findIndex(p => p.tracking.toLowerCase() === tracking);
-        if (paqueteIndex > -1) {
-            const [paquete] = paquetesPendientes.splice(paqueteIndex, 1);
-            carrito.push(paquete);
-            renderPendientes();
-            renderCarrito();
-            flashInputColor('scan-success');
-        } else {
-            alert(`Error: Paquete ${tracking} no está en la lista de pendientes o ya fue escaneado.`);
-            flashInputColor('scan-error');
-        }
-    }
-}
         
         function handleRemoveFromCart(tracking) {
             const paqueteIndex = carrito.findIndex(p => p.tracking === tracking);
@@ -445,49 +442,32 @@
         }
 
         async function completarVenta() {
-    if (btnCompletarVenta.disabled) return;
-    btnCompletarVenta.textContent = "Procesando...";
-    btnCompletarVenta.disabled = true;
+            if (btnCompletarVenta.disabled) return;
+            btnCompletarVenta.textContent = "Procesando...";
+            btnCompletarVenta.disabled = true;
+            const montoTotalFinal = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
+            try {
+                const { data: facturaId, error } = await sb.rpc('finalizar_venta', {
+                    p_cliente_box: clienteActual.box,
+                    p_cliente_nombre: clienteActual.nombre,
+                    p_monto_total: montoTotalFinal,
+                    p_descuento_general_porcentaje: descuentoGeneralPorcentaje,
+                    p_cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null,
+                    p_venta_suspendida_id: ventaSuspendidaActual ? ventaSuspendidaActual.id : null,
+                    p_carrito: carrito.map(p=>({id:p.id, tracking:p.tracking, costo_flete:(p.costo_flete||0)+(p.costo_impuestos||0), descuento_porcentaje:p.descuento_porcentaje||0})),
+                    p_pagos: pagos
+                });
 
-    const montoTotalFinal = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
-
-    // Preparar los datos para enviar a la función RPC
-    const carritoData = carrito.map(p => ({
-        id: p.id,
-        tracking: p.tracking,
-        costo_flete: (p.costo_flete || 0) + (p.costo_impuestos || 0),
-        descuento_porcentaje: p.descuento_porcentaje || 0
-    }));
-
-    const pagosData = pagos.map(p => ({
-        metodo: p.metodo,
-        monto: p.monto
-    }));
-
-    try {
-        const { data: facturaId, error } = await sb.rpc('finalizar_venta', {
-            p_cliente_box: clienteActual.box,
-            p_cliente_nombre: clienteActual.nombre,
-            p_monto_total: montoTotalFinal,
-            p_descuento_general_porcentaje: descuentoGeneralPorcentaje,
-            p_cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null,
-            p_venta_suspendida_id: ventaSuspendidaActual ? ventaSuspendidaActual.id : null,
-            p_carrito: carritoData,
-            p_pagos: pagosData
-        });
-
-        if (error) throw error;
-
-        alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.`);
-        resetTerminal(true);
-
-    } catch (error) {
-        console.error("Error al completar la venta:", error);
-        alert(`Error al finalizar la venta: ${error.message}`);
-        btnCompletarVenta.textContent = "Completar Venta";
-        btnCompletarVenta.disabled = false;
-    }
-}
+                if (error) throw error;
+                alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.`);
+                resetTerminal(true);
+            } catch (error) {
+                console.error("Error al completar la venta:", error);
+                alert(`Error al finalizar la venta: ${error.message}`);
+                btnCompletarVenta.textContent = "Completar Venta";
+                btnCompletarVenta.disabled = false;
+            }
+        }
         
         function handlePago(metodo) {
             const total = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
@@ -509,12 +489,14 @@
             let status = 'Suspendida';
             if (montoAbonado >= total - 0.001) status = 'Pagado';
             else if (montoAbonado > 0) status = 'Abonado';
+            
             const payload = {
                 cliente_box: clienteActual.box, cliente_nombre: clienteActual.nombre, status,
                 carrito_data: carrito, descuento_general_porcentaje: descuentoGeneralPorcentaje,
                 cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null, monto_abonado: montoAbonado,
                 pagos_data: pagos
             };
+
             if (ventaSuspendidaActual) {
                 const { error } = await sb.from('ventas_suspendidas').update(payload).eq('id', ventaSuspendidaActual.id);
                 if (error) { alert(`Error al actualizar la venta: ${error.message}`); } 
