@@ -76,6 +76,7 @@
     </div>
 
     <div id="app-container" class="max-w-md mx-auto bg-black min-h-screen hidden">
+        
         <div id="page-home" class="page">
             <header class="p-6">
                 <div class="flex items-center justify-between">
@@ -145,12 +146,8 @@
                             <option value="">Cargando sucursales...</option>
                         </select>
                     </div>
-
                     <p id="profile-message" class="text-sm text-center h-5"></p>
-                    
-                    <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 transition !mt-8">
-                        Guardar Cambios
-                    </button>
+                    <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 transition !mt-8">Guardar Cambios</button>
                 </form>
             </main>
         </div>
@@ -175,11 +172,11 @@
             </header>
             <main class="px-6 pb-24 space-y-6">
                 <section>
-                    <div id="facturas-list-container" class="space-y-4">
-                        </div>
+                    <div id="facturas-list-container" class="space-y-4"></div>
                 </section>
             </main>
         </div>
+
         <div id="page-casillero" class="page">
              <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mis Direcciones de Casillero</h1></header>
             <main id="direcciones-content" class="px-6 pb-24 space-y-6"></main>
@@ -208,13 +205,11 @@
             let currentUserProfile = null;
             let swRegistration = null;
 
-            // --- ELEMENT SELECTORS ---
+            // --- SELECTORES DE ELEMENTOS ---
             const authContainer = document.getElementById('auth-container');
             const appContainer = document.getElementById('app-container');
             const allPages = document.querySelectorAll('.page');
             const navLinks = document.querySelectorAll('.nav-link');
-
-            // --- Auth Elements
             const loginForm = document.getElementById('login-form');
             const registerForm = document.getElementById('register-form');
             const showRegisterLink = document.getElementById('show-register-link');
@@ -223,8 +218,6 @@
             const togglePasswordButtons = document.querySelectorAll('.toggle-password');
             const promoRadios = document.querySelectorAll('input[name="hasPromo"]');
             const promoContainer = document.getElementById('promo-code-container');
-            
-            // --- App Display Elements
             const userNameDisplay = document.getElementById('user-name-display');
             const userBoxDisplay = document.getElementById('user-box-display');
             const paquetesListContainer = document.getElementById('paquetes-list-container');
@@ -234,8 +227,6 @@
             const summaryEntregado = document.getElementById('summary-entregado');
             const direccionesContent = document.getElementById('direcciones-content');
             const enableNotificationsBtn = document.getElementById('enable-notifications-btn');
-
-            // --- ELEMENTOS "MI PERFIL" ---
             const profileForm = document.getElementById('profile-form');
             const profileName = document.getElementById('profile-name');
             const profileBox = document.getElementById('profile-box');
@@ -243,25 +234,19 @@
             const profilePhone = document.getElementById('profile-phone');
             const profileSucursal = document.getElementById('profile-sucursal');
             const profileMessage = document.getElementById('profile-message');
-
-            // --- INICIO: Elementos "Mis Facturas" ---
             const facturasListContainer = document.getElementById('facturas-list-container');
-            // --- FIN: Elementos "Mis Facturas" ---
 
-            // --- HELPER FUNCTIONS ---
+            // --- FUNCIONES AUXILIARES ---
             const showPage = (pageId) => {
                 allPages.forEach(page => page.classList.remove('active'));
                 const targetPage = document.getElementById(pageId);
                 if (targetPage) targetPage.classList.add('active');
                 window.scrollTo(0, 0);
                 
-                // Cargar datos específicos de la página cuando se muestra
                 if (pageId === 'page-paquetes') { loadPaquetes(); }
                 if (pageId === 'page-casillero') { initializeDireccionesPage(); }
                 if (pageId === 'page-mi-perfil') { loadProfileData(); }
-                // INICIO: Carga de facturas
                 if (pageId === 'page-facturas') { loadFacturas(); }
-                // FIN: Carga de facturas
             };
 
             const showAuth = () => { authContainer.style.display = 'block'; appContainer.classList.add('hidden'); showPage('page-login'); };
@@ -282,7 +267,7 @@
             const getStatusBadge = (status) => { const map = { 'Recibido en Bodega': 'bg-blue-500/20 text-blue-300', 'En transito': 'bg-yellow-500/20 text-yellow-300', 'En Sucursal': 'bg-green-500/20 text-green-300', 'Entregado': 'bg-gray-500/20 text-gray-400' }; return map[status] || 'bg-gray-500/20 text-gray-400'; };
             const formatDate = (dateString) => { if (!dateString) return 'N/A'; try { return new Date(dateString).toLocaleDateString('es-PA', { day: '2-digit', month: 'short', year: 'numeric' }); } catch (e) { return 'Fecha inválida'; } };
 
-            // --- EVENT HANDLERS (AUTH) ---
+            // --- LÓGICA DE AUTENTICACIÓN ---
             const handleLogin = async (e) => {
                 e.preventDefault();
                 const loginError = document.getElementById('login-error'); loginError.textContent = '';
@@ -306,7 +291,7 @@
             };
             const handleLogout = async () => { await supabaseClient.auth.signOut(); currentUserProfile = null; showAuth(); };
             
-            // --- DATA LOADING & PAGE LOGIC ---
+            // --- LÓGICA DE CARGA DE DATOS ---
             const loadSucursales = async (selectElementId = 'register-sucursal') => {
                 const sucursalSelect = document.getElementById(selectElementId);
                 if (!sucursalSelect) return;
@@ -320,23 +305,16 @@
                 return null;
             };
 
-            // --- LÓGICA DE LA PÁGINA "MI PERFIL" ---
             const loadProfileData = async () => {
                 profileMessage.textContent = '';
                 const { data: { user } } = await supabaseClient.auth.getUser();
-                if (!user) {
-                    alert("Error de sesión. Por favor, inicia sesión de nuevo.");
-                    handleLogout();
-                    return;
-                }
+                if (!user) { handleLogout(); return; }
                 try {
                     const [profileResponse, sucursalesResponse] = await Promise.all([
                         supabaseClient.from('clientes').select('nombre, box, telefono, sucursal').eq('user_id', user.id).single(),
                         supabaseClient.from('sucursales').select('sucursal').order('sucursal')
                     ]);
-                    if (profileResponse.error || !profileResponse.data) {
-                        throw new Error("No se pudo cargar tu perfil. Contacta a soporte.");
-                    }
+                    if (profileResponse.error || !profileResponse.data) { throw new Error("No se pudo cargar tu perfil. Contacta a soporte."); }
                     const profile = profileResponse.data;
                     profileName.textContent = profile.nombre || 'N/A';
                     profileBox.textContent = profile.box || 'N/A';
@@ -345,9 +323,7 @@
                     if (sucursalesResponse.error || !sucursalesResponse.data) {
                         profileSucursal.innerHTML = '<option value="">Error al cargar</option>';
                     } else {
-                        profileSucursal.innerHTML = sucursalesResponse.data.map(s => 
-                            `<option value="${s.sucursal}" ${s.sucursal === profile.sucursal ? 'selected' : ''}>${s.sucursal}</option>`
-                        ).join('');
+                        profileSucursal.innerHTML = sucursalesResponse.data.map(s => `<option value="${s.sucursal}" ${s.sucursal === profile.sucursal ? 'selected' : ''}>${s.sucursal}</option>`).join('');
                     }
                 } catch (error) {
                     profileMessage.textContent = error.message;
@@ -360,18 +336,10 @@
                 profileMessage.textContent = 'Guardando...';
                 profileMessage.className = 'text-sm text-center h-5 text-yellow-400';
                 const { data: { user } } = await supabaseClient.auth.getUser();
-                if (!user) {
-                    alert("Error de sesión. Por favor, inicia sesión de nuevo.");
-                    handleLogout();
-                    return;
-                }
+                if (!user) { handleLogout(); return; }
                 const newPhone = profilePhone.value;
                 const newSucursal = profileSucursal.value;
-                const { error } = await supabaseClient
-                    .from('clientes')
-                    .update({ telefono: newPhone, sucursal: newSucursal })
-                    .eq('user_id', user.id);
-
+                const { error } = await supabaseClient.from('clientes').update({ telefono: newPhone, sucursal: newSucursal }).eq('user_id', user.id);
                 if (error) {
                     profileMessage.textContent = 'Error al actualizar. Intenta de nuevo.';
                     profileMessage.classList.add('text-red-400');
@@ -380,7 +348,6 @@
                     profileMessage.className = 'text-sm text-center h-5 text-green-400';
                 }
             };
-            // --- FIN LÓGICA "MI PERFIL" ---
 
             const loadPaquetes = async () => {
                 paquetesListContainer.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 rounded-full mx-auto"></div><p class="text-gray-400 mt-4">Cargando...</p></div>`;
@@ -396,34 +363,20 @@
                 if (!paquetes || paquetes.length === 0) { paquetesListContainer.innerHTML = `<div class="text-center p-8"><i data-lucide="package-search" class="h-16 w-16 text-gray-700 mx-auto"></i><p class="text-gray-500 mt-4">Aún no tienes paquetes registrados.</p></div>`; lucide.createIcons(); return; }
                 paquetesListContainer.innerHTML = paquetes.map(p => `<div class="bg-gray-800 p-4 rounded-xl border border-gray-700 fade-in"><div class="flex justify-between items-center mb-2"><p class="font-mono text-white font-semibold">${p.tracking}</p><span class="text-xs font-bold px-2 py-1 rounded-full ${getStatusBadge(p.status)}">${p.status || 'Desconocido'}</span></div><div class="text-sm text-gray-400 flex justify-between"><span>Recibido en Bodega: ${formatDate(p.fecha_bodega)}</span><span>${p.peso ? p.peso.toFixed(2) + ' lbs' : ''}</span></div></div>`).join('');
             };
-
-            // --- INICIO: Lógica para cargar facturas ---
+            
             const loadFacturas = async () => {
                 facturasListContainer.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 rounded-full mx-auto"></div><p class="text-gray-400 mt-4">Cargando facturas...</p></div>`;
-                
-                if (!currentUserProfile || !currentUserProfile.box) {
-                    facturasListContainer.innerHTML = `<p class="text-red-400 text-center">No se pudo identificar tu casillero.</p>`;
-                    return;
-                }
-
-                const { data: facturas, error } = await supabaseClient
-                    .from('facturas')
-                    .select('id, created_at, monto_total, carrito_data')
-                    .eq('cliente_box', currentUserProfile.box)
-                    .order('created_at', { ascending: false });
-
+                const { data: facturas, error } = await supabaseClient.from('facturas').select('id, created_at, monto_total, carrito_data').order('created_at', { ascending: false });
                 if (error) {
                     facturasListContainer.innerHTML = `<p class="text-red-400 text-center">Error al cargar las facturas.</p>`;
                     console.error("Error fetching facturas:", error);
                     return;
                 }
-
                 if (!facturas || facturas.length === 0) {
                     facturasListContainer.innerHTML = `<div class="text-center p-8"><i data-lucide="receipt" class="h-16 w-16 text-gray-700 mx-auto"></i><p class="text-gray-500 mt-4">No tienes facturas registradas.</p></div>`;
                     lucide.createIcons();
                     return;
                 }
-
                 facturasListContainer.innerHTML = facturas.map(f => {
                     const numPaquetes = f.carrito_data ? f.carrito_data.length : 0;
                     return `
@@ -442,7 +395,6 @@
                     `;
                 }).join('');
             };
-            // --- FIN: Lógica para cargar facturas ---
 
             const initializeDireccionesPage = async () => {
                 direccionesContent.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 rounded-full mx-auto"></div><p class="text-gray-400 mt-4">Cargando tus direcciones...</p></div>`;
@@ -464,6 +416,8 @@
                 lucide.createIcons();
             };
             
+            // --- CÓDIGO FALTANTE ---
+            // Reemplaza los comentarios de abajo con tu código original.
             const initializeRastreoPage = () => { /* ...código original... */ };
             const initializeCotizarPage = () => { /* ...código original... */ };
             const initializeMalIdentificadoPage = () => { /* ...código original... */ };
@@ -474,7 +428,7 @@
                 initializeMalIdentificadoPage();
             }
 
-            // --- ATTACH EVENT LISTENERS ---
+            // --- EVENT LISTENERS ---
             loginForm.addEventListener('submit', handleLogin);
             registerForm.addEventListener('submit', handleRegister);
             logoutButton.addEventListener('click', handleLogout);
@@ -483,13 +437,12 @@
             navLinks.forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); const targetId = link.getAttribute('data-target'); showPage(targetId); }); });
             promoRadios.forEach(radio => { radio.addEventListener('change', () => { promoContainer.classList.toggle('hidden', radio.value !== 'yes'); }); });
             togglePasswordButtons.forEach(button => { button.addEventListener('click', () => { const input = button.previousElementSibling; const isPwd = input.type === 'password'; input.type = isPwd ? 'text' : 'password'; button.innerHTML = isPwd ? '<i data-lucide="eye-off"></i>' : '<i data-lucide="eye"></i>'; lucide.createIcons(); }); });
-            enableNotificationsBtn.addEventListener('click', () => alert('Función de Notificaciones en desarrollo.')); // Placeholder
-
+            enableNotificationsBtn.addEventListener('click', () => alert('Función de Notificaciones en desarrollo.'));
             if (profileForm) {
                 profileForm.addEventListener('submit', handleProfileUpdate);
             }
 
-            // --- STARTUP LOGIC ---
+            // --- LÓGICA DE INICIO ---
             const checkUserSession = async () => {
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 if (session) { await showApp(session.user); } else { showAuth(); }
@@ -502,6 +455,7 @@
     </script>
 </body>
 </html>
+
 
 
 
