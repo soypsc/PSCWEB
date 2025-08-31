@@ -22,21 +22,12 @@
     <script src="config.js"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; }
         .page { display: none; }
         .page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; }
-        @keyframes spin{ to{transform:rotate(3deg)} }
-        .results-section, .form-section { transition: all 0.5s ease-in-out; max-height: 0; overflow: hidden; opacity: 0; }
-        .results-section.open, .form-section.open { max-height: 1000px; opacity: 1; }
-        .timeline-container { position: relative; }
-        .timeline-container::before { content: ''; position: absolute; left: 12px; top: 12px; bottom: 12px; width: 2px; background-color: #374151; }
-        /* Estilos para la factura inyectada */
-        #factura-render-container div, #factura-render-container table, #factura-render-container h1, #factura-render-container h2, #factura-render-container p, #factura-render-container span, #factura-render-container b, #factura-render-container tr, #factura-render-container td, #factura-render-container th {
-            all: revert;
-            font-family: 'Inter', sans-serif !important;
-        }
+        @keyframes spin{ to{transform:rotate(360deg)} }
     </style>
 </head>
 <body class="bg-black text-gray-200">
@@ -53,7 +44,6 @@
                 <p class="text-center text-sm text-gray-400 mt-6">¿No tienes una cuenta? <a href="#" id="show-register-link" class="font-semibold text-blue-400 hover:underline">Regístrate aquí</a></p>
             </div>
         </div>
-
         <div id="page-register" class="page">
             <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
                 <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo de PSC" class="h-16 mx-auto"><h1 class="text-3xl font-bold text-white mt-4">Crear Cuenta</h1><p class="text-gray-400">Completa tus datos para registrarte</p></div>
@@ -61,16 +51,8 @@
                     <div><label for="register-name" class="text-sm font-medium text-gray-400">Nombre Completo</label><input id="register-name" type="text" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
                     <div><label for="register-email" class="text-sm font-medium text-gray-400">Email</label><input id="register-email" type="email" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
                     <div><label for="register-whatsapp" class="text-sm font-medium text-gray-400">WhatsApp</label><input id="register-whatsapp" type="tel" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
-                    <div><label for="register-birthday" class="text-sm font-medium text-gray-400">Fecha de Nacimiento</label><input id="register-birthday" type="date" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
-                    <div><label for="register-address" class="text-sm font-medium text-gray-400">Dirección</label><textarea id="register-address" required rows="3" class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></textarea></div>
                     <div><label for="register-sucursal" class="text-sm font-medium text-gray-400">Sucursal Preferida</label><select id="register-sucursal" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg appearance-none"><option value="">Cargando...</option></select></div>
-                    <div>
-                        <label class="text-sm font-medium text-gray-400">¿Tienes un código promocional?</label>
-                        <div class="flex items-center space-x-4 mt-2"><label class="flex items-center"><input type="radio" name="hasPromo" value="no" checked class="h-4 w-4"><span class="ml-2">No</span></label><label class="flex items-center"><input type="radio" name="hasPromo" value="yes" class="h-4 w-4"><span class="ml-2">Sí</span></label></div>
-                    </div>
-                    <div id="promo-code-container" class="hidden"><label for="register-promo" class="text-sm font-medium text-gray-400">Código Promocional</label><input id="register-promo" type="text" placeholder="Ingresa tu código" class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
                     <div class="relative"><label for="register-password" class="text-sm font-medium text-gray-400">Contraseña</label><input id="register-password" type="password" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg pr-10"><button type="button" class="toggle-password absolute inset-y-0 right-0 top-6 pr-3 flex items-center text-gray-400 hover:text-white"><i data-lucide="eye" class="h-5 w-5"></i></button></div>
-                    <div class="relative"><label for="register-password-confirm" class="text-sm font-medium text-gray-400">Confirmar Contraseña</label><input id="register-password-confirm" type="password" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg pr-10"><button type="button" class="toggle-password absolute inset-y-0 right-0 top-6 pr-3 flex items-center text-gray-400 hover:text-white"><i data-lucide="eye" class="h-5 w-5"></i></button></div>
                     <p id="register-error" class="text-red-400 text-sm text-center h-5"></p><button type="submit" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 transition !mt-6">Crear Cuenta</button>
                 </form>
                 <p class="text-center text-sm text-gray-400 mt-6">¿Ya tienes una cuenta? <a href="#" id="show-login-link" class="font-semibold text-blue-400 hover:underline">Inicia sesión</a></p>
@@ -79,18 +61,14 @@
     </div>
 
     <div id="app-container" class="max-w-md mx-auto bg-black min-h-screen hidden">
+        
         <div id="page-home" class="page">
             <header class="p-6">
                 <div class="flex items-center justify-between">
                     <img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo de PSC" class="h-10">
                     <div class="flex items-center space-x-4">
-                        <i data-lucide="bell" class="text-gray-400 cursor-pointer hover:text-white transition"></i>
-                        <a href="#" data-target="page-mi-perfil" class="nav-link w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center cursor-pointer" title="Mi Perfil">
-                            <i data-lucide="user" class="text-gray-400"></i>
-                        </a>
-                        <div id="logout-button" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center cursor-pointer" title="Cerrar Sesión">
-                            <i data-lucide="log-out" class="text-gray-400"></i>
-                        </div>
+                        <a href="#" data-target="page-mi-perfil" class="nav-link w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center cursor-pointer" title="Mi Perfil"><i data-lucide="user" class="text-gray-400"></i></a>
+                        <div id="logout-button" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center cursor-pointer" title="Cerrar Sesión"><i data-lucide="log-out" class="text-gray-400"></i></div>
                     </div>
                 </div>
             </header>
@@ -98,34 +76,51 @@
                 <section>
                     <p class="text-gray-400 text-lg">Hola,</p><div class="flex items-baseline space-x-2"><h1 id="user-name-display" class="text-3xl font-bold text-white">Usuario</h1><span id="user-box-display" class="font-mono text-lg text-blue-400"></span></div>
                 </section>
-                <section class="bg-gray-800 rounded-xl p-6 shadow-lg"><h2 class="text-xl font-bold text-white">Envíos Rápidos y Seguros</h2><p class="text-gray-400 mt-1 mb-4">Cotiza tu próximo envío.</p><a href="#" data-target="page-cotizar" class="nav-link bg-blue-500 text-white font-semibold px-5 py-2 rounded-lg hover:bg-blue-600 transition no-underline">Cotizar ahora</a></section>
-                <section>
-                    <div class="flex items-center justify-between mb-4"><h2 class="text-lg font-semibold text-white">Acceso directo</h2></div>
-                    <div class="grid grid-cols-3 gap-4">
-                        <a href="#" data-target="page-paquetes" class="nav-link text-center p-2 flex flex-col items-center cursor-pointer group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-yellow-500 transition"><i data-lucide="package" class="text-yellow-400 h-7 w-7 group-hover:text-white transition"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Paquetes</span></a>
-                        <a href="#" data-target="page-facturas" class="nav-link text-center p-2 flex flex-col items-center cursor-pointer group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-purple-500 transition"><i data-lucide="receipt" class="text-purple-400 h-7 w-7 group-hover:text-white transition"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Facturas</span></a>
-                        <a href="#" data-target="page-casillero" class="nav-link text-center p-2 flex flex-col items-center cursor-pointer group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-green-500 transition"><i data-lucide="archive" class="text-green-400 h-7 w-7 group-hover:text-white transition"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Direcciones</span></a>
+                <section><div class="grid grid-cols-3 gap-4"><a href="#" data-target="page-rastreo" class="nav-link text-center p-2 flex flex-col items-center cursor-pointer group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-blue-500 transition"><i data-lucide="search" class="text-blue-400 h-7 w-7 group-hover:text-white transition"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Rastrear</span></a><a href="#" data-target="page-casillero" class="nav-link text-center p-2 flex flex-col items-center cursor-pointer group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-green-500 transition"><i data-lucide="archive" class="text-green-400 h-7 w-7 group-hover:text-white transition"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Direcciones</span></a><a href="#" data-target="page-paquetes" class="nav-link text-center p-2 flex flex-col items-center cursor-pointer group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-yellow-500 transition"><i data-lucide="package" class="text-yellow-400 h-7 w-7 group-hover:text-white transition"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Paquetes</span></a></div></section>
+                <section><h2 class="text-lg font-semibold text-white mb-3">Otros Servicios</h2>
+                    <div class="bg-gray-800 rounded-xl divide-y divide-gray-700">
+                        <a href="#" data-target="page-facturas" class="nav-link p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-700 transition no-underline"><i data-lucide="receipt" class="text-green-400"></i><span class="font-semibold text-gray-300">Mis Facturas</span></a>
+                        <a href="#" data-target="page-cotizar" class="nav-link p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-700 transition no-underline"><i data-lucide="calculator" class="text-purple-400"></i><span class="font-semibold text-gray-300">Cotizar Compra</span></a>
+                        <a href="#" data-target="page-mal-identificado" class="nav-link p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-700 transition no-underline"><i data-lucide="alert-triangle" class="text-yellow-400"></i><span class="font-semibold text-gray-300">Mal Identificado</span></a>
                     </div>
                 </section>
-                <section id="notifications-section">
-                    <div class="bg-gray-800 rounded-xl p-4 flex items-center justify-between">
-                        <div><h3 class="font-semibold text-white">Activar Notificaciones Push</h3><p class="text-sm text-gray-400">Recibe alertas de tus paquetes.</p></div>
-                        <button id="enable-notifications-btn" class="bg-blue-500 text-white font-bold text-sm px-4 py-2 rounded-lg hover:bg-blue-600">Activar</button>
-                    </div>
-                </section>
-                <section><h2 class="text-lg font-semibold text-white mb-3">Otros Servicios</h2><div class="bg-gray-800 rounded-xl divide-y divide-gray-700"><a href="#" data-target="page-cotizar" class="nav-link p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-700 transition rounded-t-xl no-underline"><i data-lucide="calculator" class="text-purple-400"></i><span class="font-semibold text-gray-300">Cotizar Compra</span></a><a href="#" data-target="page-mal-identificado" class="nav-link p-4 flex items-center space-x-4 cursor-pointer hover:bg-gray-700 transition rounded-b-xl no-underline"><i data-lucide="alert-triangle" class="text-yellow-400"></i><span class="font-semibold text-gray-300">Mal Identificado</span></a></div></section>
             </main>
         </div>
-
-        <div id="page-mi-perfil" class="page"></div>
-        <div id="page-paquetes" class="page"></div>
-        <div id="page-casillero" class="page"></div>
+        <div id="page-mi-perfil" class="page">
+            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mi Perfil</h1></header>
+            <main class="px-6 pb-24">
+                <form id="profile-form" class="space-y-6">
+                    <div><label class="text-sm font-medium text-gray-400">Nombre Completo</label><p id="profile-name" class="mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-300">Cargando...</p></div>
+                    <div><label class="text-sm font-medium text-gray-400">Número de Casillero</label><p id="profile-box" class="mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-300">Cargando...</p></div>
+                    <div><label class="text-sm font-medium text-gray-400">Email</label><p id="profile-email" class="mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-300">Cargando...</p></div>
+                    <div><label for="profile-phone" class="text-sm font-medium text-gray-400">Teléfono / WhatsApp</label><input id="profile-phone" type="tel" class="w-full mt-1 px-4 py-3 bg-gray-900 border border-gray-600 rounded-lg"></div>
+                    <div><label for="profile-sucursal" class="text-sm font-medium text-gray-400">Sucursal Preferida</label><select id="profile-sucursal" class="w-full mt-1 px-4 py-3 bg-gray-900 border border-gray-600 rounded-lg appearance-none"><option value="">Cargando...</option></select></div>
+                    <p id="profile-message" class="text-sm text-center h-5"></p>
+                    <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 transition !mt-8">Guardar Cambios</button>
+                </form>
+            </main>
+        </div>
+        <div id="page-paquetes" class="page">
+            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mis Paquetes</h1></header>
+            <main class="px-6 pb-24 space-y-6">
+                <section id="paquetes-summary" class="space-y-4">
+                    <div class="bg-green-500/10 border border-green-500/50 p-4 rounded-xl text-center"><p class="text-sm font-semibold text-green-300">EN SUCURSAL</p><div class="flex items-baseline justify-center space-x-3 mt-1"><span id="summary-sucursal" class="text-3xl font-bold text-white">0</span><span class="text-white">Paquetes</span></div><p id="summary-saldo" class="text-lg font-semibold text-green-300 font-mono mt-1">$0.00</p></div>
+                    <div class="grid grid-cols-2 gap-4"><div class="bg-gray-800 p-4 rounded-xl text-center"><p class="text-xs font-medium text-yellow-300">EN TRÁNSITO</p><p id="summary-transito" class="text-2xl font-bold text-white mt-1">0</p></div><div class="bg-gray-800 p-4 rounded-xl text-center"><p class="text-xs font-medium text-gray-400">ENTREGADOS</p><p id="summary-entregado" class="text-2xl font-bold text-white mt-1">0</p></div></div>
+                </section>
+                <section><h2 class="text-lg font-semibold text-white mb-3">Historial</h2><div id="paquetes-list-container" class="space-y-4"></div></section>
+            </main>
+        </div>
+        <div id="page-facturas" class="page">
+            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mis Facturas</h1></header>
+            <main class="px-6 pb-24 space-y-6"><section><div id="facturas-list-container" class="space-y-4"></div></section></main>
+        </div>
+        <div id="page-casillero" class="page">
+            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mis Direcciones</h1></header>
+            <main id="direcciones-content" class="px-6 pb-24 space-y-6"></main>
+        </div>
         <div id="page-rastreo" class="page"></div>
         <div id="page-cotizar" class="page"></div>
         <div id="page-mal-identificado" class="page"></div>
-        <!-- PÁGINAS NUEVAS PARA FACTURAS -->
-        <div id="page-facturas" class="page"></div>
-        <div id="page-ver-factura" class="page"></div>
     </div>
 
     <script>
@@ -134,23 +129,45 @@
             const supabaseClient = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
             let currentUserProfile = null;
 
-            // --- ELEMENT SELECTORS ---
+            // --- SELECTORES DE ELEMENTOS ---
             const authContainer = document.getElementById('auth-container');
             const appContainer = document.getElementById('app-container');
             const allPages = document.querySelectorAll('.page');
-            
-            // --- HELPER FUNCTIONS ---
+            const navLinks = document.querySelectorAll('.nav-link');
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const showRegisterLink = document.getElementById('show-register-link');
+            const showLoginLink = document.getElementById('show-login-link');
+            const logoutButton = document.getElementById('logout-button');
+            const togglePasswordButtons = document.querySelectorAll('.toggle-password');
+            const userNameDisplay = document.getElementById('user-name-display');
+            const userBoxDisplay = document.getElementById('user-box-display');
+            const paquetesListContainer = document.getElementById('paquetes-list-container');
+            const summaryTransito = document.getElementById('summary-transito');
+            const summarySucursal = document.getElementById('summary-sucursal');
+            const summarySaldo = document.getElementById('summary-saldo');
+            const summaryEntregado = document.getElementById('summary-entregado');
+            const direccionesContent = document.getElementById('direcciones-content');
+            const profileForm = document.getElementById('profile-form');
+            const profileName = document.getElementById('profile-name');
+            const profileBox = document.getElementById('profile-box');
+            const profileEmail = document.getElementById('profile-email');
+            const profilePhone = document.getElementById('profile-phone');
+            const profileSucursal = document.getElementById('profile-sucursal');
+            const profileMessage = document.getElementById('profile-message');
+            const facturasListContainer = document.getElementById('facturas-list-container');
+
+            // --- FUNCIONES AUXILIARES ---
             const showPage = (pageId) => {
                 allPages.forEach(page => page.classList.remove('active'));
                 const targetPage = document.getElementById(pageId);
                 if (targetPage) targetPage.classList.add('active');
                 window.scrollTo(0, 0);
                 
-                // Cargar datos específicos de la página cuando se muestra
-                if (pageId === 'page-paquetes') { loadPaquetes(); }
-                if (pageId === 'page-casillero') { initializeDireccionesPage(); }
-                if (pageId === 'page-mi-perfil') { loadProfileData(); }
-                if (pageId === 'page-facturas') { loadFacturas(); }
+                if (pageId === 'page-paquetes') loadPaquetes();
+                if (pageId === 'page-casillero') initializeDireccionesPage();
+                if (pageId === 'page-mi-perfil') loadProfileData();
+                if (pageId === 'page-facturas') loadFacturas();
             };
 
             const showAuth = () => { authContainer.style.display = 'block'; appContainer.classList.add('hidden'); showPage('page-login'); };
@@ -159,16 +176,16 @@
                 const { data: cliente } = await supabaseClient.from('clientes').select('nombre, box, tarifa_1').eq('user_id', user.id).single();
                 if (cliente) {
                     currentUserProfile = cliente;
-                    document.getElementById('user-name-display').textContent = cliente.nombre || 'Usuario';
-                    document.getElementById('user-box-display').textContent = `(Box ${cliente.box || 'N/A'})`;
+                    userNameDisplay.textContent = cliente.nombre || 'Usuario';
+                    userBoxDisplay.textContent = `(Box ${cliente.box || 'N/A'})`;
                 }
                 showPage('page-home');
-                initializePageLogics(); // Asegura que los botones de la homepage se activen
+                initializePageLogics();
             };
             const getStatusBadge = (status) => { const map = { 'Recibido en Bodega': 'bg-blue-500/20 text-blue-300', 'En transito': 'bg-yellow-500/20 text-yellow-300', 'En Sucursal': 'bg-green-500/20 text-green-300', 'Entregado': 'bg-gray-500/20 text-gray-400' }; return map[status] || 'bg-gray-500/20 text-gray-400'; };
             const formatDate = (dateString) => { if (!dateString) return 'N/A'; try { return new Date(dateString).toLocaleDateString('es-PA', { day: '2-digit', month: 'short', year: 'numeric' }); } catch (e) { return 'Fecha inválida'; } };
 
-            // --- EVENT HANDLERS (AUTH) ---
+            // --- LÓGICA DE AUTENTICACIÓN ---
             const handleLogin = async (e) => {
                 e.preventDefault();
                 const loginError = document.getElementById('login-error'); loginError.textContent = '';
@@ -176,111 +193,165 @@
                 const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                 if (error) { loginError.textContent = 'Email o contraseña incorrectos.'; } else { await showApp(data.user); }
             };
-            const handleRegister = async (e) => { /* Tu función de registro */ };
+            const handleRegister = async (e) => {
+                e.preventDefault();
+                const registerError = document.getElementById('register-error'); registerError.textContent = '';
+                const name = document.getElementById('register-name').value; const email = document.getElementById('register-email').value;
+                const whatsapp = document.getElementById('register-whatsapp').value;
+                const sucursal = document.getElementById('register-sucursal').value;
+                const password = document.getElementById('register-password').value;
+                const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { nombre_completo: name, whatsapp, sucursal_preferida: sucursal } } });
+                if (error) { registerError.textContent = 'No se pudo registrar. El email ya podría existir.'; } 
+                else { alert('¡Registro exitoso! Revisa tu correo para confirmar tu cuenta.'); showPage('page-login'); }
+            };
             const handleLogout = async () => { await supabaseClient.auth.signOut(); currentUserProfile = null; showAuth(); };
             
-            // --- DATA LOADING & PAGE LOGIC ---
-            const loadSucursales = async (selectElementId = 'register-sucursal') => { /* Tu función de sucursales */ };
+            // --- LÓGICA DE CARGA DE DATOS ---
+            const loadSucursales = async (selectElementId = 'register-sucursal') => {
+                const sucursalSelect = document.getElementById(selectElementId);
+                if (!sucursalSelect) return;
+                const { data, error } = await supabaseClient.from('sucursales').select('sucursal').order('sucursal');
+                if (error) { sucursalSelect.innerHTML = '<option value="">No se pudieron cargar</option>'; }
+                if (data) { 
+                    sucursalSelect.innerHTML = '<option value="">Selecciona una sucursal</option>'; 
+                    data.forEach(s => { sucursalSelect.innerHTML += `<option value="${s.sucursal}">${s.sucursal}</option>`; }); 
+                }
+            };
 
-            // --- LÓGICA DE FACTURAS (NUEVA) ---
+            // LÓGICA DE PERFIL
+            const loadProfileData = async () => {
+                profileMessage.textContent = '';
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) { handleLogout(); return; }
+                try {
+                    const [profileResponse, sucursalesResponse] = await Promise.all([
+                        supabaseClient.from('clientes').select('nombre, box, telefono, sucursal').eq('user_id', user.id).single(),
+                        supabaseClient.from('sucursales').select('sucursal').order('sucursal')
+                    ]);
+                    if (profileResponse.error) throw profileResponse.error;
+                    const profile = profileResponse.data;
+                    profileName.textContent = profile.nombre || 'N/A';
+                    profileBox.textContent = profile.box || 'N/A';
+                    profileEmail.textContent = user.email;
+                    profilePhone.value = profile.telefono || '';
+                    if (sucursalesResponse.data) {
+                        profileSucursal.innerHTML = sucursalesResponse.data.map(s => `<option value="${s.sucursal}" ${s.sucursal === profile.sucursal ? 'selected' : ''}>${s.sucursal}</option>`).join('');
+                    }
+                } catch (error) {
+                    profileMessage.textContent = "Error al cargar el perfil.";
+                }
+            };
+            const handleProfileUpdate = async (e) => {
+                e.preventDefault();
+                profileMessage.textContent = 'Guardando...';
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                const { error } = await supabaseClient.from('clientes').update({ telefono: profilePhone.value, sucursal: profileSucursal.value }).eq('user_id', user.id);
+                if (error) { profileMessage.textContent = 'Error al actualizar.'; } 
+                else { profileMessage.textContent = '¡Perfil actualizado!'; }
+            };
+
+            // LÓGICA DE PAQUETES (Cálculo por tarifa)
+            const loadPaquetes = async () => {
+                paquetesListContainer.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 rounded-full mx-auto"></div></div>`;
+                const { data: paquetes, error } = await supabaseClient.from('paquetes').select('*').order('created_at', { ascending: false });
+                if (error) { paquetesListContainer.innerHTML = `<p class="text-red-400 text-center">Error al cargar paquetes.</p>`; return; }
+                const tarifaCliente = currentUserProfile?.tarifa_1 || 4.00;
+                const enTransito = paquetes.filter(p => p.status === 'En transito');
+                const enSucursal = paquetes.filter(p => p.status === 'En Sucursal');
+                const entregados = paquetes.filter(p => p.status === 'Entregado');
+                const saldoEnSucursal = enSucursal.reduce((total, p) => total + ((p.peso || 0) * tarifaCliente), 0);
+                summaryTransito.textContent = enTransito.length;
+                summarySucursal.textContent = enSucursal.length;
+                summarySaldo.textContent = `$${saldoEnSucursal.toFixed(2)}`;
+                summaryEntregado.textContent = entregados.length;
+                if (!paquetes.length) { paquetesListContainer.innerHTML = `<div class="text-center p-8"><i data-lucide="package-search" class="h-16 w-16 text-gray-700 mx-auto"></i><p class="text-gray-500 mt-4">No tienes paquetes.</p></div>`; lucide.createIcons(); return; }
+                paquetesListContainer.innerHTML = paquetes.map(p => `<div class="bg-gray-800 p-4 rounded-xl border border-gray-700"><div class="flex justify-between items-center mb-2"><p class="font-mono text-white font-semibold">${p.tracking}</p><span class="text-xs font-bold px-2 py-1 rounded-full ${getStatusBadge(p.status)}">${p.status || 'N/A'}</span></div><div class="text-sm text-gray-400 flex justify-between"><span>Recibido: ${formatDate(p.fecha_bodega)}</span><span>${p.peso ? p.peso.toFixed(2) + ' lbs' : ''}</span></div></div>`).join('');
+            };
+            
+            // LÓGICA DE FACTURAS (Adaptada a tu BD real)
             const loadFacturas = async () => {
-                const pageContainer = document.getElementById('page-facturas');
-                pageContainer.innerHTML = `<header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mis Facturas</h1></header>
-                                         <main class="px-6 pb-24"><div id="facturas-list" class="space-y-4"><p class="text-gray-400">Cargando facturas...</p></div></main>`;
-                
-                const listContainer = pageContainer.querySelector('#facturas-list');
-                const { data: facturas, error } = await supabaseClient.from('facturas').select('id, created_at, monto_total').order('created_at', { ascending: false });
-
-                if (error) {
-                    listContainer.innerHTML = '<p class="text-red-400">No se pudieron cargar las facturas.</p>';
-                } else if (facturas.length === 0) {
-                    listContainer.innerHTML = '<p class="text-gray-500">No tienes facturas registradas.</p>';
-                } else {
-                    listContainer.innerHTML = facturas.map(f => `
-                        <div class="bg-gray-800 p-4 rounded-xl flex justify-between items-center">
-                            <div>
-                                <p class="font-semibold text-white">Factura #${f.id.substring(0, 8).toUpperCase()}</p>
-                                <p class="text-sm text-gray-400">${formatDate(f.created_at)}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="font-bold text-lg text-blue-400">$${(f.monto_total || 0).toFixed(2)}</p>
-                                <button class="view-factura-btn text-sm text-blue-400 font-semibold" data-id="${f.id}">Ver Detalle</button>
+                facturasListContainer.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 rounded-full mx-auto"></div></div>`;
+                if (!currentUserProfile?.box) { facturasListContainer.innerHTML = `<p class="text-red-400 text-center">Casillero no encontrado.</p>`; return; }
+                const { data: facturas, error } = await supabaseClient.from('facturas').select('id, created_at, monto_total, html_recibo').eq('cliente_box', currentUserProfile.box).order('created_at', { ascending: false });
+                if (error) { facturasListContainer.innerHTML = `<p class="text-red-400 text-center">Error al cargar facturas.</p>`; return; }
+                if (!facturas.length) { facturasListContainer.innerHTML = `<div class="text-center p-8"><i data-lucide="receipt" class="h-16 w-16 text-gray-700 mx-auto"></i><p class="text-gray-500 mt-4">No tienes facturas.</p></div>`; lucide.createIcons(); return; }
+                facturasListContainer.innerHTML = facturas.map(f => {
+                    const numeroFactura = f.id.substring(0, 8).toUpperCase();
+                    const tieneRecibo = f.html_recibo && f.html_recibo.length > 0;
+                    return `
+                        <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-bold text-white text-lg font-mono">$${(f.monto_total || 0).toFixed(2)}</p>
+                                    <p class="text-xs text-gray-400">Factura #${numeroFactura}</p>
+                                    <p class="text-xs text-gray-500 mt-1">${formatDate(f.created_at)}</p>
+                                </div>
+                                <div class="text-right">
+                                     ${tieneRecibo 
+                                        ? `<a href="ver-factura.html?id=${f.id}" target="_blank" class="bg-blue-500 text-white font-semibold text-xs px-3 py-1.5 rounded-md hover:bg-blue-600 no-underline">Ver Recibo</a>`
+                                        : `<button disabled class="bg-gray-600 text-gray-400 font-semibold text-xs px-3 py-1.5 rounded-md cursor-not-allowed">No Disponible</button>`
+                                     }
+                                </div>
                             </div>
                         </div>
-                    `).join('');
-                }
-                
-                pageContainer.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); showPage(link.dataset.target); }));
-                pageContainer.querySelectorAll('.view-factura-btn').forEach(btn => btn.addEventListener('click', () => showFacturaDetalle(btn.dataset.id)));
-                lucide.createIcons();
+                    `;
+                }).join('');
             };
 
-            const showFacturaDetalle = async (facturaId) => {
-                showPage('page-ver-factura');
-                const pageContainer = document.getElementById('page-ver-factura');
-                pageContainer.innerHTML = `<header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-facturas" class="nav-link text-gray-400 hover:text-white transition"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Detalle de Factura</h1></header>
-                                         <main class="px-6 pb-24">
-                                            <div class="flex justify-end mb-4"><button id="print-button" class="bg-blue-500 text-white font-semibold py-2 px-5 rounded-md hover:bg-blue-600 flex items-center gap-2"><i data-lucide="printer" class="h-4 w-4"></i> Imprimir</button></div>
-                                            <div id="factura-render-container" class="bg-white p-4 rounded-lg text-black"><p class="text-gray-600">Cargando...</p></div>
-                                         </main>`;
-                
-                const renderContainer = pageContainer.querySelector('#factura-render-container');
-                const { data, error } = await supabaseClient.from('facturas').select('html_recibo').eq('id', facturaId).single();
-
-                if (error || !data || !data.html_recibo) {
-                    renderContainer.innerHTML = '<p class="text-red-500 font-bold">Error: No se pudo cargar esta factura.</p>';
-                } else {
-                    renderContainer.innerHTML = data.html_recibo;
-                }
-
-                pageContainer.querySelector('#print-button').onclick = () => {
-                    const content = renderContainer.innerHTML;
-                    const printWindow = window.open('', '', 'height=800,width=800');
-                    printWindow.document.write('<html><head><title>Imprimir Factura</title></head><body style="color:black;">');
-                    printWindow.document.write(content);
-                    printWindow.document.write('</body></html>');
-                    printWindow.document.close();
-                    printWindow.print();
-                };
-                pageContainer.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); showPage(link.dataset.target); }));
-                lucide.createIcons();
+            // LÓGICA DE DIRECCIONES
+            const initializeDireccionesPage = async () => {
+                direccionesContent.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 rounded-full mx-auto"></div></div>`;
+                const { data: userInfo, error } = await supabaseClient.rpc('get_direcciones_casillero');
+                if (error || !userInfo) { direccionesContent.innerHTML = `<p class="text-red-400 text-center">No se pudo cargar tu información.</p>`; return; }
+                const { nombre: nombreCompleto, box, codigo_sucursal: codigoSucursal } = userInfo;
+                const nombreLinea1 = `${codigoSucursal || 'PSC'}${box || ''} ${nombreCompleto || ''}`;
+                const direccionesHTML = `
+                    <section><h2 class="text-base font-semibold text-white mb-3">Bodega Principal (Aéreo)</h2><div class="bg-gray-800 rounded-xl p-4 space-y-2 text-sm">
+                        <p><span class="text-gray-400">Nombre:</span> ${nombreLinea1}</p>
+                        <p><span class="text-gray-400">Dirección:</span> 2610 NW 89 TH CT</p>
+                        <p><span class="text-gray-400">Ciudad:</span> DORAL</p>
+                        <p><span class="text-gray-400">Estado:</span> FLORIDA</p>
+                        <p><span class="text-gray-400">Código Postal:</span> 33172-1615</p>
+                    </div></section>`;
+                direccionesContent.innerHTML = direccionesHTML;
             };
-            // --- FIN DE LA LÓGICA PARA FACTURAS ---
-
-            const loadPaquetes = async () => { /* Tu función de paquetes */ };
-            const initializeDireccionesPage = async () => { /* Tu función de direcciones */ };
-            const loadProfileData = async () => { /* Tu función de perfil */ };
             
+            // IMPORTANTE: El código original para estas 3 funciones no fue proporcionado.
+            // Debes pegar tu código funcional aquí para que estas páginas funcionen.
+            const initializeRastreoPage = () => { /* PEGAR CÓDIGO DE RASTREO AQUÍ */ };
+            const initializeCotizarPage = () => { /* PEGAR CÓDIGO DE COTIZAR AQUÍ */ };
+            const initializeMalIdentificadoPage = () => { /* PEGAR CÓDIGO DE MAL IDENTIFICADO AQUÍ */ };
+
             function initializePageLogics() {
-                document.querySelectorAll('#page-home .nav-link').forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        showPage(link.dataset.target);
-                    });
-                });
-                // ... (inicialización de otras páginas)
+                initializeRastreoPage();
+                initializeCotizarPage();
+                initializeMalIdentificadoPage();
             }
 
-            // --- ATTACH EVENT LISTENERS ---
-            document.getElementById('login-form').addEventListener('submit', handleLogin);
-            document.getElementById('register-form').addEventListener('submit', handleRegister);
-            document.getElementById('logout-button').addEventListener('click', handleLogout);
-            document.getElementById('show-register-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-register'); });
-            document.getElementById('show-login-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-login'); });
+            // --- EVENT LISTENERS ---
+            loginForm.addEventListener('submit', handleLogin);
+            registerForm.addEventListener('submit', handleRegister);
+            logoutButton.addEventListener('click', handleLogout);
+            showRegisterLink.addEventListener('click', (e) => { e.preventDefault(); showPage('page-register'); });
+            showLoginLink.addEventListener('click', (e) => { e.preventDefault(); showPage('page-login'); });
+            navLinks.forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); showPage(link.getAttribute('data-target')); }); });
+            if (profileForm) profileForm.addEventListener('submit', handleProfileUpdate);
+            togglePasswordButtons.forEach(button => { button.addEventListener('click', () => { const input = button.previousElementSibling; const isPwd = input.type === 'password'; input.type = isPwd ? 'text' : 'password'; button.innerHTML = isPwd ? '<i data-lucide="eye-off"></i>' : '<i data-lucide="eye"></i>'; lucide.createIcons(); }); });
 
-            // --- STARTUP LOGIC ---
+            // --- LÓGICA DE INICIO ---
             const checkUserSession = async () => {
-                await loadSucursales('register-sucursal');
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 if (session) { await showApp(session.user); } else { showAuth(); }
                 lucide.createIcons();
             };
 
+            loadSucursales('register-sucursal');
             checkUserSession();
         });
     </script>
 </body>
 </html>
+
 
 
 
