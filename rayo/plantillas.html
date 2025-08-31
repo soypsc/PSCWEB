@@ -162,7 +162,7 @@
                 nombre_plantilla: document.getElementById('nombre_plantilla').value,
                 asunto_o_titulo: document.getElementById('asunto_o_titulo').value,
                 cuerpo_html: document.getElementById('cuerpo_html').value,
-                updated_at: new Date().toISOString()
+                
             };
 
             const { error } = await sb.from('plantillas').update(payload).eq('id', currentEditingId);
