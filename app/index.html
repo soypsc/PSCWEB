@@ -369,27 +369,33 @@
             // LÓGICA DE FACTURAS (del index 21, que te funciona)
             const loadFacturas = async () => {
                 facturasListContainer.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 rounded-full mx-auto"></div><p class="text-gray-400 mt-4">Cargando facturas...</p></div>`;
+                
                 if (!currentUserProfile || !currentUserProfile.box) {
                     facturasListContainer.innerHTML = `<p class="text-red-400 text-center">No se pudo identificar tu casillero.</p>`;
                     return;
                 }
+
+                // CORRECCIÓN: Se elimina la columna 'carrito_data' del select para que coincida con tu base de datos.
                 const { data: facturas, error } = await supabaseClient
                     .from('facturas')
-                    .select('id, created_at, monto_total, carrito_data')
+                    .select('id, created_at, monto_total') // <--- CAMBIO REALIZADO AQUÍ
                     .eq('cliente_box', currentUserProfile.box)
                     .order('created_at', { ascending: false });
+
                 if (error) {
                     facturasListContainer.innerHTML = `<p class="text-red-400 text-center">Error al cargar las facturas.</p>`;
                     console.error("Error fetching facturas:", error);
                     return;
                 }
+
                 if (!facturas || facturas.length === 0) {
                     facturasListContainer.innerHTML = `<div class="text-center p-8"><i data-lucide="receipt" class="h-16 w-16 text-gray-700 mx-auto"></i><p class="text-gray-500 mt-4">No tienes facturas registradas.</p></div>`;
                     lucide.createIcons();
                     return;
                 }
+
                 facturasListContainer.innerHTML = facturas.map(f => {
-                    const numPaquetes = f.carrito_data ? f.carrito_data.length : 0;
+                    // CORRECCIÓN: Se elimina la lógica que usaba 'carrito_data'
                     return `
                         <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
                             <div class="flex justify-between items-center">
@@ -399,7 +405,6 @@
                                 </div>
                                 <div class="text-right">
                                      <a href="ver-factura.html?id=${f.id}" target="_blank" class="bg-blue-500 text-white font-semibold text-xs px-3 py-1.5 rounded-md hover:bg-blue-600 no-underline">Ver Recibo</a>
-                                     <p class="text-xs text-gray-500 mt-1">${numPaquetes} paquete(s)</p>
                                 </div>
                             </div>
                         </div>
@@ -464,3 +469,4 @@
     </script>
 </body>
 </html>
+
