@@ -20,6 +20,37 @@
 </head>
 <body class="bg-slate-50 text-slate-800">
 
+    <script type="module">
+        // --- INICIO DEL CÓDIGO DE SEGURIDAD MEJORADO ---
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+        const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
+        (async () => {
+            // 1. Obtiene la sesión actual
+            const { data: { session } } = await supabase.auth.getSession();
+
+            // Si NO hay sesión, expulsa al usuario a la página de login
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // 2. Si HAY sesión, verifica el rol en nuestra tabla de perfiles
+            const { data: perfil, error } = await supabase
+                .from('perfiles')
+                .select('rol')
+                .eq('id', session.user.id)
+                .single();
+
+            // 3. Si el perfil no es 'admin' o hay un error, expulsa al usuario
+            if (error || !perfil || perfil.rol !== 'admin') {
+                await supabase.auth.signOut(); // Cierra la sesión del usuario no autorizado
+                window.location.href = 'login.html?error=unauthorized'; // Lo redirige a login
+            }
+        })();
+        // --- FIN DEL CÓDIGO DE SEGURIDAD MEJORADO ---
+    </script>
+
     <div class="relative min-h-screen md:flex">
         <div class="bg-white text-slate-800 flex justify-between md:hidden sticky top-0 z-20 shadow-md">
             <a href="./index.html" class="block p-4 font-bold">SGL1</a>
@@ -114,37 +145,13 @@
     <script src="app.js"></script>
     <script type="module">
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-    const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
-
-    (async () => {
-        // 1. Obtiene la sesión actual
-        const { data: { session } } = await supabase.auth.getSession();
-
-        // Si NO hay sesión, expulsa al usuario a la página de login
-        if (!session) {
-            window.location.href = 'login.html';
-            return;
-        }
-
-        // 2. Si HAY sesión, verifica el rol en nuestra tabla de perfiles
-        const { data: perfil, error } = await supabase
-            .from('perfiles')
-            .select('rol')
-            .eq('id', session.user.id)
-            .single();
-
-        // 3. Si el perfil no es 'admin' o hay un error, expulsa al usuario
-        if (error || !perfil || perfil.rol !== 'admin') {
-            await supabase.auth.signOut(); // Cierra la sesión del usuario no autorizado
-            window.location.href = 'login.html?error=unauthorized'; // Lo redirige a login
-        }
-        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+        
+        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
         
         document.addEventListener('DOMContentLoaded', () => {
             initializeClientesListeners();
         });
 
-        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
         const norm = s => (s||"").trim();
         const normEmail = s => (s||"").trim().toLowerCase();
         const toNum = (s) => {
