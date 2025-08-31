@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastrear Paquete - PSC App</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Este archivo debe estar en la misma carpeta -->
+    <script src="config.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; }
+        @keyframes spin{ to{transform:rotate(360deg)} }
+        
+        .timeline-container { 
+            position: relative; 
+            margin-top: 2rem;
+        }
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            bottom: 12px;
+            width: 2px;
+            background-color: #374151; /* dark:bg-gray-700 */
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 3rem;
+            margin-bottom: 1.5rem;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: 0;
+            top: 0.25rem;
+            height: 1.25rem;
+            width: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #4b5563; /* dark:bg-gray-600 */
+            border-radius: 9999px;
+            border: 3px solid #1f2937; /* dark:border-gray-800 */
+        }
+        .timeline-item:first-child .timeline-dot {
+             background-color: #3b82f6; /* dark:bg-blue-500 */
+        }
+        .hiddenEvt { display: none; }
+    </style>
+</head>
+<body class="bg-black text-gray-200">
+
+    <div class="max-w-md mx-auto min-h-screen">
+        <header class="p-6 flex items-center space-x-4">
+            <!-- Botón para volver al index.html -->
+            <a href="index.html" class="text-gray-400 hover:text-white transition">
+                <i data-lucide="arrow-left" class="h-6 w-6"></i>
+            </a>
+            <h1 class="text-xl font-bold text-white">Rastrear Paquete</h1>
+        </header>
+
+        <main class="px-6 pb-8 space-y-8">
+            <section>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="psc_trk" placeholder="Ingresa tu número de guía" class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg">
+                    <button id="psc_go" class="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition shadow-lg flex-shrink-0"><i data-lucide="search"></i></button>
+                </div>
+                <div class="flex items-center gap-2 mt-3 h-5">
+                    <div id="psc_stateSpin" class="spinner w-4 h-4 rounded-full" style="display:none;"></div>
+                    <p id="psc_stateMsg" class="text-sm text-gray-400">Listo.</p>
+                </div>
+            </section>
+            
+            <section id="results-section-rastreo" class="hidden">
+                <div class="bg-gray-800 p-4 rounded-xl space-y-2">
+                    <div class="flex justify-between text-sm"><span class="text-gray-400">Tracking:</span><b id="psc_qsTracking" class="font-mono">—</b></div>
+                    <div class="flex justify-between text-sm"><span class="text-gray-400">Status:</span><b id="psc_qsStatus">—</b></div>
+                </div>
+                
+                <div id="psc_events_container" class="mt-8 hidden">
+                    <h2 class="text-lg font-semibold text-white mb-4">Historial de seguimiento (<span id="psc_evCount">0</span>)</h2>
+                    <div id="psc_events" class="timeline-container"></div>
+                    <div class="flex justify-center mt-4">
+                        <button id="psc_toggleMore" class="text-blue-400 font-semibold text-sm" style="display:none;">Mostrar más</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', () => {
+            const { createClient } = supabase;
+            const supabaseClient = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
+            // --- Elementos del Rastreador ---
+            const trk = document.getElementById('psc_trk');
+            const go = document.getElementById('psc_go');
+            const stateMsg = document.getElementById('psc_stateMsg');
+            const stateSpin = document.getElementById('psc_stateSpin');
+            const resultsSection = document.getElementById('results-section-rastreo');
+            const qsTracking = document.getElementById('psc_qsTracking');
+            const qsStatus = document.getElementById('psc_qsStatus');
+            const eventsContainer = document.getElementById('psc_events_container');
+            const eventsEl = document.getElementById('psc_events');
+            const evCountEl = document.getElementById('psc_evCount');
+            const toggleMoreBtn = document.getElementById('psc_toggleMore');
+
+            const setState = (state, msg) => {
+                stateSpin.style.display = (state === 'load') ? 'block' : 'none';
+                stateMsg.textContent = msg;
+                stateMsg.className = (state === 'err') ? 'text-sm text-red-400' : 'text-sm text-gray-400';
+            };
+
+            const renderTopSummary = (data) => {
+                resultsSection.classList.remove('hidden');
+                qsTracking.textContent = data?.tracking || 'No encontrado';
+                qsStatus.textContent = data?.status || 'N/A';
+            };
+
+            const renderTimeline = (data) => {
+                const events = data?.events || [];
+                evCountEl.textContent = events.length;
+                if(events.length === 0){
+                    eventsContainer.classList.add('hidden');
+                    return;
+                }
+                eventsContainer.classList.remove('hidden');
+                eventsEl.innerHTML = events.map((ev, idx) => {
+                    const isHidden = idx >= 3;
+                    return `
+                        <div class="timeline-item ${isHidden ? 'hiddenEvt' : ''}" style="${isHidden ? 'display:none' : ''}">
+                            <div class="timeline-dot"></div>
+                            <div class="text-sm">
+                                <p class="font-semibold text-white">${ev.status || ''}</p>
+                                <p class="text-gray-400">${ev.location || ''}</p>
+                                <p class="text-xs text-gray-500 mt-1">${formatDate(ev.date)}</p>
+                            </div>
+                        </div>`;
+                }).join('');
+                toggleMoreBtn.style.display = events.length > 3 ? 'block' : 'none';
+                toggleMoreBtn.textContent = 'Mostrar más';
+            };
+
+            const doSearch = async () => {
+                const code = trk.value.trim();
+                if (!code) { setState('err', 'Ingrese un tracking.'); return; }
+                setState('load', 'Buscando...');
+                resultsSection.classList.add('hidden');
+                eventsContainer.classList.add('hidden');
+
+                try {
+                    const { data, error } = await supabaseClient.rpc('get_tracking_history', { p_tracking: code });
+                    if (error) throw error;
+                    
+                    if (!data || data.length === 0 || !data[0].history) {
+                        setState('ok', 'Tracking no encontrado.');
+                        renderTopSummary({ tracking: code, status: 'No encontrado' });
+                        renderTimeline({ events: [] });
+                        return;
+                    }
+
+                    setState('ok', 'Listo.');
+                    const result = data[0].history;
+                    renderTopSummary(result);
+                    renderTimeline(result);
+                    
+                } catch (e) {
+                    console.error(e);
+                    setState('err', 'Error al buscar. Intente de nuevo.');
+                }
+            };
+            
+            go.addEventListener('click', doSearch);
+            trk.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+            toggleMoreBtn.addEventListener('click', () => {
+                const hidden = eventsEl.querySelectorAll('.hiddenEvt');
+                const isExpanding = hidden.length > 0 && hidden[0].style.display === 'none';
+                hidden.forEach(el => { el.style.display = isExpanding ? 'block' : 'none'; });
+                toggleMoreBtn.textContent = isExpanding ? 'Mostrar menos' : 'Mostrar más';
+            });
+            
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
+```
+
+### 2. Actualización para tu `index.html`
+Para conectar tu aplicación principal con el nuevo rastreador, solo necesitas hacer un pequeño cambio.
+
+**Busca esta línea en tu `index.html`:**
+```html
+<a href="#" data-target="page-rastreo" class="nav-link p-4 flex items-center space-x-4 hover:bg-gray-700 rounded-t-xl no-underline"><i data-lucide="search" class="text-blue-400"></i><span class="font-semibold text-gray-300">Rastrear Paquete</span></a>
+```
+
+**Y reemplázala por esta:**
+```html
+<a href="rastreo.html" class="p-4 flex items-center space-x-4 hover:bg-gray-700 rounded-t-xl no-underline"><i data-lucide="search" class="text-blue-400"></i><span class="font-semibold text-gray-300">Rastrear Paquete</span></a>
