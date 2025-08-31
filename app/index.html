@@ -28,7 +28,7 @@
         .page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; }
-        @keyframes spin{ to{transform:rotate(300deg)} }
+        @keyframes spin{ to{transform:rotate(360deg)} }
     </style>
 </head>
 <body class="bg-black text-gray-200">
@@ -84,17 +84,26 @@
                     <a href="#" data-target="page-casillero" class="nav-link text-center p-2 flex flex-col items-center group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-green-500"><i data-lucide="archive" class="text-green-400 h-7 w-7 group-hover:text-white"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Direcciones</span></a>
                     <a href="#" data-target="page-facturas" class="nav-link text-center p-2 flex flex-col items-center group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-indigo-500"><i data-lucide="receipt" class="text-indigo-400 h-7 w-7 group-hover:text-white"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Facturas</span></a>
                 </div></section>
-                <section><h2 class="text-lg font-semibold text-white mb-3">Herramientas</h2>
+                <section>
+                    <h2 class="text-lg font-semibold text-white mb-3">Herramientas</h2>
                     <div class="bg-gray-800 rounded-xl divide-y divide-gray-700">
-                        <!-- CAMBIO: Enlace apunta a rastreo.html -->
-                        <a href="rastreo.html" class="p-4 flex items-center space-x-4 hover:bg-gray-700 rounded-t-xl no-underline"><i data-lucide="search" class="text-blue-400"></i><span class="font-semibold text-gray-300">Rastrear Paquete</span></a>
+                        <!-- Herramienta 1: Rastrear Paquete (Página Externa) -->
+                        <a href="rastreo.html" class="p-4 flex items-center space-x-4 hover:bg-gray-700 no-underline"><i data-lucide="search" class="text-blue-400"></i><span class="font-semibold text-gray-300">Rastrear Paquete</span></a>
+                        
+                        <!-- Herramienta 2: Cotizar Compra (Página Interna) -->
                         <a href="#" data-target="page-cotizar" class="nav-link p-4 flex items-center space-x-4 hover:bg-gray-700 no-underline"><i data-lucide="calculator" class="text-purple-400"></i><span class="font-semibold text-gray-300">Cotizar Compra</span></a>
-                        <a href="#" data-target="malidentificados.html" class="nav-link p-4 flex items-center space-x-4 hover:bg-gray-700 rounded-b-xl no-underline"><i data-lucide="alert-triangle" class="text-yellow-400"></i><span class="font-semibold text-gray-300">Paquete Mal Identificado</span></a>
+                        
+                        <!-- Herramienta 3: Paquete Mal Identificado (Página Externa) - CORREGIDO -->
+                        <a href="malidentificados.html" class="p-4 flex items-center space-x-4 hover:bg-gray-700 no-underline"><i data-lucide="alert-triangle" class="text-yellow-400"></i><span class="font-semibold text-gray-300">Paquete Mal Identificado</span></a>
+                        
+                        <!-- FUTURA HERRAMIENTA: Para agregar un nuevo botón, copia una de las líneas de arriba y modifícala. -->
+                        <!-- Ejemplo: <a href="nueva_pagina.html" class="p-4 flex items-center space-x-4 hover:bg-gray-700 no-underline"><i data-lucide="star"></i><span>Nueva Herramienta</span></a> -->
                     </div>
                 </section>
             </main>
         </div>
 
+        <!-- Resto de las páginas internas de la app (Mi Perfil, Paquetes, etc.) -->
         <div id="page-mi-perfil" class="page">
             <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mi Perfil</h1></header>
             <main class="px-6 pb-24">
@@ -131,10 +140,8 @@
             <main id="direcciones-content" class="px-6 pb-24 space-y-6"></main>
         </div>
 
-        <!-- CAMBIO: La página de rastreo ya no es necesaria aquí -->
-
         <div id="page-cotizar" class="page"><header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Cotizar Compra</h1></header><main class="p-6"><p>El código para esta página debe ser insertado aquí.</p></main></div>
-        <div id="page-mal-identificado" class="page"><header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Paquete Mal Identificado</h1></header><main class="p-6"><p>El código para esta página debe ser insertado aquí.</p></main></div>
+        
     </div>
 
     <!-- Modal para ver Factura -->
@@ -407,6 +414,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
