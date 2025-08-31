@@ -479,9 +479,12 @@
             if (btnCompletarVenta.disabled) return;
             btnCompletarVenta.textContent = "Procesando...";
             btnCompletarVenta.disabled = true;
+            
             const montoTotalFinal = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
+
             try {
-                const { data: facturaId, error } = await sb.rpc('finalizar_venta', {
+                // Primero, registrar la venta y obtener el ID de la factura
+                const { data: facturaId, error: ventaError } = await sb.rpc('finalizar_venta', {
                     p_cliente_box: clienteActual.box,
                     p_cliente_nombre: clienteActual.nombre,
                     p_monto_total: montoTotalFinal,
@@ -491,9 +494,29 @@
                     p_carrito: carrito.map(p=>({id:p.id, tracking:p.tracking, costo_flete:(p.costo_flete||0)+(p.costo_impuestos||0), descuento_porcentaje:p.descuento_porcentaje||0})),
                     p_pagos: pagos
                 });
-                if (error) throw error;
-                alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.`);
+                if (ventaError) throw ventaError;
+
+                // Ahora, generar el recibo HTML
+                const htmlRecibo = await generarReciboHTML(facturaId);
+
+                // Llamar a la Edge Function para generar y guardar el PDF
+                const { data: pdfData, error: pdfError } = await sb.functions.invoke('generar-factura-pdf', {
+                    body: { htmlContent: htmlRecibo, facturaId: facturaId }
+                });
+                if (pdfError) {
+                    // La venta se guardó, pero el PDF falló. Informar pero no detener.
+                    alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.\n\nADVERTENCIA: No se pudo generar el PDF del recibo. Error: ${pdfError.message}`);
+                } else {
+                    // Guardar la URL del PDF en la factura
+                    await sb.from('facturas').update({ url_pdf: pdfData.url }).eq('id', facturaId);
+                    alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.`);
+                    if (confirm("¿Desea abrir el recibo en PDF para imprimir?")) {
+                        window.open(pdfData.url, '_blank');
+                    }
+                }
+                
                 resetTerminal(true);
+
             } catch (error) {
                 console.error("Error al completar la venta:", error);
                 alert(`Error al finalizar la venta: ${error.message}`);
@@ -502,6 +525,36 @@
             }
         }
         
+        async function generarReciboHTML(facturaId) {
+            const { data: plantilla, error } = await sb.from('plantillas').select('cuerpo_html').eq('identificador_unico', 'RECIBO_IMPRESION').single();
+            if (error || !plantilla) {
+                console.error("No se encontró la plantilla de recibo.");
+                return "<h1>Error: Plantilla de recibo no encontrada.</h1>";
+            }
+
+            let html = plantilla.cuerpo_html;
+
+            const itemsHTML = carrito.map(p => {
+                const costoOriginal = (p.costo_flete || 0) + (p.costo_impuestos || 0);
+                return `<tr><td>${p.tracking}</td><td>${(p.peso || 0).toFixed(2)} lbs</td><td>$${costoOriginal.toFixed(2)}</td></tr>`;
+            }).join('');
+            const desgloseItems = `<table width="100%"><thead><tr><th>Tracking</th><th>Peso</th><th>Costo</th></tr></thead><tbody>${itemsHTML}</tbody></table>`;
+            
+            const pagosHTML = pagos.map(p => `<div>${p.metodo}: $${p.monto.toFixed(2)}</div>`).join('');
+
+            html = html.replace(/{{fecha_factura}}/g, new Date().toLocaleDateString('es-PA'));
+            html = html.replace(/{{numero_factura}}/g, facturaId.substring(0, 8).toUpperCase());
+            html = html.replace(/{{nombre_cliente}}/g, clienteActual.nombre);
+            html = html.replace(/{{box}}/g, clienteActual.box);
+            html = html.replace(/{{desglose_items_html}}/g, desgloseItems);
+            html = html.replace(/{{subtotal}}/g, subtotalCarritoSpan.textContent.replace('$', ''));
+            html = html.replace(/{{descuentos}}/g, descuentosCarritoSpan.textContent.replace('-$', ''));
+            html = html.replace(/{{total_pagado}}/g, totalCarritoSpan.textContent.replace('$', ''));
+            html = html.replace(/{{metodos_pago_html}}/g, pagosHTML);
+            
+            return html;
+        }
+
         function handlePago(metodo) {
             const total = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
             const totalPagado = pagos.reduce((acc, p) => acc + p.monto, 0);
