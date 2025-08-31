@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador de Compras - PSC App</title>
+    
+    <!-- Scripts y Estilos de tu App -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .results-section { 
+            transition: all 0.5s ease-in-out; 
+            max-height: 0; 
+            overflow: hidden; 
+            opacity: 0; 
+        }
+        .results-section.open { 
+            max-height: 1000px; 
+            opacity: 1; 
+        }
+    </style>
+</head>
+<body class="bg-black text-gray-200">
+
+    <div class="max-w-md mx-auto min-h-screen">
+        <header class="p-6 flex items-center space-x-4">
+            <!-- Botón para volver al index.html -->
+            <a href="index.html" class="text-gray-400 hover:text-white transition">
+                <i data-lucide="arrow-left" class="h-6 w-6"></i>
+            </a>
+            <h1 class="text-xl font-bold text-white">Cotizador de Compras</h1>
+        </header>
+
+        <main class="px-6 pb-8 space-y-8">
+            <section class="bg-gray-900 p-5 rounded-xl">
+                <h2 class="text-lg font-semibold text-white">Calculadora de Compras</h2>
+                <p class="text-sm text-gray-400 mt-1">Ingresa los detalles para obtener un estimado.</p>
+                
+                <div id="calculator-form" class="mt-6 space-y-4">
+                    <div>
+                        <label for="productValue" class="text-sm font-medium text-gray-400">Valor del producto (USD)</label>
+                        <div class="relative mt-1">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">$</span>
+                            <input id="productValue" type="number" placeholder="Ej: 150.00" class="w-full pl-7 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="downPayment" class="text-sm font-medium text-gray-400">Abono inicial (USD)</label>
+                        <div class="relative mt-1">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">$</span>
+                            <input id="downPayment" type="number" placeholder="Ej: 120.00" class="w-full pl-7 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="productWeight" class="text-sm font-medium text-gray-400">Peso (Libras)</label>
+                        <div class="relative mt-1">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">lbs</span>
+                            <input id="productWeight" type="number" placeholder="Ej: 5" class="w-full pr-10 pl-4 py-2 bg-gray-800 border border-gray-700 rounded-lg">
+                        </div>
+                    </div>
+                    <div class="flex items-center pt-2">
+                        <input id="addInsurance" type="checkbox" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500">
+                        <label for="addInsurance" class="ml-2 text-sm font-medium text-gray-300">Asegurar mi pedido (3% del valor)</label>
+                    </div>
+                    <button id="calculate-btn" class="w-full bg-blue-500 text-white font-semibold py-2.5 rounded-lg hover:bg-blue-600 transition !mt-6">Calcular</button>
+                </div>
+            </section>
+
+            <section id="results-section-cotizar" class="results-section">
+                <div class="bg-gray-800 p-4 rounded-xl">
+                    <h3 class="text-base font-semibold text-white mb-3">Pago Inicial (A Pagar Ahora)</h3>
+                    <div class="flex justify-between font-bold text-lg">
+                        <span class="text-white">Abono:</span>
+                        <span id="result-downpayment" class="font-mono text-blue-400">$0.00</span>
+                    </div>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-xl mt-4">
+                    <h3 class="text-base font-semibold text-white mb-3">Pagos Pendientes (A Pagar Después)</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between"><span class="text-gray-400">Saldo del producto:</span><span id="result-balance" class="font-mono text-white">$0.00</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Manejo:</span><span id="result-handling" class="font-mono text-white">$0.00</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Seguro:</span><span id="result-insurance" class="font-mono text-white">$0.00</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Financiamiento:</span><span id="result-financing" class="font-mono text-white">$0.00</span></div>
+                        <hr class="border-gray-700 my-2">
+                        <div class="flex justify-between"><span class="text-gray-400">Flete (contra entrega):</span><span id="result-freight" class="font-mono text-white">$0.00</span></div>
+                        <hr class="border-gray-700 my-2">
+                        <div class="flex justify-between font-bold text-base"><span class="text-white">Total Pendiente:</span><span id="result-total-pending" class="font-mono text-blue-400">$0.00</span></div>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-3 text-center">Este es un costo aproximado y puede variar.</p>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Configuración de Tarifas ---
+            const TARIFA_FLETE_POR_LIBRA = 4.00;
+            const TARIFA_MANEJO = 1.00;
+            const TASA_SEGURO = 0.03; // 3%
+            const TASA_FINANCIAMIENTO = 0.10; // 10%
+
+            // --- Selectores del DOM ---
+            const productValueInput = document.getElementById('productValue');
+            const downPaymentInput = document.getElementById('downPayment');
+            const productWeightInput = document.getElementById('productWeight');
+            const addInsuranceCheckbox = document.getElementById('addInsurance');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const resultsSection = document.getElementById('results-section-cotizar');
+
+            // --- Elementos de Resultados ---
+            const resultDownpayment = document.getElementById('result-downpayment');
+            const resultBalance = document.getElementById('result-balance');
+            const resultHandling = document.getElementById('result-handling');
+            const resultInsurance = document.getElementById('result-insurance');
+            const resultFinancing = document.getElementById('result-financing');
+            const resultFreight = document.getElementById('result-freight');
+            const resultTotalPending = document.getElementById('result-total-pending');
+
+            // --- Función de Cálculo ---
+            const calcularCompra = () => {
+                const valorProducto = parseFloat(productValueInput.value) || 0;
+                const abono = parseFloat(downPaymentInput.value) || 0;
+                const peso = parseFloat(productWeightInput.value) || 0;
+                const quiereSeguro = addInsuranceCheckbox.checked;
+
+                // Validaciones
+                if (valorProducto <= 0) {
+                    alert("El valor del producto debe ser mayor a cero.");
+                    return;
+                }
+                 if (abono > valorProducto) {
+                    alert("El abono no puede ser mayor al valor del producto.");
+                    return;
+                }
+
+                // Cálculos
+                const flete = peso * TARIFA_FLETE_POR_LIBRA;
+                const manejo = peso > 0 ? TARIFA_MANEJO : 0;
+                const seguro = quiereSeguro ? valorProducto * TASA_SEGURO : 0;
+                const saldoProducto = valorProducto - abono;
+                const financiamiento = saldoProducto > 0 ? saldoProducto * TASA_FINANCIAMIENTO : 0;
+                
+                const totalPendiente = saldoProducto + manejo + seguro + financiamiento + flete;
+
+                // Actualizar UI
+                resultDownpayment.textContent = `$${abono.toFixed(2)}`;
+                resultBalance.textContent = `$${saldoProducto.toFixed(2)}`;
+                resultHandling.textContent = `$${manejo.toFixed(2)}`;
+                resultInsurance.textContent = `$${seguro.toFixed(2)}`;
+                resultFinancing.textContent = `$${financiamiento.toFixed(2)}`;
+                resultFreight.textContent = `$${flete.toFixed(2)}`;
+                resultTotalPending.textContent = `$${totalPendiente.toFixed(2)}`;
+
+                // Mostrar resultados
+                resultsSection.classList.add('open');
+            };
+
+            // --- Event Listeners ---
+            calculateBtn.addEventListener('click', calcularCompra);
+            
+            // Inicializar iconos
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
+
