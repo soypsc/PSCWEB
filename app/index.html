@@ -28,7 +28,7 @@
         .page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; }
-        @keyframes spin{ to{transform:rotate(360deg)} }
+        @keyframes spin{ to{transform:rotate(300deg)} }
     </style>
 </head>
 <body class="bg-black text-gray-200">
@@ -134,7 +134,20 @@
         <div id="page-rastreo" class="page"><header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Rastrear Paquete</h1></header><main class="p-6"><p>El código para esta página debe ser insertado aquí.</p></main></div>
         <div id="page-cotizar" class="page"><header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Cotizar Compra</h1></header><main class="p-6"><p>El código para esta página debe ser insertado aquí.</p></main></div>
         <div id="page-mal-identificado" class="page"><header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Paquete Mal Identificado</h1></header><main class="p-6"><p>El código para esta página debe ser insertado aquí.</p></main></div>
+    </div>
 
+    <!-- Modal para ver Factura -->
+    <div id="factura-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-900 w-full max-w-lg rounded-2xl shadow-xl max-h-[90vh] flex flex-col">
+            <header class="p-4 flex items-center justify-between border-b border-gray-700">
+                <h2 class="text-lg font-semibold text-white">Detalle de Factura</h2>
+                <div class="flex items-center gap-4">
+                    <button id="print-factura-btn" class="text-gray-400 hover:text-white"><i data-lucide="printer"></i></button>
+                    <button id="close-factura-modal-btn" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button>
+                </div>
+            </header>
+            <main id="factura-modal-content" class="p-6 overflow-y-auto text-black"></main>
+        </div>
     </div>
 
     <script type="module">
@@ -147,8 +160,6 @@
         const appContainer = document.getElementById('app-container');
         const allPages = document.querySelectorAll('.page');
         const navLinks = document.querySelectorAll('.nav-link');
-        const loginForm = document.getElementById('login-form');
-        const registerForm = document.getElementById('register-form');
         const logoutButton = document.getElementById('logout-button');
         const userNameDisplay = document.getElementById('user-name-display');
         const userBoxDisplay = document.getElementById('user-box-display');
@@ -160,8 +171,7 @@
             if (targetPage) targetPage.classList.add('active');
             window.scrollTo(0, 0);
 
-            // Cargar datos específicos al mostrar una página
-            if (!currentUserProfile) return; // No cargar si no hay sesión
+            if (!currentUserProfile) return;
             switch (pageId) {
                 case 'page-paquetes': loadPaquetes(); break;
                 case 'page-casillero': initializeDireccionesPage(); break;
@@ -175,7 +185,7 @@
         // --- Lógica de Autenticación ---
         const showAuth = () => { authContainer.style.display = 'block'; appContainer.classList.add('hidden'); showPage('page-login'); };
         const showApp = async (user) => {
-            const { data, error } = await supabaseClient.from('clientes').select('nombre, box, tarifa_1').eq('user_id', user.id).single();
+            const { data } = await supabaseClient.from('clientes').select('nombre, box, tarifa_1').eq('user_id', user.id).single();
             if (data) currentUserProfile = data;
             
             userNameDisplay.textContent = currentUserProfile?.nombre || 'Usuario';
@@ -190,53 +200,39 @@
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
             document.getElementById('login-error').textContent = error ? 'Email o contraseña incorrectos.' : '';
         };
 
         const handleRegister = async (e) => {
             e.preventDefault();
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const options = {
-                data: {
+            const { error } = await supabaseClient.auth.signUp({
+                email: document.getElementById('register-email').value,
+                password: document.getElementById('register-password').value,
+                options: { data: {
                     nombre_completo: document.getElementById('register-name').value,
                     whatsapp: document.getElementById('register-whatsapp').value,
                     sucursal_preferida: document.getElementById('register-sucursal').value,
-                }
-            };
-            const { error } = await supabaseClient.auth.signUp({ email, password, options });
-            if (error) {
-                document.getElementById('register-error').textContent = 'No se pudo registrar. El email ya podría existir.';
-            } else {
-                alert('¡Registro exitoso! Revisa tu correo para confirmar tu cuenta.');
-                showPage('page-login');
-            }
+                }}
+            });
+            if (error) { document.getElementById('register-error').textContent = 'No se pudo registrar. El email ya podría existir.'; }
+            else { alert('¡Registro exitoso! Revisa tu correo para confirmar.'); showPage('page-login'); }
         };
 
-        const handleLogout = async () => {
-            await supabaseClient.auth.signOut();
-            currentUserProfile = null;
-        };
+        const handleLogout = () => supabaseClient.auth.signOut();
         
         // --- Lógica de Carga de Datos ---
         const loadSucursales = async (selectElementId) => {
             const selectEl = document.getElementById(selectElementId);
             const { data } = await supabaseClient.from('sucursales').select('sucursal').order('sucursal');
-            if (data) {
-                selectEl.innerHTML = '<option value="">Selecciona una sucursal</option>' + data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join('');
-            }
+            if (data) selectEl.innerHTML = '<option value="">Selecciona</option>' + data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join('');
         };
 
         // --- Lógica de Páginas ---
-        
-        // PAQUETES: Usa el cálculo de `peso * tarifa`
         const loadPaquetes = async () => {
             const container = document.getElementById('paquetes-list-container');
             container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
-            
-            const { data: paquetes, error } = await supabaseClient.from('paquetes').select('*').order('created_at', { ascending: false });
-            if (error) { container.innerHTML = `<p class="text-red-400 text-center">Error al cargar paquetes.</p>`; return; }
+            const { data: paquetes } = await supabaseClient.from('paquetes').select('*').order('created_at', { ascending: false });
             
             const tarifaCliente = currentUserProfile?.tarifa_1 || 4.00;
             const statusCount = { 'En transito': 0, 'En Sucursal': 0, 'Entregado': 0 };
@@ -258,20 +254,13 @@
                 const statusBadge = (s) => ({ 'En transito': 'bg-yellow-500/20 text-yellow-300', 'En Sucursal': 'bg-green-500/20 text-green-300', 'Entregado': 'bg-gray-500/20 text-gray-400' }[s] || 'bg-gray-700');
                 container.innerHTML = paquetes.map(p => `
                     <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
-                        <div class="flex justify-between items-center mb-2">
-                            <p class="font-mono font-semibold">${p.tracking}</p>
-                            <span class="text-xs font-bold px-2 py-1 rounded-full ${statusBadge(p.status)}">${p.status || 'N/A'}</span>
-                        </div>
-                        <div class="text-sm text-gray-400 flex justify-between">
-                            <span>Recibido: ${formatDate(p.fecha_bodega)}</span>
-                            <span>${p.peso ? p.peso.toFixed(2) + ' lbs' : ''}</span>
-                        </div>
+                        <div class="flex justify-between items-center mb-2"><p class="font-mono font-semibold">${p.tracking}</p><span class="text-xs font-bold px-2 py-1 rounded-full ${statusBadge(p.status)}">${p.status || 'N/A'}</span></div>
+                        <div class="text-sm text-gray-400 flex justify-between"><span>Recibido: ${formatDate(p.fecha_bodega)}</span><span>${p.peso ? p.peso.toFixed(2) + ' lbs' : ''}</span></div>
                     </div>`).join('');
             }
             lucide.createIcons();
         };
 
-        // FACTURAS: Lógica mejorada para obtener conteo de paquetes
         const loadFacturas = async () => {
             const container = document.getElementById('facturas-list-container');
             container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
@@ -279,20 +268,16 @@
 
             const [facturasRes, paquetesRes] = await Promise.all([
                 supabaseClient.from('facturas').select('id, created_at, monto_total, html_recibo').eq('cliente_box', currentUserProfile.box).order('created_at', { ascending: false }),
-                supabaseClient.from('paquetes').select('factura_id').not('factura_id', 'is', null) // Solo trae paquetes que tienen un factura_id
+                supabaseClient.from('paquetes').select('factura_id').not('factura_id', 'is', null)
             ]);
 
             if (facturasRes.error) { container.innerHTML = `<p class="text-red-400 text-center">Error al cargar facturas.</p>`; return; }
             if (!facturasRes.data.length) {
                 container.innerHTML = `<div class="text-center p-8"><i data-lucide="receipt" class="h-16 w-16 text-gray-700 mx-auto"></i><p class="mt-4">No tienes facturas.</p></div>`;
-                lucide.createIcons();
-                return;
+                lucide.createIcons(); return;
             }
 
-            const paquetesPorFactura = paquetesRes.data?.reduce((acc, p) => {
-                acc[p.factura_id] = (acc[p.factura_id] || 0) + 1;
-                return acc;
-            }, {}) || {};
+            const paquetesPorFactura = paquetesRes.data?.reduce((acc, p) => { acc[p.factura_id] = (acc[p.factura_id] || 0) + 1; return acc; }, {}) || {};
 
             container.innerHTML = facturasRes.data.map(f => {
                 const numeroFactura = f.id.substring(0, 8).toUpperCase();
@@ -308,7 +293,7 @@
                             </div>
                             <div class="text-right">
                                 ${tieneRecibo 
-                                    ? `<a href="ver-factura.html?id=${f.id}" target="_blank" class="bg-blue-500 text-white font-semibold text-xs px-3 py-1.5 rounded-md hover:bg-blue-600 no-underline">Ver Recibo</a>`
+                                    ? `<button data-factura-id="${f.id}" class="view-receipt-btn bg-blue-500 text-white font-semibold text-xs px-3 py-1.5 rounded-md hover:bg-blue-600">Ver Recibo</button>`
                                     : `<button disabled class="bg-gray-600 text-gray-400 font-semibold text-xs px-3 py-1.5 rounded-md cursor-not-allowed">No Disponible</button>`
                                 }
                                 ${numPaquetes > 0 ? `<p class="text-xs text-gray-500 mt-1">${numPaquetes} paquete(s)</p>` : ''}
@@ -317,21 +302,19 @@
                     </div>`;
             }).join('');
         };
-
-        // MI PERFIL
+        
         const loadProfileData = async () => {
             const { data: { user } } = await supabaseClient.auth.getUser();
             const { data: profile } = await supabaseClient.from('clientes').select('nombre, box, telefono, sucursal').eq('user_id', user.id).single();
-            const { data: sucursales } = await supabaseClient.from('sucursales').select('sucursal').order('sucursal');
             
             document.getElementById('profile-name').textContent = profile?.nombre || '';
             document.getElementById('profile-box').textContent = profile?.box || '';
             document.getElementById('profile-email').textContent = user.email;
             document.getElementById('profile-phone').value = profile?.telefono || '';
-            if (sucursales) {
-                document.getElementById('profile-sucursal').innerHTML = sucursales.map(s => `<option value="${s.sucursal}" ${s.sucursal === profile?.sucursal ? 'selected' : ''}>${s.sucursal}</option>`).join('');
-            }
+            await loadSucursales('profile-sucursal');
+            document.getElementById('profile-sucursal').value = profile?.sucursal || '';
         };
+
         const handleProfileUpdate = async (e) => {
             e.preventDefault();
             const msgEl = document.getElementById('profile-message');
@@ -341,34 +324,72 @@
             msgEl.textContent = error ? 'Error al actualizar.' : '¡Perfil actualizado!';
         };
         
-        // DIRECCIONES
         const initializeDireccionesPage = async () => {
-            document.getElementById('direcciones-content').innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
+            const container = document.getElementById('direcciones-content');
+            container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
             const { data: userInfo } = await supabaseClient.rpc('get_direcciones_casillero');
-            if (!userInfo) { document.getElementById('direcciones-content').innerHTML = `<p class="text-red-400 text-center">No se pudo cargar tu información.</p>`; return; }
+            if (!userInfo) { container.innerHTML = `<p class="text-red-400 text-center">No se pudo cargar tu información.</p>`; return; }
+            
             const { nombre, box, codigo_sucursal } = userInfo;
             const nombreLinea1 = `${codigo_sucursal || 'PSC'}${box || ''} ${nombre || ''}`;
-            document.getElementById('direcciones-content').innerHTML = `
-                <section><h2 class="text-base font-semibold text-white mb-3">Bodega Principal (Aéreo)</h2><div class="bg-gray-800 rounded-xl p-4 space-y-2 text-sm">
-                    <p><span class="text-gray-400">Nombre:</span> ${nombreLinea1}</p>
-                    <p><span class="text-gray-400">Dirección:</span> 2610 NW 89 TH CT, DORAL, FL 33172-1615</p>
-                </div></section>`;
+            const renderAddressCard = (addr) => {
+                let copyIdCounter = 0;
+                return `<section><h2 class="text-base font-semibold text-white mb-3">${addr.titulo}</h2>${addr.nota ? `<p class="text-xs text-yellow-400 bg-yellow-900/50 p-2 rounded-md mb-3">${addr.nota}</p>` : ''}<div class="bg-gray-800 rounded-xl divide-y divide-gray-700">${addr.datos.map(item => { const uniqueId = `copy-${copyIdCounter++}`; return `<div class="px-3 py-2 flex justify-between items-center"><div><p class="text-xs text-gray-400">${item.label}:</p><p class="text-sm text-white font-mono" id="${uniqueId}">${item.value}</p></div><button class="copy-btn p-2 rounded-lg hover:bg-gray-700" data-target="${uniqueId}"><i data-lucide="copy" class="h-4 w-4 text-gray-400"></i></button></div>`; }).join('')}</div></section>`;
+            };
+            container.innerHTML = `
+                ${renderAddressCard({ titulo: 'Bodega Principal (Aéreo)', datos: [ { label: 'Nombre', value: nombreLinea1 }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })}
+                ${renderAddressCard({ titulo: 'Dirección Marítima', datos: [ { label: 'Nombre', value: `OCEAN ${nombreLinea1}` }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })}
+                <section><h2 class="text-base font-semibold text-white mb-3">Dirección Alterna</h2><div class="bg-gray-800 p-4 rounded-xl"><p class="text-sm mb-3">¿La tienda no envía a warehouse?</p><div class="flex items-center space-x-4"><label class="flex items-center"><input type="radio" name="showAlterna" value="no" checked class="h-4 w-4"><span class="ml-2">No</span></label><label class="flex items-center"><input type="radio" name="showAlterna" value="yes" class="h-4 w-4"><span class="ml-2">Sí</span></label></div></div></section>
+                <div id="alterna-container" class="hidden">${renderAddressCard({ titulo: 'Bodega Alterna (Casa)', nota: 'Solo usar si es estrictamente necesario.', datos: [ { label: 'Nombre', value: nombreLinea1 }, { label: 'Dirección', value: '15421 SW 26 TH TERR, MIAMI, FL 33185-4866' }] })}</div>
+            `;
+            container.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', () => {
+                const text = document.getElementById(btn.dataset.target).innerText;
+                navigator.clipboard.writeText(text).then(() => { btn.innerHTML = '<i data-lucide="check" class="h-4 w-4 text-green-400"></i>'; setTimeout(() => { btn.innerHTML = '<i data-lucide="copy" class="h-4 w-4 text-gray-400"></i>'; lucide.createIcons(); }, 2000); lucide.createIcons(); });
+            }));
+            container.querySelectorAll('input[name="showAlterna"]').forEach(radio => radio.addEventListener('change', (e) => {
+                document.getElementById('alterna-container').classList.toggle('hidden', e.target.value === 'no');
+            }));
+            lucide.createIcons();
         };
 
-        const initializePageLogics = () => { /* Aquí puedes añadir la lógica de las páginas de herramientas */ };
+        const initializePageLogics = () => { /* PEGA AQUÍ EL CÓDIGO DE LAS PÁGINAS DE HERRAMIENTAS */ };
 
         // --- Event Listeners ---
         document.getElementById('show-register-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-register'); });
         document.getElementById('show-login-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-login'); });
-        loginForm.addEventListener('submit', handleLogin);
-        registerForm.addEventListener('submit', handleRegister);
+        document.getElementById('login-form').addEventListener('submit', handleLogin);
+        document.getElementById('register-form').addEventListener('submit', handleRegister);
         logoutButton.addEventListener('click', handleLogout);
-        document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); showPage(link.dataset.target); }));
+        navLinks.forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); showPage(link.dataset.target); }));
         document.getElementById('profile-form').addEventListener('submit', handleProfileUpdate);
         document.querySelectorAll('.toggle-password').forEach(btn => btn.addEventListener('click', () => {
-            const input = btn.previousElementSibling;
-            input.type = input.type === 'password' ? 'text' : 'password';
+            const input = btn.previousElementSibling; input.type = input.type === 'password' ? 'text' : 'password';
         }));
+        
+        // --- Lógica del Modal de Facturas ---
+        const facturaModal = document.getElementById('factura-modal');
+        const facturaModalContent = document.getElementById('factura-modal-content');
+        appContainer.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('view-receipt-btn')) {
+                const facturaId = e.target.dataset.facturaId;
+                facturaModalContent.innerHTML = `<div class="text-center p-8 text-white"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
+                facturaModal.classList.remove('hidden');
+                const { data } = await supabaseClient.from('facturas').select('html_recibo').eq('id', facturaId).single();
+                facturaModalContent.innerHTML = data?.html_recibo || '<p class="text-white">No se encontró el contenido del recibo.</p>';
+            }
+        });
+        document.getElementById('close-factura-modal-btn').addEventListener('click', () => facturaModal.classList.add('hidden'));
+        document.getElementById('print-factura-btn').addEventListener('click', () => {
+             const printWindow = window.open('', '', 'height=600,width=800');
+             printWindow.document.write('<html><head><title>Recibo</title>');
+             printWindow.document.write('<style>body{font-family:sans-serif;}</style>');
+             printWindow.document.write('</head><body>');
+             printWindow.document.write(facturaModalContent.innerHTML);
+             printWindow.document.write('</body></html>');
+             printWindow.document.close();
+             printWindow.print();
+        });
+
 
         // --- Inicialización ---
         supabaseClient.auth.onAuthStateChange((event, session) => {
@@ -384,6 +405,9 @@
     </script>
 </body>
 </html>
+
+
+
 
 
 
