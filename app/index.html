@@ -26,7 +26,7 @@
         .page { display: none; }
         .page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        /* Estilos para la factura inyectada */
+        /* Estilos para la factura inyectada - resetea estilos para que se vea bien */
         #factura-render-container div, #factura-render-container table, #factura-render-container h1, #factura-render-container h2, #factura-render-container p, #factura-render-container span, #factura-render-container b, #factura-render-container tr, #factura-render-container td, #factura-render-container th {
             all: revert;
             font-family: 'Inter', sans-serif !important;
@@ -36,6 +36,7 @@
 <body class="bg-black text-gray-200">
 
     <div id="auth-container">
+        <!-- Login y Registro (sin cambios) -->
         <div id="page-login" class="page">
              <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
                 <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo de PSC" class="h-16 mx-auto"><h1 class="text-3xl font-bold text-white mt-4">Bienvenido</h1><p class="text-gray-400">Inicia sesión para continuar</p></div>
@@ -47,13 +48,12 @@
                 <p class="text-center text-sm text-gray-400 mt-6">¿No tienes una cuenta? <a href="#" id="show-register-link" class="font-semibold text-blue-400 hover:underline">Regístrate aquí</a></p>
             </div>
         </div>
-
         <div id="page-register" class="page">
-            <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
-                <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo de PSC" class="h-16 mx-auto"><h1 class="text-3xl font-bold text-white mt-4">Crear Cuenta</h1><p class="text-gray-400">Completa tus datos para registrarte</p></div>
-                <form id="register-form" class="space-y-4">
-                    <!-- Campos de registro -->
-                </form>
+             <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
+                 <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo de PSC" class="h-16 mx-auto"><h1 class="text-3xl font-bold text-white mt-4">Crear Cuenta</h1><p class="text-gray-400">Completa tus datos para registrarte</p></div>
+                 <form id="register-form" class="space-y-4">
+                    <!-- Formulario de registro completo aquí -->
+                 </form>
                 <p class="text-center text-sm text-gray-400 mt-6">¿Ya tienes una cuenta? <a href="#" id="show-login-link" class="font-semibold text-blue-400 hover:underline">Inicia sesión</a></p>
             </div>
         </div>
@@ -86,7 +86,7 @@
             </main>
         </div>
 
-        <!-- Páginas secundarias -->
+        <!-- Páginas secundarias (contenedores vacíos) -->
         <div id="page-mi-perfil" class="page"></div>
         <div id="page-paquetes" class="page"></div>
         <div id="page-casillero" class="page"></div>
@@ -98,13 +98,14 @@
     </div>
 
     <!-- ===== TEMPLATES DE LAS PÁGINAS SECUNDARIAS ===== -->
-    <template id="template-mi-perfil"><!-- ... --></template>
-    <template id="template-paquetes"><!-- ... --></template>
-    <template id="template-casillero"><!-- ... --></template>
-    <template id="template-rastreo"><!-- ... --></template>
-    <template id="template-cotizar"><!-- ... --></template>
-    <template id="template-mal-identificado"><!-- ... --></template>
+    <template id="template-mi-perfil"><!-- ... (tu template de perfil aquí) --></template>
+    <template id="template-paquetes"><!-- ... (tu template de paquetes aquí) --></template>
+    <template id="template-casillero"><!-- ... (tu template de casillero aquí) --></template>
+    <template id="template-rastreo"><!-- ... (tu template de rastreo aquí) --></template>
+    <template id="template-cotizar"><!-- ... (tu template de cotizar aquí) --></template>
+    <template id="template-mal-identificado"><!-- ... (tu template de mal identificado aquí) --></template>
 
+    <!-- NUEVAS PLANTILLAS PARA FACTURAS -->
     <template id="template-facturas">
         <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400 hover:text-white transition"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mis Facturas</h1></header>
         <main class="px-6 pb-24">
@@ -126,6 +127,7 @@
         </main>
     </template>
 
+
     <script type="module">
         const { createClient } = supabase;
         const supabaseClient = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
@@ -142,13 +144,15 @@
                 const template = document.getElementById(`template-${pageId.substring(5)}`);
                 if (template) {
                     targetPage.innerHTML = template.innerHTML;
+                } else if(pageId === 'page-home') {
+                    // Page home no usa template, es contenido estático
                 }
                 targetPage.classList.add('active');
             }
             window.scrollTo(0, 0);
             
             if (pageId === 'page-facturas') loadFacturas();
-            // ... (otras llamadas a funciones de página)
+            // ... (otras llamadas a funciones de página como loadPaquetes, etc.)
             
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.addEventListener('click', (e) => {
@@ -159,8 +163,8 @@
             lucide.createIcons();
         };
 
-        const showAuth = () => { /* ... */ };
-        const showApp = async (user) => { /* ... */ };
+        const showAuth = () => { /* ... tu función showAuth ... */ };
+        const showApp = async (user) => { /* ... tu función showApp ... */ };
 
         const loadFacturas = async () => {
             const listContainer = document.getElementById('facturas-list');
@@ -209,7 +213,7 @@
         const renderFactura = async (facturaId) => {
             const renderContainer = document.getElementById('factura-render-container');
             if (!renderContainer) return;
-            renderContainer.innerHTML = '<p>Cargando...</p>';
+            renderContainer.innerHTML = '<p class="text-gray-400">Cargando factura...</p>';
 
             const { data, error } = await supabaseClient.from('facturas').select('html_recibo').eq('id', facturaId).single();
             if (error || !data || !data.html_recibo) {
@@ -221,7 +225,7 @@
             document.getElementById('print-button').onclick = () => {
                 const content = renderContainer.innerHTML;
                 const printWindow = window.open('', '', 'height=800,width=800');
-                printWindow.document.write('<html><head><title>Imprimir Factura</title></head><body>');
+                printWindow.document.write('<html><head><title>Imprimir Factura</title></head><body style="color:black;">');
                 printWindow.document.write(content);
                 printWindow.document.write('</body></html>');
                 printWindow.document.close();
@@ -229,15 +233,16 @@
             };
         };
 
-        const loadSucursales = async (selectId) => { /* ... */ };
+        const loadSucursales = async (selectId) => { /* ... tu función ... */ };
+        // (y el resto de tus funciones existentes)
 
         // --- INICIALIZACIÓN ---
         document.getElementById('login-form').addEventListener('submit', async e => { /* ... */ });
         document.getElementById('logout-button').addEventListener('click', async () => { /* ... */ });
-        document.querySelectorAll('.nav-link').forEach(link => { /* ... */ });
+        // (y el resto de tus event listeners)
         
         (async () => {
-            await loadSucursales('register-sucursal');
+            //await loadSucursales('register-sucursal');
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) { await showApp(session.user); } else { showAuth(); }
             lucide.createIcons();
@@ -245,6 +250,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
