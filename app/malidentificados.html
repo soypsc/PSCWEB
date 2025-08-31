@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mal Identificado - PSC App</title>
+    
+    <!-- Scripts y Estilos de tu App -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; }
+        @keyframes spin{ to{transform:rotate(360deg)} }
+        
+        /* Estilos Adaptados para el Formulario de ML */
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #d1d5db; /* text-gray-300 */
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: #1f2937; /* bg-gray-800 */
+            border: 1px solid #374151; /* border-gray-700 */
+            border-radius: 0.5rem; /* rounded-lg */
+            color: #f3f4f6; /* text-gray-100 */
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6; /* border-blue-500 */
+            box-shadow: 0 0 0 2px #1e40af; /* ring-blue-500/50 */
+        }
+        .btn {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-primary {
+            background-color: #2563eb; /* bg-blue-600 */
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8; /* bg-blue-700 */
+        }
+        .btn-primary:disabled {
+            background-color: #4b5563; /* bg-gray-600 */
+            cursor: not-allowed;
+        }
+        .btn-ghost {
+            background-color: #374151; /* bg-gray-700 */
+            color: #d1d5db; /* text-gray-300 */
+        }
+        .btn-ghost:hover {
+            background-color: #4b5563; /* bg-gray-600 */
+        }
+        pre {
+            background-color: #111827; /* bg-gray-900 */
+            border: 1px dashed #374151; /* border-gray-700 */
+            color: #d1d5db; /* text-gray-300 */
+            border-radius: 0.75rem; /* rounded-xl */
+            padding: 1rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-top: 0.75rem;
+            min-height: 60px;
+            font-family: monospace;
+        }
+        .choice-label {
+             display: inline-flex;
+            gap: 0.5rem;
+            align-items: center;
+            border: 1px solid #374151; /* border-gray-700 */
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            background-color: #1f2937; /* bg-gray-800 */
+        }
+        .choice-label input {
+            accent-color: #3b82f6; /* blue-500 */
+        }
+        .toast.ok { color: #4ade80; } /* green-400 */
+        .toast.err { color: #f87171; } /* red-400 */
+        .toast.warn { color: #fbbf24; } /* amber-400 */
+        .hidden { display: none !important; }
+
+    </style>
+</head>
+<body class="bg-black text-gray-200">
+
+    <div class="max-w-md mx-auto min-h-screen">
+        <header class="p-6 flex items-center space-x-4">
+            <!-- Botón para volver al index.html -->
+            <a href="index.html" class="text-gray-400 hover:text-white transition">
+                <i data-lucide="arrow-left" class="h-6 w-6"></i>
+            </a>
+            <h1 class="text-xl font-bold text-white">Mal Identificado</h1>
+        </header>
+
+        <main class="px-6 pb-8 space-y-6">
+            <div class="bg-gray-800 p-5 rounded-xl">
+                <h2 class="text-lg font-bold text-white">Buscar Paquete</h2>
+                <p class="text-sm text-gray-400 mt-1">Busca por tracking para solicitar la corrección.</p>
+                
+                <div class="border-t border-gray-700 my-4"></div>
+
+                <!-- Paso 1 -->
+                <div>
+                  <label for="trk" class="form-label">Tracking</label>
+                  <div class="flex flex-col sm:flex-row gap-2 mt-1">
+                    <input id="trk" type="text" placeholder="Ej: 1Z999999..." class="form-input flex-grow"/>
+                    <div class="flex gap-2">
+                        <button id="go" class="btn btn-primary w-full sm:w-auto">Buscar</button>
+                        <button id="clear" class="btn btn-ghost w-full sm:w-auto">Limpiar</button>
+                    </div>
+                  </div>
+                  <div id="status" class="text-sm text-gray-500 mt-2 min-h-[20px]"></div>
+                  <pre id="out"></pre>
+                </div>
+
+                <div id="step2-container" class="hidden">
+                    <div class="border-t border-gray-700 my-4"></div>
+
+                    <!-- Paso 2 -->
+                    <div class="space-y-2">
+                      <p class="text-sm text-gray-300">¿El resultado mostró una fecha, saco o algún dato relevante?</p>
+                      <p class="text-xs text-gray-500">Si es así, lo más probable es que tu paquete esté mal identificado.</p>
+                    </div>
+                    
+                    <div class="flex gap-4 mt-3">
+                      <label class="choice-label"><input type="radio" name="seen" value="si" /> Sí, mostró datos</label>
+                      <label class="choice-label"><input type="radio" name="seen" value="no" /> No, no vi nada</label>
+                    </div>
+                    <div id="noMsg" class="text-amber-400 text-sm mt-2 hidden">Intenta buscar nuevamente o contacta a soporte.</div>
+
+                    <div class="hidden mt-4" id="mlForm">
+                      <label for="cas" class="form-label">N.º de casillero (obligatorio)</label>
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+                        <input id="cas" type="text" placeholder="Ej: 12345" class="form-input"/>
+                        <input id="name" type="text" placeholder="Tu nombre" class="form-input"/>
+                      </div>
+                      <button id="ask" class="btn btn-primary w-full mt-2">Solicitar Corrección</button>
+                      <div id="msg" class="toast text-sm font-semibold text-center mt-3"></div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        (function () {
+            // --- URLs DE SERVICIOS ---
+            const SCRAPER_DEFAULT = "https://gel-scraper-proxy.onrender.com/api/gel";
+            const SCRAPER = location.hostname.includes("gel-scraper-proxy.onrender.com") ? "/api/gel" : SCRAPER_DEFAULT;
+            const ML_URL = "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/ml-request";
+
+            // --- SELECTORES DEL DOM ---
+            const $ = (s) => document.querySelector(s);
+            const trk = $("#trk");
+            const go = $("#go");
+            const clr = $("#clear");
+            const status = $("#status");
+            const out = $("#out");
+            const seenRadios = document.getElementsByName("seen");
+            const noMsg = $("#noMsg");
+            const form = $("#mlForm");
+            const cas = $("#cas");
+            const nameInput = $("#name");
+            const ask = $("#ask");
+            const toast = $("#msg");
+            const step2Container = $("#step2-container");
+
+            const FILTER_STRINGS = [
+                "Login BUSCAR PAQUETES SIN IDENTIFICAR Número de Rastr...N IDENTIFICAR Sin Resultado En Búsqueda Reclamar Paquete Encontrado"
+            ];
+
+            // --- MANEJO DE ESTADOS DE UI ---
+            let tickerTimer = null;
+            function startTicker() {
+                if (tickerTimer) return;
+                const words = ["Buscando paquete", "Consultando sistema", "Verificando datos..."];
+                let i = 0;
+                setStatus(`${words[i]}...`, "warn");
+                tickerTimer = setInterval(() => {
+                    const s = words[i++ % words.length];
+                    setStatus(`${s}...`, "warn");
+                }, 1200);
+            }
+            function stopTicker() { 
+                if (tickerTimer) { clearInterval(tickerTimer); tickerTimer = null; } 
+            }
+
+            function setStatus(msg, kind) {
+                status.textContent = msg || "";
+                status.className = `text-sm mt-2 min-h-[20px] ${kind === 'err' ? 'text-red-400' : (kind === 'warn' ? 'text-amber-400' : 'text-gray-500')}`;
+            }
+
+            function setToast(msg, kind) {
+                toast.textContent = msg || "";
+                toast.className = `toast text-sm font-semibold text-center mt-3 ${kind || ""}`;
+                if (msg && (kind === "ok" || kind === "warn")) {
+                    setTimeout(() => setToast(""), 5000);
+                }
+            }
+            
+            // --- FUNCIONES DE LÓGICA ---
+            function norm(t) { return String(t || "").replace(/\s+/g, " ").trim(); }
+            function sanitizeSnippet(t) {
+                t = norm(t);
+                FILTER_STRINGS.forEach(filterStr => {
+                    if (filterStr?.trim()) {
+                        const re = new RegExp(filterStr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g");
+                        t = norm(t).replace(re, "");
+                    }
+                });
+                return t.trim();
+            }
+
+            let searchAbort = null;
+            function resetAll() {
+                trk.value = "";
+                out.textContent = "";
+                setStatus("");
+                setToast("");
+                noMsg.classList.add("hidden");
+                form.classList.add("hidden");
+                step2Container.classList.add("hidden");
+                cas.value = "";
+                nameInput.value = "";
+                seenRadios.forEach(radio => radio.checked = false);
+                go.disabled = false;
+                ask.disabled = false;
+                stopTicker();
+                if (searchAbort) searchAbort.abort();
+            }
+
+            async function buscar() {
+                const t = trk.value.trim();
+                setToast("");
+                if (!t) { setStatus("Ingresa un número de tracking.", "warn"); out.textContent = ""; return; }
+
+                go.disabled = true;
+                startTicker();
+                out.textContent = "";
+                step2Container.classList.add("hidden");
+
+                searchAbort = new AbortController();
+                const timeout = setTimeout(() => searchAbort.abort(), 45000);
+
+                try {
+                    const response = await fetch(`${SCRAPER}?tracking=${encodeURIComponent(t)}`, { 
+                        cache: "no-store", 
+                        signal: searchAbort.signal 
+                    });
+                    
+                    if (!response.ok) {
+                        // **FIX:** Try to get a more detailed error message from the server response
+                        let serverErrorMsg = `Error HTTP ${response.status}`;
+                        try {
+                            const errorData = await response.json();
+                            serverErrorMsg = errorData.message || errorData.error || JSON.stringify(errorData);
+                        } catch (e) {
+                            serverErrorMsg = response.statusText || `Error HTTP ${response.status}`;
+                        }
+                         throw new Error(serverErrorMsg);
+                    }
+                    
+                    stopTicker();
+                    clearTimeout(timeout);
+
+                    let data = null, raw = "";
+                    try { data = await response.json(); } 
+                    catch { try { raw = await response.text(); } catch {} }
+                    
+                    const show = [];
+                    const sako = data?.saco || data?.sack;
+                    const fecha = data?.fecha_de_ingreso || data?.fecha;
+                    if (sako) show.push(`Saco: ${sako}`);
+                    if (fecha) show.push(`Fecha de ingreso: ${fecha}`);
+
+                    const displayResult = (content) => {
+                        out.textContent = content;
+                        step2Container.classList.remove("hidden");
+                        seenRadios.forEach(radio => radio.checked = false);
+                    };
+
+                    if (show.length > 0) {
+                        displayResult(show.join("\n"));
+                    } else {
+                        let snippet = "";
+                        if (raw) {
+                            const idx = raw.indexOf("Snippet:");
+                            if (idx >= 0) snippet = raw.slice(idx + 8);
+                        }
+                        snippet = sanitizeSnippet(snippet);
+                        
+                        if (snippet) {
+                            displayResult(snippet);
+                        } else {
+                            out.textContent = "No se encontró información para este tracking.";
+                            step2Container.classList.add("hidden");
+                        }
+                    }
+                    setStatus("Búsqueda completada.");
+
+                } catch (e) {
+                    stopTicker();
+                    clearTimeout(timeout);
+                    console.error("Error en la búsqueda:", e); // Log for debugging
+                    if (e.name === 'AbortError') {
+                        setStatus("La búsqueda tardó demasiado. Intenta de nuevo.", "err");
+                        out.textContent = "No se pudo obtener respuesta del servidor a tiempo.";
+                    } else {
+                        // **FIX:** Display the specific error message from the server
+                        setStatus(`Error del servidor: ${e.message}`, "err");
+                        out.textContent = "No se pudo completar la búsqueda. El servicio externo podría estar fallando.";
+                    }
+                } finally {
+                    go.disabled = false;
+                }
+            }
+
+            async function solicitarML() {
+                const code = trk.value.trim();
+                const casillero = cas.value.trim();
+                const name = nameInput.value.trim();
+                setToast("");
+
+                const sel = Array.from(seenRadios).find(r => r.checked);
+                if (!sel || sel.value !== "si") { 
+                    setToast("Confirma que se mostró la información (elige 'Sí').", "warn"); 
+                    return; 
+                }
+                if (!code || !casillero) { 
+                    setToast("Ingresa tracking y número de casillero.", "err"); 
+                    return; 
+                }
+
+                ask.disabled = true;
+
+                try {
+                    const res = await fetch(ML_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ tracking: code, num_casillero: casillero, name: name })
+                    });
+
+                    const payload = await res.json().catch(() => ({}));
+
+                    if (!res.ok) {
+                        const errorMsg = payload.error || payload.detail || `Error HTTP ${res.status}`;
+                        if (res.status === 409 || errorMsg.includes("duplicate")) {
+                            setToast("Ya existe una solicitud ML para este tracking.", "warn");
+                        } else {
+                             setToast(`Error: ${errorMsg}`, "err");
+                        }
+                        return;
+                    }
+                    
+                    setToast("Solicitud de corrección enviada con éxito.", "ok");
+                    
+                } catch (e) {
+                    setToast("No se pudo enviar la solicitud. Revisa tu conexión.", "err");
+                } finally {
+                    ask.disabled = false;
+                }
+            }
+
+            // --- EVENT LISTENERS ---
+            go.addEventListener("click", buscar);
+            trk.addEventListener("keydown", (e) => { if (e.key === "Enter") buscar(); });
+            clr.addEventListener("click", resetAll);
+
+            seenRadios.forEach(radio => {
+                radio.addEventListener("change", () => {
+                    const sel = Array.from(seenRadios).find(x => x.checked);
+                    const v = sel ? sel.value : "";
+                    noMsg.classList.toggle("hidden", v !== "no");
+                    form.classList.toggle("hidden", v !== "si");
+                    if (v === 'si') cas.focus();
+                });
+            });
+            ask.addEventListener("click", solicitarML);
+
+            // --- INICIALIZACIÓN ---
+            lucide.createIcons();
+            resetAll(); // Limpia el estado al cargar la página
+        })();
+    });
+    </script>
+</body>
+</html>
+
