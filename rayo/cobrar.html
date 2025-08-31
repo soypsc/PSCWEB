@@ -19,7 +19,8 @@
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
-<script type="module">
+
+    <script type="module">
         // --- INICIO DEL CÓDIGO DE SEGURIDAD MEJORADO ---
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
@@ -49,6 +50,7 @@
         })();
         // --- FIN DEL CÓDIGO DE SEGURIDAD MEJORADO ---
     </script>
+
     <div class="relative min-h-screen md:flex">
         <div id="menu-container"></div>
 
