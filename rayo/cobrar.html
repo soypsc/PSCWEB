@@ -26,26 +26,19 @@
         const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
         (async () => {
-            // 1. Obtiene la sesión actual
             const { data: { session } } = await supabase.auth.getSession();
-
-            // Si NO hay sesión, expulsa al usuario a la página de login
             if (!session) {
                 window.location.href = 'login.html';
                 return;
             }
-
-            // 2. Si HAY sesión, verifica el rol en nuestra tabla de perfiles
             const { data: perfil, error } = await supabase
                 .from('perfiles')
                 .select('rol')
                 .eq('id', session.user.id)
                 .single();
-
-            // 3. Si el perfil no es 'admin' o hay un error, expulsa al usuario
             if (error || !perfil || perfil.rol !== 'admin') {
-                await supabase.auth.signOut(); // Cierra la sesión del usuario no autorizado
-                window.location.href = 'login.html?error=unauthorized'; // Lo redirige a login
+                await supabase.auth.signOut();
+                window.location.href = 'login.html?error=unauthorized';
             }
         })();
         // --- FIN DEL CÓDIGO DE SEGURIDAD MEJORADO ---
@@ -53,7 +46,6 @@
 
     <div class="relative min-h-screen md:flex">
         <div id="menu-container"></div>
-
         <main class="flex-1 p-8">
             <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-6"><span class="code">[OP-05]</span>Terminal de Entrega</h1>
             
@@ -324,6 +316,9 @@
             }
         }
         
+// --- CONTINÚA EN LA PARTE 2 ---<script type="module">
+// --- CONTINUACIÓN DE LA PARTE 1 ---
+
         function handleOpenEditModal(tracking) {
             const paquete = carrito.find(p => p.tracking === tracking);
             if (paquete) {
@@ -483,7 +478,6 @@
             const montoTotalFinal = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
 
             try {
-                // Primero, registrar la venta y obtener el ID de la factura
                 const { data: facturaId, error: ventaError } = await sb.rpc('finalizar_venta', {
                     p_cliente_box: clienteActual.box,
                     p_cliente_nombre: clienteActual.nombre,
@@ -496,23 +490,18 @@
                 });
                 if (ventaError) throw ventaError;
 
-                // Ahora, generar el recibo HTML
                 const htmlRecibo = await generarReciboHTML(facturaId);
-
-                // Llamar a la Edge Function para generar y guardar el PDF
-                const { data: pdfData, error: pdfError } = await sb.functions.invoke('generar-factura-pdf', {
-                    body: { htmlContent: htmlRecibo, facturaId: facturaId }
-                });
-                if (pdfError) {
-                    // La venta se guardó, pero el PDF falló. Informar pero no detener.
-                    alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.\n\nADVERTENCIA: No se pudo generar el PDF del recibo. Error: ${pdfError.message}`);
-                } else {
-                    // Guardar la URL del PDF en la factura
-                    await sb.from('facturas').update({ url_pdf: pdfData.url }).eq('id', facturaId);
-                    alert(`¡Venta completada! Factura #${facturaId.substring(0, 8)} creada.`);
-                    if (confirm("¿Desea abrir el recibo en PDF para imprimir?")) {
-                        window.open(pdfData.url, '_blank');
-                    }
+                
+                const { error: updateError } = await sb
+                    .from('facturas')
+                    .update({ html_recibo: htmlRecibo })
+                    .eq('id', facturaId);
+                
+                if (updateError) throw updateError;
+                
+                alert(`¡Venta completada! Factura #${facturaId.substring(0, 8).toUpperCase()} creada.`);
+                if (confirm("¿Desea ver el recibo?")) {
+                    window.open(`ver-factura.html?id=${facturaId}`, '_blank');
                 }
                 
                 resetTerminal(true);
