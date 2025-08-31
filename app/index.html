@@ -86,7 +86,8 @@
                 </div></section>
                 <section><h2 class="text-lg font-semibold text-white mb-3">Herramientas</h2>
                     <div class="bg-gray-800 rounded-xl divide-y divide-gray-700">
-                        <a href="#" data-target="page-rastreo" class="nav-link p-4 flex items-center space-x-4 hover:bg-gray-700 rounded-t-xl no-underline"><i data-lucide="search" class="text-blue-400"></i><span class="font-semibold text-gray-300">Rastrear Paquete</span></a>
+                        <!-- CAMBIO: Enlace apunta a rastreo.html -->
+                        <a href="rastreo.html" class="p-4 flex items-center space-x-4 hover:bg-gray-700 rounded-t-xl no-underline"><i data-lucide="search" class="text-blue-400"></i><span class="font-semibold text-gray-300">Rastrear Paquete</span></a>
                         <a href="#" data-target="page-cotizar" class="nav-link p-4 flex items-center space-x-4 hover:bg-gray-700 no-underline"><i data-lucide="calculator" class="text-purple-400"></i><span class="font-semibold text-gray-300">Cotizar Compra</span></a>
                         <a href="#" data-target="page-mal-identificado" class="nav-link p-4 flex items-center space-x-4 hover:bg-gray-700 rounded-b-xl no-underline"><i data-lucide="alert-triangle" class="text-yellow-400"></i><span class="font-semibold text-gray-300">Paquete Mal Identificado</span></a>
                     </div>
@@ -130,8 +131,8 @@
             <main id="direcciones-content" class="px-6 pb-24 space-y-6"></main>
         </div>
 
-        <!-- Páginas de Herramientas (placeholders) -->
-        <div id="page-rastreo" class="page"><header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Rastrear Paquete</h1></header><main class="p-6"><p>El código para esta página debe ser insertado aquí.</p></main></div>
+        <!-- CAMBIO: La página de rastreo ya no es necesaria aquí -->
+
         <div id="page-cotizar" class="page"><header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Cotizar Compra</h1></header><main class="p-6"><p>El código para esta página debe ser insertado aquí.</p></main></div>
         <div id="page-mal-identificado" class="page"><header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Paquete Mal Identificado</h1></header><main class="p-6"><p>El código para esta página debe ser insertado aquí.</p></main></div>
     </div>
@@ -370,8 +371,9 @@
         const facturaModal = document.getElementById('factura-modal');
         const facturaModalContent = document.getElementById('factura-modal-content');
         appContainer.addEventListener('click', async (e) => {
-            if (e.target.classList.contains('view-receipt-btn')) {
-                const facturaId = e.target.dataset.facturaId;
+            const viewButton = e.target.closest('.view-receipt-btn');
+            if (viewButton) {
+                const facturaId = viewButton.dataset.facturaId;
                 facturaModalContent.innerHTML = `<div class="text-center p-8 text-white"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
                 facturaModal.classList.remove('hidden');
                 const { data } = await supabaseClient.from('facturas').select('html_recibo').eq('id', facturaId).single();
@@ -405,6 +407,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
