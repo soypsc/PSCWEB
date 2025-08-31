@@ -252,6 +252,7 @@
             const showAuth = () => { authContainer.style.display = 'block'; appContainer.classList.add('hidden'); showPage('page-login'); };
             const showApp = async (user) => {
                 authContainer.style.display = 'none'; appContainer.classList.remove('hidden');
+                // FUSIÓN: Se pide la tarifa_1 como en index(17) para que funcione loadPaquetes
                 const { data: cliente } = await supabaseClient.from('clientes').select('nombre, box, tarifa_1').eq('user_id', user.id).single();
                 if (cliente) {
                     currentUserProfile = cliente;
@@ -349,6 +350,7 @@
                 }
             };
 
+            // FUSIÓN: Lógica de PAQUETES del index(17)
             const loadPaquetes = async () => {
                 paquetesListContainer.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 rounded-full mx-auto"></div><p class="text-gray-400 mt-4">Cargando...</p></div>`;
                 summaryTransito.textContent = '-'; summarySucursal.textContent = '-'; summarySaldo.textContent = '$...'; summaryEntregado.textContent = '-';
@@ -364,34 +366,30 @@
                 paquetesListContainer.innerHTML = paquetes.map(p => `<div class="bg-gray-800 p-4 rounded-xl border border-gray-700 fade-in"><div class="flex justify-between items-center mb-2"><p class="font-mono text-white font-semibold">${p.tracking}</p><span class="text-xs font-bold px-2 py-1 rounded-full ${getStatusBadge(p.status)}">${p.status || 'Desconocido'}</span></div><div class="text-sm text-gray-400 flex justify-between"><span>Recibido en Bodega: ${formatDate(p.fecha_bodega)}</span><span>${p.peso ? p.peso.toFixed(2) + ' lbs' : ''}</span></div></div>`).join('');
             };
             
+            // LÓGICA DE FACTURAS (del index 21, que te funciona)
             const loadFacturas = async () => {
                 facturasListContainer.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 rounded-full mx-auto"></div><p class="text-gray-400 mt-4">Cargando facturas...</p></div>`;
-                
                 if (!currentUserProfile || !currentUserProfile.box) {
                     facturasListContainer.innerHTML = `<p class="text-red-400 text-center">No se pudo identificar tu casillero.</p>`;
                     return;
                 }
-
-                // CORRECCIÓN DEFINITIVA: Se selecciona solo la data que SÍ existe en tu tabla.
                 const { data: facturas, error } = await supabaseClient
                     .from('facturas')
-                    .select('id, created_at, monto_total') 
+                    .select('id, created_at, monto_total, carrito_data')
                     .eq('cliente_box', currentUserProfile.box)
                     .order('created_at', { ascending: false });
-
                 if (error) {
                     facturasListContainer.innerHTML = `<p class="text-red-400 text-center">Error al cargar las facturas.</p>`;
                     console.error("Error fetching facturas:", error);
                     return;
                 }
-
                 if (!facturas || facturas.length === 0) {
                     facturasListContainer.innerHTML = `<div class="text-center p-8"><i data-lucide="receipt" class="h-16 w-16 text-gray-700 mx-auto"></i><p class="text-gray-500 mt-4">No tienes facturas registradas.</p></div>`;
                     lucide.createIcons();
                     return;
                 }
-
                 facturasListContainer.innerHTML = facturas.map(f => {
+                    const numPaquetes = f.carrito_data ? f.carrito_data.length : 0;
                     return `
                         <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
                             <div class="flex justify-between items-center">
@@ -401,6 +399,7 @@
                                 </div>
                                 <div class="text-right">
                                      <a href="ver-factura.html?id=${f.id}" target="_blank" class="bg-blue-500 text-white font-semibold text-xs px-3 py-1.5 rounded-md hover:bg-blue-600 no-underline">Ver Recibo</a>
+                                     <p class="text-xs text-gray-500 mt-1">${numPaquetes} paquete(s)</p>
                                 </div>
                             </div>
                         </div>
