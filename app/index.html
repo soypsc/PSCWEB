@@ -10,7 +10,7 @@
         body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         .page { min-height: calc(100vh - 80px); }
         .nav-link.active { color: #34D399; }
-        textarea { -webkit-appearance: none; }
+        /* Se eliminó el estilo 'textarea' que no estaba en el original para mantener la consistencia visual */
     </style>
 </head>
 <body class="bg-black text-gray-200 font-sans h-full flex flex-col">
@@ -227,15 +227,17 @@
             const enTransito = data.filter(p => p.status === 'En transito' || p.status === 'Recibido en Bodega');
             const entregados = data.filter(p => p.status === 'Entregado');
             
-            let saldoTotal = enSucursal.reduce((sum, p) => sum + (p.costo_total || 0), 0);
+            // LÍNEA CORREGIDA: Usar costo_flete en lugar de costo_total
+            let saldoTotal = enSucursal.reduce((sum, p) => sum + (p.costo_flete || 0), 0);
             document.getElementById('paquetes-saldo').textContent = `$${saldoTotal.toFixed(2)}`;
 
             const renderSection = (title, paquetes) => {
                 if (paquetes.length === 0) return '';
+                // LÍNEA CORREGIDA: Usar costo_flete en lugar de costo_total
                 return `<div class="mb-6">
                     <h2 class="font-bold text-gray-400 mb-2">${title}</h2>
                     <div class="space-y-2">
-                        ${paquetes.map(p => `<div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center"><div><p>${p.tracking}</p><p class="text-xs text-gray-500">${new Date(p.fecha_recibido).toLocaleDateString()}</p></div><p class="font-bold">$${(p.costo_total || 0).toFixed(2)}</p></div>`).join('')}
+                        ${paquetes.map(p => `<div class="bg-gray-800 p-3 rounded-lg flex justify-between items-center"><div><p>${p.tracking}</p><p class="text-xs text-gray-500">${new Date(p.fecha_recibido).toLocaleDateString()}</p></div><p class="font-bold">$${(p.costo_flete || 0).toFixed(2)}</p></div>`).join('')}
                     </div>
                 </div>`;
             };
@@ -450,13 +452,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
