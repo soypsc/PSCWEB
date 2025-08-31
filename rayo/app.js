@@ -1,4 +1,9 @@
 // Contenido de app.js
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+// Inicializamos Supabase una sola vez aquí para que esté disponible globalmente
+const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Cargar y mostrar el menú
     loadMenu();
@@ -24,7 +29,6 @@ function initializeMenuLogic() {
     const mobileMenuButton = document.getElementById('mobile-menu-button');
     const sidebar = document.getElementById('sidebar');
     
-    // El botón del menú móvil solo existe en el header que se mantiene en cada página
     if (mobileMenuButton && sidebar) {
         mobileMenuButton.addEventListener('click', () => {
             sidebar.classList.toggle('-translate-x-full');
@@ -35,8 +39,28 @@ function initializeMenuLogic() {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html'; 
     const sidebarLinks = document.querySelectorAll('.sidebar-link');
     sidebarLinks.forEach(link => {
-        if (link.dataset.path === currentPage) {
+        // Usamos el href en lugar de data-path para más flexibilidad
+        const linkPath = link.getAttribute('href').split('/').pop();
+        if (linkPath === currentPage) {
             link.classList.add('active');
         }
     });
+
+    // --- LÓGICA PARA CERRAR SESIÓN AÑADIDA AQUÍ ---
+    const logoutButton = document.getElementById('logout-button');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', async (e) => {
+            e.preventDefault(); // Prevenir que el enlace navegue
+            
+            const { error } = await supabase.auth.signOut();
+
+            if (error) {
+                console.error('Error al cerrar sesión:', error.message);
+                alert('Error al cerrar sesión.');
+            } else {
+                // Redirigir a la página de login después de cerrar sesión
+                window.location.href = 'login.html';
+            }
+        });
+    }
 }
