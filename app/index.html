@@ -199,6 +199,7 @@
     </div>
 
     <script>
+        <script>
         document.addEventListener('DOMContentLoaded', () => {
             const { createClient } = supabase;
             const supabaseClient = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
@@ -366,17 +367,31 @@
             
             const loadFacturas = async () => {
                 facturasListContainer.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 rounded-full mx-auto"></div><p class="text-gray-400 mt-4">Cargando facturas...</p></div>`;
-                const { data: facturas, error } = await supabaseClient.from('facturas').select('id, created_at, monto_total, carrito_data').order('created_at', { ascending: false });
+                
+                if (!currentUserProfile || !currentUserProfile.box) {
+                    facturasListContainer.innerHTML = `<p class="text-red-400 text-center">No se pudo identificar tu casillero.</p>`;
+                    return;
+                }
+
+                // CORRECCIÓN: Se vuelve a añadir el filtro explícito .eq() que es necesario porque no hay RLS en la tabla 'facturas'.
+                const { data: facturas, error } = await supabaseClient
+                    .from('facturas')
+                    .select('id, created_at, monto_total, carrito_data')
+                    .eq('cliente_box', currentUserProfile.box)
+                    .order('created_at', { ascending: false });
+
                 if (error) {
                     facturasListContainer.innerHTML = `<p class="text-red-400 text-center">Error al cargar las facturas.</p>`;
                     console.error("Error fetching facturas:", error);
                     return;
                 }
+
                 if (!facturas || facturas.length === 0) {
                     facturasListContainer.innerHTML = `<div class="text-center p-8"><i data-lucide="receipt" class="h-16 w-16 text-gray-700 mx-auto"></i><p class="text-gray-500 mt-4">No tienes facturas registradas.</p></div>`;
                     lucide.createIcons();
                     return;
                 }
+
                 facturasListContainer.innerHTML = facturas.map(f => {
                     const numPaquetes = f.carrito_data ? f.carrito_data.length : 0;
                     return `
@@ -411,7 +426,7 @@
                 const renderAddressCard = (addr, id) => { let copyIdCounter = 0; return `<section id="${id}"><h2 class="text-base font-semibold text-white mb-3">${addr.titulo}</h2>${addr.nota ? `<p class="text-xs text-yellow-400 bg-yellow-900/50 p-2 rounded-md mb-3">${addr.nota}</p>` : ''}<div class="bg-gray-800 rounded-xl divide-y divide-gray-700">${addr.datos.map(item => { const uniqueId = `copy-text-${id}-${copyIdCounter++}`; return `<div class="px-3 py-2 flex justify-between items-center"><div><p class="text-xs text-gray-400">${item.label}:</p><p class="text-sm text-white font-mono" id="${uniqueId}">${item.value}</p></div><button class="copy-btn p-2 rounded-lg hover:bg-gray-700" data-target="${uniqueId}" title="Copiar"><i data-lucide="copy" class="h-4 w-4 text-gray-400"></i></button></div>`; }).join('')}</div></section>`; };
                 direccionesContent.innerHTML = `${renderAddressCard(direcciones.principal, 'direccion-principal')}${renderAddressCard(direcciones.maritima, 'direccion-maritima')}<section><h2 class="text-base font-semibold text-white mb-3">Dirección Alterna</h2><div class="bg-gray-800 p-4 rounded-xl"><p class="text-sm text-gray-300 mb-3">¿Tienes algún paquete que no envían a la Bodega?</p><div class="flex items-center space-x-4"><label class="flex items-center"><input type="radio" name="showAlterna" value="no" checked class="h-4 w-4"><span class="ml-2">No</span></label><label class="flex items-center"><input type="radio" name="showAlterna" value="yes" class="h-4 w-4"><span class="ml-2">Sí</span></label></div></div></section><div id="alterna-container" class="hidden">${renderAddressCard(direcciones.alterna, 'direccion-alterna')}</div>`;
                 direccionesContent.querySelectorAll('.copy-btn').forEach(button => { button.addEventListener('click', () => { const targetId = button.dataset.target; const textToCopy = document.getElementById(targetId).innerText; navigator.clipboard.writeText(textToCopy).then(() => { button.innerHTML = '<i data-lucide="check" class="h-4 w-4 text-green-400"></i>'; lucide.createIcons(); setTimeout(() => { button.innerHTML = `<i data-lucide="copy" class="h-4 w-4 text-gray-400"></i>`; lucide.createIcons(); }, 2000); }); }); });
-                const alternaRadios = direccionesContent.querySelectorAll('input[name="showAlterna"]'); const alternaContainer = document.getElementById('alterna-container');
+                const alternaRadios = document.querySelectorAll('input[name="showAlterna"]'); const alternaContainer = document.getElementById('alterna-container');
                 alternaRadios.forEach(radio => { radio.addEventListener('change', () => { alternaContainer.classList.toggle('hidden', radio.value !== 'yes'); }); });
                 lucide.createIcons();
             };
@@ -455,6 +470,7 @@
     </script>
 </body>
 </html>
+
 
 
 
