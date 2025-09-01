@@ -161,6 +161,7 @@
         function initializeDatabaseLogic() {
             try {
                 const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+                const { data: userRole } = await sb.rpc('get_my_rol'); // <--- AÑADE ESTA LÍNEA
                 
                 let todosLosPaquetes = []; 
 
