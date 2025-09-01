@@ -24,7 +24,9 @@ function loadMenu() {
         });
 }
 
-function initializeMenuLogic() {
+// En tu archivo app.js
+
+async function initializeMenuLogic() { // Asegúrate de que la función sea async
     // Lógica para el botón del menú móvil
     const mobileMenuButton = document.getElementById('mobile-menu-button');
     const sidebar = document.getElementById('sidebar');
@@ -39,26 +41,36 @@ function initializeMenuLogic() {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html'; 
     const sidebarLinks = document.querySelectorAll('.sidebar-link');
     sidebarLinks.forEach(link => {
-        // Usamos el href en lugar de data-path para más flexibilidad
         const linkPath = link.getAttribute('href').split('/').pop();
         if (linkPath === currentPage) {
             link.classList.add('active');
         }
     });
 
-    // --- LÓGICA PARA CERRAR SESIÓN AÑADIDA AQUÍ ---
+    // --- NUEVO CÓDIGO PARA OCULTAR ENLACES POR ROL ---
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+            const { data: rol } = await supabase.rpc('get_my_rol');
+            if (rol && rol !== 'admin') {
+                document.querySelectorAll('.admin-link').forEach(link => link.style.display = 'none');
+            }
+        }
+    } catch (error) {
+        console.error("Error al verificar el rol del usuario:", error);
+    }
+    // --- FIN DEL NUEVO CÓDIGO ---
+
+    // --- LÓGICA PARA CERRAR SESIÓN ---
     const logoutButton = document.getElementById('logout-button');
     if (logoutButton) {
         logoutButton.addEventListener('click', async (e) => {
-            e.preventDefault(); // Prevenir que el enlace navegue
-            
+            e.preventDefault(); 
             const { error } = await supabase.auth.signOut();
-
             if (error) {
                 console.error('Error al cerrar sesión:', error.message);
                 alert('Error al cerrar sesión.');
             } else {
-                // Redirigir a la página de login después de cerrar sesión
                 window.location.href = 'login.html';
             }
         });
