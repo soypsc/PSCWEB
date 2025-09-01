@@ -21,44 +21,28 @@
 <body class="bg-slate-50 text-slate-800">
 
     <script type="module">
-        // --- INICIO DEL CÓDIGO DE SEGURIDAD MEJORADO ---
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
         (async () => {
-            // 1. Obtiene la sesión actual
             const { data: { session } } = await supabase.auth.getSession();
-
-            // Si NO hay sesión, expulsa al usuario a la página de login
             if (!session) {
                 window.location.href = 'login.html';
                 return;
             }
-
-            // 2. Si HAY sesión, verifica el rol en nuestra tabla de perfiles
             const { data: perfil, error } = await supabase
                 .from('perfiles')
                 .select('rol')
                 .eq('id', session.user.id)
                 .single();
-
-            // 3. Si el perfil no es 'admin' o hay un error, expulsa al usuario
-            if (error || !perfil {
-                await supabase.auth.signOut(); // Cierra la sesión del usuario no autorizado
-                window.location.href = 'login.html?error=unauthorized'; // Lo redirige a login
+            if (error || !perfil) {
+                await supabase.auth.signOut();
+                window.location.href = 'login.html?error=unauthorized';
             }
         })();
-        // --- FIN DEL CÓDIGO DE SEGURIDAD MEJORADO ---
     </script>
 
     <div class="relative min-h-screen md:flex">
-        <div class="bg-white text-slate-800 flex justify-between md:hidden sticky top-0 z-20 shadow-md">
-            <a href="./index.html" class="block p-4 font-bold">SGL1</a>
-            <button id="mobile-menu-button" class="p-4 focus:outline-none focus:bg-slate-200">
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
-            </button>
-        </div>
-        
         <div id="menu-container"></div>
 
         <main class="flex-1 p-8">
@@ -101,11 +85,8 @@
                             <th class="px-6 py-3 text-left">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td colspan="10" class="text-center p-4 text-slate-500">Cargando...</td>
-                        </tr>
-                    </tbody>
+                    <tbody id="clientes-table-body">
+                        </tbody>
                 </table>
             </div>
             
@@ -146,244 +127,249 @@
     <script type="module">
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         
-        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey); 
-        const { data: userRole } = await sb.rpc('get_my_rol'); // <--- AÑADE ESTA LÍNEA
+        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
         
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeClientesListeners();
-        });
+        async function runLogic() {
+            const { data: userRole } = await sb.rpc('get_my_rol');
 
-        const norm = s => (s||"").trim();
-        const normEmail = s => (s||"").trim().toLowerCase();
-        const toNum = (s) => {
-          const n = Number(String(s||"").replace(",", "."));
-          return Number.isFinite(n) ? n : null;
-        };
-        const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-        const fmtNum = (n) => (n==null ? "" : (Number(n).toFixed(2)));
-        const tableBody   = document.querySelector("table tbody");
-        const inputQ      = document.getElementById('q');
-        const btnBuscar   = document.getElementById('btnBuscar');
-        const btnLimpiar  = document.getElementById('btnLimpiar');
-        const fltDesde    = document.getElementById('fltDesde');
-        const fltHasta    = document.getElementById('fltHasta');
-        const fltSucursal = document.getElementById('fltSucursal');
-        const fltSource   = document.getElementById('fltSource');
-        const fltBox      = document.getElementById('fltBox');
-        const modalEl     = document.getElementById('add-client-modal');
-        const form        = document.getElementById('formCliente');
-        const modalTitle  = document.getElementById('modalTitle');
-        const fldNombre   = document.getElementById('nombre');
-        const fldEmail    = document.getElementById('email');
-        const fldTel      = document.getElementById('telefono');
-        const fldFecha    = document.getElementById('fecha_nac');
-        const fldTar1     = document.getElementById('tarifa1');
-        const fldTar2     = document.getElementById('tarifa2');
-        const fldTar3     = document.getElementById('tarifa3');
-        const fldDir      = document.getElementById('direccion');
-        const fldSucursal = document.getElementById('sucursal');
-        let editingId = null;
+            const norm = s => (s||"").trim();
+            const normEmail = s => (s||"").trim().toLowerCase();
+            const toNum = (s) => {
+              const n = Number(String(s||"").replace(",", "."));
+              return Number.isFinite(n) ? n : null;
+            };
+            const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+            const fmtNum = (n) => (n==null ? "" : (Number(n).toFixed(2)));
+            const tableBody   = document.querySelector("#clientes-table-body"); // Corregido para ser más específico
+            const inputQ      = document.getElementById('q');
+            const btnBuscar   = document.getElementById('btnBuscar');
+            const btnLimpiar  = document.getElementById('btnLimpiar');
+            const fltDesde    = document.getElementById('fltDesde');
+            const fltHasta    = document.getElementById('fltHasta');
+            const fltSucursal = document.getElementById('fltSucursal');
+            const fltSource   = document.getElementById('fltSource');
+            const fltBox      = document.getElementById('fltBox');
+            const modalEl     = document.getElementById('add-client-modal');
+            const form        = document.getElementById('formCliente');
+            const modalTitle  = document.getElementById('modalTitle');
+            const fldNombre   = document.getElementById('nombre');
+            const fldEmail    = document.getElementById('email');
+            const fldTel      = document.getElementById('telefono');
+            const fldFecha    = document.getElementById('fecha_nac');
+            const fldTar1     = document.getElementById('tarifa1');
+            const fldTar2     = document.getElementById('tarifa2');
+            const fldTar3     = document.getElementById('tarifa3');
+            const fldDir      = document.getElementById('direccion');
+            const fldSucursal = document.getElementById('sucursal');
+            let editingId = null;
 
-        async function cargarSucursales() {
-          fldSucursal.innerHTML = "<option value=''>Cargando...</option>";
-          fltSucursal.innerHTML = "<option value=''>Todas</option>";
-          const { data, error } = await sb.from("sucursales").select("sucursal").order("sucursal");
-          if (error) {
-            console.error(error);
-            fldSucursal.innerHTML = "<option value=''>Error</option>";
-            return;
-          }
-          fldSucursal.innerHTML = "<option value=''>Seleccione sucursal</option>";
-          for (const row of (data || [])) {
-            const name = row.sucursal;
-            const opt1 = document.createElement("option");
-            opt1.value = name;
-            opt1.textContent = name;
-            fldSucursal.appendChild(opt1);
-            const opt2 = document.createElement("option");
-            opt2.value = name;
-            opt2.textContent = name;
-            fltSucursal.appendChild(opt2);
-          }
-        }
-
-        function renderEmpty(msg="No hay clientes.") {
-          tableBody.innerHTML = `<tr><td colspan="10" class="text-center p-4 text-slate-500">${msg}</td></tr>`;
-        }
-
-        // Reemplaza la función renderRows que tienes en clientes.html por esta
-function renderRows(rows){
-    if (!rows || !rows.length) return renderEmpty();
-    tableBody.innerHTML = rows.map(r => {
-        // Creamos una variable para el botón de eliminar
-        let deleteButtonHtml = '';
-        // Si el rol es 'admin', añadimos el botón
-        if (userRole === 'admin') {
-            deleteButtonHtml = `<button class="text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-red-600" data-del="${r.id}">Eliminar</button>`;
-        }
-
-        return `
-            <tr class="bg-white border-b hover:bg-slate-50">
-              <td class="px-6 py-4 font-medium text-slate-900">${escapeHtml(r.nombre)}</td>
-              <td class="px-6 py-4">${r.box ?? ""}</td>
-              <td class="px-6 py-4">${escapeHtml(r.email)}</td>
-              <td class="px-6 py-4">${escapeHtml(r.telefono)}</td>
-              <td class="px-6 py-4">${escapeHtml(r.sucursal)}</td>
-              <td class="px-6 py-4">${escapeHtml(r.source)}</td>
-              <td class="px-6 py-4">${fmtNum(r.tarifa_1)}</td>
-              <td class="px-6 py-4">${fmtNum(r.tarifa_2)}</td>
-              <td class="px-6 py-4">${fmtNum(r.tarifa_3)}</td>
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-2">
-                  <button class="text-xs bg-blue-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-blue-600" data-edit='${JSON.stringify(r)}'>Editar</button>
-                  ${deleteButtonHtml} </div>
-              </td>
-            </tr>
-        `;
-    }).join("");
-}
-        async function cargarClientes() {
-          let query = sb.from("clientes").select("*").order("created_at",{ascending:false}).limit(200);
-          const d = fltDesde.value ? `${fltDesde.value}T00:00:00Z` : null;
-          const h = fltHasta.value ? `${fltHasta.value}T23:59:59Z` : null;
-          if (d) query = query.gte("created_at", d);
-          if (h) query = query.lte("created_at", h);
-          if (fltSucursal.value) query = query.eq("sucursal", fltSucursal.value);
-          if (fltSource.value)   query = query.eq("source", fltSource.value);
-          if (fltBox.value)      query = query.eq("box", Number(fltBox.value));
-          const q = norm(inputQ.value);
-          if (q) {
-            query = query.or(`nombre.ilike.%${q}%,email.ilike.%${q}%,telefono.ilike.%${q}%`);
-          }
-          const { data, error } = await query;
-          if (error) { console.error(error); return renderEmpty("Error cargando."); }
-          renderRows(data);
-        }
-
-        function resetModal(){
-          editingId = null;
-          modalTitle.textContent = "Crear Nuevo Cliente";
-          form.reset();
-          fldSucursal.value = "";
-        }
-
-        function abrirEditar(clienteData){
-          const data = JSON.parse(clienteData);
-          editingId = data.id;
-          modalTitle.textContent = `Editar cliente (Box ${data.box ?? "-"})`;
-          fldNombre.value = data.nombre || "";
-          fldEmail.value  = data.email || "";
-          fldTel.value    = data.telefono || "";
-          fldFecha.value  = data.fecha_nac || "";
-          fldTar1.value   = data.tarifa_1 ?? "";
-          fldTar2.value   = data.tarifa_2 ?? "";
-          fldTar3.value   = data.tarifa_3 ?? "";
-          fldDir.value    = data.direccion || "";
-          fldSucursal.value = data.sucursal || "";
-          modalEl.classList.remove('hidden');
-        }
-
-        async function correoExiste(email, excluirId=null){
-          const em = normEmail(email);
-          if (!em) return false;
-          let q = sb.from("clientes").select("id").eq("email", em).limit(1);
-          if (excluirId) q = q.neq("id", excluirId);
-          const { data, error } = await q.maybeSingle();
-          if (error && error.code !== "PGRST116") { console.error(error); }
-          return !!(data && data.id);
-        }
-
-        form?.addEventListener("submit", async (ev) => {
-          ev.preventDefault();
-          const payload = {
-            nombre:    norm(fldNombre.value),
-            email:     normEmail(fldEmail.value),
-            telefono:  norm(fldTel.value) || null,
-            fecha_nac: fldFecha.value || null,
-            tarifa_1:  toNum(fldTar1.value),
-            tarifa_2:  toNum(fldTar2.value),
-            tarifa_3:  toNum(fldTar3.value),
-            direccion: norm(fldDir.value) || null,
-            sucursal:  fldSucursal.value || null,
-            source:    "staff"
-          };
-          if (!payload.nombre || !payload.email || !payload.sucursal) {
-            return alert("Nombre, Email y Sucursal son obligatorios.");
-          }
-          const dup = await correoExiste(payload.email, editingId);
-          if (dup) {
-            return alert("Este email ya está registrado. No se puede duplicar.");
-          }
-          let err;
-          if (editingId) {
-            const { error } = await sb.from("clientes").update(payload).eq("id", editingId);
-            err = error;
-          } else {
-            const { error } = await sb.from("clientes").insert(payload);
-            err = error;
-          }
-          if (err) {
-            console.error(err);
-            if (err.code === "23505") alert("Este email ya está registrado (único).");
-            else alert(err.message || "Error al guardar");
-            return;
-          }
-          modalEl.classList.add('hidden');
-          await cargarClientes();
-          alert("Guardado ✅");
-        });
-
-        async function eliminar(id){
-          if (!confirm("¿Eliminar este cliente? Esta acción no se puede deshacer.")) return;
-          const { error } = await sb.from("clientes").delete().eq("id", id);
-          if (error) { console.error(error); return alert(error.message || "No se pudo eliminar"); }
-          await cargarClientes();
-          alert("Eliminado 🗑️");
-        }
-
-        function initializeFilterToggle() {
-            const toggleButton = document.getElementById('toggle-filters-btn');
-            const filtersDiv = document.getElementById('advanced-filters');
-            if (toggleButton && filtersDiv) {
-                toggleButton.addEventListener('click', () => filtersDiv.classList.toggle('visible'));
+            async function cargarSucursales() {
+              fldSucursal.innerHTML = "<option value=''>Cargando...</option>";
+              fltSucursal.innerHTML = "<option value=''>Todas</option>";
+              const { data, error } = await sb.from("sucursales").select("sucursal").order("sucursal");
+              if (error) {
+                console.error(error);
+                fldSucursal.innerHTML = "<option value=''>Error</option>";
+                return;
+              }
+              fldSucursal.innerHTML = "<option value=''>Seleccione sucursal</option>";
+              for (const row of (data || [])) {
+                const name = row.sucursal;
+                const opt1 = document.createElement("option");
+                opt1.value = name;
+                opt1.textContent = name;
+                fldSucursal.appendChild(opt1);
+                const opt2 = document.createElement("option");
+                opt2.value = name;
+                opt2.textContent = name;
+                fltSucursal.appendChild(opt2);
+              }
             }
-        }
 
-        function initializeClientesListeners() {
-            initializeModal('add-client-btn', 'add-client-modal', 'close-modal');
-            initializeFilterToggle();
-            document.getElementById('add-client-btn').addEventListener('click', resetModal);
-            btnBuscar.addEventListener("click", cargarClientes);
-            btnLimpiar.addEventListener("click", ()=>{
-                fltDesde.value=""; fltHasta.value=""; fltSucursal.value=""; fltSource.value=""; fltBox.value=""; inputQ.value="";
-                cargarClientes();
-            });
-            [fltDesde, fltHasta, fltBox, fltSucursal, fltSource].forEach(el => {
-                el.addEventListener('change', cargarClientes);
-            });
-            tableBody.addEventListener('click', (e) => {
-                if (e.target.dataset.edit) {
-                    abrirEditar(e.target.dataset.edit);
-                }
-                if (e.target.dataset.del) {
-                    eliminar(e.target.dataset.del);
-                }
-            });
-            cargarSucursales();
-            cargarClientes();
-        }
+            function renderEmpty(msg="No hay clientes.") {
+              tableBody.innerHTML = `<tr><td colspan="10" class="text-center p-4 text-slate-500">${msg}</td></tr>`;
+            }
 
-        function initializeModal(openBtnId, modalId, closeBtnClass) {
-            const openBtn = document.getElementById(openBtnId);
-            const modal = document.getElementById(modalId);
-            const closeBtns = modal.querySelectorAll(`.${closeBtnClass}`);
-            if (openBtn && modal) {
-                openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
-                closeBtns.forEach(btn => {
-                    btn.addEventListener('click', () => modal.classList.add('hidden'));
+            function renderRows(rows, role){
+                if (!rows || !rows.length) return renderEmpty();
+                tableBody.innerHTML = rows.map(r => {
+                    let deleteButtonHtml = '';
+                    if (role === 'admin') {
+                        deleteButtonHtml = `<button class="text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-red-600" data-del="${r.id}">Eliminar</button>`;
+                    }
+
+                    return `
+                        <tr class="bg-white border-b hover:bg-slate-50">
+                            <td class="px-6 py-4 font-medium text-slate-900">${escapeHtml(r.nombre)}</td>
+                            <td class="px-6 py-4">${r.box ?? ""}</td>
+                            <td class="px-6 py-4">${escapeHtml(r.email)}</td>
+                            <td class="px-6 py-4">${escapeHtml(r.telefono)}</td>
+                            <td class="px-6 py-4">${escapeHtml(r.sucursal)}</td>
+                            <td class="px-6 py-4">${escapeHtml(r.source)}</td>
+                            <td class="px-6 py-4">${fmtNum(r.tarifa_1)}</td>
+                            <td class="px-6 py-4">${fmtNum(r.tarifa_2)}</td>
+                            <td class="px-6 py-4">${fmtNum(r.tarifa_3)}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    <button class="text-xs bg-blue-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-blue-600" data-edit='${JSON.stringify(r)}'>Editar</button>
+                                    ${deleteButtonHtml}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join("");
+            }
+
+            async function cargarClientes() {
+                let query = sb.from("clientes").select("*").order("created_at",{ascending:false}).limit(200);
+                const d = fltDesde.value ? `${fltDesde.value}T00:00:00Z` : null;
+                const h = fltHasta.value ? `${fltHasta.value}T23:59:59Z` : null;
+                if (d) query = query.gte("created_at", d);
+                if (h) query = query.lte("created_at", h);
+                if (fltSucursal.value) query = query.eq("sucursal", fltSucursal.value);
+                if (fltSource.value)   query = query.eq("source", fltSource.value);
+                if (fltBox.value)      query = query.eq("box", Number(fltBox.value));
+                const q = norm(inputQ.value);
+                if (q) {
+                    query = query.or(`nombre.ilike.%${q}%,email.ilike.%${q}%,telefono.ilike.%${q}%`);
+                }
+                const { data, error } = await query;
+                if (error) { console.error(error); return renderEmpty("Error cargando."); }
+                renderRows(data, userRole);
+            }
+
+            function resetModal(){
+              editingId = null;
+              modalTitle.textContent = "Crear Nuevo Cliente";
+              form.reset();
+              fldSucursal.value = "";
+            }
+
+            function abrirEditar(clienteData){
+              const data = JSON.parse(clienteData);
+              editingId = data.id;
+              modalTitle.textContent = `Editar cliente (Box ${data.box ?? "-"})`;
+              fldNombre.value = data.nombre || "";
+              fldEmail.value  = data.email || "";
+              fldTel.value    = data.telefono || "";
+              fldFecha.value  = data.fecha_nac || "";
+              fldTar1.value   = data.tarifa_1 ?? "";
+              fldTar2.value   = data.tarifa_2 ?? "";
+              fldTar3.value   = data.tarifa_3 ?? "";
+              fldDir.value    = data.direccion || "";
+              fldSucursal.value = data.sucursal || "";
+              modalEl.classList.remove('hidden');
+            }
+
+            async function correoExiste(email, excluirId=null){
+              const em = normEmail(email);
+              if (!em) return false;
+              let q = sb.from("clientes").select("id").eq("email", em).limit(1);
+              if (excluirId) q = q.neq("id", excluirId);
+              const { data, error } = await q.maybeSingle();
+              if (error && error.code !== "PGRST116") { console.error(error); }
+              return !!(data && data.id);
+            }
+
+            form?.addEventListener("submit", async (ev) => {
+              ev.preventDefault();
+              const payload = {
+                nombre:    norm(fldNombre.value),
+                email:     normEmail(fldEmail.value),
+                telefono:  norm(fldTel.value) || null,
+                fecha_nac: fldFecha.value || null,
+                tarifa_1:  toNum(fldTar1.value),
+                tarifa_2:  toNum(fldTar2.value),
+                tarifa_3:  toNum(fldTar3.value),
+                direccion: norm(fldDir.value) || null,
+                sucursal:  fldSucursal.value || null,
+                source:    "staff"
+              };
+              if (!payload.nombre || !payload.email || !payload.sucursal) {
+                return alert("Nombre, Email y Sucursal son obligatorios.");
+              }
+              const dup = await correoExiste(payload.email, editingId);
+              if (dup) {
+                return alert("Este email ya está registrado. No se puede duplicar.");
+              }
+              let err;
+              if (editingId) {
+                const { error } = await sb.from("clientes").update(payload).eq("id", editingId);
+                err = error;
+              } else {
+                const { error } = await sb.from("clientes").insert(payload);
+                err = error;
+              }
+              if (err) {
+                console.error(err);
+                if (err.code === "23505") alert("Este email ya está registrado (único).");
+                else alert(err.message || "Error al guardar");
+                return;
+              }
+              modalEl.classList.add('hidden');
+              await cargarClientes();
+              alert("Guardado ✅");
+            });
+
+            async function eliminar(id){
+              if (!confirm("¿Eliminar este cliente? Esta acción no se puede deshacer.")) return;
+              const { error } = await sb.from("clientes").delete().eq("id", id);
+              if (error) { console.error(error); return alert(error.message || "No se pudo eliminar"); }
+              await cargarClientes();
+              alert("Eliminado 🗑️");
+            }
+
+            function initializeFilterToggle() {
+                const toggleButton = document.getElementById('toggle-filters-btn');
+                const filtersDiv = document.getElementById('advanced-filters');
+                if (toggleButton && filtersDiv) {
+                    toggleButton.addEventListener('click', () => filtersDiv.classList.toggle('visible'));
+                }
+            }
+            
+            function initializeModal(openBtnId, modalId, closeBtnClass) {
+                const openBtn = document.getElementById(openBtnId);
+                const modal = document.getElementById(modalId);
+                const closeBtns = modal.querySelectorAll(`.${closeBtnClass}`);
+                if (openBtn && modal) {
+                    openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+                    closeBtns.forEach(btn => {
+                        btn.addEventListener('click', () => modal.classList.add('hidden'));
+                    });
+                }
+            }
+            
+            function initializeClientesListeners() {
+                initializeModal('add-client-btn', 'add-client-modal', 'close-modal');
+                initializeFilterToggle();
+                document.getElementById('add-client-btn').addEventListener('click', resetModal);
+                btnBuscar.addEventListener("click", cargarClientes);
+                btnLimpiar.addEventListener("click", ()=>{
+                    fltDesde.value=""; fltHasta.value=""; fltSucursal.value=""; fltSource.value=""; fltBox.value=""; inputQ.value="";
+                    cargarClientes();
                 });
+                [fltDesde, fltHasta, fltBox, fltSucursal, fltSource].forEach(el => {
+                    el.addEventListener('change', cargarClientes);
+                });
+                tableBody.addEventListener('click', (e) => {
+                    const editButton = e.target.closest('[data-edit]');
+                    if (editButton) {
+                        abrirEditar(editButton.dataset.edit);
+                    }
+                    const deleteButton = e.target.closest('[data-del]');
+                    if (deleteButton) {
+                        eliminar(deleteButton.dataset.del);
+                    }
+                });
+                cargarSucursales();
+                cargarClientes();
             }
+
+            // Iniciar la lógica
+            initializeClientesListeners();
         }
+        
+        document.addEventListener('DOMContentLoaded', runLogic);
     </script>
 </body>
 </html>
