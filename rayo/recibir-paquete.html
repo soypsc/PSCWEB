@@ -37,7 +37,10 @@
         <main class="flex-1 p-8">
             <div class="flex justify-between items-center mb-8">
                 <h1 class="text-3xl font-bold text-slate-900 flex items-center"><span class="code">[OP-03A]</span>Recepción de Paquete</h1>
-                <button id="add-manual-btn" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600">Agregar Paquete Manualmente</button>
+                <div class="flex gap-4">
+                    <button id="casos-especiales-btn" class="bg-amber-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-amber-600">Casos Especiales</button>
+                    <button id="add-manual-btn" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600">Agregar Paquete Manualmente</button>
+                </div>
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -48,14 +51,31 @@
                             <div class="relative flex items-center">
                                 <input type="text" id="tracking-main" placeholder="Ingresar o escanear tracking..." class="w-full text-lg pl-4 pr-24 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500">
                             </div>
-                            <div id="info-paquete-cargado" class="hidden mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
-                                <div class="info-grid-item"><p class="info-grid-label">Fecha Bodega (Carga)</p><p id="info-fecha" class="info-grid-value"></p></div>
-                                <div class="info-grid-item"><p class="info-grid-label">Status (Carga)</p><p id="info-status" class="info-grid-value"></p></div>
-                                <div class="info-grid-item"><p class="info-grid-label">Casillero (Carga)</p><p id="info-box" class="info-grid-value"></p></div>
-                                <div class="info-grid-item"><p class="info-grid-label">Peso (lbs)</p><p id="info-peso" class="info-grid-value"></p></div>
-                                <div class="info-grid-item"><p class="info-grid-label">Valor ($)</p><p id="info-valor" class="info-grid-value"></p></div>
-                            </div>
                         </div>
+
+                        <div id="casos-especiales-container" class="hidden mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                            <h3 class="font-bold text-amber-800 mb-3">Registro de Casos Especiales</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="mal-identificado-input" class="block text-sm font-medium text-slate-600 mb-1">Tracking Mal Identificado</label>
+                                    <input type="text" id="mal-identificado-input" placeholder="Ingresar tracking mal identificado..." class="w-full p-2 border border-slate-300 rounded-md">
+                                </div>
+                                <div>
+                                    <label for="filtros-input" class="block text-sm font-medium text-slate-600 mb-1">Filtro / Observación</label>
+                                    <input type="text" id="filtros-input" placeholder="Ej: Paquete de aduana, filtro..." class="w-full p-2 border border-slate-300 rounded-md">
+                                </div>
+                            </div>
+                            <p class="text-xs text-amber-600 mt-2">Esta información se guardará en un registro separado.</p>
+                        </div>
+
+                        <div id="info-paquete-cargado" class="hidden mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <div class="info-grid-item"><p class="info-grid-label">Fecha Bodega (Carga)</p><p id="info-fecha" class="info-grid-value"></p></div>
+                            <div class="info-grid-item"><p class="info-grid-label">Status (Carga)</p><p id="info-status" class="info-grid-value"></p></div>
+                            <div class="info-grid-item"><p class="info-grid-label">Casillero (Carga)</p><p id="info-box" class="info-grid-value"></p></div>
+                            <div class="info-grid-item"><p class="info-grid-label">Peso (lbs)</p><p id="info-peso" class="info-grid-value"></p></div>
+                            <div class="info-grid-item"><p class="info-grid-label">Valor ($)</p><p id="info-valor" class="info-grid-value"></p></div>
+                        </div>
+                        
                         <div id="step2" class="form-section">
                             <h2 class="text-lg font-semibold text-slate-700 mb-4">2. Cliente y Anaquel</h2>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -166,6 +186,12 @@
                 const formManual = document.getElementById('form-manual');
                 const manualCasilleroInput = document.getElementById('manual-casillero');
                 const manualClienteInfoInput = document.getElementById('manual-cliente-info');
+                
+                // LÓGICA AÑADIDA
+                const casosEspecialesBtn = document.getElementById('casos-especiales-btn');
+                const casosEspecialesContainer = document.getElementById('casos-especiales-container');
+                const malIdentificadoInput = document.getElementById('mal-identificado-input');
+                const filtrosInput = document.getElementById('filtros-input');
 
                 let paqueteCargadoActual = null;
                 let clienteSeleccionado = null;
@@ -311,8 +337,23 @@
 
                 formRecibir.addEventListener('submit', async (e) => {
                     e.preventDefault();
+
+                    // LÓGICA AÑADIDA PARA CAPTURAR DATOS ESPECIALES
+                    const trackingMalIdentificado = malIdentificadoInput.value.trim();
+                    const infoFiltro = filtrosInput.value.trim();
+
+                    if (trackingMalIdentificado || infoFiltro) {
+                        // AQUÍ ES DONDE LLAMARÍAS A SUPABASE PARA GUARDAR EN LAS NUEVAS TABLAS
+                        console.log("Dato Mal Identificado a guardar:", trackingMalIdentificado);
+                        console.log("Dato Filtro a guardar:", infoFiltro);
+                        // Por ejemplo: await sb.from('tabla_mal_identificados').insert({ tracking: trackingMalIdentificado, ... });
+                        showAlert(`Registro especial para "${trackingMalIdentificado || infoFiltro}" preparado para guardar.`);
+                        // Puedes decidir si después de esto se debe detener el flujo o continuar.
+                        // Por ahora, solo lo mostramos en consola y continuamos.
+                    }
+                    
                     if (!paqueteCargadoActual || !clienteSeleccionado) {
-                        showAlert("Debe escanear un tracking y asignar un cliente válido.");
+                        showAlert("Debe escanear un tracking y asignar un cliente válido para el registro principal.");
                         return;
                     }
 
@@ -388,6 +429,11 @@
                     showAlert(`Paquete ${tracking1} creado y asignado a ${clienteManualSeleccionado.nombre} ✅`);
                     manualModal.classList.add('hidden');
                     formManual.reset();
+                });
+                
+                // EVENTO AÑADIDO
+                casosEspecialesBtn.addEventListener('click', () => {
+                    casosEspecialesContainer.classList.toggle('hidden');
                 });
                 
                 trackingInput.addEventListener('change', (e) => buscarPaqueteCargado(e.target.value.trim()));
