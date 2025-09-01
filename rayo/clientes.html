@@ -146,7 +146,8 @@
     <script type="module">
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         
-        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey); 
+        const { data: userRole } = await sb.rpc('get_my_rol'); // <--- AÑADE ESTA LÍNEA
         
         document.addEventListener('DOMContentLoaded', () => {
             initializeClientesListeners();
@@ -210,9 +211,18 @@
           tableBody.innerHTML = `<tr><td colspan="10" class="text-center p-4 text-slate-500">${msg}</td></tr>`;
         }
 
-        function renderRows(rows){
-          if (!rows || !rows.length) return renderEmpty();
-          tableBody.innerHTML = rows.map(r => `
+        // Reemplaza la función renderRows que tienes en clientes.html por esta
+function renderRows(rows){
+    if (!rows || !rows.length) return renderEmpty();
+    tableBody.innerHTML = rows.map(r => {
+        // Creamos una variable para el botón de eliminar
+        let deleteButtonHtml = '';
+        // Si el rol es 'admin', añadimos el botón
+        if (userRole === 'admin') {
+            deleteButtonHtml = `<button class="text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-red-600" data-del="${r.id}">Eliminar</button>`;
+        }
+
+        return `
             <tr class="bg-white border-b hover:bg-slate-50">
               <td class="px-6 py-4 font-medium text-slate-900">${escapeHtml(r.nombre)}</td>
               <td class="px-6 py-4">${r.box ?? ""}</td>
@@ -226,12 +236,12 @@
               <td class="px-6 py-4">
                 <div class="flex items-center gap-2">
                   <button class="text-xs bg-blue-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-blue-600" data-edit='${JSON.stringify(r)}'>Editar</button>
-                  <button class="text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-red-600" data-del="${r.id}">Eliminar</button>
-                </div>
+                  ${deleteButtonHtml} </div>
               </td>
             </tr>
-          `).join("");
-        }
+        `;
+    }).join("");
+}
         async function cargarClientes() {
           let query = sb.from("clientes").select("*").order("created_at",{ascending:false}).limit(200);
           const d = fltDesde.value ? `${fltDesde.value}T00:00:00Z` : null;
