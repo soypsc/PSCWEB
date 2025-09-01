@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGL1 - Gestión de Usuarios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .code { font-size: 13px; font-weight: 600; color: #94a3b8; margin-right: 12px; background-color: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+<script type="module">
+        // --- CÓDIGO DE SEGURIDAD ---
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+        const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
+        (async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return; }
+            const { data: perfil, error } = await supabase.from('perfiles').select('rol').eq('id', session.user.id).single();
+            if (error || !perfil || perfil.rol !== 'admin') {
+                await supabase.auth.signOut();
+                window.location.href = 'login.html?error=unauthorized';
+            }
+        })();
+</script>
+
+    <div class="relative min-h-screen md:flex">
+        <div id="menu-container"></div>
+
+        <main class="flex-1 p-8">
+            <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-6"><span class="code">[AD-05]</span>Gestión de Usuarios</h1>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1">
+                    <form id="form-crear-usuario" class="bg-white p-6 rounded-lg border shadow-sm">
+                        <h2 class="text-xl font-bold text-slate-800 mb-4">Crear Nuevo Usuario</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="email" class="block text-sm font-medium">Email</label>
+                                <input id="email" type="email" required class="w-full p-2 border rounded-md">
+                            </div>
+                            <div>
+                                <label for="password" class="block text-sm font-medium">Contraseña</label>
+                                <input id="password" type="password" required class="w-full p-2 border rounded-md">
+                            </div>
+                            <div>
+                                <label for="rol" class="block text-sm font-medium">Rol</label>
+                                <select id="rol" required class="w-full p-2 border rounded-md">
+                                    <option value="empleado">Empleado</option>
+                                    <option value="admin">Administrador</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-4 border-t">
+                            <button type="submit" class="w-full bg-emerald-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-emerald-600">Crear Usuario</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg border overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left">Email</th>
+                                    <th class="px-6 py-3 text-left">Rol</th>
+                                    <th class="px-6 py-3 text-left">Último Acceso</th>
+                                    <th class="px-6 py-3 text-left">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <tr><td colspan="4" class="text-center p-4">Cargando usuarios...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="edit-role-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
+        <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Editar Rol</h2>
+            <form id="form-edit-role">
+                <p class="mb-2">Usuario: <strong id="edit-user-email"></strong></p>
+                <div>
+                    <label for="edit-rol" class="block text-sm font-medium">Nuevo Rol</label>
+                    <select id="edit-rol" required class="w-full p-2 border rounded-md">
+                        <option value="empleado">Empleado</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-4 pt-6 mt-4 border-t">
+                    <button type="button" id="close-modal-btn" class="bg-slate-100 font-semibold py-2 px-4 rounded-md">Cancelar</button>
+                    <button type="submit" class="bg-blue-500 text-white font-semibold py-2 px-6 rounded-md">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
+            const tableBody = document.getElementById('users-table-body');
+            const formCrearUsuario = document.getElementById('form-crear-usuario');
+            const formEditRole = document.getElementById('form-edit-role');
+            const editRoleModal = document.getElementById('edit-role-modal');
+            const editUserEmail = document.getElementById('edit-user-email');
+            const editRolSelect = document.getElementById('edit-rol');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            let editingUserId = null;
+
+            const fmtDate = (iso) => iso ? new Date(iso).toLocaleString('es-PA') : 'Nunca';
+
+            async function cargarUsuarios() {
+                // Para listar usuarios de auth, se necesita llamar desde un entorno seguro como una Edge Function o RPC.
+                // Por simplicidad aquí, vamos a listar los perfiles y de ahí obtener los datos.
+                const { data: perfiles, error } = await sb.from('perfiles').select(`
+                    id,
+                    rol,
+                    usuarios:auth_users(email, last_sign_in_at)
+                `).order('created_at');
+
+                if (error) {
+                    console.error("Error cargando usuarios:", error);
+                    tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`;
+                    return;
+                }
+                
+                tableBody.innerHTML = perfiles.map(p => `
+                    <tr class="border-b">
+                        <td class="px-6 py-4 font-semibold">${p.usuarios?.email || 'Email no disponible'}</td>
+                        <td class="px-6 py-4">${p.rol}</td>
+                        <td class="px-6 py-4">${fmtDate(p.usuarios?.last_sign_in_at)}</td>
+                        <td class="px-6 py-4">
+                            <button data-id="${p.id}" data-email="${p.usuarios?.email}" data-rol="${p.rol}" class="edit-btn text-blue-600 font-semibold hover:underline">Editar Rol</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            formCrearUsuario.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const rol = document.getElementById('rol').value;
+
+                const { data, error } = await sb.rpc('create_new_user', { email, password, rol });
+
+                if (error) {
+                    alert(`Error al crear usuario: ${error.message}`);
+                    return;
+                }
+                alert(data.status);
+                formCrearUsuario.reset();
+                await cargarUsuarios();
+            });
+
+            tableBody.addEventListener('click', (e) => {
+                const editButton = e.target.closest('.edit-btn');
+                if (editButton) {
+                    editingUserId = editButton.dataset.id;
+                    editUserEmail.textContent = editButton.dataset.email;
+                    editRolSelect.value = editButton.dataset.rol;
+                    editRoleModal.classList.remove('hidden');
+                }
+            });
+
+            formEditRole.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const newRole = editRolSelect.value;
+                
+                const { error } = await sb.from('perfiles').update({ rol: newRole }).eq('id', editingUserId);
+
+                if (error) {
+                    alert(`Error al actualizar el rol: ${error.message}`);
+                } else {
+                    alert("Rol actualizado con éxito.");
+                    editRoleModal.classList.add('hidden');
+                    await cargarUsuarios();
+                }
+                editingUserId = null;
+            });
+            
+            closeModalBtn.addEventListener('click', () => {
+                editRoleModal.classList.add('hidden');
+            });
+
+            cargarUsuarios();
+        });
+    </script>
+</body>
+</html>
