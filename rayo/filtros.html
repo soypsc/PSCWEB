@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGL1 - Gestión de Filtros</title>
+    <title>SGL1 - Paquetes Especiales</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="config.js"></script>
@@ -45,15 +45,13 @@
         <div id="menu-container"></div>
 
         <main class="flex-1 p-8">
-            <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-6"><span class="code">[OP-06]</span>Gestión de Filtros</h1>
-            
+            <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-6"><span class="code">[OP-06A]</span>Gestión de Filtros</h1>
             <div class="bg-white p-4 rounded-lg border border-slate-200 mb-6">
                 <div class="relative">
-                    <label for="search-input" class="sr-only">Buscar Tracking</label>
-                    <input id="search-input" type="search" placeholder="Buscar por Tracking..." class="w-full p-2 pl-10 border border-slate-300 rounded-md">
+                    <label for="search-filtros-input" class="sr-only">Buscar Tracking en Filtros</label>
+                    <input id="search-filtros-input" type="search" placeholder="Buscar por Tracking en Filtros..." class="w-full p-2 pl-10 border border-slate-300 rounded-md">
                 </div>
             </div>
-
             <div class="bg-white rounded-lg border overflow-x-auto">
                 <table class="w-full text-sm whitespace-nowrap">
                     <thead class="text-xs text-slate-700 uppercase bg-slate-100">
@@ -66,12 +64,32 @@
                         </tr>
                     </thead>
                     <tbody id="filtros-table-body">
-                        <tr>
-                            <td colspan="5" class="text-center p-4 text-slate-500">Cargando paquetes...</td>
-                        </tr>
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
+
+            <hr class="my-12">
+            <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-6"><span class="code">[OP-06B]</span>Paquetes Mal Identificados</h1>
+            <div class="bg-white p-4 rounded-lg border border-slate-200 mb-6">
+                <div class="relative">
+                    <label for="search-mal-identificados-input" class="sr-only">Buscar Tracking Mal Identificado</label>
+                    <input id="search-mal-identificados-input" type="search" placeholder="Buscar por Tracking Mal Identificado..." class="w-full p-2 pl-10 border border-slate-300 rounded-md">
+                </div>
+            </div>
+            <div class="bg-white rounded-lg border overflow-x-auto">
+                <table class="w-full text-sm whitespace-nowrap">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left">Tracking</th>
+                            <th class="px-6 py-3 text-left">Peso (lbs)</th>
+                            <th class="px-6 py-3 text-left">Fecha de Registro</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mal-identificados-table-body">
+                        </tbody>
+                </table>
+            </div>
+
         </main>
     </div>
     
@@ -96,93 +114,80 @@
             try {
                 const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
-                const tableBody = document.getElementById('filtros-table-body');
-                const searchInput = document.getElementById('search-input');
+                // Selectores para Filtros
+                const filtrosTableBody = document.getElementById('filtros-table-body');
+                const searchFiltrosInput = document.getElementById('search-filtros-input');
                 const fotoModal = document.getElementById('foto-modal');
                 const modalImage = document.getElementById('modal-image');
                 const closeModalBtn = document.getElementById('close-modal-btn');
                 
+                // Selectores para Mal Identificados (NUEVOS)
+                const malIdentificadosTableBody = document.getElementById('mal-identificados-table-body');
+                const searchMalIdentificadosInput = document.getElementById('search-mal-identificados-input');
+
                 const fmtDate = (iso) => (iso ? new Date(iso).toLocaleDateString("es-PA", { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "N/A");
 
                 function renderFiltros(paquetes) {
                     if (!paquetes || paquetes.length === 0) {
-                        tableBody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-slate-500">No hay paquetes pendientes en filtro.</td></tr>`;
+                        filtrosTableBody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-slate-500">No hay paquetes pendientes en filtro.</td></tr>`;
                         return;
                     }
-
-                    tableBody.innerHTML = paquetes.map(p => `
+                    filtrosTableBody.innerHTML = paquetes.map(p => `
                         <tr class="bg-white border-b hover:bg-slate-50">
                             <td class="px-6 py-4 font-medium text-slate-900">${p.tracking}</td>
                             <td class="px-6 py-4">${p.peso ? p.peso.toFixed(2) : 'N/A'}</td>
-                            <td class="px-6 py-4">
-                                ${p.foto_url ? `<a href="#" data-foto-url="${p.foto_url}" class="text-blue-600 hover:underline view-photo-link">Ver Foto</a>` : 'No disponible'}
-                            </td>
+                            <td class="px-6 py-4">${p.foto_url ? `<a href="#" data-foto-url="${p.foto_url}" class="text-blue-600 hover:underline view-photo-link">Ver Foto</a>` : 'No disponible'}</td>
                             <td class="px-6 py-4">${fmtDate(p.created_at)}</td>
-                            <td class="px-6 py-4">
-                                <button data-id="${p.id}" class="bg-green-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-green-600 text-xs corregir-btn">
-                                    Marcar como Corregido
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
+                            <td class="px-6 py-4"><button data-id="${p.id}" class="bg-green-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-green-600 text-xs corregir-btn">Marcar como Corregido</button></td>
+                        </tr>`).join('');
+                }
+
+                function renderMalIdentificados(paquetes) {
+                    if (!paquetes || paquetes.length === 0) {
+                        malIdentificadosTableBody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-slate-500">No hay paquetes mal identificados pendientes.</td></tr>`;
+                        return;
+                    }
+                    malIdentificadosTableBody.innerHTML = paquetes.map(p => `
+                        <tr class="bg-white border-b hover:bg-slate-50">
+                            <td class="px-6 py-4 font-medium text-slate-900">${p.tracking}</td>
+                            <td class="px-6 py-4">${p.peso ? p.peso.toFixed(2) : 'N/A'}</td>
+                            <td class="px-6 py-4">${fmtDate(p.created_at)}</td>
+                        </tr>`).join('');
                 }
 
                 async function cargarFiltros() {
-                    const searchTerm = searchInput.value.trim();
-                    
-                    let query = sb.from('paquetes_con_filtro')
-                                  .select('*')
-                                  .eq('corregido', false)
-                                  .order('created_at', { ascending: false });
-
-                    if (searchTerm) {
-                        query = query.ilike('tracking', `%${searchTerm}%`);
-                    }
-
+                    const searchTerm = searchFiltrosInput.value.trim();
+                    let query = sb.from('paquetes_con_filtro').select('*').eq('corregido', false).order('created_at', { ascending: false });
+                    if (searchTerm) { query = query.ilike('tracking', `%${searchTerm}%`); }
                     const { data, error } = await query;
-
-                    if (error) {
-                        console.error("Error cargando filtros:", error);
-                        tableBody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-red-500">Error al cargar los paquetes.</td></tr>`;
-                        return;
-                    }
+                    if (error) { console.error("Error cargando filtros:", error); filtrosTableBody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`; return; }
                     renderFiltros(data);
                 }
 
+                async function cargarMalIdentificados() {
+                    const searchTerm = searchMalIdentificadosInput.value.trim();
+                    let query = sb.from('paquetes_mal_identificados').select('*').order('created_at', { ascending: false });
+                    if (searchTerm) { query = query.ilike('tracking', `%${searchTerm}%`); }
+                    const { data, error } = await query;
+                    if (error) { console.error("Error cargando mal identificados:", error); malIdentificadosTableBody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`; return; }
+                    renderMalIdentificados(data);
+                }
+
                 async function marcarComoCorregido(id) {
-                    if (!id) return;
-                    
-                    if (!confirm("¿Está seguro de que desea marcar este paquete como corregido? Esta acción lo quitará de la lista.")) {
-                        return;
-                    }
-
-                    const { error } = await sb.from('paquetes_con_filtro')
-                                              .update({ corregido: true })
-                                              .eq('id', id);
-
-                    if (error) {
-                        console.error("Error al actualizar:", error);
-                        alert("No se pudo actualizar el estado del paquete.");
-                        return;
-                    }
-                    
-                    await cargarFiltros(); // Recargar la lista para que el paquete desaparezca
+                    if (!id || !confirm("¿Marcar este paquete como corregido? Desaparecerá de esta lista.")) return;
+                    const { error } = await sb.from('paquetes_con_filtro').update({ corregido: true }).eq('id', id);
+                    if (error) { console.error("Error al actualizar:", error); alert("No se pudo actualizar el estado."); return; }
+                    await cargarFiltros();
                 }
 
                 // --- Event Listeners ---
+                searchFiltrosInput.addEventListener('input', cargarFiltros);
+                searchMalIdentificadosInput.addEventListener('input', cargarMalIdentificados);
 
-                searchInput.addEventListener('input', () => {
-                    cargarFiltros();
-                });
-
-                tableBody.addEventListener('click', (e) => {
+                filtrosTableBody.addEventListener('click', (e) => {
                     const corregirBtn = e.target.closest('.corregir-btn');
                     const viewPhotoLink = e.target.closest('.view-photo-link');
-
-                    if (corregirBtn) {
-                        marcarComoCorregido(corregirBtn.dataset.id);
-                    }
-                    
+                    if (corregirBtn) { marcarComoCorregido(corregirBtn.dataset.id); }
                     if (viewPhotoLink) {
                         e.preventDefault();
                         modalImage.src = viewPhotoLink.dataset.fotoUrl;
@@ -192,11 +197,12 @@
                 
                 closeModalBtn.addEventListener('click', () => {
                     fotoModal.classList.add('hidden');
-                    modalImage.src = ""; // Limpiar la imagen
+                    modalImage.src = "";
                 });
 
-                // Carga inicial
+                // Carga inicial de ambas tablas
                 cargarFiltros();
+                cargarMalIdentificados();
 
             } catch (error) {
                 console.error("Error al inicializar:", error);
