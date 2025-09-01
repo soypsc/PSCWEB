@@ -33,52 +33,22 @@
         <div id="menu-container"></div>
 
         <main class="flex-1 p-8">
-            <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-6"><span class="code">[AD-05]</span>Gestión de Usuarios</h1>
+            <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-6"><span class="code">[AD-05]</span>Gestión de Usuarios y Roles</h1>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-1">
-                    <form id="form-crear-usuario" class="bg-white p-6 rounded-lg border shadow-sm">
-                        <h2 class="text-xl font-bold text-slate-800 mb-4">Crear Nuevo Usuario</h2>
-                        <div class="space-y-4">
-                            <div>
-                                <label for="email" class="block text-sm font-medium">Email</label>
-                                <input id="email" type="email" required class="w-full p-2 border rounded-md">
-                            </div>
-                            <div>
-                                <label for="password" class="block text-sm font-medium">Contraseña</label>
-                                <input id="password" type="password" required class="w-full p-2 border rounded-md">
-                            </div>
-                            <div>
-                                <label for="rol" class="block text-sm font-medium">Rol</label>
-                                <select id="rol" required class="w-full p-2 border rounded-md">
-                                    <option value="empleado">Empleado</option>
-                                    <option value="admin">Administrador</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mt-6 pt-4 border-t">
-                            <button type="submit" class="w-full bg-emerald-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-emerald-600">Crear Usuario</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="lg:col-span-2">
-                    <div class="bg-white rounded-lg border overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead class="text-xs text-slate-700 uppercase bg-slate-100">
-                                <tr>
-                                    <th class="px-6 py-3 text-left">Email</th>
-                                    <th class="px-6 py-3 text-left">Rol</th>
-                                    <th class="px-6 py-3 text-left">Último Acceso</th>
-                                    <th class="px-6 py-3 text-left">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="users-table-body">
-                                <tr><td colspan="4" class="text-center p-4">Cargando usuarios...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="bg-white rounded-lg border overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left">Email</th>
+                            <th class="px-6 py-3 text-left">Rol</th>
+                            <th class="px-6 py-3 text-left">Último Acceso</th>
+                            <th class="px-6 py-3 text-left">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        <tr><td colspan="4" class="text-center p-4">Cargando usuarios...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </main>
     </div>
@@ -111,7 +81,6 @@
             const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
             const tableBody = document.getElementById('users-table-body');
-            const formCrearUsuario = document.getElementById('form-crear-usuario');
             const formEditRole = document.getElementById('form-edit-role');
             const editRoleModal = document.getElementById('edit-role-modal');
             const editUserEmail = document.getElementById('edit-user-email');
@@ -121,46 +90,26 @@
 
             const fmtDate = (iso) => iso ? new Date(iso).toLocaleString('es-PA') : 'Nunca';
 
-            // En tu archivo usuarios.html, reemplaza la función cargarUsuarios() por esta:
-
-async function cargarUsuarios() {
-    // Llamamos a la nueva función segura que creamos en la base de datos
-    const { data: usuarios, error } = await sb.rpc('get_all_users_with_roles');
-
-    if (error) {
-        console.error("Error cargando usuarios:", error);
-        tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`;
-        return;
-    }
-    
-    tableBody.innerHTML = usuarios.map(p => `
-        <tr class="border-b">
-            <td class="px-6 py-4 font-semibold">${p.email || 'Email no disponible'}</td>
-            <td class="px-6 py-4">${p.rol}</td>
-            <td class="px-6 py-4">${fmtDate(p.last_sign_in_at)}</td>
-            <td class="px-6 py-4">
-                <button data-id="${p.id}" data-email="${p.email}" data-rol="${p.rol}" class="edit-btn text-blue-600 font-semibold hover:underline">Editar Rol</button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-            formCrearUsuario.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                const rol = document.getElementById('rol').value;
-
-                const { data, error } = await sb.rpc('create_new_user', { email, password, rol });
+            async function cargarUsuarios() {
+                const { data: usuarios, error } = await sb.rpc('get_all_users_with_roles');
 
                 if (error) {
-                    alert(`Error al crear usuario: ${error.message}`);
+                    console.error("Error cargando usuarios:", error);
+                    tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Error al cargar. Revisa que la función 'get_all_users_with_roles' exista.</td></tr>`;
                     return;
                 }
-                alert(data.status);
-                formCrearUsuario.reset();
-                await cargarUsuarios();
-            });
+                
+                tableBody.innerHTML = usuarios.map(p => `
+                    <tr class="border-b">
+                        <td class="px-6 py-4 font-semibold">${p.email || 'Email no disponible'}</td>
+                        <td class="px-6 py-4">${p.rol}</td>
+                        <td class="px-6 py-4">${fmtDate(p.last_sign_in_at)}</td>
+                        <td class="px-6 py-4">
+                            <button data-id="${p.id}" data-email="${p.email}" data-rol="${p.rol}" class="edit-btn text-blue-600 font-semibold hover:underline">Editar Rol</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
 
             tableBody.addEventListener('click', (e) => {
                 const editButton = e.target.closest('.edit-btn');
