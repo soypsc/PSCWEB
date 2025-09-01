@@ -121,32 +121,29 @@
 
             const fmtDate = (iso) => iso ? new Date(iso).toLocaleString('es-PA') : 'Nunca';
 
-            async function cargarUsuarios() {
-                // Para listar usuarios de auth, se necesita llamar desde un entorno seguro como una Edge Function o RPC.
-                // Por simplicidad aquí, vamos a listar los perfiles y de ahí obtener los datos.
-                const { data: perfiles, error } = await sb.from('perfiles').select(`
-                    id,
-                    rol,
-                    usuarios:auth_users(email, last_sign_in_at)
-                `).order('created_at');
+            // En tu archivo usuarios.html, reemplaza la función cargarUsuarios() por esta:
 
-                if (error) {
-                    console.error("Error cargando usuarios:", error);
-                    tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`;
-                    return;
-                }
-                
-                tableBody.innerHTML = perfiles.map(p => `
-                    <tr class="border-b">
-                        <td class="px-6 py-4 font-semibold">${p.usuarios?.email || 'Email no disponible'}</td>
-                        <td class="px-6 py-4">${p.rol}</td>
-                        <td class="px-6 py-4">${fmtDate(p.usuarios?.last_sign_in_at)}</td>
-                        <td class="px-6 py-4">
-                            <button data-id="${p.id}" data-email="${p.usuarios?.email}" data-rol="${p.rol}" class="edit-btn text-blue-600 font-semibold hover:underline">Editar Rol</button>
-                        </td>
-                    </tr>
-                `).join('');
-            }
+async function cargarUsuarios() {
+    // Llamamos a la nueva función segura que creamos en la base de datos
+    const { data: usuarios, error } = await sb.rpc('get_all_users_with_roles');
+
+    if (error) {
+        console.error("Error cargando usuarios:", error);
+        tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`;
+        return;
+    }
+    
+    tableBody.innerHTML = usuarios.map(p => `
+        <tr class="border-b">
+            <td class="px-6 py-4 font-semibold">${p.email || 'Email no disponible'}</td>
+            <td class="px-6 py-4">${p.rol}</td>
+            <td class="px-6 py-4">${fmtDate(p.last_sign_in_at)}</td>
+            <td class="px-6 py-4">
+                <button data-id="${p.id}" data-email="${p.email}" data-rol="${p.rol}" class="edit-btn text-blue-600 font-semibold hover:underline">Editar Rol</button>
+            </td>
+        </tr>
+    `).join('');
+}
 
             formCrearUsuario.addEventListener('submit', async (e) => {
                 e.preventDefault();
