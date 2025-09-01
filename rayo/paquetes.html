@@ -41,7 +41,7 @@
                 .single();
 
             // 3. Si el perfil no es 'admin' o hay un error, expulsa al usuario
-            if (error || !perfil || perfil.rol !== 'admin') {
+            if (error || !perfil {
                 await supabase.auth.signOut(); // Cierra la sesión del usuario no autorizado
                 window.location.href = 'login.html?error=unauthorized'; // Lo redirige a login
             }
