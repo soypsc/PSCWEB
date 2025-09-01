@@ -36,7 +36,7 @@ loginForm.addEventListener('submit', async (e) => {
         }
 
         // Si el inicio de sesión es exitoso, redirigimos al usuario a la página principal del panel
-        window.location.href = 'clientes.html'; // Puedes cambiar 'clientes.html' por la página que quieras que sea la principal
+        window.location.href = 'index.html'; // Puedes cambiar 'clientes.html' por la página que quieras que sea la principal
 
     } catch (error) {
         // Si ocurre cualquier error, mostramos un mensaje genérico
