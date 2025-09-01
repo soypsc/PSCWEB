@@ -40,30 +40,37 @@
                     <thead class="text-xs text-slate-700 uppercase bg-slate-100">
                         <tr>
                             <th class="px-6 py-3 text-left">Email</th>
+                            <th class="px-6 py-3 text-left">Nombre</th>
                             <th class="px-6 py-3 text-left">Rol</th>
                             <th class="px-6 py-3 text-left">Último Acceso</th>
                             <th class="px-6 py-3 text-left">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="users-table-body">
-                        <tr><td colspan="4" class="text-center p-4">Cargando usuarios...</td></tr>
+                        <tr><td colspan="5" class="text-center p-4">Cargando usuarios...</td></tr>
                     </tbody>
                 </table>
             </div>
         </main>
     </div>
 
-    <div id="edit-role-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
+    <div id="edit-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
         <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6">
-            <h2 class="text-xl font-bold text-slate-800 mb-4">Editar Rol</h2>
-            <form id="form-edit-role">
-                <p class="mb-2">Usuario: <strong id="edit-user-email"></strong></p>
-                <div>
-                    <label for="edit-rol" class="block text-sm font-medium">Nuevo Rol</label>
-                    <select id="edit-rol" required class="w-full p-2 border rounded-md">
-                        <option value="empleado">Empleado</option>
-                        <option value="admin">Administrador</option>
-                    </select>
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Editar Usuario</h2>
+            <form id="form-edit-user">
+                <p class="mb-4">Email: <strong id="edit-user-email"></strong></p>
+                <div class="space-y-4">
+                    <div>
+                        <label for="edit-name" class="block text-sm font-medium">Nombre</label>
+                        <input id="edit-name" type="text" required class="w-full p-2 border rounded-md">
+                    </div>
+                    <div>
+                        <label for="edit-rol" class="block text-sm font-medium">Rol</label>
+                        <select id="edit-rol" required class="w-full p-2 border rounded-md">
+                            <option value="empleado">Empleado</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="flex justify-end gap-4 pt-6 mt-4 border-t">
                     <button type="button" id="close-modal-btn" class="bg-slate-100 font-semibold py-2 px-4 rounded-md">Cancelar</button>
@@ -81,9 +88,10 @@
             const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
             const tableBody = document.getElementById('users-table-body');
-            const formEditRole = document.getElementById('form-edit-role');
-            const editRoleModal = document.getElementById('edit-role-modal');
+            const formEditUser = document.getElementById('form-edit-user');
+            const editModal = document.getElementById('edit-modal');
             const editUserEmail = document.getElementById('edit-user-email');
+            const editNameInput = document.getElementById('edit-name');
             const editRolSelect = document.getElementById('edit-rol');
             const closeModalBtn = document.getElementById('close-modal-btn');
             let editingUserId = null;
@@ -95,17 +103,18 @@
 
                 if (error) {
                     console.error("Error cargando usuarios:", error);
-                    tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Error al cargar. Revisa que la función 'get_all_users_with_roles' exista.</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-red-500">Error al cargar. Revisa la consola y la función RPC.</td></tr>`;
                     return;
                 }
                 
                 tableBody.innerHTML = usuarios.map(p => `
                     <tr class="border-b">
-                        <td class="px-6 py-4 font-semibold">${p.email || 'Email no disponible'}</td>
+                        <td class="px-6 py-4 font-semibold">${p.email || 'N/A'}</td>
+                        <td class="px-6 py-4">${p.nombre || 'Sin nombre asignado'}</td>
                         <td class="px-6 py-4">${p.rol}</td>
                         <td class="px-6 py-4">${fmtDate(p.last_sign_in_at)}</td>
                         <td class="px-6 py-4">
-                            <button data-id="${p.id}" data-email="${p.email}" data-rol="${p.rol}" class="edit-btn text-blue-600 font-semibold hover:underline">Editar Rol</button>
+                            <button data-id="${p.id}" data-email="${p.email}" data-rol="${p.rol}" data-nombre="${p.nombre || ''}" class="edit-btn text-blue-600 font-semibold hover:underline">Editar</button>
                         </td>
                     </tr>
                 `).join('');
@@ -116,29 +125,45 @@
                 if (editButton) {
                     editingUserId = editButton.dataset.id;
                     editUserEmail.textContent = editButton.dataset.email;
+                    editNameInput.value = editButton.dataset.nombre;
                     editRolSelect.value = editButton.dataset.rol;
-                    editRoleModal.classList.remove('hidden');
+                    editModal.classList.remove('hidden');
                 }
             });
 
-            formEditRole.addEventListener('submit', async (e) => {
+            formEditUser.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const newName = editNameInput.value;
                 const newRole = editRolSelect.value;
                 
-                const { error } = await sb.from('perfiles').update({ rol: newRole }).eq('id', editingUserId);
-
-                if (error) {
-                    alert(`Error al actualizar el rol: ${error.message}`);
-                } else {
-                    alert("Rol actualizado con éxito.");
-                    editRoleModal.classList.add('hidden');
-                    await cargarUsuarios();
+                // Actualizar el rol en la tabla perfiles
+                const { error: roleError } = await sb.from('perfiles').update({ rol: newRole }).eq('id', editingUserId);
+                if (roleError) {
+                    alert(`Error al actualizar el rol: ${roleError.message}`);
+                    return;
                 }
+
+                // Para actualizar el nombre, necesitamos una función RPC segura
+                // ya que las admin functions no deben llamarse desde el cliente directamente
+                // con la clave anónima. Crearemos una función para esto.
+                const { error: nameError } = await sb.rpc('update_user_name_admin', {
+                    user_id: editingUserId,
+                    new_name: newName
+                });
+                
+                if (nameError) {
+                     alert(`Error al actualizar el nombre: ${nameError.message}`);
+                     return;
+                }
+
+                alert("Usuario actualizado con éxito.");
+                editModal.classList.add('hidden');
+                await cargarUsuarios();
                 editingUserId = null;
             });
             
             closeModalBtn.addEventListener('click', () => {
-                editRoleModal.classList.add('hidden');
+                editModal.classList.add('hidden');
             });
 
             cargarUsuarios();
