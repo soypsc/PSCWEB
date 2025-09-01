@@ -187,32 +187,40 @@
                     tableBody.innerHTML = `<tr><td colspan="14" class="text-center p-4 text-slate-500">${msg}</td></tr>`;
                 }
 
-                function renderRows(rows) {
-                    if (!rows || !rows.length) return renderEmpty();
-                    tableBody.innerHTML = rows.map(r => `
-                        <tr class="bg-white border-b hover:bg-slate-50">
-                            <td class="px-6 py-4">${fmtDateDisplay(r.fecha_bodega)}</td>
-                            <td class="px-6 py-4">${fmtDateDisplay(r.fecha_recibido)}</td>
-                            <td class="px-6 py-4 font-medium text-slate-900">${escapeHtml(r.tracking)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.status)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.cliente_nombre)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.cliente_box)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.sucursal)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.sucursal_recibido)}</td>
-                            <td class="px-6 py-4">${fmtDateDisplay(r.fecha_sucursal)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.anaquel)}</td>
-                            <td class="px-6 py-4">${fmtNum(r.peso)}</td>
-                            <td class="px-6 py-4">$${fmtNum(r.valor)}</td>
-                            <td class="px-6 py-4">${escapeHtml(r.factura_id)}</td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-2">
-                                    <button class="text-xs bg-blue-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-blue-600" data-edit-id="${r.id}">Editar</button>
-                                    <button class="text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-red-600" data-del-id="${r.id}">Eliminar</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `).join("");
-                }
+                // Reemplaza la función renderRows que tienes en paquetes.html por esta
+function renderRows(rows) {
+    if (!rows || !rows.length) return renderEmpty();
+    tableBody.innerHTML = rows.map(r => {
+        let deleteButtonHtml = '';
+        if (userRole === 'admin') {
+            deleteButtonHtml = `<button class="text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-red-600" data-del-id="${r.id}">Eliminar</button>`;
+        }
+
+        return `
+            <tr class="bg-white border-b hover:bg-slate-50">
+                <td class="px-6 py-4">${fmtDateDisplay(r.fecha_bodega)}</td>
+                <td class="px-6 py-4">${fmtDateDisplay(r.fecha_recibido)}</td>
+                <td class="px-6 py-4 font-medium text-slate-900">${escapeHtml(r.tracking)}</td>
+                <td class="px-6 py-4">${escapeHtml(r.status)}</td>
+                <td class="px-6 py-4">${escapeHtml(r.cliente_nombre)}</td>
+                <td class="px-6 py-4">${escapeHtml(r.cliente_box)}</td>
+                <td class="px-6 py-4">${escapeHtml(r.sucursal)}</td>
+                <td class="px-6 py-4">${escapeHtml(r.sucursal_recibido)}</td>
+                <td class="px-6 py-4">${fmtDateDisplay(r.fecha_sucursal)}</td>
+                <td class="px-6 py-4">${escapeHtml(r.anaquel)}</td>
+                <td class="px-6 py-4">${fmtNum(r.peso)}</td>
+                <td class="px-6 py-4">$${fmtNum(r.valor)}</td>
+                <td class="px-6 py-4">${escapeHtml(r.factura_id)}</td>
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-2">
+                        <button class="text-xs bg-blue-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-blue-600" data-edit-id="${r.id}">Editar</button>
+                        ${deleteButtonHtml}
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
                 
                 function aplicarFiltrosYRenderizar() {
                     const statusVal = fltStatus.value;
