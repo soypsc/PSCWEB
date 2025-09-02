@@ -14,10 +14,8 @@
 </head>
 <body class="bg-slate-50 text-slate-800">
 <script type="module">
-        // --- CÓDIGO DE SEGURIDAD ---
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
-
         (async () => {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) { window.location.href = 'login.html'; return; }
@@ -42,12 +40,13 @@
                             <th class="px-6 py-3 text-left">Email</th>
                             <th class="px-6 py-3 text-left">Nombre</th>
                             <th class="px-6 py-3 text-left">Rol</th>
+                            <th class="px-6 py-3 text-left">Sucursal por Defecto</th>
                             <th class="px-6 py-3 text-left">Último Acceso</th>
                             <th class="px-6 py-3 text-left">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="users-table-body">
-                        <tr><td colspan="5" class="text-center p-4">Cargando usuarios...</td></tr>
+                        <tr><td colspan="6" class="text-center p-4">Cargando usuarios...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -69,6 +68,12 @@
                         <select id="edit-rol" required class="w-full p-2 border rounded-md">
                             <option value="empleado">Empleado</option>
                             <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="edit-sucursal" class="block text-sm font-medium">Sucursal por Defecto</label>
+                        <select id="edit-sucursal" class="w-full p-2 border rounded-md">
+                            <option value="">(Ninguna)</option>
                         </select>
                     </div>
                 </div>
@@ -93,28 +98,38 @@
             const editUserEmail = document.getElementById('edit-user-email');
             const editNameInput = document.getElementById('edit-name');
             const editRolSelect = document.getElementById('edit-rol');
+            const editSucursalSelect = document.getElementById('edit-sucursal');
             const closeModalBtn = document.getElementById('close-modal-btn');
             let editingUserId = null;
 
             const fmtDate = (iso) => iso ? new Date(iso).toLocaleString('es-PA') : 'Nunca';
 
+            async function cargarSucursalesParaModal() {
+                const { data, error } = await sb.from('sucursales').select('sucursal').order('sucursal');
+                if (error) { console.error("Error cargando sucursales:", error); return; }
+                editSucursalSelect.innerHTML = '<option value="">(Ninguna)</option>'; // Reset
+                data.forEach(s => {
+                    editSucursalSelect.innerHTML += `<option value="${s.sucursal}">${s.sucursal}</option>`;
+                });
+            }
+
             async function cargarUsuarios() {
                 const { data: usuarios, error } = await sb.rpc('get_all_users_with_roles');
-
                 if (error) {
                     console.error("Error cargando usuarios:", error);
-                    tableBody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-red-500">Error al cargar. Revisa la consola y la función RPC.</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`;
                     return;
                 }
                 
                 tableBody.innerHTML = usuarios.map(p => `
                     <tr class="border-b">
                         <td class="px-6 py-4 font-semibold">${p.email || 'N/A'}</td>
-                        <td class="px-6 py-4">${p.nombre || 'Sin nombre asignado'}</td>
+                        <td class="px-6 py-4">${p.nombre || 'Sin nombre'}</td>
                         <td class="px-6 py-4">${p.rol}</td>
+                        <td class="px-6 py-4">${p.sucursal_defecto || 'N/A'}</td>
                         <td class="px-6 py-4">${fmtDate(p.last_sign_in_at)}</td>
                         <td class="px-6 py-4">
-                            <button data-id="${p.id}" data-email="${p.email}" data-rol="${p.rol}" data-nombre="${p.nombre || ''}" class="edit-btn text-blue-600 font-semibold hover:underline">Editar</button>
+                            <button data-id="${p.id}" data-email="${p.email}" data-rol="${p.rol}" data-nombre="${p.nombre || ''}" data-sucursal="${p.sucursal_defecto || ''}" class="edit-btn text-blue-600 font-semibold hover:underline">Editar</button>
                         </td>
                     </tr>
                 `).join('');
@@ -127,6 +142,7 @@
                     editUserEmail.textContent = editButton.dataset.email;
                     editNameInput.value = editButton.dataset.nombre;
                     editRolSelect.value = editButton.dataset.rol;
+                    editSucursalSelect.value = editButton.dataset.sucursal;
                     editModal.classList.remove('hidden');
                 }
             });
@@ -135,24 +151,17 @@
                 e.preventDefault();
                 const newName = editNameInput.value;
                 const newRole = editRolSelect.value;
-                
-                // Actualizar el rol en la tabla perfiles
-                const { error: roleError } = await sb.from('perfiles').update({ rol: newRole }).eq('id', editingUserId);
-                if (roleError) {
-                    alert(`Error al actualizar el rol: ${roleError.message}`);
-                    return;
-                }
+                const newSucursal = editSucursalSelect.value || null; // Enviar null si está vacío
 
-                // Para actualizar el nombre, necesitamos una función RPC segura
-                // ya que las admin functions no deben llamarse desde el cliente directamente
-                // con la clave anónima. Crearemos una función para esto.
-                const { error: nameError } = await sb.rpc('update_user_name_admin', {
-                    user_id: editingUserId,
-                    new_name: newName
+                const { error } = await sb.rpc('update_user_details_admin', {
+                    p_user_id: editingUserId,
+                    p_new_name: newName,
+                    p_new_rol: newRole,
+                    p_new_sucursal: newSucursal
                 });
                 
-                if (nameError) {
-                     alert(`Error al actualizar el nombre: ${nameError.message}`);
+                if (error) {
+                     alert(`Error al actualizar el usuario: ${error.message}`);
                      return;
                 }
 
@@ -165,8 +174,10 @@
             closeModalBtn.addEventListener('click', () => {
                 editModal.classList.add('hidden');
             });
-
+            
+            // Cargas iniciales
             cargarUsuarios();
+            cargarSucursalesParaModal();
         });
     </script>
 </body>
