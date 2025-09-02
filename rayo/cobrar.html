@@ -183,22 +183,29 @@
             sucursalPagoSelect.innerHTML = data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join('');
         }
         
-        async function configurarSucursalPorDefecto() {
-            const { data: { user } } = await sb.auth.getUser();
-            if (!user) return;
+        // Reemplaza la versión anterior de esta función por esta
+async function configurarSucursalPorDefecto() {
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) return;
 
-            const { data: perfil, error } = await sb.from('perfiles')
-                .select('sucursal_defecto')
-                .eq('id', user.id)
-                .single();
+    // Ahora también pedimos el 'rol' además de la sucursal
+    const { data: perfil, error } = await sb.from('perfiles')
+        .select('rol, sucursal_defecto') // <-- CAMBIO AQUÍ
+        .eq('id', user.id)
+        .single();
 
-            if (perfil && perfil.sucursal_defecto) {
-                sucursalPagoSelect.value = perfil.sucursal_defecto;
-                sucursalPagoSelect.disabled = true;
-            } else {
-                sucursalPagoSelect.disabled = false;
-            }
+    // Primero, nos aseguramos de que el selector esté habilitado
+    sucursalPagoSelect.disabled = false;
+
+    if (perfil && perfil.sucursal_defecto) {
+        sucursalPagoSelect.value = perfil.sucursal_defecto;
+
+        // Si el rol NO es 'admin', deshabilitamos el selector
+        if (perfil.rol !== 'admin') { // <-- CAMBIO AQUÍ
+            sucursalPagoSelect.disabled = true;
         }
+    }
+}
 
         function renderPendientes() {
             if (paquetesPendientes.length === 0) {
