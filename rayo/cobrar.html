@@ -21,7 +21,6 @@
 <body class="bg-slate-50 text-slate-800">
 
     <script type="module">
-        // --- INICIO DEL CÓDIGO DE SEGURIDAD MEJORADO ---
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
@@ -36,12 +35,11 @@
                 .select('rol')
                 .eq('id', session.user.id)
                 .single();
-            if (error || !perfil {
+            if (error || !perfil) {
                 await supabase.auth.signOut();
                 window.location.href = 'login.html?error=unauthorized';
             }
         })();
-        // --- FIN DEL CÓDIGO DE SEGURIDAD MEJORADO ---
     </script>
 
     <div class="relative min-h-screen md:flex">
@@ -96,7 +94,15 @@
                             </div>
                             
                             <div id="pago-modulo" class="mt-6 border-t pt-6">
-                                <h3 class="text-lg font-semibold text-slate-700 mb-2">Registrar Pago</h3>
+                                <h3 class="text-lg font-semibold text-slate-700 mb-4">Registrar Pago</h3>
+                                
+                                <div class="mb-4">
+                                    <label for="sucursal-pago" class="block text-sm font-medium text-slate-600 mb-1">Sucursal del Pago</label>
+                                    <select id="sucursal-pago" required class="w-full p-2 border border-slate-300 rounded-md bg-white">
+                                        <option value="">Cargando sucursales...</option>
+                                    </select>
+                                </div>
+
                                 <div id="credit-panel" class="hidden mb-4 p-3 bg-blue-100 text-blue-800 rounded-lg">
                                     <div class="flex justify-between items-center">
                                         <p>Saldo a favor: <span id="credit-balance" class="font-bold"></span></p>
@@ -181,6 +187,7 @@
         const creditPanel = document.getElementById('credit-panel');
         const creditBalanceSpan = document.getElementById('credit-balance');
         const btnApplyCredit = document.getElementById('btn-apply-credit');
+        const sucursalPagoSelect = document.getElementById('sucursal-pago');
 
         function renderPendientes() {
             if (paquetesPendientes.length === 0) {
@@ -213,7 +220,7 @@
         }
 
         function renderPagos() {
-            pagosRealizadosList.innerHTML = pagos.map(p => `<div class="flex justify-between bg-emerald-100 p-1 rounded-md"><span>${p.metodo}:</span><span class="font-medium">$${p.monto.toFixed(2)}</span></div>`).join('');
+            pagosRealizadosList.innerHTML = pagos.map(p => `<div class="flex justify-between bg-emerald-100 p-1 rounded-md"><span>${p.metodo} (${p.sucursal}):</span><span class="font-medium">$${p.monto.toFixed(2)}</span></div>`).join('');
         }
 
         function renderVerificationList() {
@@ -236,6 +243,15 @@
                 const color = colors[index % colors.length];
                 return `<button data-metodo="${metodo.nombre}" class="payment-method-btn ${color} text-white p-2 rounded-md hover:opacity-80">${metodo.nombre}</button>`;
             }).join('');
+        }
+        
+        async function cargarSucursales() {
+            const { data, error } = await sb.from('sucursales').select('sucursal').order('sucursal');
+            if (error || !data) {
+                sucursalPagoSelect.innerHTML = '<option value="">Error al cargar</option>';
+                return;
+            }
+            sucursalPagoSelect.innerHTML = data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join('');
         }
         
         async function buscarCliente(searchTerm, isContinuation = false) {
@@ -266,6 +282,7 @@
                 creditPanel.classList.remove('hidden');
             }
             await loadPaymentMethods();
+            await cargarSucursales();
             scanInput.focus();
         }
         
@@ -315,9 +332,6 @@
                 renderPendientes();
             }
         }
-        
-// --- CONTINÚA EN LA PARTE 2 ---<script type="module">
-// --- CONTINUACIÓN DE LA PARTE 1 ---
 
         function handleOpenEditModal(tracking) {
             const paquete = carrito.find(p => p.tracking === tracking);
@@ -429,7 +443,7 @@
                 });
                 if (error) throw error;
                 clienteActual.saldo_a_favor = nuevoSaldo;
-                pagos.push({ metodo: 'Saldo a Favor', monto: montoAAplicar });
+                pagos.push({ metodo: 'Saldo a Favor', monto: montoAAplicar, sucursal: sucursalPagoSelect.value }); // También se asigna sucursal al pago con crédito
                 renderPagos();
                 calcularTotal();
                 creditBalanceSpan.textContent = `$${nuevoSaldo.toFixed(2)}`;
@@ -520,17 +534,13 @@
                 console.error("No se encontró la plantilla de recibo.");
                 return "<h1>Error: Plantilla de recibo no encontrada.</h1>";
             }
-
             let html = plantilla.cuerpo_html;
-
             const itemsHTML = carrito.map(p => {
                 const costoOriginal = (p.costo_flete || 0) + (p.costo_impuestos || 0);
                 return `<tr><td>${p.tracking}</td><td>${(p.peso || 0).toFixed(2)} lbs</td><td>$${costoOriginal.toFixed(2)}</td></tr>`;
             }).join('');
             const desgloseItems = `<table width="100%"><thead><tr><th>Tracking</th><th>Peso</th><th>Costo</th></tr></thead><tbody>${itemsHTML}</tbody></table>`;
-            
-            const pagosHTML = pagos.map(p => `<div>${p.metodo}: $${p.monto.toFixed(2)}</div>`).join('');
-
+            const pagosHTML = pagos.map(p => `<div>${p.metodo} (${p.sucursal}): $${p.monto.toFixed(2)}</div>`).join('');
             html = html.replace(/{{fecha_factura}}/g, new Date().toLocaleDateString('es-PA'));
             html = html.replace(/{{numero_factura}}/g, facturaId.substring(0, 8).toUpperCase());
             html = html.replace(/{{nombre_cliente}}/g, clienteActual.nombre);
@@ -540,11 +550,15 @@
             html = html.replace(/{{descuentos}}/g, descuentosCarritoSpan.textContent.replace('-$', ''));
             html = html.replace(/{{total_pagado}}/g, totalCarritoSpan.textContent.replace('$', ''));
             html = html.replace(/{{metodos_pago_html}}/g, pagosHTML);
-            
             return html;
         }
 
         function handlePago(metodo) {
+            const sucursal = sucursalPagoSelect.value;
+            if (!sucursal) {
+                alert("Por favor, seleccione la sucursal donde se realiza el pago.");
+                return;
+            }
             const total = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
             const totalPagado = pagos.reduce((acc, p) => acc + p.monto, 0);
             const restante = total - totalPagado;
@@ -552,7 +566,7 @@
             const montoStr = prompt(`Ingrese el monto a pagar con ${metodo}:`, restante.toFixed(2));
             const monto = parseFloat(montoStr);
             if (!isNaN(monto) && monto > 0 && monto <= restante + 0.001) {
-                pagos.push({ metodo, monto });
+                pagos.push({ metodo, monto, sucursal });
                 renderPagos();
                 calcularTotal();
             } else { alert("Monto inválido."); }
@@ -564,14 +578,12 @@
             let status = 'Suspendida';
             if (montoAbonado >= total - 0.001) status = 'Pagado';
             else if (montoAbonado > 0) status = 'Abonado';
-            
             const payload = {
                 cliente_box: clienteActual.box, cliente_nombre: clienteActual.nombre, status,
                 carrito_data: carrito, descuento_general_porcentaje: descuentoGeneralPorcentaje,
                 cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null, monto_abonado: montoAbonado,
                 pagos_data: pagos
             };
-
             if (ventaSuspendidaActual) {
                 const { error } = await sb.from('ventas_suspendidas').update(payload).eq('id', ventaSuspendidaActual.id);
                 if (error) { alert(`Error al actualizar la venta: ${error.message}`); } 
@@ -610,22 +622,17 @@
                 return;
             }
             await buscarCliente(String(suspendedSale.cliente_box));
-            
             ventaSuspendidaActual = { ...suspendedSale, trackings_pendientes: suspendedSale.carrito_data.map(p => p.tracking) };
-            
             const cartTrackings = new Set(suspendedSale.carrito_data.map(p => p.tracking));
             paquetesPendientes = paquetesPendientes.filter(p => !cartTrackings.has(p.tracking));
-            
             carrito = suspendedSale.carrito_data;
             pagos = suspendedSale.pagos_data || [];
             descuentoGeneralPorcentaje = suspendedSale.descuento_general_porcentaje || 0;
             modoVerificacion = true;
-            
             renderPendientes();
             renderCarrito();
             renderPagos();
             renderVerificationList();
-            
             btnCompletarVenta.disabled = true;
             btnSuspenderVenta.disabled = false;
             scanInput.placeholder = "ESCANEAR TODOS LOS PAQUETES PARA VERIFICAR...";
