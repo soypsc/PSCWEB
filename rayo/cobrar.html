@@ -26,19 +26,9 @@
 
         (async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                window.location.href = 'login.html';
-                return;
-            }
-            const { data: perfil, error } = await supabase
-                .from('perfiles')
-                .select('rol')
-                .eq('id', session.user.id)
-                .single();
-            if (error || !perfil) {
-                await supabase.auth.signOut();
-                window.location.href = 'login.html?error=unauthorized';
-            }
+            if (!session) { window.location.href = 'login.html'; return; }
+            const { data: perfil, error } = await supabase.from('perfiles').select('rol').eq('id', session.user.id).single();
+            if (error || !perfil) { await supabase.auth.signOut(); window.location.href = 'login.html?error=unauthorized'; }
         })();
     </script>
 
@@ -179,15 +169,36 @@
         const suspendedSalesList = document.getElementById('suspended-sales-list');
         const editPesoModal = document.getElementById('edit-peso-modal');
         const formEditPeso = document.getElementById('form-edit-peso');
-        const editPesoTracking = document.getElementById('edit-peso-tracking');
-        const editPesoNuevo = document.getElementById('edit-peso-nuevo');
-        const editPesoNota = document.getElementById('edit-peso-nota');
-        const editPesoFoto = document.getElementById('edit-peso-foto');
-        const editPesoMessage = document.getElementById('edit-peso-message');
         const creditPanel = document.getElementById('credit-panel');
         const creditBalanceSpan = document.getElementById('credit-balance');
         const btnApplyCredit = document.getElementById('btn-apply-credit');
         const sucursalPagoSelect = document.getElementById('sucursal-pago');
+
+        async function cargarSucursales() {
+            const { data, error } = await sb.from('sucursales').select('sucursal').order('sucursal');
+            if (error || !data) {
+                sucursalPagoSelect.innerHTML = '<option value="">Error al cargar</option>';
+                return;
+            }
+            sucursalPagoSelect.innerHTML = data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join('');
+        }
+        
+        async function configurarSucursalPorDefecto() {
+            const { data: { user } } = await sb.auth.getUser();
+            if (!user) return;
+
+            const { data: perfil, error } = await sb.from('perfiles')
+                .select('sucursal_defecto')
+                .eq('id', user.id)
+                .single();
+
+            if (perfil && perfil.sucursal_defecto) {
+                sucursalPagoSelect.value = perfil.sucursal_defecto;
+                sucursalPagoSelect.disabled = true;
+            } else {
+                sucursalPagoSelect.disabled = false;
+            }
+        }
 
         function renderPendientes() {
             if (paquetesPendientes.length === 0) {
@@ -245,15 +256,6 @@
             }).join('');
         }
         
-        async function cargarSucursales() {
-            const { data, error } = await sb.from('sucursales').select('sucursal').order('sucursal');
-            if (error || !data) {
-                sucursalPagoSelect.innerHTML = '<option value="">Error al cargar</option>';
-                return;
-            }
-            sucursalPagoSelect.innerHTML = data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join('');
-        }
-        
         async function buscarCliente(searchTerm, isContinuation = false) {
             if (!isContinuation) {
                 resetTerminal();
@@ -283,6 +285,7 @@
             }
             await loadPaymentMethods();
             await cargarSucursales();
+            await configurarSucursalPorDefecto();
             scanInput.focus();
         }
         
@@ -339,8 +342,8 @@
                 paqueteParaEditar = paquete;
                 formEditPeso.reset();
                 editPesoMessage.textContent = '';
-                editPesoTracking.textContent = paquete.tracking;
-                editPesoNuevo.value = paquete.peso || 0;
+                document.getElementById('edit-peso-tracking').textContent = paquete.tracking;
+                document.getElementById('edit-peso-nuevo').value = paquete.peso || 0;
                 editPesoModal.classList.remove('hidden');
             }
         }
@@ -349,12 +352,12 @@
             e.preventDefault();
             const submitButton = formEditPeso.querySelector('button[type="submit"]');
             submitButton.disabled = true;
-            editPesoMessage.textContent = 'Procesando...';
-            const nuevoPeso = parseFloat(editPesoNuevo.value);
-            const nota = editPesoNota.value.trim();
-            const foto = editPesoFoto.files[0];
+            document.getElementById('edit-peso-message').textContent = 'Procesando...';
+            const nuevoPeso = parseFloat(document.getElementById('edit-peso-nuevo').value);
+            const nota = document.getElementById('edit-peso-nota').value.trim();
+            const foto = document.getElementById('edit-peso-foto').files[0];
             if (!nota || !foto || isNaN(nuevoPeso)) {
-                editPesoMessage.textContent = 'Todos los campos son obligatorios.';
+                document.getElementById('edit-peso-message').textContent = 'Todos los campos son obligatorios.';
                 submitButton.disabled = false;
                 return;
             }
@@ -374,11 +377,11 @@
                 if (indexEnCarrito > -1) {
                     carrito[indexEnCarrito] = { ...paqueteActualizado, costo_flete: paqueteActualizado.costo_total, costo_impuestos: 0, descuento_porcentaje: carrito[indexEnCarrito].descuento_porcentaje };
                 }
-                editPesoMessage.textContent = '¡Ajuste guardado con éxito!';
+                document.getElementById('edit-peso-message').textContent = '¡Ajuste guardado con éxito!';
                 setTimeout(() => { editPesoModal.classList.add('hidden'); renderCarrito(); }, 1500);
             } catch (error) {
                 console.error("Error en ajuste de peso:", error);
-                editPesoMessage.textContent = error.message;
+                document.getElementById('edit-peso-message').textContent = error.message;
             } finally {
                 submitButton.disabled = false;
             }
@@ -443,7 +446,7 @@
                 });
                 if (error) throw error;
                 clienteActual.saldo_a_favor = nuevoSaldo;
-                pagos.push({ metodo: 'Saldo a Favor', monto: montoAAplicar, sucursal: sucursalPagoSelect.value }); // También se asigna sucursal al pago con crédito
+                pagos.push({ metodo: 'Saldo a Favor', monto: montoAAplicar, sucursal: sucursalPagoSelect.value });
                 renderPagos();
                 calcularTotal();
                 creditBalanceSpan.textContent = `$${nuevoSaldo.toFixed(2)}`;
@@ -506,10 +509,7 @@
 
                 const htmlRecibo = await generarReciboHTML(facturaId);
                 
-                const { error: updateError } = await sb
-                    .from('facturas')
-                    .update({ html_recibo: htmlRecibo })
-                    .eq('id', facturaId);
+                const { error: updateError } = await sb.from('facturas').update({ html_recibo: htmlRecibo }).eq('id', facturaId);
                 
                 if (updateError) throw updateError;
                 
