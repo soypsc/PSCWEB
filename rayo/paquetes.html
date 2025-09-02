@@ -19,34 +19,25 @@
 </head>
 <body class="bg-slate-50 text-slate-800">
 <script type="module">
-        // --- INICIO DEL CÓDIGO DE SEGURIDAD MEJORADO ---
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
         (async () => {
-            // 1. Obtiene la sesión actual
             const { data: { session } } = await supabase.auth.getSession();
-
-            // Si NO hay sesión, expulsa al usuario a la página de login
             if (!session) {
                 window.location.href = 'login.html';
                 return;
             }
-
-            // 2. Si HAY sesión, verifica el rol en nuestra tabla de perfiles
             const { data: perfil, error } = await supabase
                 .from('perfiles')
                 .select('rol')
                 .eq('id', session.user.id)
                 .single();
-
-            // 3. Si el perfil no es 'admin' o hay un error, expulsa al usuario
-            if (error || !perfil {
-                await supabase.auth.signOut(); // Cierra la sesión del usuario no autorizado
-                window.location.href = 'login.html?error=unauthorized'; // Lo redirige a login
+            if (error || !perfil) {
+                await supabase.auth.signOut();
+                window.location.href = 'login.html?error=unauthorized';
             }
         })();
-        // --- FIN DEL CÓDIGO DE SEGURIDAD MEJORADO ---
     </script>
 
     <div class="relative min-h-screen md:flex">
@@ -101,7 +92,7 @@
                             <th class="px-6 py-3 text-left">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="paquetes-table-body">
                         <tr>
                             <td colspan="14" class="text-center p-4 text-slate-500">Cargando paquetes...</td>
                         </tr>
@@ -158,14 +149,13 @@
             if (toggleButton) toggleButton.addEventListener('click', () => filtersDiv.classList.toggle('visible'));
         }
 
-        function initializeDatabaseLogic() {
+        async function initializeDatabaseLogic() {
             try {
                 const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
-                const { data: userRole } = await sb.rpc('get_my_rol'); // <--- AÑADE ESTA LÍNEA
+                const { data: userRole } = await sb.rpc('get_my_rol');
                 
                 let todosLosPaquetes = []; 
-
-                const tableBody = document.querySelector("table tbody");
+                const tableBody = document.querySelector("#paquetes-table-body");
                 const inputQ = document.getElementById('q');
                 const btnBuscar = document.getElementById('btnBuscar');
                 const fltStatus = document.getElementById('fltStatus');
@@ -173,7 +163,6 @@
                 const fltSucursalRecibido = document.getElementById('fltSucursalRecibido');
                 const fltDesde = document.getElementById('fltDesde');
                 const fltHasta = document.getElementById('fltHasta');
-                
                 const editModal = document.getElementById('edit-paquete-modal');
                 const formEdit = document.getElementById('form-edit-paquete');
                 let editingPaqueteId = null;
@@ -187,40 +176,39 @@
                     tableBody.innerHTML = `<tr><td colspan="14" class="text-center p-4 text-slate-500">${msg}</td></tr>`;
                 }
 
-                // Reemplaza la función renderRows que tienes en paquetes.html por esta
-function renderRows(rows) {
-    if (!rows || !rows.length) return renderEmpty();
-    tableBody.innerHTML = rows.map(r => {
-        let deleteButtonHtml = '';
-        if (userRole === 'admin') {
-            deleteButtonHtml = `<button class="text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-red-600" data-del-id="${r.id}">Eliminar</button>`;
-        }
+                function renderRows(rows, role) {
+                    if (!rows || !rows.length) return renderEmpty();
+                    tableBody.innerHTML = rows.map(r => {
+                        let deleteButtonHtml = '';
+                        if (role === 'admin') {
+                            deleteButtonHtml = `<button class="text-xs bg-red-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-red-600" data-del-id="${r.id}">Eliminar</button>`;
+                        }
 
-        return `
-            <tr class="bg-white border-b hover:bg-slate-50">
-                <td class="px-6 py-4">${fmtDateDisplay(r.fecha_bodega)}</td>
-                <td class="px-6 py-4">${fmtDateDisplay(r.fecha_recibido)}</td>
-                <td class="px-6 py-4 font-medium text-slate-900">${escapeHtml(r.tracking)}</td>
-                <td class="px-6 py-4">${escapeHtml(r.status)}</td>
-                <td class="px-6 py-4">${escapeHtml(r.cliente_nombre)}</td>
-                <td class="px-6 py-4">${escapeHtml(r.cliente_box)}</td>
-                <td class="px-6 py-4">${escapeHtml(r.sucursal)}</td>
-                <td class="px-6 py-4">${escapeHtml(r.sucursal_recibido)}</td>
-                <td class="px-6 py-4">${fmtDateDisplay(r.fecha_sucursal)}</td>
-                <td class="px-6 py-4">${escapeHtml(r.anaquel)}</td>
-                <td class="px-6 py-4">${fmtNum(r.peso)}</td>
-                <td class="px-6 py-4">$${fmtNum(r.valor)}</td>
-                <td class="px-6 py-4">${escapeHtml(r.factura_id)}</td>
-                <td class="px-6 py-4">
-                    <div class="flex items-center gap-2">
-                        <button class="text-xs bg-blue-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-blue-600" data-edit-id="${r.id}">Editar</button>
-                        ${deleteButtonHtml}
-                    </div>
-                </td>
-            </tr>
-        `;
-    }).join("");
-}
+                        return `
+                            <tr class="bg-white border-b hover:bg-slate-50">
+                                <td class="px-6 py-4">${fmtDateDisplay(r.fecha_bodega)}</td>
+                                <td class="px-6 py-4">${fmtDateDisplay(r.fecha_recibido)}</td>
+                                <td class="px-6 py-4 font-medium text-slate-900">${escapeHtml(r.tracking)}</td>
+                                <td class="px-6 py-4">${escapeHtml(r.status)}</td>
+                                <td class="px-6 py-4">${escapeHtml(r.cliente_nombre)}</td>
+                                <td class="px-6 py-4">${escapeHtml(r.cliente_box)}</td>
+                                <td class="px-6 py-4">${escapeHtml(r.sucursal)}</td>
+                                <td class="px-6 py-4">${escapeHtml(r.sucursal_recibido)}</td>
+                                <td class="px-6 py-4">${fmtDateDisplay(r.fecha_sucursal)}</td>
+                                <td class="px-6 py-4">${escapeHtml(r.anaquel)}</td>
+                                <td class="px-6 py-4">${fmtNum(r.peso)}</td>
+                                <td class="px-6 py-4">$${fmtNum(r.valor)}</td>
+                                <td class="px-6 py-4">${escapeHtml(r.factura_id)}</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <button class="text-xs bg-blue-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-blue-600" data-edit-id="${r.id}">Editar</button>
+                                        ${deleteButtonHtml}
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join("");
+                }
                 
                 function aplicarFiltrosYRenderizar() {
                     const statusVal = fltStatus.value;
@@ -247,20 +235,14 @@ function renderRows(rows) {
                     });
                     
                     paquetesFiltrados.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                    renderRows(paquetesFiltrados);
+                    renderRows(paquetesFiltrados, userRole);
                 }
 
                 async function cargarPaquetes() {
                     renderEmpty("Cargando paquetes...");
-                    
                     const { data, error } = await sb.rpc('get_all_paquetes');
-
-                    if (error) {
-                        return renderEmpty("Error al cargar los paquetes.");
-                    }
-                    if (!data || data.length === 0) {
-                        return renderEmpty("No se encontraron paquetes.");
-                    }
+                    if (error) { return renderEmpty("Error al cargar los paquetes."); }
+                    if (!data || data.length === 0) { return renderEmpty("No se encontraron paquetes."); }
                     
                     todosLosPaquetes = data;
                     aplicarFiltrosYRenderizar();
