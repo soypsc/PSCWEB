@@ -25,6 +25,7 @@ function loadMenu() {
 }
 
 // En tu archivo app.js
+
 async function initializeMenuLogic() {
     // Lógica para el botón del menú móvil
     const mobileMenuButton = document.getElementById('mobile-menu-button');
@@ -52,13 +53,13 @@ async function initializeMenuLogic() {
             const { data: rol } = await supabase.rpc('get_my_rol');
 
             if (rol === 'empleado') {
-                // Si es empleado, oculta los de admin y los de cde
-                document.querySelectorAll('.admin-section, .cde-link').forEach(el => el.style.display = 'none');
+                // Oculta todo lo de admin y lo que sea SOLO para cde
+                document.querySelectorAll('.admin-section, .cde-link:not(.employee-link)').forEach(el => el.style.display = 'none');
             } else if (rol === 'cde') {
-                // Si es cde, oculta los de admin y los de empleado
-                document.querySelectorAll('.admin-section, .employee-link').forEach(el => el.style.display = 'none');
+                // Oculta todo lo de admin y lo que sea SOLO para empleado
+                document.querySelectorAll('.admin-section, .employee-link:not(.cde-link)').forEach(el => el.style.display = 'none');
             }
-            // Si es 'admin', no se oculta nada, por lo que ve todo.
+            // Si es 'admin', no se oculta nada.
         }
     } catch (error) {
         console.error("Error al verificar el rol para el menú:", error);
