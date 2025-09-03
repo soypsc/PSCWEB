@@ -29,7 +29,7 @@
         .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; }
         @keyframes spin{ to{transform:rotate(360deg)} }
 
-        /* === ESTILOS NUEVOS PARA LA ANIMACIÓN === */
+        /* ESTILOS PARA LA ANIMACIÓN DE LA CAMPANA */
         .anim-tiembla {
             animation: Tiembla 0.6s ease-in-out;
         }
@@ -46,7 +46,7 @@
 </head>
 <body class="bg-black text-gray-200">
 
-    <!-- Authentication Module -->
+    <!-- Módulo de Autenticación -->
     <div id="auth-container">
         <div id="page-login" class="page">
              <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
@@ -57,6 +57,12 @@
                     <p id="login-error" class="text-red-400 text-sm text-center h-5"></p><button type="submit" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 !mt-6">Ingresar</button>
                 </form>
                 <p class="text-center text-sm text-gray-400 mt-6">¿No tienes cuenta? <a href="#" id="show-register-link" class="font-semibold text-blue-400 hover:underline">Regístrate</a></p>
+                
+                <!-- === NUEVO BOTÓN DE INSTALACIÓN PWA === -->
+                <button id="install-pwa-btn" class="hidden w-full bg-teal-500 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:bg-teal-600 mt-6 flex items-center justify-center gap-2">
+                    <i data-lucide="download-cloud"></i>
+                    Instalar Aplicación
+                </button>
             </div>
         </div>
         <div id="page-register" class="page">
@@ -75,7 +81,7 @@
         </div>
     </div>
 
-    <!-- Main App Container -->
+    <!-- Contenedor Principal de la App -->
     <div id="app-container" class="max-w-md mx-auto bg-black min-h-screen hidden">
         
         <div id="page-home" class="page">
@@ -83,7 +89,6 @@
                 <div class="flex items-center justify-between">
                     <img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo" class="h-10">
                     <div class="flex items-center space-x-4">
-                        <!-- Bell Icon with Badge -->
                         <a href="#" data-target="page-notificaciones" id="notification-link" class="nav-link relative w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center" title="Notificaciones">
                             <i data-lucide="bell" class="text-gray-400"></i>
                             <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden"></span>
@@ -149,7 +154,6 @@
             <main id="direcciones-content" class="px-6 pb-24 space-y-6"></main>
         </div>
 
-        <!-- Notifications Page -->
         <div id="page-notificaciones" class="page">
             <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Notificaciones</h1></header>
             <main class="px-6 pb-24">
@@ -159,7 +163,7 @@
         
     </div>
 
-    <!-- Invoice Modal -->
+    <!-- Modal para ver Factura -->
     <div id="factura-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
         <div class="bg-gray-900 w-full max-w-lg rounded-2xl shadow-xl max-h-[90vh] flex flex-col">
             <header class="p-4 flex items-center justify-between border-b border-gray-700">
@@ -201,14 +205,13 @@
                 case 'page-notificaciones': 
                     loadNotificaciones(); 
                     marcarNotificacionesComoLeidas();
-                    break;
+                    break; 
             }
         };
 
         const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString('es-PA', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
 
         const showAuth = () => { authContainer.style.display = 'block'; appContainer.classList.add('hidden'); showPage('page-login'); };
-        
         const showApp = async (user) => {
             const { data } = await supabaseClient.from('clientes').select('nombre, box, tarifa_1').eq('user_id', user.id).single();
             if (data) currentUserProfile = data;
@@ -219,7 +222,6 @@
             authContainer.style.display = 'none';
             appContainer.classList.remove('hidden');
             showPage('page-home');
-            
             await actualizarContadorNotificaciones();
         };
 
@@ -257,7 +259,6 @@
         const loadPaquetes = async () => {
             const container = document.getElementById('paquetes-list-container');
             container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
-            
             const { data: paquetes } = await supabaseClient.from('paquetes').select('*').eq('cliente_box', currentUserProfile.box).order('created_at', { ascending: false });
             
             const tarifaCliente = currentUserProfile?.tarifa_1 || 4.00;
@@ -405,7 +406,6 @@
             lucide.createIcons();
         };
 
-        // --- Notification Badge and Animation Logic ---
         const actualizarContadorNotificaciones = async () => {
             const badge = document.getElementById('notification-badge');
             const iconLink = document.getElementById('notification-link');
@@ -422,12 +422,10 @@
                 badge.classList.remove('hidden');
                 
                 iconLink.classList.add('anim-tiembla');
-                setTimeout(() => {
-                    iconLink.classList.remove('anim-tiembla');
-                }, 600);
+                setTimeout(() => { iconLink.classList.remove('anim-tiembla'); }, 600);
             }
         };
-
+        
         const marcarNotificacionesComoLeidas = async () => {
              const { data: { user } } = await supabaseClient.auth.getUser();
              if (!user) return;
@@ -442,7 +440,6 @@
             }
         };
 
-        // --- Push Notifications Logic ---
         function urlBase64ToUint8Array(base64String) {
             const padding = '='.repeat((4 - base64String.length % 4) % 4);
             const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -458,12 +455,12 @@
                 if (permission !== 'granted') return;
 
                 const registration = await navigator.serviceWorker.ready;
-                
-                const VAPID_PUBLIC_KEY = 'TU_VAPID_PUBLIC_KEY_AQUI'; 
+                const { data: config } = await supabaseClient.from('configuracion_privada').select('vapid_public_key').single();
+                if (!config) return console.error('No se encontró la VAPID public key en la configuración.');
 
                 const subscription = await registration.pushManager.subscribe({
                     userVisibleOnly: true,
-                    applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                    applicationServerKey: urlBase64ToUint8Array(config.vapid_public_key)
                 });
                 
                 const { data: { user } } = await supabaseClient.auth.getUser();
@@ -478,7 +475,7 @@
             }
         }
 
-        // --- Event Listeners & Initialization ---
+        // --- Event Listeners ---
         document.getElementById('show-register-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-register'); });
         document.getElementById('show-login-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-login'); });
         document.getElementById('login-form').addEventListener('submit', handleLogin);
@@ -505,13 +502,16 @@
         document.getElementById('close-factura-modal-btn').addEventListener('click', () => facturaModal.classList.add('hidden'));
         document.getElementById('print-factura-btn').addEventListener('click', () => {
              const printWindow = window.open('', '', 'height=600,width=800');
-             printWindow.document.write('<html><head><title>Recibo</title><style>body{font-family:sans-serif;}</style></head><body>');
+             printWindow.document.write('<html><head><title>Recibo</title>');
+             printWindow.document.write('<style>body{font-family:sans-serif;}</style>');
+             printWindow.document.write('</head><body>');
              printWindow.document.write(facturaModalContent.innerHTML);
              printWindow.document.write('</body></html>');
              printWindow.document.close();
              printWindow.print();
         });
 
+        // --- Inicialización ---
         supabaseClient.auth.onAuthStateChange((event, session) => {
             if (session) {
                 showApp(session.user);
@@ -521,9 +521,10 @@
             }
         });
 
-        if ('serviceWorker' in navigator && 'PushManager' in window) {
+        if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js')
                 .then(function(swReg) {
+                    console.log('Service Worker registrado.', swReg);
                     supabaseClient.auth.onAuthStateChange((event, session) => {
                         if (event === 'SIGNED_IN') {
                            setTimeout(subscribeToPushNotifications, 3000);
@@ -534,59 +535,40 @@
                 });
         }
         
+        // --- LÓGICA PARA INSTALACIÓN DE PWA ---
+        const installPwaBtn = document.getElementById('install-pwa-btn');
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installPwaBtn) {
+                installPwaBtn.classList.remove('hidden');
+                lucide.createIcons(); // Vuelve a renderizar el ícono
+            }
+        });
+
+        if (installPwaBtn) {
+            installPwaBtn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                installPwaBtn.classList.add('hidden');
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`Respuesta del usuario: ${outcome}`);
+                deferredPrompt = null;
+            });
+        }
+
+        window.addEventListener('appinstalled', () => {
+            if (installPwaBtn) {
+                installPwaBtn.classList.add('hidden');
+            }
+            deferredPrompt = null;
+            console.log('PWA instalada con éxito.');
+        });
+        
         loadSucursales('register-sucursal');
         lucide.createIcons();
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
