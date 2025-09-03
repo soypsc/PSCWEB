@@ -58,7 +58,6 @@
                 </form>
                 <p class="text-center text-sm text-gray-400 mt-6">¿No tienes cuenta? <a href="#" id="show-register-link" class="font-semibold text-blue-400 hover:underline">Regístrate</a></p>
                 
-                <!-- === NUEVO BOTÓN DE INSTALACIÓN PWA === -->
                 <button id="install-pwa-btn" class="hidden w-full bg-teal-500 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:bg-teal-600 mt-6 flex items-center justify-center gap-2">
                     <i data-lucide="download-cloud"></i>
                     Instalar Aplicación
@@ -102,6 +101,17 @@
                 <section>
                     <p class="text-gray-400 text-lg">Hola,</p><div class="flex items-baseline space-x-2"><h1 id="user-name-display" class="text-3xl font-bold text-white"></h1><span id="user-box-display" class="font-mono text-lg text-blue-400"></span></div>
                 </section>
+
+                <!-- === NUEVO BANNER DE INSTALACIÓN PARA iOS === -->
+                <section id="ios-install-prompt" class="hidden bg-blue-900/50 border border-blue-500 p-4 rounded-xl text-center">
+                    <h3 class="font-bold text-white mb-2">Instala la App en tu iPhone</h3>
+                    <p class="text-sm text-blue-200">Para la mejor experiencia, sigue estos pasos:</p>
+                    <div class="flex justify-center items-center gap-4 mt-3 text-sm text-white">
+                        <span>1. Toca <i data-lucide="share" class="inline-block h-5 w-5 align-middle"></i></span>
+                        <span>2. Elige "Agregar a inicio" <i data-lucide="plus-square" class="inline-block h-5 w-5 align-middle"></i></span>
+                    </div>
+                </section>
+
                 <section><div class="grid grid-cols-3 gap-4">
                     <a href="#" data-target="page-paquetes" class="nav-link text-center p-2 flex flex-col items-center group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-yellow-500"><i data-lucide="package" class="text-yellow-400 h-7 w-7 group-hover:text-white"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Paquetes</span></a>
                     <a href="#" data-target="page-casillero" class="nav-link text-center p-2 flex flex-col items-center group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-green-500"><i data-lucide="archive" class="text-green-400 h-7 w-7 group-hover:text-white"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Direcciones</span></a>
@@ -223,6 +233,15 @@
             appContainer.classList.remove('hidden');
             showPage('page-home');
             await actualizarContadorNotificaciones();
+            
+            // Lógica para mostrar instrucciones en iOS
+            const iosInstallPrompt = document.getElementById('ios-install-prompt');
+            const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+            if (iosInstallPrompt && isIOS() && !isInStandaloneMode()) {
+                iosInstallPrompt.classList.remove('hidden');
+                lucide.createIcons();
+            }
         };
 
         const handleLogin = async (e) => {
@@ -535,7 +554,6 @@
                 });
         }
         
-        // --- LÓGICA PARA INSTALACIÓN DE PWA ---
         const installPwaBtn = document.getElementById('install-pwa-btn');
         let deferredPrompt;
 
@@ -544,7 +562,7 @@
             deferredPrompt = e;
             if (installPwaBtn) {
                 installPwaBtn.classList.remove('hidden');
-                lucide.createIcons(); // Vuelve a renderizar el ícono
+                lucide.createIcons();
             }
         });
 
@@ -572,3 +590,6 @@
     </script>
 </body>
 </html>
+
+
+
