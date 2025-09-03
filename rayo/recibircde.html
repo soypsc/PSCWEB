@@ -22,6 +22,7 @@
         if (!session) { window.location.href = 'login.html'; return; }
         
         const { data: perfil, error } = await supabase.from('perfiles').select('rol').eq('id', session.user.id).single();
+        // Seguridad: Solo roles 'cde' o 'admin' pueden acceder
         if (error || !perfil || (perfil.rol !== 'cde' && perfil.rol !== 'admin')) {
             await supabase.auth.signOut();
             window.location.href = 'login.html?error=unauthorized';
@@ -179,14 +180,14 @@
         const { error } = await sb.rpc('confirmar_lote_cde', {
             p_paquete_ids: packageIds,
             p_anaquel_nombre: selectedAnaquel,
-            p_sucursal_nombre: sucursalActual // <<-- Enviamos la sucursal actual
+            p_sucursal_nombre: sucursalActual
         });
 
         if (error) {
             alert("Error al confirmar el lote: " + error.message);
         } else {
             alert("¡Lote confirmado exitosamente! Los clientes serán notificados automáticamente.");
-            await loadInitialData(); // Recargar la lista
+            await loadInitialData();
         }
 
         confirmButton.disabled = false;
@@ -194,7 +195,6 @@
         updateButtonState();
     });
 
-    // Carga inicial
     loadInitialData();
 
 </script>
