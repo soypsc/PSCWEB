@@ -244,6 +244,33 @@
             container.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', () => { navigator.clipboard.writeText(document.getElementById(btn.dataset.target).innerText).then(() => { btn.innerHTML = '<i data-lucide="check" class="h-4 w-4 text-green-500"></i>'; setTimeout(() => { btn.innerHTML = '<i data-lucide="copy" class="h-4 w-4 text-slate-400"></i>'; lucide.createIcons(); }, 2000); lucide.createIcons(); }); }));
             lucide.createIcons();
         };
+
+        const loadProfileData = async () => {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            const { data: profile } = await supabaseClient.from('clientes').select('nombre, box, telefono, sucursal').eq('user_id', user.id).single();
+            document.getElementById('profile-name').textContent = profile?.nombre || '';
+            document.getElementById('profile-box').textContent = profile?.box || '';
+            document.getElementById('profile-email').textContent = user.email;
+            document.getElementById('profile-phone').value = profile?.telefono || '';
+            await loadSucursales('profile-sucursal');
+            document.getElementById('profile-sucursal').value = profile?.sucursal || '';
+        };
+
+        const handleProfileUpdate = async (e) => {
+            e.preventDefault();
+            const msgEl = document.getElementById('profile-message');
+            msgEl.textContent = 'Guardando...';
+            msgEl.classList.remove('text-red-500', 'text-green-500');
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            const { error } = await supabaseClient.from('clientes').update({ telefono: document.getElementById('profile-phone').value, sucursal: document.getElementById('profile-sucursal').value }).eq('user_id', user.id);
+            if(error){
+                msgEl.textContent = 'Error al actualizar.';
+                msgEl.classList.add('text-red-500');
+            } else {
+                msgEl.textContent = '¡Perfil actualizado!';
+                msgEl.classList.add('text-green-500');
+            }
+        };
         
         const loadNotificaciones = async () => {
             const container = document.getElementById('notificaciones-list-container'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
@@ -441,6 +468,9 @@
     </script>
 </body>
 </html>
+
+
+
 
 
 
