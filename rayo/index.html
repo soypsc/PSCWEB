@@ -19,19 +19,10 @@
     <script type="module">
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
-
         (async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                window.location.href = 'login.html';
-                return;
-            }
-            const { data: perfil, error } = await supabase
-                .from('perfiles')
-                .select('rol')
-                .eq('id', session.user.id)
-                .single();
-            // Esta regla permite entrar a cualquier usuario que tenga un perfil válido (admin, empleado o cde)
+            if (!session) { window.location.href = 'login.html'; return; }
+            const { data: perfil, error } = await supabase.from('perfiles').select('rol').eq('id', session.user.id).single();
             if (error || !perfil) {
                 await supabase.auth.signOut();
                 window.location.href = 'login.html?error=unauthorized';
@@ -49,9 +40,9 @@
             <div class="mb-10">
                 <h2 class="text-lg font-semibold text-slate-700 mb-4"><span class="code">[OP-01A]</span>Acceso Rápido</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <a href="./recibir-paquete.html" class="flex items-center justify-center gap-3 bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-emerald-500/20 hover:bg-emerald-600">Recibir Paquete</a>
-                    <a href="./recibirsucursal.html" class="flex items-center justify-center gap-3 bg-sky-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-sky-500/20 hover:bg-sky-600">Recibir en Sucursal</a>
-                    <a href="./cobrar.html" class="flex items-center justify-center gap-3 bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-indigo-500/20 hover:bg-indigo-600">Cobrar y Facturar</a>
+                    <a href="./recibir-paquete.html" class="flex items-center justify-center gap-3 bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-emerald-600">Recibir Paquete</a>
+                    <a href="./recibirsucursal.html" class="flex items-center justify-center gap-3 bg-sky-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-sky-600">Recibir en Sucursal</a>
+                    <a href="./cobrar.html" class="flex items-center justify-center gap-3 bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-indigo-600">Cobrar y Facturar</a>
                     <a href="./clientes.html" class="flex items-center justify-center gap-3 bg-white text-slate-700 font-bold py-3 px-4 rounded-lg shadow-sm hover:bg-slate-50 border">Buscar Cliente</a>
                 </div>
             </div>
@@ -70,41 +61,51 @@
         const statsContainer = document.getElementById('dashboard-stats-container');
 
         function renderStats(statsData) {
-    // Limpiar el contenedor
-    statsContainer.innerHTML = '';
+            statsContainer.innerHTML = '';
+            if (!statsData || statsData.length === 0) {
+                statsContainer.innerHTML = '<p class="text-slate-500">No hay datos de actividad para mostrar.</p>';
+                return;
+            }
+            
+            // Si eres admin y hay más de una sucursal, primero muestra un resumen total.
+            if (statsData.length > 1) {
+                const total = statsData.reduce((acc, current) => {
+                    acc.recibidos_hoy += current.recibidos_hoy;
+                    acc.por_entregar += current.por_entregar;
+                    acc.cobros_dia += parseFloat(current.cobros_dia);
+                    return acc;
+                }, { recibidos_hoy: 0, por_entregar: 0, cobros_dia: 0 });
 
-    // Si no hay datos, mostrar un mensaje
-    if (!statsData) {
-        statsContainer.innerHTML = '<p class="text-slate-500">No hay datos de actividad para mostrar.</p>';
-        return;
-    }
-    
-    // Como ahora recibimos un solo objeto, no necesitamos un bucle (forEach).
-    // Directamente creamos el HTML con los datos del objeto.
-    const sucursalNombre = statsData.sucursal || 'General'; // Usamos el nombre de la sucursal si viene, o 'General'
-    const html = `
-        <div class="mb-8">
-            <h2 class="text-xl font-bold text-slate-800 mb-4">
-                <span class="code">[OP-01B]</span>Resumen del Día: ${sucursalNombre}
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-lg border border-slate-200">
-                    <h3 class="text-slate-500 font-medium">Paquetes Recibidos Hoy</h3>
-                    <p class="text-4xl font-bold text-emerald-500 mt-2">${statsData.recibidos_hoy}</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg border border-slate-200">
-                    <h3 class="text-slate-500 font-medium">Paquetes por Entregar</h3>
-                    <p class="text-4xl font-bold text-amber-500 mt-2">${statsData.por_entregar}</p>
-                </div>
-                <div class="bg-white p-6 rounded-lg border border-slate-200">
-                    <h3 class="text-slate-500 font-medium">Total Cobros del Día</h3>
-                    <p class="text-4xl font-bold text-slate-800 mt-2">$${Number(statsData.cobros_dia).toFixed(2)}</p>
-                </div>
-            </div>
-        </div>
-    `;
-    statsContainer.innerHTML = html;
-}
+                const totalHtml = `
+                    <div class="mb-10">
+                        <h2 class="text-xl font-bold text-slate-800 mb-4"><span class="code">[OP-01B]</span>Resumen Total (Todas las Sucursales)</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-white p-6 rounded-lg border"><h3 class="text-slate-500">Paquetes Recibidos Hoy</h3><p class="text-4xl font-bold text-emerald-500 mt-2">${total.recibidos_hoy}</p></div>
+                            <div class="bg-white p-6 rounded-lg border"><h3 class="text-slate-500">Paquetes por Entregar</h3><p class="text-4xl font-bold text-amber-500 mt-2">${total.por_entregar}</p></div>
+                            <div class="bg-white p-6 rounded-lg border"><h3 class="text-slate-500">Total Cobros del Día</h3><p class="text-4xl font-bold text-slate-800 mt-2">$${total.cobros_dia.toFixed(2)}</p></div>
+                        </div>
+                    </div>
+                    <hr class="my-8">
+                `;
+                statsContainer.innerHTML += totalHtml;
+            }
+
+            // Luego, muestra las estadísticas de cada sucursal individualmente.
+            statsData.forEach(sucursalStats => {
+                const sucursalNombre = sucursalStats.sucursal || 'General';
+                const html = `
+                    <div class="mb-8">
+                        <h2 class="text-lg font-semibold text-slate-700 mb-4">Actividad del Día: ${sucursalNombre}</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-white p-6 rounded-lg border"><h3 class="text-slate-500">Recibidos Hoy</h3><p class="text-4xl font-bold text-emerald-500 mt-2">${sucursalStats.recibidos_hoy}</p></div>
+                            <div class="bg-white p-6 rounded-lg border"><h3 class="text-slate-500">Por Entregar</h3><p class="text-4xl font-bold text-amber-500 mt-2">${sucursalStats.por_entregar}</p></div>
+                            <div class="bg-white p-6 rounded-lg border"><h3 class="text-slate-500">Cobros del Día</h3><p class="text-4xl font-bold text-slate-800 mt-2">$${Number(sucursalStats.cobros_dia).toFixed(2)}</p></div>
+                        </div>
+                    </div>
+                `;
+                statsContainer.innerHTML += html;
+            });
+        }
 
         async function cargarEstadisticas() {
             statsContainer.innerHTML = '<p class="text-slate-500">Cargando estadísticas...</p>';
