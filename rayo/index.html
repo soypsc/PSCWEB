@@ -70,26 +70,41 @@
         const statsContainer = document.getElementById('dashboard-stats-container');
 
         function renderStats(statsData) {
-            statsContainer.innerHTML = '';
-            if (!statsData || statsData.length === 0) {
-                statsContainer.innerHTML = '<p class="text-slate-500">No hay datos de actividad para mostrar.</p>';
-                return;
-            }
-            statsData.forEach(sucursalStats => {
-                const sucursalNombre = sucursalStats.sucursal || 'General';
-                const html = `
-                    <div class="mb-8">
-                        <h2 class="text-xl font-bold text-slate-800 mb-4"><span class="code">[OP-01B]</span>Resumen del Día: ${sucursalNombre}</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="bg-white p-6 rounded-lg border"><h3 class="text-slate-500">Paquetes Recibidos Hoy</h3><p class="text-4xl font-bold text-emerald-500 mt-2">${sucursalStats.recibidos_hoy}</p></div>
-                            <div class="bg-white p-6 rounded-lg border"><h3 class="text-slate-500">Paquetes por Entregar</h3><p class="text-4xl font-bold text-amber-500 mt-2">${sucursalStats.por_entregar}</p></div>
-                            <div class="bg-white p-6 rounded-lg border"><h3 class="text-slate-500">Total Cobros del Día</h3><p class="text-4xl font-bold text-slate-800 mt-2">$${Number(sucursalStats.cobros_dia).toFixed(2)}</p></div>
-                        </div>
-                    </div>
-                `;
-                statsContainer.innerHTML += html;
-            });
-        }
+    // Limpiar el contenedor
+    statsContainer.innerHTML = '';
+
+    // Si no hay datos, mostrar un mensaje
+    if (!statsData) {
+        statsContainer.innerHTML = '<p class="text-slate-500">No hay datos de actividad para mostrar.</p>';
+        return;
+    }
+    
+    // Como ahora recibimos un solo objeto, no necesitamos un bucle (forEach).
+    // Directamente creamos el HTML con los datos del objeto.
+    const sucursalNombre = statsData.sucursal || 'General'; // Usamos el nombre de la sucursal si viene, o 'General'
+    const html = `
+        <div class="mb-8">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">
+                <span class="code">[OP-01B]</span>Resumen del Día: ${sucursalNombre}
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg border border-slate-200">
+                    <h3 class="text-slate-500 font-medium">Paquetes Recibidos Hoy</h3>
+                    <p class="text-4xl font-bold text-emerald-500 mt-2">${statsData.recibidos_hoy}</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg border border-slate-200">
+                    <h3 class="text-slate-500 font-medium">Paquetes por Entregar</h3>
+                    <p class="text-4xl font-bold text-amber-500 mt-2">${statsData.por_entregar}</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg border border-slate-200">
+                    <h3 class="text-slate-500 font-medium">Total Cobros del Día</h3>
+                    <p class="text-4xl font-bold text-slate-800 mt-2">$${Number(statsData.cobros_dia).toFixed(2)}</p>
+                </div>
+            </div>
+        </div>
+    `;
+    statsContainer.innerHTML = html;
+}
 
         async function cargarEstadisticas() {
             statsContainer.innerHTML = '<p class="text-slate-500">Cargando estadísticas...</p>';
