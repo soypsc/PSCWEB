@@ -66,9 +66,9 @@
                     <div>
                         <label for="edit-rol" class="block text-sm font-medium">Rol</label>
                         <select id="edit-rol" required class="w-full p-2 border rounded-md">
-                            <option value="empleado">Empleado</option>
                             <option value="admin">Administrador</option>
-                        </select>
+                            <option value="empleado">Empleado</option>
+                            <option value="cde">Centro de Entrega</option> </select>
                     </div>
                     <div>
                         <label for="edit-sucursal" class="block text-sm font-medium">Sucursal por Defecto</label>
@@ -151,7 +151,7 @@
                 e.preventDefault();
                 const newName = editNameInput.value;
                 const newRole = editRolSelect.value;
-                const newSucursal = editSucursalSelect.value || null; // Enviar null si está vacío
+                const newSucursal = editSucursalSelect.value || null;
 
                 const { error } = await sb.rpc('update_user_details_admin', {
                     p_user_id: editingUserId,
@@ -175,7 +175,6 @@
                 editModal.classList.add('hidden');
             });
             
-            // Cargas iniciales
             cargarUsuarios();
             cargarSucursalesParaModal();
         });
