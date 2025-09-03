@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="PSC App">
-    <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/f7f5e1_0bec975970b649858abc8bbcc9ba12e2~mv2.png">
+    <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/f7f5e1_86dd477f7a0e47d78a5ddd9f88ee802a~mv2.png">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -45,9 +45,9 @@
 </head>
 <body class="bg-slate-900 text-gray-200">
 
-    <!-- === NUEVA PANTALLA DE CARGA PERSONALIZADA === -->
+    <!-- Pantalla de Carga Personalizada -->
     <div id="launch-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-900 transition-opacity duration-500">
-        <img src="https://static.wixstatic.com/media/f7f5e1_0bec975970b649858abc8bbcc9ba12e2~mv2.png" alt="Logo PSC" class="w-24 h-24 animate-pulse">
+        <img src="https://static.wixstatic.com/media/f7f5e1_86dd477f7a0e47d78a5ddd9f88ee802a~mv2.png" alt="Logo PSC" class="w-24 h-24 animate-pulse">
         <p class="text-slate-400 mt-4 text-sm font-medium">Cargando aplicación...</p>
     </div>
 
@@ -55,7 +55,7 @@
     <div id="auth-container">
         <div id="page-login" class="page">
              <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
-                <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo" class="h-16 mx-auto"><h1 class="text-3xl font-bold text-white mt-4">Bienvenido</h1><p class="text-gray-400">Inicia sesión para continuar</p></div>
+                <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_86dd477f7a0e47d78a5ddd9f88ee802a~mv2.png" alt="Logo" class="h-16 mx-auto"><h1 class="text-3xl font-bold text-white mt-4">Bienvenido</h1><p class="text-gray-400">Inicia sesión para continuar</p></div>
                 <form id="login-form" class="space-y-4">
                     <div><label for="login-email" class="text-sm font-medium text-gray-400">Email</label><input id="login-email" type="email" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
                     <div class="relative"><label for="login-password" class="text-sm font-medium text-gray-400">Contraseña</label><input id="login-password" type="password" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg pr-10"><button type="button" class="toggle-password absolute inset-y-0 right-0 top-6 pr-3 flex items-center text-gray-400"><i data-lucide="eye" class="h-5 w-5"></i></button></div>
@@ -71,7 +71,7 @@
         </div>
         <div id="page-register" class="page">
             <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
-                <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo" class="h-16 mx-auto"><h1 class="text-3xl font-bold text-white mt-4">Crear Cuenta</h1><p class="text-gray-400">Completa tus datos</p></div>
+                <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_86dd477f7a0e47d78a5ddd9f88ee802a~mv2.png" alt="Logo" class="h-16 mx-auto"><h1 class="text-3xl font-bold text-white mt-4">Crear Cuenta</h1><p class="text-gray-400">Completa tus datos</p></div>
                 <form id="register-form" class="space-y-4">
                     <div><label for="register-name" class="text-sm font-medium text-gray-400">Nombre Completo</label><input id="register-name" type="text" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
                     <div><label for="register-email" class="text-sm font-medium text-gray-400">Email</label><input id="register-email" type="email" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
@@ -91,7 +91,7 @@
         <div id="page-home" class="page">
             <header class="p-6">
                 <div class="flex items-center justify-between">
-                    <img src="https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png" alt="Logo" class="h-10">
+                    <img src="https://static.wixstatic.com/media/f7f5e1_86dd477f7a0e47d78a5ddd9f88ee802a~mv2.png" alt="Logo" class="h-10">
                     <div class="flex items-center space-x-4">
                         <a href="#" data-target="page-notificaciones" id="notification-link" class="nav-link relative w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center" title="Notificaciones">
                             <i data-lucide="bell" class="text-gray-400"></i>
@@ -192,15 +192,15 @@
     </div>
 
     <script type="module">
-        // === LÓGICA PARA LA PANTALLA DE CARGA ===
+        // Lógica para la pantalla de carga
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 const launchScreen = document.getElementById('launch-screen');
                 if (launchScreen) {
                     launchScreen.style.opacity = '0';
-                    setTimeout(() => launchScreen.remove(), 500); // Remover del DOM después de la transición
+                    setTimeout(() => launchScreen.remove(), 500);
                 }
-            }, 2000); // Duración de la pantalla de carga: 2 segundos
+            }, 2000);
         });
 
         const { createClient } = supabase;
@@ -604,6 +604,9 @@
     </script>
 </body>
 </html>
+
+
+
 
 
 
