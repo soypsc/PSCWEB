@@ -22,7 +22,6 @@
         if (!session) { window.location.href = 'login.html'; return; }
         
         const { data: perfil, error } = await supabase.from('perfiles').select('rol').eq('id', session.user.id).single();
-        // Seguridad: Solo roles 'cde' o 'admin' pueden acceder
         if (error || !perfil || (perfil.rol !== 'cde' && perfil.rol !== 'admin')) {
             await supabase.auth.signOut();
             window.location.href = 'login.html?error=unauthorized';
@@ -163,6 +162,7 @@
         const selectedAnaquel = anaquelSelect.value;
         const checkedBoxes = document.querySelectorAll('.package-checkbox:checked');
         const packageIds = Array.from(checkedBoxes).map(cb => cb.dataset.id);
+        const sucursalActual = currentUserProfile.sucursal_defecto;
 
         if (packageIds.length === 0 || !selectedAnaquel) {
             alert("Debe seleccionar al menos un paquete y un anaquel.");
@@ -178,7 +178,8 @@
 
         const { error } = await sb.rpc('confirmar_lote_cde', {
             p_paquete_ids: packageIds,
-            p_anaquel_nombre: selectedAnaquel
+            p_anaquel_nombre: selectedAnaquel,
+            p_sucursal_nombre: sucursalActual // <<-- Enviamos la sucursal actual
         });
 
         if (error) {
