@@ -46,7 +46,7 @@ async function initializeMenuLogic() {
         }
     });
 
-    // --- NUEVA LÓGICA DE VISIBILIDAD POR ROLES ---
+    // --- LÓGICA DE VISIBILIDAD POR ROLES ACTUALIZADA ---
     try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
@@ -64,7 +64,7 @@ async function initializeMenuLogic() {
     } catch (error) {
         console.error("Error al verificar el rol para el menú:", error);
     }
-    // --- FIN DE LA NUEVA LÓGICA ---
+    // --- FIN DE LA LÓGICA ---
 
     // Lógica para cerrar sesión
     const logoutButton = document.getElementById('logout-button');
