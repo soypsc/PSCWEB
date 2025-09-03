@@ -43,25 +43,19 @@
         }
     </style>
 </head>
-<body class="bg-slate-900 text-gray-200">
-
-    <!-- Pantalla de Carga Personalizada -->
-    <div id="launch-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-900 transition-opacity duration-500">
-        <img src="https://static.wixstatic.com/media/f7f5e1_86dd477f7a0e47d78a5ddd9f88ee802a~mv2.png" alt="Logo PSC" class="w-24 h-24 animate-pulse">
-        <p class="text-slate-400 mt-4 text-sm font-medium">Cargando aplicación...</p>
-    </div>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-gray-200">
 
     <!-- Módulo de Autenticación -->
     <div id="auth-container">
         <div id="page-login" class="page">
              <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
-                <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_86dd477f7a0e47d78a5ddd9f88ee802a~mv2.png" alt="Logo" class="h-16 mx-auto"><h1 class="text-3xl font-bold text-white mt-4">Bienvenido</h1><p class="text-gray-400">Inicia sesión para continuar</p></div>
+                <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_86dd477f7a0e47d78a5ddd9f88ee802a~mv2.png" alt="Logo" class="h-16 mx-auto"><h1 class="text-3xl font-bold text-slate-900 dark:text-white mt-4">Bienvenido</h1><p class="text-slate-500 dark:text-gray-400">Inicia sesión para continuar</p></div>
                 <form id="login-form" class="space-y-4">
-                    <div><label for="login-email" class="text-sm font-medium text-gray-400">Email</label><input id="login-email" type="email" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
-                    <div class="relative"><label for="login-password" class="text-sm font-medium text-gray-400">Contraseña</label><input id="login-password" type="password" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg pr-10"><button type="button" class="toggle-password absolute inset-y-0 right-0 top-6 pr-3 flex items-center text-gray-400"><i data-lucide="eye" class="h-5 w-5"></i></button></div>
-                    <p id="login-error" class="text-red-400 text-sm text-center h-5"></p><button type="submit" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 !mt-6">Ingresar</button>
+                    <div><label for="login-email" class="text-sm font-medium text-slate-500 dark:text-gray-400">Email</label><input id="login-email" type="email" required class="w-full mt-1 px-4 py-3 bg-slate-200 dark:bg-gray-800 border border-slate-300 dark:border-gray-700 rounded-lg"></div>
+                    <div class="relative"><label for="login-password" class="text-sm font-medium text-slate-500 dark:text-gray-400">Contraseña</label><input id="login-password" type="password" required class="w-full mt-1 px-4 py-3 bg-slate-200 dark:bg-gray-800 border border-slate-300 dark:border-gray-700 rounded-lg pr-10"><button type="button" class="toggle-password absolute inset-y-0 right-0 top-6 pr-3 flex items-center text-slate-400 dark:text-gray-400"><i data-lucide="eye" class="h-5 w-5"></i></button></div>
+                    <p id="login-error" class="text-red-500 dark:text-red-400 text-sm text-center h-5"></p><button type="submit" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 !mt-6">Ingresar</button>
                 </form>
-                <p class="text-center text-sm text-gray-400 mt-6">¿No tienes cuenta? <a href="#" id="show-register-link" class="font-semibold text-blue-400 hover:underline">Regístrate</a></p>
+                <p class="text-center text-sm text-slate-500 dark:text-gray-400 mt-6">¿No tienes cuenta? <a href="#" id="show-register-link" class="font-semibold text-blue-500 dark:text-blue-400 hover:underline">Regístrate</a></p>
                 
                 <button id="install-pwa-btn" class="hidden w-full bg-teal-500 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:bg-teal-600 mt-6 flex items-center justify-center gap-2">
                     <i data-lucide="download-cloud"></i>
@@ -71,105 +65,115 @@
         </div>
         <div id="page-register" class="page">
             <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
-                <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_86dd477f7a0e47d78a5ddd9f88ee802a~mv2.png" alt="Logo" class="h-16 mx-auto"><h1 class="text-3xl font-bold text-white mt-4">Crear Cuenta</h1><p class="text-gray-400">Completa tus datos</p></div>
+                <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_86dd477f7a0e47d78a5ddd9f88ee802a~mv2.png" alt="Logo" class="h-16 mx-auto"><h1 class="text-3xl font-bold text-slate-900 dark:text-white mt-4">Crear Cuenta</h1><p class="text-slate-500 dark:text-gray-400">Completa tus datos</p></div>
                 <form id="register-form" class="space-y-4">
-                    <div><label for="register-name" class="text-sm font-medium text-gray-400">Nombre Completo</label><input id="register-name" type="text" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
-                    <div><label for="register-email" class="text-sm font-medium text-gray-400">Email</label><input id="register-email" type="email" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
-                    <div><label for="register-whatsapp" class="text-sm font-medium text-gray-400">WhatsApp</label><input id="register-whatsapp" type="tel" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg"></div>
-                    <div><label for="register-sucursal" class="text-sm font-medium text-gray-400">Sucursal Preferida</label><select id="register-sucursal" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg appearance-none"><option value="">Cargando...</option></select></div>
-                    <div class="relative"><label for="register-password" class="text-sm font-medium text-gray-400">Contraseña</label><input id="register-password" type="password" required class="w-full mt-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg pr-10"><button type="button" class="toggle-password absolute inset-y-0 right-0 top-6 pr-3 flex items-center text-gray-400"><i data-lucide="eye" class="h-5 w-5"></i></button></div>
-                    <p id="register-error" class="text-red-400 text-sm text-center h-5"></p><button type="submit" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 !mt-6">Crear Cuenta</button>
+                    <div><label for="register-name" class="text-sm font-medium text-slate-500 dark:text-gray-400">Nombre Completo</label><input id="register-name" type="text" required class="w-full mt-1 px-4 py-3 bg-slate-200 dark:bg-gray-800 border border-slate-300 dark:border-gray-700 rounded-lg"></div>
+                    <div><label for="register-email" class="text-sm font-medium text-slate-500 dark:text-gray-400">Email</label><input id="register-email" type="email" required class="w-full mt-1 px-4 py-3 bg-slate-200 dark:bg-gray-800 border border-slate-300 dark:border-gray-700 rounded-lg"></div>
+                    <div><label for="register-whatsapp" class="text-sm font-medium text-slate-500 dark:text-gray-400">WhatsApp</label><input id="register-whatsapp" type="tel" required class="w-full mt-1 px-4 py-3 bg-slate-200 dark:bg-gray-800 border border-slate-300 dark:border-gray-700 rounded-lg"></div>
+                    <div><label for="register-sucursal" class="text-sm font-medium text-slate-500 dark:text-gray-400">Sucursal Preferida</label><select id="register-sucursal" required class="w-full mt-1 px-4 py-3 bg-slate-200 dark:bg-gray-800 border border-slate-300 dark:border-gray-700 rounded-lg appearance-none"><option value="">Cargando...</option></select></div>
+                    <div class="relative"><label for="register-password" class="text-sm font-medium text-slate-500 dark:text-gray-400">Contraseña</label><input id="register-password" type="password" required class="w-full mt-1 px-4 py-3 bg-slate-200 dark:bg-gray-800 border border-slate-300 dark:border-gray-700 rounded-lg pr-10"><button type="button" class="toggle-password absolute inset-y-0 right-0 top-6 pr-3 flex items-center text-slate-400 dark:text-gray-400"><i data-lucide="eye" class="h-5 w-5"></i></button></div>
+                    <p id="register-error" class="text-red-500 dark:text-red-400 text-sm text-center h-5"></p><button type="submit" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 !mt-6">Crear Cuenta</button>
                 </form>
-                <p class="text-center text-sm text-gray-400 mt-6">¿Ya tienes cuenta? <a href="#" id="show-login-link" class="font-semibold text-blue-400 hover:underline">Inicia sesión</a></p>
+                <p class="text-center text-sm text-slate-500 dark:text-gray-400 mt-6">¿Ya tienes cuenta? <a href="#" id="show-login-link" class="font-semibold text-blue-500 dark:text-blue-400 hover:underline">Inicia sesión</a></p>
             </div>
         </div>
     </div>
 
     <!-- Contenedor Principal de la App -->
-    <div id="app-container" class="max-w-md mx-auto bg-slate-900 min-h-screen hidden">
+    <div id="app-container" class="max-w-md mx-auto bg-slate-100 dark:bg-slate-900 min-h-screen hidden">
         
         <div id="page-home" class="page">
             <header class="p-6">
                 <div class="flex items-center justify-between">
                     <img src="https://static.wixstatic.com/media/f7f5e1_86dd477f7a0e47d78a5ddd9f88ee802a~mv2.png" alt="Logo" class="h-10">
                     <div class="flex items-center space-x-4">
-                        <a href="#" data-target="page-notificaciones" id="notification-link" class="nav-link relative w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center" title="Notificaciones">
-                            <i data-lucide="bell" class="text-gray-400"></i>
+                        <a href="#" data-target="page-notificaciones" id="notification-link" class="nav-link relative w-10 h-10 bg-slate-200 dark:bg-gray-800 rounded-full flex items-center justify-center" title="Notificaciones">
+                            <i data-lucide="bell" class="text-slate-500 dark:text-gray-400"></i>
                             <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden"></span>
                         </a>
-                        <a href="#" data-target="page-mi-perfil" class="nav-link w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center" title="Mi Perfil"><i data-lucide="user" class="text-gray-400"></i></a>
-                        <button id="logout-button" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center" title="Cerrar Sesión"><i data-lucide="log-out" class="text-gray-400"></i></button>
+                        <a href="#" data-target="page-mi-perfil" class="nav-link w-10 h-10 bg-slate-200 dark:bg-gray-800 rounded-full flex items-center justify-center" title="Mi Perfil"><i data-lucide="user" class="text-slate-500 dark:text-gray-400"></i></a>
+                        <button id="logout-button" class="w-10 h-10 bg-slate-200 dark:bg-gray-800 rounded-full flex items-center justify-center" title="Cerrar Sesión"><i data-lucide="log-out" class="text-slate-500 dark:text-gray-400"></i></button>
                     </div>
                 </div>
             </header>
             <main class="px-6 pb-24 space-y-10">
                 <section>
-                    <p class="text-gray-400 text-lg">Hola,</p><div class="flex items-baseline space-x-2"><h1 id="user-name-display" class="text-3xl font-bold text-white"></h1><span id="user-box-display" class="font-mono text-lg text-blue-400"></span></div>
+                    <p class="text-slate-500 dark:text-gray-400 text-lg">Hola,</p><div class="flex items-baseline space-x-2"><h1 id="user-name-display" class="text-3xl font-bold text-slate-900 dark:text-white"></h1><span id="user-box-display" class="font-mono text-lg text-blue-500 dark:text-blue-400"></span></div>
                 </section>
 
-                <section id="ios-install-prompt" class="hidden bg-blue-900/50 border border-blue-500 p-4 rounded-xl text-center">
-                    <h3 class="font-bold text-white mb-2">Instala la App en tu iPhone</h3>
-                    <p class="text-sm text-blue-200">Para la mejor experiencia, sigue estos pasos:</p>
-                    <div class="flex justify-center items-center gap-4 mt-3 text-sm text-white">
+                <section id="ios-install-prompt" class="hidden bg-blue-100 dark:bg-blue-900/50 border border-blue-300 dark:border-blue-500 p-4 rounded-xl text-center">
+                    <h3 class="font-bold text-blue-800 dark:text-white mb-2">Instala la App en tu iPhone</h3>
+                    <p class="text-sm text-blue-600 dark:text-blue-200">Para la mejor experiencia, sigue estos pasos:</p>
+                    <div class="flex justify-center items-center gap-4 mt-3 text-sm text-blue-700 dark:text-white">
                         <span>1. Toca <i data-lucide="share" class="inline-block h-5 w-5 align-middle"></i></span>
                         <span>2. Elige "Agregar a inicio" <i data-lucide="plus-square" class="inline-block h-5 w-5 align-middle"></i></span>
                     </div>
                 </section>
 
                 <section><div class="grid grid-cols-3 gap-4">
-                    <a href="#" data-target="page-paquetes" class="nav-link text-center p-2 flex flex-col items-center group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-yellow-500"><i data-lucide="package" class="text-yellow-400 h-7 w-7 group-hover:text-white"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Paquetes</span></a>
-                    <a href="#" data-target="page-casillero" class="nav-link text-center p-2 flex flex-col items-center group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-green-500"><i data-lucide="archive" class="text-green-400 h-7 w-7 group-hover:text-white"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Direcciones</span></a>
-                    <a href="#" data-target="page-facturas" class="nav-link text-center p-2 flex flex-col items-center group no-underline"><div class="bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-indigo-500"><i data-lucide="receipt" class="text-indigo-400 h-7 w-7 group-hover:text-white"></i></div><span class="font-medium text-gray-300 text-xs mt-2">Facturas</span></a>
+                    <a href="#" data-target="page-paquetes" class="nav-link text-center p-2 flex flex-col items-center group no-underline"><div class="bg-slate-200 dark:bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-yellow-500"><i data-lucide="package" class="text-yellow-500 dark:text-yellow-400 h-7 w-7 group-hover:text-white"></i></div><span class="font-medium text-slate-600 dark:text-gray-300 text-xs mt-2">Paquetes</span></a>
+                    <a href="#" data-target="page-casillero" class="nav-link text-center p-2 flex flex-col items-center group no-underline"><div class="bg-slate-200 dark:bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-green-500"><i data-lucide="archive" class="text-green-500 dark:text-green-400 h-7 w-7 group-hover:text-white"></i></div><span class="font-medium text-slate-600 dark:text-gray-300 text-xs mt-2">Direcciones</span></a>
+                    <a href="#" data-target="page-facturas" class="nav-link text-center p-2 flex flex-col items-center group no-underline"><div class="bg-slate-200 dark:bg-gray-800 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-indigo-500"><i data-lucide="receipt" class="text-indigo-500 dark:text-indigo-400 h-7 w-7 group-hover:text-white"></i></div><span class="font-medium text-slate-600 dark:text-gray-300 text-xs mt-2">Facturas</span></a>
                 </div></section>
                 <section>
-                    <h2 class="text-lg font-semibold text-white mb-3">Herramientas</h2>
-                    <div class="bg-gray-800 rounded-xl divide-y divide-gray-700">
-                        <a href="rastreo.html" class="p-4 flex items-center space-x-4 hover:bg-gray-700 no-underline"><i data-lucide="search" class="text-blue-400"></i><span class="font-semibold text-gray-300">Rastrear Paquete</span></a>
-                        <a href="cotizar.html" class="p-4 flex items-center space-x-4 hover:bg-gray-700 no-underline"><i data-lucide="calculator" class="text-purple-400"></i><span class="font-semibold text-gray-300">Cotizar Compra</span></a>
-                        <a href="malidentificados.html" class="p-4 flex items-center space-x-4 hover:bg-gray-700 no-underline"><i data-lucide="alert-triangle" class="text-yellow-400"></i><span class="font-semibold text-gray-300">Paquete Mal Identificado</span></a>
+                    <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Herramientas</h2>
+                    <div class="bg-slate-200 dark:bg-gray-800 rounded-xl divide-y divide-slate-300 dark:divide-gray-700">
+                        <a href="rastreo.html" class="p-4 flex items-center space-x-4 hover:bg-slate-300 dark:hover:bg-gray-700 no-underline"><i data-lucide="search" class="text-blue-500 dark:text-blue-400"></i><span class="font-semibold text-slate-700 dark:text-gray-300">Rastrear Paquete</span></a>
+                        <a href="cotizar.html" class="p-4 flex items-center space-x-4 hover:bg-slate-300 dark:hover:bg-gray-700 no-underline"><i data-lucide="calculator" class="text-purple-500 dark:text-purple-400"></i><span class="font-semibold text-slate-700 dark:text-gray-300">Cotizar Compra</span></a>
+                        <a href="malidentificados.html" class="p-4 flex items-center space-x-4 hover:bg-slate-300 dark:hover:bg-gray-700 no-underline"><i data-lucide="alert-triangle" class="text-yellow-500 dark:text-yellow-400"></i><span class="font-semibold text-slate-700 dark:text-gray-300">Paquete Mal Identificado</span></a>
                     </div>
                 </section>
             </main>
         </div>
 
         <div id="page-mi-perfil" class="page">
-            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mi Perfil</h1></header>
+            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-slate-500 dark:text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-slate-900 dark:text-white">Mi Perfil</h1></header>
             <main class="px-6 pb-24">
                 <form id="profile-form" class="space-y-6">
-                    <div><label class="text-sm font-medium text-gray-400">Nombre Completo</label><p id="profile-name" class="mt-1 p-3 bg-gray-800 rounded-lg"></p></div>
-                    <div><label class="text-sm font-medium text-gray-400">Número de Casillero</label><p id="profile-box" class="mt-1 p-3 bg-gray-800 rounded-lg"></p></div>
-                    <div><label class="text-sm font-medium text-gray-400">Email</label><p id="profile-email" class="mt-1 p-3 bg-gray-800 rounded-lg"></p></div>
-                    <div><label for="profile-phone" class="text-sm font-medium text-gray-400">Teléfono / WhatsApp</label><input id="profile-phone" type="tel" class="w-full mt-1 p-3 bg-gray-900 border border-gray-600 rounded-lg"></div>
-                    <div><label for="profile-sucursal" class="text-sm font-medium text-gray-400">Sucursal Preferida</label><select id="profile-sucursal" class="w-full mt-1 p-3 bg-gray-900 border border-gray-600 rounded-lg appearance-none"></select></div>
+                    <div><label class="text-sm font-medium text-slate-500 dark:text-gray-400">Nombre Completo</label><p id="profile-name" class="mt-1 p-3 bg-slate-200 dark:bg-gray-800 rounded-lg"></p></div>
+                    <div><label class="text-sm font-medium text-slate-500 dark:text-gray-400">Número de Casillero</label><p id="profile-box" class="mt-1 p-3 bg-slate-200 dark:bg-gray-800 rounded-lg"></p></div>
+                    <div><label class="text-sm font-medium text-slate-500 dark:text-gray-400">Email</label><p id="profile-email" class="mt-1 p-3 bg-slate-200 dark:bg-gray-800 rounded-lg"></p></div>
+                    <div><label for="profile-phone" class="text-sm font-medium text-slate-500 dark:text-gray-400">Teléfono / WhatsApp</label><input id="profile-phone" type="tel" class="w-full mt-1 p-3 bg-white dark:bg-gray-900 border border-slate-400 dark:border-gray-600 rounded-lg"></div>
+                    <div><label for="profile-sucursal" class="text-sm font-medium text-slate-500 dark:text-gray-400">Sucursal Preferida</label><select id="profile-sucursal" class="w-full mt-1 p-3 bg-white dark:bg-gray-900 border border-slate-400 dark:border-gray-600 rounded-lg appearance-none"></select></div>
                     <p id="profile-message" class="text-sm text-center h-5"></p>
                     <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 !mt-8">Guardar Cambios</button>
+                
+                    <!-- === NUEVO BOTÓN PARA CAMBIAR TEMA === -->
+                    <div class="mt-8 pt-6 border-t border-slate-300 dark:border-gray-700">
+                        <label class="text-sm font-medium text-slate-600 dark:text-gray-400">Tema de la Aplicación</label>
+                        <button type="button" id="theme-toggle-btn" class="mt-2 w-full flex items-center justify-center px-4 py-3 bg-slate-200 dark:bg-gray-700 rounded-lg text-slate-800 dark:text-gray-200 font-semibold">
+                            <i data-lucide="sun" class="light-icon"></i>
+                            <i data-lucide="moon" class="dark-icon hidden"></i>
+                            <span class="ml-2"></span>
+                        </button>
+                    </div>
                 </form>
             </main>
         </div>
 
         <div id="page-paquetes" class="page">
-            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mis Paquetes</h1></header>
+            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-slate-500 dark:text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-slate-900 dark:text-white">Mis Paquetes</h1></header>
             <main class="px-6 pb-24 space-y-6">
                 <section class="space-y-4">
-                    <div class="bg-green-500/10 border border-green-500/50 p-4 rounded-xl text-center"><p class="text-sm font-semibold text-green-300">EN SUCURSAL</p><div class="flex items-baseline justify-center space-x-3 mt-1"><span id="summary-sucursal" class="text-3xl font-bold text-white">0</span><span>Paquetes</span></div><p id="summary-saldo" class="text-lg font-semibold text-green-300 font-mono mt-1">$0.00</p></div>
-                    <div class="grid grid-cols-2 gap-4"><div class="bg-gray-800 p-4 rounded-xl text-center"><p class="text-xs font-medium text-yellow-300">EN TRÁNSITO</p><p id="summary-transito" class="text-2xl font-bold text-white mt-1">0</p></div><div class="bg-gray-800 p-4 rounded-xl text-center"><p class="text-xs font-medium text-gray-400">ENTREGADOS</p><p id="summary-entregado" class="text-2xl font-bold text-white mt-1">0</p></div></div>
+                    <div class="bg-green-500/10 border border-green-500/50 p-4 rounded-xl text-center"><p class="text-sm font-semibold text-green-600 dark:text-green-300">EN SUCURSAL</p><div class="flex items-baseline justify-center space-x-3 mt-1"><span id="summary-sucursal" class="text-3xl font-bold text-slate-900 dark:text-white">0</span><span>Paquetes</span></div><p id="summary-saldo" class="text-lg font-semibold text-green-600 dark:text-green-300 font-mono mt-1">$0.00</p></div>
+                    <div class="grid grid-cols-2 gap-4"><div class="bg-slate-200 dark:bg-gray-800 p-4 rounded-xl text-center"><p class="text-xs font-medium text-yellow-600 dark:text-yellow-300">EN TRÁNSITO</p><p id="summary-transito" class="text-2xl font-bold text-slate-900 dark:text-white mt-1">0</p></div><div class="bg-slate-200 dark:bg-gray-800 p-4 rounded-xl text-center"><p class="text-xs font-medium text-slate-500 dark:text-gray-400">ENTREGADOS</p><p id="summary-entregado" class="text-2xl font-bold text-slate-900 dark:text-white mt-1">0</p></div></div>
                 </section>
-                <section><h2 class="text-lg font-semibold text-white mb-3">Historial</h2><div id="paquetes-list-container" class="space-y-4"></div></section>
+                <section><h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Historial</h2><div id="paquetes-list-container" class="space-y-4"></div></section>
             </main>
         </div>
 
         <div id="page-facturas" class="page">
-            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mis Facturas</h1></header>
+            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-slate-500 dark:text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-slate-900 dark:text-white">Mis Facturas</h1></header>
             <main class="px-6 pb-24 space-y-6"><div id="facturas-list-container" class="space-y-4"></div></main>
         </div>
 
         <div id="page-casillero" class="page">
-            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mis Direcciones</h1></header>
+            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-slate-500 dark:text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-slate-900 dark:text-white">Mis Direcciones</h1></header>
             <main id="direcciones-content" class="px-6 pb-24 space-y-6"></main>
         </div>
 
         <div id="page-notificaciones" class="page">
-            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Notificaciones</h1></header>
+            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-slate-500 dark:text-gray-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-slate-900 dark:text-white">Notificaciones</h1></header>
             <main class="px-6 pb-24">
                 <div id="notificaciones-list-container" class="space-y-4"></div>
             </main>
@@ -179,33 +183,54 @@
 
     <!-- Modal para ver Factura -->
     <div id="factura-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-gray-900 w-full max-w-lg rounded-2xl shadow-xl max-h-[90vh] flex flex-col">
-            <header class="p-4 flex items-center justify-between border-b border-gray-700">
-                <h2 class="text-lg font-semibold text-white">Detalle de Factura</h2>
+        <div class="bg-slate-200 dark:bg-gray-900 w-full max-w-lg rounded-2xl shadow-xl max-h-[90vh] flex flex-col">
+            <header class="p-4 flex items-center justify-between border-b border-slate-300 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Detalle de Factura</h2>
                 <div class="flex items-center gap-4">
-                    <button id="print-factura-btn" class="text-gray-400 hover:text-white"><i data-lucide="printer"></i></button>
-                    <button id="close-factura-modal-btn" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button>
+                    <button id="print-factura-btn" class="text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white"><i data-lucide="printer"></i></button>
+                    <button id="close-factura-modal-btn" class="text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white"><i data-lucide="x"></i></button>
                 </div>
             </header>
-            <main id="factura-modal-content" class="p-6 overflow-y-auto text-black"></main>
+            <main id="factura-modal-content" class="p-6 overflow-y-auto"></main>
         </div>
     </div>
 
     <script type="module">
-        // Lógica para la pantalla de carga
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                const launchScreen = document.getElementById('launch-screen');
-                if (launchScreen) {
-                    launchScreen.style.opacity = '0';
-                    setTimeout(() => launchScreen.remove(), 500);
-                }
-            }, 2000);
-        });
-
         const { createClient } = supabase;
         const supabaseClient = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
         let currentUserProfile = null;
+
+        // --- LÓGICA DEL SELECTOR DE TEMA (DARK/LIGHT MODE) ---
+        const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        const applyTheme = (theme) => {
+            const lightIcon = themeToggleBtn.querySelector('.light-icon');
+            const darkIcon = themeToggleBtn.querySelector('.dark-icon');
+            const themeSpan = themeToggleBtn.querySelector('span');
+
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                if(lightIcon) lightIcon.classList.add('hidden');
+                if(darkIcon) darkIcon.classList.remove('hidden');
+                if(themeSpan) themeSpan.textContent = 'Cambiar a Tema Claro';
+            } else {
+                document.documentElement.classList.remove('dark');
+                if(lightIcon) lightIcon.classList.remove('hidden');
+                if(darkIcon) darkIcon.classList.add('hidden');
+                if(themeSpan) themeSpan.textContent = 'Cambiar a Tema Oscuro';
+            }
+            lucide.createIcons();
+        };
+
+        const savedTheme = localStorage.getItem('theme') || 'dark'; // Por defecto es oscuro
+        applyTheme(savedTheme);
+
+        themeToggleBtn.addEventListener('click', () => {
+            const newTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        });
+        // --- FIN DE LÓGICA DEL TEMA ---
+
 
         const authContainer = document.getElementById('auth-container');
         const appContainer = document.getElementById('app-container');
@@ -311,13 +336,13 @@
             document.getElementById('summary-saldo').textContent = `$${saldoEnSucursal.toFixed(2)}`;
 
             if (!paquetes || !paquetes.length) {
-                container.innerHTML = `<div class="text-center p-8"><i data-lucide="package-search" class="h-16 w-16 text-gray-700 mx-auto"></i><p class="mt-4">No tienes paquetes.</p></div>`;
+                container.innerHTML = `<div class="text-center p-8"><i data-lucide="package-search" class="h-16 w-16 text-slate-400 dark:text-gray-700 mx-auto"></i><p class="mt-4">No tienes paquetes.</p></div>`;
             } else {
-                const statusBadge = (s) => ({ 'En transito': 'bg-yellow-500/20 text-yellow-300', 'En Sucursal': 'bg-green-500/20 text-green-300', 'Entregado': 'bg-gray-500/20 text-gray-400' }[s] || 'bg-gray-700');
+                const statusBadge = (s) => ({ 'En transito': 'bg-yellow-500/20 text-yellow-500 dark:text-yellow-300', 'En Sucursal': 'bg-green-500/20 text-green-500 dark:text-green-300', 'Entregado': 'bg-gray-500/20 text-slate-500 dark:text-gray-400' }[s] || 'bg-gray-700');
                 container.innerHTML = paquetes.map(p => `
-                    <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                    <div class="bg-slate-200 dark:bg-gray-800 p-4 rounded-xl border border-slate-300 dark:border-gray-700">
                         <div class="flex justify-between items-center mb-2"><p class="font-mono font-semibold">${p.tracking}</p><span class="text-xs font-bold px-2 py-1 rounded-full ${statusBadge(p.status)}">${p.status || 'N/A'}</span></div>
-                        <div class="text-sm text-gray-400 flex justify-between"><span>Recibido: ${formatDate(p.fecha_bodega).split(',')[0]}</span><span>${p.peso ? p.peso.toFixed(2) + ' lbs' : ''}</span></div>
+                        <div class="text-sm text-slate-500 dark:text-gray-400 flex justify-between"><span>Recibido: ${formatDate(p.fecha_bodega).split(',')[0]}</span><span>${p.peso ? p.peso.toFixed(2) + ' lbs' : ''}</span></div>
                     </div>`).join('');
             }
             lucide.createIcons();
@@ -326,16 +351,16 @@
         const loadFacturas = async () => {
             const container = document.getElementById('facturas-list-container');
             container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
-            if (!currentUserProfile?.box) { container.innerHTML = `<p class="text-red-400 text-center">Casillero no encontrado.</p>`; return; }
+            if (!currentUserProfile?.box) { container.innerHTML = `<p class="text-red-500 dark:text-red-400 text-center">Casillero no encontrado.</p>`; return; }
 
             const [facturasRes, paquetesRes] = await Promise.all([
                 supabaseClient.from('facturas').select('id, created_at, monto_total, html_recibo').eq('cliente_box', currentUserProfile.box).order('created_at', { ascending: false }),
                 supabaseClient.from('paquetes').select('factura_id').not('factura_id', 'is', null)
             ]);
 
-            if (facturasRes.error) { container.innerHTML = `<p class="text-red-400 text-center">Error al cargar facturas.</p>`; return; }
+            if (facturasRes.error) { container.innerHTML = `<p class="text-red-500 dark:text-red-400 text-center">Error al cargar facturas.</p>`; return; }
             if (!facturasRes.data.length) {
-                container.innerHTML = `<div class="text-center p-8"><i data-lucide="receipt" class="h-16 w-16 text-gray-700 mx-auto"></i><p class="mt-4">No tienes facturas.</p></div>`;
+                container.innerHTML = `<div class="text-center p-8"><i data-lucide="receipt" class="h-16 w-16 text-slate-400 dark:text-gray-700 mx-auto"></i><p class="mt-4">No tienes facturas.</p></div>`;
                 lucide.createIcons(); return;
             }
 
@@ -346,19 +371,19 @@
                 const tieneRecibo = f.html_recibo && f.html_recibo.length > 10;
                 const numPaquetes = paquetesPorFactura[f.id] || 0;
                 return `
-                    <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
+                    <div class="bg-slate-200 dark:bg-gray-800 p-4 rounded-xl border border-slate-300 dark:border-gray-700">
                         <div class="flex justify-between items-center">
                             <div>
-                                <p class="font-bold text-white text-lg font-mono">$${(f.monto_total || 0).toFixed(2)}</p>
-                                <p class="text-xs text-gray-400">Factura #${numeroFactura}</p>
-                                <p class="text-xs text-gray-500 mt-1">${formatDate(f.created_at).split(',')[0]}</p>
+                                <p class="font-bold text-slate-900 dark:text-white text-lg font-mono">$${(f.monto_total || 0).toFixed(2)}</p>
+                                <p class="text-xs text-slate-500 dark:text-gray-400">Factura #${numeroFactura}</p>
+                                <p class="text-xs text-slate-400 dark:text-gray-500 mt-1">${formatDate(f.created_at).split(',')[0]}</p>
                             </div>
                             <div class="text-right">
                                 ${tieneRecibo 
                                     ? `<button data-factura-id="${f.id}" class="view-receipt-btn bg-blue-500 text-white font-semibold text-xs px-3 py-1.5 rounded-md hover:bg-blue-600">Ver Recibo</button>`
-                                    : `<button disabled class="bg-gray-600 text-gray-400 font-semibold text-xs px-3 py-1.5 rounded-md cursor-not-allowed">No Disponible</button>`
+                                    : `<button disabled class="bg-gray-400 dark:bg-gray-600 text-gray-100 dark:text-gray-400 font-semibold text-xs px-3 py-1.5 rounded-md cursor-not-allowed">No Disponible</button>`
                                 }
-                                ${numPaquetes > 0 ? `<p class="text-xs text-gray-500 mt-1">${numPaquetes} paquete(s)</p>` : ''}
+                                ${numPaquetes > 0 ? `<p class="text-xs text-slate-400 dark:text-gray-500 mt-1">${numPaquetes} paquete(s)</p>` : ''}
                             </div>
                         </div>
                     </div>`;
@@ -381,15 +406,15 @@
             e.preventDefault();
             const msgEl = document.getElementById('profile-message');
             msgEl.textContent = 'Guardando...';
-            msgEl.classList.remove('text-red-400', 'text-green-400');
+            msgEl.classList.remove('text-red-500', 'text-green-500');
             const { data: { user } } = await supabaseClient.auth.getUser();
             const { error } = await supabaseClient.from('clientes').update({ telefono: document.getElementById('profile-phone').value, sucursal: document.getElementById('profile-sucursal').value }).eq('user_id', user.id);
             if(error){
                 msgEl.textContent = 'Error al actualizar.';
-                msgEl.classList.add('text-red-400');
+                msgEl.classList.add('text-red-500');
             } else {
                 msgEl.textContent = '¡Perfil actualizado!';
-                msgEl.classList.add('text-green-400');
+                msgEl.classList.add('text-green-500');
             }
         };
         
@@ -397,23 +422,23 @@
             const container = document.getElementById('direcciones-content');
             container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
             const { data: userInfo } = await supabaseClient.rpc('get_direcciones_casillero');
-            if (!userInfo) { container.innerHTML = `<p class="text-red-400 text-center">No se pudo cargar tu información.</p>`; return; }
+            if (!userInfo) { container.innerHTML = `<p class="text-red-500 dark:text-red-400 text-center">No se pudo cargar tu información.</p>`; return; }
             
             const { nombre, box, codigo_sucursal } = userInfo;
             const nombreLinea1 = `${codigo_sucursal || 'PSC'}${box || ''} ${nombre || ''}`;
             const renderAddressCard = (addr) => {
                 let copyIdCounter = Math.random().toString(36).substring(7);
-                return `<section><h2 class="text-base font-semibold text-white mb-3">${addr.titulo}</h2>${addr.nota ? `<p class="text-xs text-yellow-400 bg-yellow-900/50 p-2 rounded-md mb-3">${addr.nota}</p>` : ''}<div class="bg-gray-800 rounded-xl divide-y divide-gray-700">${addr.datos.map((item, index) => { const uniqueId = `copy-${copyIdCounter}-${index}`; return `<div class="px-3 py-2 flex justify-between items-center"><div><p class="text-xs text-gray-400">${item.label}:</p><p class="text-sm text-white font-mono" id="${uniqueId}">${item.value}</p></div><button class="copy-btn p-2 rounded-lg hover:bg-gray-700" data-target="${uniqueId}"><i data-lucide="copy" class="h-4 w-4 text-gray-400"></i></button></div>`; }).join('')}</div></section>`;
+                return `<section><h2 class="text-base font-semibold text-slate-900 dark:text-white mb-3">${addr.titulo}</h2>${addr.nota ? `<p class="text-xs text-yellow-500 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/50 p-2 rounded-md mb-3">${addr.nota}</p>` : ''}<div class="bg-slate-200 dark:bg-gray-800 rounded-xl divide-y divide-slate-300 dark:divide-gray-700">${addr.datos.map((item, index) => { const uniqueId = `copy-${copyIdCounter}-${index}`; return `<div class="px-3 py-2 flex justify-between items-center"><div><p class="text-xs text-slate-500 dark:text-gray-400">${item.label}:</p><p class="text-sm text-slate-800 dark:text-white font-mono" id="${uniqueId}">${item.value}</p></div><button class="copy-btn p-2 rounded-lg hover:bg-slate-300 dark:hover:bg-gray-700" data-target="${uniqueId}"><i data-lucide="copy" class="h-4 w-4 text-slate-500 dark:text-gray-400"></i></button></div>`; }).join('')}</div></section>`;
             };
             container.innerHTML = `
                 ${renderAddressCard({ titulo: 'Bodega Principal (Aéreo)', datos: [ { label: 'Nombre', value: nombreLinea1 }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })}
                 ${renderAddressCard({ titulo: 'Dirección Marítima', datos: [ { label: 'Nombre', value: `OCEAN ${nombreLinea1}` }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })}
-                <section><h2 class="text-base font-semibold text-white mb-3">Dirección Alterna</h2><div class="bg-gray-800 p-4 rounded-xl"><p class="text-sm mb-3">¿La tienda no envía a warehouse?</p><div class="flex items-center space-x-4"><label class="flex items-center"><input type="radio" name="showAlterna" value="no" checked class="h-4 w-4"><span class="ml-2">No</span></label><label class="flex items-center"><input type="radio" name="showAlterna" value="yes" class="h-4 w-4"><span class="ml-2">Sí</span></label></div></div></section>
+                <section><h2 class="text-base font-semibold text-slate-900 dark:text-white mb-3">Dirección Alterna</h2><div class="bg-slate-200 dark:bg-gray-800 p-4 rounded-xl"><p class="text-sm mb-3">¿La tienda no envía a warehouse?</p><div class="flex items-center space-x-4"><label class="flex items-center"><input type="radio" name="showAlterna" value="no" checked class="h-4 w-4"><span class="ml-2">No</span></label><label class="flex items-center"><input type="radio" name="showAlterna" value="yes" class="h-4 w-4"><span class="ml-2">Sí</span></label></div></div></section>
                 <div id="alterna-container" class="hidden">${renderAddressCard({ titulo: 'Bodega Alterna (Casa)', nota: 'Solo usar si es estrictamente necesario.', datos: [ { label: 'Nombre', value: nombreLinea1 }, { label: 'Dirección', value: '15421 SW 26 TH TERR, MIAMI, FL 33185-4866' }] })}</div>
             `;
             container.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', () => {
                 const text = document.getElementById(btn.dataset.target).innerText;
-                navigator.clipboard.writeText(text).then(() => { btn.innerHTML = '<i data-lucide="check" class="h-4 w-4 text-green-400"></i>'; setTimeout(() => { btn.innerHTML = '<i data-lucide="copy" class="h-4 w-4 text-gray-400"></i>'; lucide.createIcons(); }, 2000); lucide.createIcons(); });
+                navigator.clipboard.writeText(text).then(() => { btn.innerHTML = '<i data-lucide="check" class="h-4 w-4 text-green-500 dark:text-green-400"></i>'; setTimeout(() => { btn.innerHTML = '<i data-lucide="copy" class="h-4 w-4 text-slate-500 dark:text-gray-400"></i>'; lucide.createIcons(); }, 2000); lucide.createIcons(); });
             }));
             container.querySelectorAll('input[name="showAlterna"]').forEach(radio => radio.addEventListener('change', (e) => {
                 document.getElementById('alterna-container').classList.toggle('hidden', e.target.value === 'no');
@@ -425,14 +450,14 @@
             const container = document.getElementById('notificaciones-list-container');
             container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
             const { data: notificaciones, error } = await supabaseClient.rpc('get_my_notifications');
-            if (error) { container.innerHTML = `<p class="text-red-400 text-center">Error al cargar notificaciones.</p>`; return; }
+            if (error) { container.innerHTML = `<p class="text-red-500 dark:text-red-400 text-center">Error al cargar notificaciones.</p>`; return; }
             if (!notificaciones || !notificaciones.length) {
-                container.innerHTML = `<div class="text-center p-8"><i data-lucide="bell-off" class="h-16 w-16 text-gray-700 mx-auto"></i><p class="mt-4">No tienes notificaciones.</p></div>`;
+                container.innerHTML = `<div class="text-center p-8"><i data-lucide="bell-off" class="h-16 w-16 text-slate-400 dark:text-gray-700 mx-auto"></i><p class="mt-4">No tienes notificaciones.</p></div>`;
             } else {
                 container.innerHTML = notificaciones.map(n => `
-                    <div class="bg-gray-800 p-4 rounded-xl border border-gray-700">
-                        <p class="text-white">${n.mensaje}</p>
-                        <p class="text-xs text-gray-500 text-right mt-2">${formatDate(n.created_at)}</p>
+                    <div class="bg-slate-200 dark:bg-gray-800 p-4 rounded-xl border border-slate-300 dark:border-gray-700">
+                        <p class="text-slate-800 dark:text-white">${n.mensaje}</p>
+                        <p class="text-xs text-slate-400 dark:text-gray-500 text-right mt-2">${formatDate(n.created_at)}</p>
                     </div>
                 `).join('');
             }
@@ -526,10 +551,10 @@
             const viewButton = e.target.closest('.view-receipt-btn');
             if (viewButton) {
                 const facturaId = viewButton.dataset.facturaId;
-                facturaModalContent.innerHTML = `<div class="text-center p-8 text-white"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
+                facturaModalContent.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
                 facturaModal.classList.remove('hidden');
                 const { data } = await supabaseClient.from('facturas').select('html_recibo').eq('id', facturaId).single();
-                facturaModalContent.innerHTML = data?.html_recibo || '<p class="text-white">No se encontró el contenido del recibo.</p>';
+                facturaModalContent.innerHTML = data?.html_recibo || '<p class="text-slate-800 dark:text-white">No se encontró el contenido del recibo.</p>';
             }
         });
         document.getElementById('close-factura-modal-btn').addEventListener('click', () => facturaModal.classList.add('hidden'));
@@ -604,6 +629,9 @@
     </script>
 </body>
 </html>
+
+
+
 
 
 
