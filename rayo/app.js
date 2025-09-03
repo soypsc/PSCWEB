@@ -26,11 +26,12 @@ function loadMenu() {
 
 // En tu archivo app.js
 
-async function initializeMenuLogic() { // Asegúrate de que la función sea async
+// En tu archivo app.js
+
+async function initializeMenuLogic() {
     // Lógica para el botón del menú móvil
     const mobileMenuButton = document.getElementById('mobile-menu-button');
     const sidebar = document.getElementById('sidebar');
-    
     if (mobileMenuButton && sidebar) {
         mobileMenuButton.addEventListener('click', () => {
             sidebar.classList.toggle('-translate-x-full');
@@ -47,21 +48,27 @@ async function initializeMenuLogic() { // Asegúrate de que la función sea asyn
         }
     });
 
-    // --- NUEVO CÓDIGO PARA OCULTAR ENLACES POR ROL ---
+    // --- NUEVA LÓGICA DE VISIBILIDAD POR ROLES ---
     try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
             const { data: rol } = await supabase.rpc('get_my_rol');
-            if (rol && rol !== 'admin') {
-                document.querySelectorAll('.admin-link').forEach(link => link.style.display = 'none');
+
+            if (rol === 'empleado') {
+                // Si es empleado, oculta los de admin y los de cde
+                document.querySelectorAll('.admin-section, .cde-link').forEach(el => el.style.display = 'none');
+            } else if (rol === 'cde') {
+                // Si es cde, oculta los de admin y los de empleado
+                document.querySelectorAll('.admin-section, .employee-link').forEach(el => el.style.display = 'none');
             }
+            // Si es 'admin', no se oculta nada, por lo que ve todo.
         }
     } catch (error) {
-        console.error("Error al verificar el rol del usuario:", error);
+        console.error("Error al verificar el rol para el menú:", error);
     }
-    // --- FIN DEL NUEVO CÓDIGO ---
+    // --- FIN DE LA NUEVA LÓGICA ---
 
-    // --- LÓGICA PARA CERRAR SESIÓN ---
+    // Lógica para cerrar sesión
     const logoutButton = document.getElementById('logout-button');
     if (logoutButton) {
         logoutButton.addEventListener('click', async (e) => {
