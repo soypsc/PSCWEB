@@ -25,9 +25,6 @@ function loadMenu() {
 }
 
 // En tu archivo app.js
-
-// En tu archivo app.js
-
 async function initializeMenuLogic() {
     // Lógica para el botón del menú móvil
     const mobileMenuButton = document.getElementById('mobile-menu-button');
