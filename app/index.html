@@ -313,18 +313,22 @@
                 console.log("-> Service Worker listo.", registration);
                 
                 console.log("3. Obteniendo VAPID Public Key de la base de datos...");
-                const { data: config, error: configError } = await supabaseClient.from('configuracion_privada').select('vapid_public_key').single();
-                if (configError || !config) {
-                    console.error("ERROR FATAL: No se pudo obtener la VAPID public key de la BD.", configError);
+
+                // --- CORRECCIÓN FINAL ---
+                // Llamamos a la función segura en lugar de leer la tabla directamente
+                const { data: vapid_public_key, error: rpcError } = await supabaseClient.rpc('get_vapid_public_key');
+                
+                if (rpcError || !vapid_public_key) {
+                    console.error("ERROR FATAL: No se pudo obtener la VAPID public key usando la función RPC.", rpcError);
                     console.groupEnd();
                     return;
                 }
-                console.log("-> VAPID Key obtenida:", config.vapid_public_key);
+                console.log("-> VAPID Key obtenida:", vapid_public_key);
 
                 console.log("4. Solicitando suscripción al Push Manager...");
                 const subscription = await registration.pushManager.subscribe({
                     userVisibleOnly: true,
-                    applicationServerKey: urlBase64ToUint8Array(config.vapid_public_key)
+                    applicationServerKey: urlBase64ToUint8Array(vapid_public_key) // Usamos la clave que devolvió la función
                 });
                 console.log("-> Suscripción obtenida del navegador:", subscription);
                 
@@ -468,6 +472,10 @@
     </script>
 </body>
 </html>
+
+
+
+
 
 
 
