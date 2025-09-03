@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGL1 - Recepción CDE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .code { font-size: 13px; font-weight: 600; color: #94a3b8; margin-right: 12px; background-color: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+<script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
+    (async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { window.location.href = 'login.html'; return; }
+        
+        const { data: perfil, error } = await supabase.from('perfiles').select('rol').eq('id', session.user.id).single();
+        // Seguridad: Solo roles 'cde' o 'admin' pueden acceder
+        if (error || !perfil || (perfil.rol !== 'cde' && perfil.rol !== 'admin')) {
+            await supabase.auth.signOut();
+            window.location.href = 'login.html?error=unauthorized';
+        }
+    })();
+</script>
+
+<div class="relative min-h-screen md:flex">
+    <div id="menu-container"></div>
+
+    <main class="flex-1 p-4 md:p-8">
+        <h1 class="text-2xl md:text-3xl font-bold text-slate-900 flex items-center mb-6">
+            <span class="code">[CDE-01]</span>Recepción en Centro de Entrega: <span id="sucursal-title" class="ml-2"></span>
+        </h1>
+        
+        <div class="bg-white p-6 rounded-lg border shadow-sm">
+            <div class="mb-4">
+                <h2 class="text-xl font-bold text-slate-800">Paquetes "En Tránsito"</h2>
+                <p class="text-sm text-slate-500">Verifica los paquetes recibidos marcando la casilla correspondiente.</p>
+            </div>
+
+            <div class="overflow-x-auto max-h-[50vh]">
+                <table class="w-full text-sm">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0">
+                        <tr>
+                            <th class="px-6 py-3 text-left w-12"><input type="checkbox" id="select-all-checkbox"></th>
+                            <th class="px-6 py-3 text-left">Tracking</th>
+                            <th class="px-6 py-3 text-left">Cliente</th>
+                            <th class="px-6 py-3 text-left">Peso (lbs)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="packages-table-body">
+                        </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-6 pt-6 border-t flex flex-col md:flex-row gap-4 items-center">
+                <div class="w-full md:w-1/2">
+                    <label for="anaquel-select" class="block text-sm font-medium text-slate-600 mb-1">Asignar Anaquel (a todos los seleccionados)</label>
+                    <select id="anaquel-select" class="w-full p-2 border border-slate-300 rounded-md bg-white">
+                        <option value="">Cargando anaqueles...</option>
+                    </select>
+                </div>
+                <div class="w-full md:w-1/2 md:pt-5">
+                    <button id="confirm-button" class="w-full bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-emerald-600 disabled:bg-slate-400" disabled>
+                        Confirmar Recepción de Lote (<span id="selected-count">0</span>)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script type="module" src="app.js"></script>
+<script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
+    const sucursalTitle = document.getElementById('sucursal-title');
+    const tableBody = document.getElementById('packages-table-body');
+    const anaquelSelect = document.getElementById('anaquel-select');
+    const confirmButton = document.getElementById('confirm-button');
+    const selectedCountSpan = document.getElementById('selected-count');
+    const selectAllCheckbox = document.getElementById('select-all-checkbox');
+
+    let currentUserProfile = null;
+
+    function renderPackages(packages) {
+        if (!packages || packages.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-6 text-slate-500">No hay paquetes en tránsito para esta sucursal.</td></tr>`;
+            return;
+        }
+        tableBody.innerHTML = packages.map(p => `
+            <tr class="border-b hover:bg-slate-50">
+                <td class="px-6 py-4"><input type="checkbox" class="package-checkbox" data-id="${p.id}"></td>
+                <td class="px-6 py-4 font-mono font-semibold">${p.tracking}</td>
+                <td class="px-6 py-4">${p.cliente_nombre || 'N/A'}</td>
+                <td class="px-6 py-4">${p.peso ? p.peso.toFixed(2) : '0.00'}</td>
+            </tr>
+        `).join('');
+    }
+
+    async function loadInitialData() {
+        const { data: { user } } = await sb.auth.getUser();
+        if (!user) return;
+
+        const { data: perfil } = await sb.from('perfiles').select('rol, sucursal_defecto').eq('id', user.id).single();
+        if (!perfil) return;
+        
+        currentUserProfile = perfil;
+        sucursalTitle.textContent = perfil.sucursal_defecto || 'No Asignada';
+        
+        if (perfil.sucursal_defecto) {
+            const { data: packages, error } = await sb.from('paquetes')
+                .select('id, tracking, cliente_nombre, peso')
+                .eq('status', 'En transito')
+                .eq('sucursal', perfil.sucursal_defecto)
+                .order('created_at');
+            
+            if (error) console.error("Error cargando paquetes:", error);
+            else renderPackages(packages);
+        } else {
+            renderPackages([]);
+        }
+
+        const { data: anaqueles } = await sb.from('anaqueles').select('nombre').order('nombre');
+        anaquelSelect.innerHTML = '<option value="">Seleccione un anaquel</option>';
+        if (anaqueles) {
+            anaqueles.forEach(a => {
+                anaquelSelect.innerHTML += `<option value="${a.nombre}">${a.nombre}</option>`;
+            });
+        }
+    }
+
+    function updateButtonState() {
+        const checkedBoxes = document.querySelectorAll('.package-checkbox:checked');
+        const count = checkedBoxes.length;
+        selectedCountSpan.textContent = count;
+        confirmButton.disabled = count === 0 || !anaquelSelect.value;
+    }
+
+    selectAllCheckbox.addEventListener('change', (e) => {
+        document.querySelectorAll('.package-checkbox').forEach(checkbox => {
+            checkbox.checked = e.target.checked;
+        });
+        updateButtonState();
+    });
+
+    tableBody.addEventListener('change', (e) => {
+        if (e.target.classList.contains('package-checkbox')) {
+            updateButtonState();
+        }
+    });
+    
+    anaquelSelect.addEventListener('change', updateButtonState);
+
+    confirmButton.addEventListener('click', async () => {
+        const selectedAnaquel = anaquelSelect.value;
+        const checkedBoxes = document.querySelectorAll('.package-checkbox:checked');
+        const packageIds = Array.from(checkedBoxes).map(cb => cb.dataset.id);
+
+        if (packageIds.length === 0 || !selectedAnaquel) {
+            alert("Debe seleccionar al menos un paquete y un anaquel.");
+            return;
+        }
+
+        if (!confirm(`¿Está seguro de que desea confirmar la recepción de ${packageIds.length} paquetes y asignarlos al anaquel "${selectedAnaquel}"?`)) {
+            return;
+        }
+
+        confirmButton.disabled = true;
+        confirmButton.textContent = "Procesando...";
+
+        const { error } = await sb.rpc('confirmar_lote_cde', {
+            p_paquete_ids: packageIds,
+            p_anaquel_nombre: selectedAnaquel
+        });
+
+        if (error) {
+            alert("Error al confirmar el lote: " + error.message);
+        } else {
+            alert("¡Lote confirmado exitosamente! Los clientes serán notificados automáticamente.");
+            await loadInitialData(); // Recargar la lista
+        }
+
+        confirmButton.disabled = false;
+        confirmButton.innerHTML = `Confirmar Recepción de Lote (<span id="selected-count">0</span>)`;
+        updateButtonState();
+    });
+
+    // Carga inicial
+    loadInitialData();
+
+</script>
+</body>
+</html>
