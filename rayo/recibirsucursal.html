@@ -9,9 +9,7 @@
     <script src="config.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .sidebar-link.active { background-color: #ecfdf5; color: #059669; font-weight: 600; }
         .code { font-size: 13px; font-weight: 600; color: #94a3b8; margin-right: 12px; background-color: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
-        #sidebar { transition: transform 0.3s ease-in-out; }
         select:disabled { background-color: #e5e7eb; cursor: not-allowed; }
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
@@ -19,44 +17,20 @@
 </head>
 <body class="bg-slate-50 text-slate-800">
 <script type="module">
-        // --- INICIO DEL CÓDIGO DE SEGURIDAD MEJORADO ---
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
-
         (async () => {
-            // 1. Obtiene la sesión actual
             const { data: { session } } = await supabase.auth.getSession();
-
-            // Si NO hay sesión, expulsa al usuario a la página de login
-            if (!session) {
-                window.location.href = 'login.html';
-                return;
-            }
-
-            // 2. Si HAY sesión, verifica el rol en nuestra tabla de perfiles
-            const { data: perfil, error } = await supabase
-                .from('perfiles')
-                .select('rol')
-                .eq('id', session.user.id)
-                .single();
-
-            // 3. Si el perfil no es 'admin' o hay un error, expulsa al usuario
-            if (error || !perfil) {
-                await supabase.auth.signOut(); // Cierra la sesión del usuario no autorizado
-                window.location.href = 'login.html?error=unauthorized'; // Lo redirige a login
+            if (!session) { window.location.href = 'login.html'; return; }
+            const { data: perfil, error } = await supabase.from('perfiles').select('rol').eq('id', session.user.id).single();
+            if (error || !perfil || (perfil.rol !== 'admin' && perfil.rol !== 'empleado')) {
+                await supabase.auth.signOut();
+                window.location.href = 'login.html?error=unauthorized';
             }
         })();
-        // --- FIN DEL CÓDIGO DE SEGURIDAD MEJORADO ---
     </script>
 
     <div class="relative min-h-screen md:flex">
-        <div class="bg-white text-slate-800 flex justify-between md:hidden sticky top-0 z-20 shadow-md">
-            <a href="./index.html" class="block p-4 font-bold">SGL1</a>
-            <button id="mobile-menu-button" class="p-4 focus:outline-none focus:bg-slate-200">
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
-            </button>
-        </div>
-
         <div id="menu-container"></div>
 
         <main class="flex-1 p-8">
@@ -82,11 +56,10 @@
                                         <th class="px-6 py-3 text-left">Cliente</th>
                                         <th class="px-6 py-3 text-left">Casillero</th>
                                         <th class="px-6 py-3 text-left">Tracking</th>
-                                        <th class="px-6 py-3 text-center">Notificar</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tabla-paquetes-transito">
-                                    <tr><td colspan="4" class="text-center p-4 text-slate-500">Cargando...</td></tr>
+                                    <tr><td colspan="3" class="text-center p-4 text-slate-500">Cargando...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -95,7 +68,7 @@
                     <div class="bg-white p-6 rounded-lg border-2 border-emerald-500 shadow-sm">
                         <div class="flex justify-between items-center mb-4">
                             <h2 class="text-xl font-bold text-emerald-700">Paquetes Verificados (Agrupados por Cliente)</h2>
-                            <button id="btn-notificar-todos" class="bg-orange-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-orange-600 disabled:bg-slate-400" disabled>Notificar a Todos</button>
+                            <button id="btn-notificar-todos" class="bg-orange-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-orange-600 disabled:bg-slate-400" disabled>Preparar Notificaciones</button>
                         </div>
                         <div id="verificados-container" class="space-y-4">
                             <p id="verificados-placeholder" class="text-center p-4 text-slate-500">Aún no se han verificado paquetes.</p>
@@ -110,17 +83,13 @@
                             <div>
                                 <label for="sucursal-destino" class="block text-sm font-medium text-slate-600 mb-1">Sucursal (Sesión)</label>
                                 <div class="flex items-center gap-2">
-                                    <select id="sucursal-destino" class="w-full p-2 border border-slate-300 rounded-md" required>
-                                        <option value="">Cargando...</option>
-                                    </select>
+                                    <select id="sucursal-destino" class="w-full p-2 border border-slate-300 rounded-md" required></select>
                                     <button type="button" id="lock-sucursal-btn" class="p-2 border rounded-md hover:bg-slate-100"></button>
                                 </div>
                             </div>
                             <div>
                                 <label for="anaquel-destino" class="block text-sm font-medium text-slate-600 mb-1">Asignar Anaquel (A todos los verificados)</label>
-                                <select id="anaquel-destino" class="w-full p-2 border border-slate-300 rounded-md" required>
-                                    <option value="">Cargando...</option>
-                                </select>
+                                <select id="anaquel-destino" class="w-full p-2 border border-slate-300 rounded-md" required></select>
                             </div>
                         </div>
                         <div class="mt-6 pt-6 border-t border-slate-200">
@@ -129,7 +98,7 @@
                                 <p>Esperando escaneo...</p>
                             </div>
                         </div>
-                        <button type="submit" id="btn-confirmar-lote" class="w-full mt-6 bg-sky-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-sky-500/20 hover:bg-sky-600 disabled:bg-slate-400" disabled>
+                        <button type="submit" id="btn-confirmar-lote" class="w-full mt-6 bg-sky-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-sky-600 disabled:bg-slate-400" disabled>
                             Confirmar Recepción de Lote
                         </button>
                     </form>
@@ -174,7 +143,7 @@
                 let isSucursalLocked = false;
                 const DEFAULT_TARIFA = 4.00;
                 
-                const unlockedIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v3m-6 4h12a2 2 0 002-2v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7a2 2 0 002 2z" /></svg>`;
+                const unlockedIcon = `<svg xmlns="http://www.w.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v3m-6 4h12a2 2 0 002-2v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7a2 2 0 002 2z" /></svg>`;
                 const lockedIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7a2 2 0 002 2z" /></svg>`;
                 
                 function showAlert(message) {
@@ -206,7 +175,6 @@
                             <td class="px-6 py-3">${p.cliente_nombre || 'N/A'}</td>
                             <td class="px-6 py-3 font-semibold">${p.cliente_box || 'N/A'}</td>
                             <td class="px-6 py-3 font-medium">${p.tracking}</td>
-                            <td class="px-6 py-3 text-center text-slate-300" title="Escanee el paquete primero">Whatsapp</td>
                         </tr>`).join('');
                 }
 
@@ -215,9 +183,7 @@
                     const hayVerificados = grupos.length > 0;
                     verificadosPlaceholder.classList.toggle('hidden', hayVerificados);
                     btnConfirmarLote.disabled = !hayVerificados;
-                    
-                    const hayPendientesDeNotificar = grupos.some(g => !g.notificado && g.info.telefono);
-                    btnNotificarTodos.disabled = !hayPendientesDeNotificar;
+                    btnNotificarTodos.disabled = !hayVerificados;
 
                     if (!hayVerificados) {
                         verificadosContainer.innerHTML = '';
@@ -226,29 +192,11 @@
 
                     verificadosContainer.innerHTML = grupos.map(grupo => {
                         const totalCosto = grupo.paquetes.reduce((sum, p) => sum + ((p.peso || 0) * (grupo.info.tarifa_1 || DEFAULT_TARIFA)), 0);
-                        const mensaje = encodeURIComponent(`¡Hola ${grupo.info.nombre}! Han llegado tus paquetes a la sucursal. Trackings: ${grupo.paquetes.map(p => p.tracking).join(', ')}. El total a pagar es $${totalCosto.toFixed(2)}. ¡Te esperamos!`);
-                        const whatsappLink = grupo.info.telefono ? `https://wa.me/${grupo.info.telefono.replace(/\D/g, '')}?text=${mensaje}` : '';
-                        
-                        const notificado = grupo.notificado;
-                        const noTelefono = !grupo.info.telefono;
-
-                        let botonHTML = '';
-                        if (notificado) {
-                            botonHTML = `<button class="bg-green-200 text-green-800 font-bold py-2 px-3 rounded-md text-xs cursor-default">Notificado ✔</button>`;
-                        } else if (noTelefono) {
-                            botonHTML = `<button class="bg-slate-200 text-slate-500 font-semibold py-2 px-3 rounded-md text-xs cursor-not-allowed" title="Cliente sin teléfono registrado">Notificar</button>`;
-                        } else {
-                            botonHTML = `<button data-casillero="${grupo.info.box}" data-link="${whatsappLink}" class="btn-notificar-individual bg-green-500 text-white font-semibold py-2 px-3 rounded-md text-xs hover:bg-green-600">Notificar Cliente</button>`;
-                        }
-
                         return `
                             <div class="p-4 border rounded-lg bg-slate-50 fade-in">
-                                <div class="flex justify-between items-center border-b pb-2 mb-2">
-                                    <div>
-                                        <h3 class="font-bold text-slate-800">${grupo.info.nombre}</h3>
-                                        <p class="text-sm text-slate-500">Casillero: ${grupo.info.box}</p>
-                                    </div>
-                                    ${botonHTML}
+                                <div class="border-b pb-2 mb-2">
+                                    <h3 class="font-bold text-slate-800">${grupo.info.nombre}</h3>
+                                    <p class="text-sm text-slate-500">Casillero: ${grupo.info.box}</p>
                                 </div>
                                 <ul class="text-sm list-disc list-inside mb-2">
                                     ${grupo.paquetes.map(p => `<li>${p.tracking} (${(p.peso || 0).toFixed(2)} lbs)</li>`).join('')}
@@ -278,31 +226,22 @@
                     }
 
                     if (!todosLosPaquetes || todosLosPaquetes.length === 0) {
-                        tablaTransitoBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500">No hay paquetes.</td></tr>`;
                         paquetesEnTransito = [];
                         renderTablaEnTransito();
                         return;
                     }
                     
                     const paquetesFiltrados = todosLosPaquetes.filter(p => p.sucursal === sucursal && p.status === 'En transito');
-
                     const clienteBoxes = [...new Set(paquetesFiltrados.map(p => p.cliente_box).filter(b => b))];
                     let clientesMap = {};
                     if (clienteBoxes.length > 0) {
                         const { data: clientesData } = await sb.from('clientes').select('box, telefono, tarifa_1').in('box', clienteBoxes);
                         if (clientesData) {
-                            clientesMap = clientesData.reduce((map, cliente) => {
-                                map[cliente.box] = cliente;
-                                return map;
-                            }, {});
+                            clientesMap = clientesData.reduce((map, cliente) => { map[cliente.box] = cliente; return map; }, {});
                         }
                     }
 
-                    paquetesEnTransito = paquetesFiltrados.map(p => ({
-                        ...p,
-                        clientes: clientesMap[p.cliente_box] || {} 
-                    }));
-                    
+                    paquetesEnTransito = paquetesFiltrados.map(p => ({ ...p, clientes: clientesMap[p.cliente_box] || {} }));
                     renderTablaEnTransito();
                     gruposVerificados = {};
                     renderGruposVerificados();
@@ -328,14 +267,14 @@
                     const clienteBox = paquete.cliente_box;
 
                     if (!gruposVerificados[clienteBox]) {
-                         const clienteData = paquete.clientes;
+                        const clienteData = paquete.clientes;
                         const clienteInfo = {
                             nombre: paquete.cliente_nombre,
                             box: clienteBox,
                             telefono: clienteData.telefono,
                             tarifa_1: clienteData.tarifa_1
                         };
-                        gruposVerificados[clienteBox] = { info: clienteInfo, paquetes: [], notificado: false };
+                        gruposVerificados[clienteBox] = { info: clienteInfo, paquetes: [] };
                     }
 
                     gruposVerificados[clienteBox].paquetes.push(paquete);
@@ -348,14 +287,6 @@
                     `;
                     
                     renderTablaEnTransito();
-                    renderGruposVerificados();
-                }
-                
-                function notificarCliente(casillero, link) {
-                    window.open(link, '_blank');
-                    if(gruposVerificados[casillero]) {
-                        gruposVerificados[casillero].notificado = true;
-                    }
                     renderGruposVerificados();
                 }
 
@@ -400,6 +331,29 @@
                     btnConfirmarLote.textContent = "Confirmar Recepción de Lote";
                     btnConfirmarLote.disabled = Object.keys(gruposVerificados).length === 0;
                 });
+
+                btnNotificarTodos.addEventListener('click', async () => {
+                    const todosLosPaquetesVerificados = Object.values(gruposVerificados).flatMap(g => g.paquetes);
+                    const paqueteIds = todosLosPaquetesVerificados.map(p => p.id);
+                    if (paqueteIds.length === 0) {
+                        alert("No hay paquetes verificados para notificar.");
+                        return;
+                    }
+                    if (!confirm(`¿Desea preparar las notificaciones para los ${paqueteIds.length} paquetes verificados?`)) return;
+
+                    btnNotificarTodos.disabled = true;
+                    btnNotificarTodos.textContent = "Preparando...";
+                    
+                    const { error } = await sb.rpc('crear_notificaciones_masivas', { p_paquete_ids: paqueteIds });
+                    if (error) {
+                        alert("Error al preparar las notificaciones: " + error.message);
+                        btnNotificarTodos.disabled = false; // Re-enable on error
+                    } else {
+                        alert("¡Notificaciones preparadas con éxito! Se enviarán próximamente.");
+                        btnNotificarTodos.textContent = "Notificaciones Preparadas";
+                        btnNotificarTodos.classList.replace('bg-orange-500', 'bg-green-500');
+                    }
+                });
                 
                 trackingInput.addEventListener('change', (e) => procesarEscaneo(e.target.value.trim()));
                 sucursalSelect.addEventListener('change', refrescarListaPrincipal);
@@ -409,19 +363,6 @@
                     lockButton.innerHTML = isSucursalLocked ? lockedIcon : unlockedIcon;
                 });
                 
-                verificadosContainer.addEventListener('click', (e) => {
-                    const target = e.target.closest('.btn-notificar-individual');
-                    if (target) {
-                        notificarCliente(target.dataset.casillero, target.dataset.link);
-                    }
-                });
-
-                btnNotificarTodos.addEventListener('click', () => {
-                    document.querySelectorAll('.btn-notificar-individual').forEach(btn => {
-                        btn.click(); 
-                    });
-                });
-
                 lockButton.innerHTML = unlockedIcon;
                 cargarDependencias();
 
