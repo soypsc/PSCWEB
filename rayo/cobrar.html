@@ -68,6 +68,27 @@
                                 <input type="text" id="scan-input" class="w-full text-base p-2 border-2 border-slate-400 rounded-lg" placeholder="Esperando escaneo...">
                             </div>
                             <div id="carrito-items" class="space-y-3 mb-4"></div>
+                            
+                            <div class="space-y-3 mt-4 pt-4 border-t">
+                                <h3 class="text-lg font-semibold text-slate-700">Saldos del Cliente</h3>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="flex items-center gap-2 text-slate-600">
+                                        <i data-lucide="scale" class="h-4 w-4"></i>
+                                        Saldo de Libras:
+                                    </span>
+                                    <span id="saldo-libras-display" class="font-bold">0.00 lbs</span>
+                                    <button id="btn-aplicar-libras" class="bg-indigo-500 text-white text-xs px-3 py-1 rounded-md disabled:bg-slate-400" disabled>Usar</button>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="flex items-center gap-2 text-slate-600">
+                                        <i data-lucide="zap" class="h-4 w-4"></i>
+                                        Saldo de Rayitos:
+                                    </span>
+                                    <span id="saldo-rayitos-display" class="font-bold">0</span>
+                                    <button id="btn-aplicar-rayitos" class="bg-amber-500 text-white text-xs px-3 py-1 rounded-md disabled:bg-slate-400" disabled>Usar</button>
+                                </div>
+                            </div>
+
                             <div class="space-y-2 border-t pt-4 mb-4">
                                 <label class="block text-sm font-medium text-slate-600">Código de Descuento</label>
                                 <div class="flex gap-2">
@@ -173,6 +194,11 @@
         const creditBalanceSpan = document.getElementById('credit-balance');
         const btnApplyCredit = document.getElementById('btn-apply-credit');
         const sucursalPagoSelect = document.getElementById('sucursal-pago');
+        const saldoLibrasDisplay = document.getElementById('saldo-libras-display');
+        const saldoRayitosDisplay = document.getElementById('saldo-rayitos-display');
+        const btnAplicarLibras = document.getElementById('btn-aplicar-libras');
+        const btnAplicarRayitos = document.getElementById('btn-aplicar-rayitos');
+        const CONVERSION_RAYITOS = 100; // 100 rayitos = $1
 
         async function cargarSucursales() {
             const { data, error } = await sb.from('sucursales').select('sucursal').order('sucursal');
@@ -183,29 +209,18 @@
             sucursalPagoSelect.innerHTML = data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join('');
         }
         
-        // Reemplaza la versión anterior de esta función por esta
-async function configurarSucursalPorDefecto() {
-    const { data: { user } } = await sb.auth.getUser();
-    if (!user) return;
-
-    // Ahora también pedimos el 'rol' además de la sucursal
-    const { data: perfil, error } = await sb.from('perfiles')
-        .select('rol, sucursal_defecto') // <-- CAMBIO AQUÍ
-        .eq('id', user.id)
-        .single();
-
-    // Primero, nos aseguramos de que el selector esté habilitado
-    sucursalPagoSelect.disabled = false;
-
-    if (perfil && perfil.sucursal_defecto) {
-        sucursalPagoSelect.value = perfil.sucursal_defecto;
-
-        // Si el rol NO es 'admin', deshabilitamos el selector
-        if (perfil.rol !== 'admin') { // <-- CAMBIO AQUÍ
-            sucursalPagoSelect.disabled = true;
+        async function configurarSucursalPorDefecto() {
+            const { data: { user } } = await sb.auth.getUser();
+            if (!user) return;
+            const { data: perfil, error } = await sb.from('perfiles').select('rol, sucursal_defecto').eq('id', user.id).single();
+            sucursalPagoSelect.disabled = false;
+            if (perfil && perfil.sucursal_defecto) {
+                sucursalPagoSelect.value = perfil.sucursal_defecto;
+                if (perfil.rol !== 'admin') {
+                    sucursalPagoSelect.disabled = true;
+                }
+            }
         }
-    }
-}
 
         function renderPendientes() {
             if (paquetesPendientes.length === 0) {
@@ -269,7 +284,7 @@ async function configurarSucursalPorDefecto() {
             }
             if (!searchTerm) return;
             const isNumeric = !isNaN(searchTerm);
-            let query = sb.from('clientes').select('*');
+            let query = sb.from('clientes').select('*, saldo_libras, saldo_rayitos');
             if (isNumeric) query = query.eq('box', parseInt(searchTerm));
             else query = query.ilike('nombre', `%${searchTerm}%`);
             const { data, error } = await query.limit(1).single();
@@ -285,6 +300,11 @@ async function configurarSucursalPorDefecto() {
             }
 
             clienteNombreTitulo.textContent = clienteActual.nombre;
+            saldoLibrasDisplay.textContent = `${(clienteActual.saldo_libras || 0).toFixed(2)} lbs`;
+            saldoRayitosDisplay.textContent = `${(clienteActual.saldo_rayitos || 0).toFixed(0)}`;
+            btnAplicarLibras.disabled = (clienteActual.saldo_libras || 0) <= 0;
+            btnAplicarRayitos.disabled = (clienteActual.saldo_rayitos || 0) < CONVERSION_RAYITOS;
+
             terminalContent.classList.remove('hidden');
             if (clienteActual.saldo_a_favor > 0) {
                 creditBalanceSpan.textContent = `$${clienteActual.saldo_a_favor.toFixed(2)}`;
@@ -467,6 +487,81 @@ async function configurarSucursalPorDefecto() {
                 btnApplyCredit.textContent = "Aplicar Saldo";
             }
         }
+        
+        async function handleAplicarLibras() {
+            if (!clienteActual || (clienteActual.saldo_libras || 0) <= 0) return;
+            const costoLibras = carrito.reduce((acc, p) => acc + (p.peso || 0), 0) * (clienteActual.tarifa_1 || 4.00);
+            const librasAConsumir = costoLibras / (clienteActual.tarifa_1 || 4.00);
+
+            if ((clienteActual.saldo_libras || 0) < librasAConsumir) {
+                alert("El cliente no tiene suficientes libras para cubrir el flete.");
+                return;
+            }
+
+            if (!confirm(`¿Desea usar ${librasAConsumir.toFixed(2)} lbs del saldo del cliente para pagar el flete?`)) {
+                return;
+            }
+
+            try {
+                // Lógica de la base de datos para consumir las libras y aplicar el descuento
+                const { error } = await sb.rpc('consumir_libras_paquete', {
+                    p_cliente_id: clienteActual.id,
+                    p_libras_a_consumir: librasAConsumir,
+                    p_descripcion: `Consumo en SGL1 por ${librasAConsumir.toFixed(2)} lbs.`
+                });
+                if (error) throw error;
+
+                // Aplicar el descuento al total del carrito
+                const montoDescuento = costoLibras;
+                pagos.push({ metodo: 'Saldo de Libras', monto: montoDescuento, sucursal: 'N/A' });
+                clienteActual.saldo_libras -= librasAConsumir;
+                saldoLibrasDisplay.textContent = `${(clienteActual.saldo_libras || 0).toFixed(2)} lbs`;
+                btnAplicarLibras.disabled = true;
+
+                renderPagos();
+                calcularTotal();
+                alert("Saldo de libras aplicado correctamente.");
+            } catch (error) {
+                alert(`Error al aplicar saldo de libras: ${error.message}`);
+            }
+        }
+        
+        async function handleAplicarRayitos() {
+            if (!clienteActual || (clienteActual.saldo_rayitos || 0) < CONVERSION_RAYITOS) {
+                alert("El cliente no tiene suficientes rayitos para canjear (mínimo 100).");
+                return;
+            }
+            
+            const rayitosACanajear = clienteActual.saldo_rayitos;
+            const montoDescuento = rayitosACanajear / CONVERSION_RAYITOS;
+
+            if (!confirm(`¿Desea canjear los ${rayitosACanajear} rayitos del cliente por un descuento de $${montoDescuento.toFixed(2)}?`)) {
+                return;
+            }
+            
+            try {
+                // Lógica de la base de datos para canjear los rayitos
+                const { error } = await sb.rpc('canjear_rayitos', {
+                    p_cliente_id: clienteActual.id,
+                    p_rayitos_a_canjear: rayitosACanajear,
+                    p_descripcion: `Canje por ${rayitosACanajear} rayitos en SGL1`
+                });
+                if (error) throw error;
+
+                // Aplicar el descuento al total del carrito
+                pagos.push({ metodo: 'Rayitos', monto: montoDescuento, sucursal: 'N/A' });
+                clienteActual.saldo_rayitos = 0;
+                saldoRayitosDisplay.textContent = '0';
+                btnAplicarRayitos.disabled = true;
+
+                renderPagos();
+                calcularTotal();
+                alert("Rayitos canjeados correctamente.");
+            } catch (error) {
+                alert(`Error al canjear rayitos: ${error.message}`);
+            }
+        }
+        
 
         function calcularTotal() {
             let subtotal=0, descuentoTotalItems=0;
@@ -712,7 +807,14 @@ async function configurarSucursalPorDefecto() {
             document.getElementById('close-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
             document.getElementById('cancel-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
             btnApplyCredit.addEventListener('click', handleApplyCredit);
+            
+            btnAplicarLibras.addEventListener('click', handleAplicarLibras);
+            btnAplicarRayitos.addEventListener('click', handleAplicarRayitos);
+            
             lucide.createIcons();
+            
+            cargarSucursales();
+            configurarSucursalPorDefecto();
         });
     </script>
 </body>
