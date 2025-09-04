@@ -147,17 +147,31 @@
             });
 
             formEditUser.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const newName = editNameInput.value;
-                const newRole = editRolSelect.value;
-                const newSucursal = editSucursalSelect.value || null;
+    e.preventDefault();
+    const newName = editNameInput.value;
+    const newRole = editRolSelect.value;
+    const newSucursal = editSucursalSelect.value || null;
 
-                const { error } = await sb.rpc('update_user_details_admin', {
-                    p_user_id: editingUserId,
-                    p_new_name: newName,
-                    p_new_rol: newRole,
-                    p_new_sucursal: newSucursal
-                });
+    const { error } = await sb.rpc('update_user_details_admin', {
+        p_user_id: editingUserId,
+        p_new_name: newName,
+        p_new_rol: newRole,
+        p_new_sucursal: newSucursal
+    });
+    
+    if (error) {
+         alert(`Error al actualizar el usuario: ${error.message}`);
+         return;
+    }
+
+    alert("Usuario actualizado con éxito.");
+    editModal.classList.add('hidden');
+    
+    // --- CAMBIO CLAVE: RECARGAMOS LA TABLA COMPLETA ---
+    await cargarUsuarios();
+
+    editingUserId = null;
+});
                 
                 if (error) {
                      alert(`Error al actualizar el usuario: ${error.message}`);
