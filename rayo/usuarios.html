@@ -114,27 +114,26 @@
             }
 
             async function cargarUsuarios() {
-                const { data: usuarios, error } = await sb.rpc('get_all_users_with_roles');
-                if (error) {
-                    console.error("Error cargando usuarios:", error);
-                    tableBody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`;
-                    return;
-                }
-                
-                tableBody.innerHTML = usuarios.map(p => `
-                    <tr class="border-b">
-                        <td class="px-6 py-4 font-semibold">${p.email || 'N/A'}</td>
-                        <td class="px-6 py-4">${p.nombre || 'Sin nombre'}</td>
-                        <td class="px-6 py-4">${p.rol}</td>
-                        <td class="px-6 py-4">${p.sucursal_defecto || 'N/A'}</td>
-                        <td class="px-6 py-4">${fmtDate(p.last_sign_in_at)}</td>
-                        <td class="px-6 py-4">
-                            <button data-id="${p.id}" data-email="${p.email}" data-rol="${p.rol}" data-nombre="${p.nombre || ''}" data-sucursal="${p.sucursal_defecto || ''}" class="edit-btn text-blue-600 font-semibold hover:underline">Editar</button>
-                        </td>
-                    </tr>
-                `).join('');
-            }
-
+    const { data: usuarios, error } = await sb.rpc('get_all_users_with_roles');
+    if (error) {
+        console.error("Error cargando usuarios:", error);
+        tableBody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`;
+        return;
+    }
+    
+    tableBody.innerHTML = usuarios.map(p => `
+        <tr class="border-b">
+            <td class="px-6 py-4 font-semibold">${p.email || 'N/A'}</td>
+            <td class="px-6 py-4">${p.nombre || 'Sin nombre'}</td>
+            <td class="px-6 py-4">${p.rol}</td>
+            <td class="px-6 py-4">${p.sucursal_defecto || 'N/A'}</td>
+            <td class="px-6 py-4">${fmtDate(p.last_sign_in_at)}</td>
+            <td class="px-6 py-4">
+                <button data-id="${p.user_id}" data-email="${p.email}" data-rol="${p.rol}" data-nombre="${p.nombre || ''}" data-sucursal="${p.sucursal_defecto || ''}" class="edit-btn text-blue-600 font-semibold hover:underline">Editar</button>
+            </td>
+        </tr>
+    `).join('');
+}
             tableBody.addEventListener('click', (e) => {
                 const editButton = e.target.closest('.edit-btn');
                 if (editButton) {
