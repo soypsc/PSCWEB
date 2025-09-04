@@ -29,7 +29,7 @@
 
     <div class="max-w-md mx-auto min-h-screen">
         <header class="p-6 flex items-center space-x-4">
-            <a href="#" onclick="history.back()" class="text-slate-400 hover:text-white transition">
+            <a href="index.html" class="text-slate-400 hover:text-white transition">
                 <i data-lucide="arrow-left" class="h-6 w-6"></i>
             </a>
             <h1 class="text-xl font-bold text-white">Mi Billetera</h1>
@@ -95,7 +95,8 @@
 
             if (error || !cliente) {
                 console.error('Error al cargar datos del wallet:', error);
-                contentContainer.innerHTML = `<p class="text-center text-red-500">Error al cargar los datos. Por favor, revise los permisos de RLS.</p>`;
+                // Este error ahora debería desaparecer después de aplicar la política RLS
+                contentContainer.innerHTML = `<p class="text-center text-red-500">Error al cargar los datos. Si ya creaste la política RLS, revisa la consola del navegador para más detalles.</p>`;
                 contentContainer.classList.remove('hidden');
                 return;
             }
@@ -106,7 +107,10 @@
             lucide.createIcons();
         }
 
-        document.addEventListener('DOMContentLoaded', loadWalletData);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadWalletData();
+            lucide.createIcons(); // Llama a createIcons al cargar para el ícono de la flecha
+        });
     </script>
 </body>
 </html>
