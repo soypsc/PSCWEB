@@ -18,10 +18,16 @@
     <style>
         body { 
             font-family: 'Inter', sans-serif;
+            /* ESTILOS CONSISTENTES CON EL RESTO DE LA APP */
             background-color: #0f172a; /* bg-slate-900 */
             color: #e2e8f0; /* text-slate-200 */
         }
-        .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; }
+        .spinner { 
+            border: 4px solid #334155; /* border-slate-700 */
+            border-top-color: #60a5fa; /* border-blue-400 */
+            border-radius: 50%;
+            animation: spin 1s linear infinite; 
+        }
         @keyframes spin{ to{transform:rotate(360deg)} }
     </style>
 </head>
@@ -42,23 +48,23 @@
             </div>
             
             <section id="content-container" class="hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-indigo-900/50 p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center text-center">
-                        <div class="bg-white/10 p-3 rounded-full mb-3">
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center text-center">
+                        <div class="bg-indigo-500/10 p-3 rounded-full mb-3">
                             <i data-lucide="scale" class="h-8 w-8 text-indigo-400"></i>
                         </div>
                         <h2 class="text-lg font-bold text-white mb-1">Saldo de Libras</h2>
                         <p id="libras-balance" class="text-4xl font-extrabold text-white">0.00 lbs</p>
-                        <a href="#" class="mt-4 text-sm font-semibold text-indigo-300 hover:text-white">Ver planes de recarga</a>
+                        <a href="#" class="mt-4 text-sm font-semibold text-indigo-400 hover:text-white">Ver planes de recarga</a>
                     </div>
 
-                    <div class="bg-amber-900/50 p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center text-center">
-                        <div class="bg-white/10 p-3 rounded-full mb-3">
+                    <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center text-center">
+                        <div class="bg-amber-500/10 p-3 rounded-full mb-3">
                             <i data-lucide="zap" class="h-8 w-8 text-amber-400"></i>
                         </div>
                         <h2 class="text-lg font-bold text-white mb-1">Puntos PSC</h2>
                         <p id="rayitos-balance" class="text-4xl font-extrabold text-white">0 rayitos</p>
-                        <p class="mt-4 text-sm font-semibold text-amber-300">¡Sigue acumulando!</p>
+                        <p class="mt-4 text-sm font-semibold text-amber-400">¡Sigue acumulando!</p>
                     </div>
                 </div>
             </section>
@@ -95,8 +101,7 @@
 
             if (error || !cliente) {
                 console.error('Error al cargar datos del wallet:', error);
-                // Este error ahora debería desaparecer después de aplicar la política RLS
-                contentContainer.innerHTML = `<p class="text-center text-red-500">Error al cargar los datos. Si ya creaste la política RLS, revisa la consola del navegador para más detalles.</p>`;
+                contentContainer.innerHTML = `<p class="text-center text-red-500">Error al cargar los datos. Revisa que los nombres de las columnas ('saldo_libras', 'saldo_rayitos') sean correctos y que la política RLS esté activa.</p>`;
                 contentContainer.classList.remove('hidden');
                 return;
             }
@@ -109,7 +114,8 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             loadWalletData();
-            lucide.createIcons(); // Llama a createIcons al cargar para el ícono de la flecha
+            // Es importante llamar a createIcons aquí para que el ícono de la flecha se muestre al cargar
+            lucide.createIcons();
         });
     </script>
 </body>
