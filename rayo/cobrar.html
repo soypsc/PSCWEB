@@ -513,7 +513,7 @@
 
                 // Aplicar el descuento al total del carrito
                 const montoDescuento = costoLibras;
-                pagos.push({ metodo: 'Saldo de Libras', monto: montoDescuento, sucursal: 'N/A' });
+                pagos.push({ metodo: 'Saldo de Libras', monto: costoLibras, sucursal: sucursal });
                 clienteActual.saldo_libras -= librasAConsumir;
                 saldoLibrasDisplay.textContent = `${(clienteActual.saldo_libras || 0).toFixed(2)} lbs`;
                 btnAplicarLibras.disabled = true;
