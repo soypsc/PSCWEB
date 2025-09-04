@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGL1 - Gestión de Tarjetas de Libras</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .code { font-size: 13px; font-weight: 600; color: #94a3b8; margin-right: 12px; background-color: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+<script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+        const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+        (async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return; }
+            const { data: perfil, error } = await supabase.from('perfiles').select('rol').eq('id', session.user.id).single();
+            if (error || !perfil || (perfil.rol !== 'admin' && perfil.rol !== 'supervisor')) {
+                await supabase.auth.signOut();
+                window.location.href = 'login.html?error=unauthorized';
+            }
+        })();
+</script>
+
+<div class="relative min-h-screen md:flex">
+    <div id="menu-container"></div>
+
+    <main class="flex-1 p-8">
+        <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-6"><span class="code">[AD-06]</span>Gestión de Tarjetas de Libras</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="md:col-span-1 bg-white p-6 rounded-lg border shadow-sm h-fit">
+                <h2 class="text-xl font-bold text-slate-800 mb-4">Crear Nueva Tarjeta</h2>
+                <form id="form-crear-tarjeta" class="space-y-4">
+                    <div>
+                        <label for="cliente-search" class="block text-sm font-medium">Cliente (Casillero/Email)</label>
+                        <input type="text" id="cliente-search" class="w-full p-2 border rounded-md" required>
+                        <p id="cliente-info" class="text-sm text-slate-500 mt-1"></p>
+                    </div>
+                    <div>
+                        <label for="libras-cantidad" class="block text-sm font-medium">Cantidad de Libras</label>
+                        <input type="number" id="libras-cantidad" class="w-full p-2 border rounded-md" required>
+                    </div>
+                    <div>
+                        <label for="monto-compra" class="block text-sm font-medium">Monto de Compra ($)</label>
+                        <input type="number" step="0.01" id="monto-compra" class="w-full p-2 border rounded-md" required>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex-1">
+                            <label for="fecha-vencimiento" class="block text-sm font-medium">Fecha de Vencimiento (Opcional)</label>
+                            <input type="date" id="fecha-vencimiento" class="w-full p-2 border rounded-md">
+                        </div>
+                        <div class="flex items-center self-end mb-1">
+                            <input type="checkbox" id="is-recurrente" class="h-4 w-4 rounded">
+                            <label for="is-recurrente" class="ml-2 text-sm font-medium">Recurrente</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-emerald-600">Crear Tarjeta</button>
+                </form>
+            </div>
+
+            <div class="md:col-span-2 bg-white rounded-lg border overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left">Cliente</th>
+                            <th class="px-6 py-3 text-left">Libras</th>
+                            <th class="px-6 py-3 text-left">Monto</th>
+                            <th class="px-6 py-3 text-left">Vencimiento</th>
+                            <th class="px-6 py-3 text-center">Recurrente</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tarjetas-table-body">
+                        <tr><td colspan="5" class="text-center p-4">Cargando tarjetas...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script type="module" src="app.js"></script>
+<script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+        const form = document.getElementById('form-crear-tarjeta');
+        const clienteSearchInput = document.getElementById('cliente-search');
+        const clienteInfoP = document.getElementById('cliente-info');
+        const librasInput = document.getElementById('libras-cantidad');
+        const montoInput = document.getElementById('monto-compra');
+        const fechaVencimientoInput = document.getElementById('fecha-vencimiento');
+        const isRecurrenteCheckbox = document.getElementById('is-recurrente');
+        const tableBody = document.getElementById('tarjetas-table-body');
+        let selectedCliente = null;
+
+        async function buscarCliente() {
+            const searchTerm = clienteSearchInput.value.trim();
+            if (!searchTerm) {
+                clienteInfoP.textContent = '';
+                selectedCliente = null;
+                return;
+            }
+            const isEmail = searchTerm.includes('@');
+            let query = sb.from('clientes').select('id, nombre, box');
+            if (isEmail) {
+                query = query.eq('email', searchTerm);
+            } else {
+                query = query.eq('box', searchTerm);
+            }
+            const { data, error } = await query.single();
+            if (error || !data) {
+                clienteInfoP.textContent = 'Cliente no encontrado.';
+                selectedCliente = null;
+            } else {
+                clienteInfoP.textContent = `${data.nombre} (Box: ${data.box})`;
+                selectedCliente = data;
+            }
+        }
+
+        async function cargarTarjetas() {
+            tableBody.innerHTML = `<tr><td colspan="5" class="text-center p-4">Cargando...</td></tr>`;
+            const { data, error } = await sb.from('tarjetas_libras').select('*, clientes(nombre, box)').order('created_at', { ascending: false });
+            if (error) {
+                console.error(error);
+                tableBody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`;
+                return;
+            }
+            if (!data || data.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="text-center p-4">No hay tarjetas de libras.</td></tr>`;
+                return;
+            }
+            tableBody.innerHTML = data.map(t => `
+                <tr class="border-b hover:bg-slate-50">
+                    <td class="px-6 py-4">${t.clientes.nombre} (Box: ${t.clientes.box})</td>
+                    <td class="px-6 py-4">${t.libras_disponibles.toFixed(2)} lbs</td>
+                    <td class="px-6 py-4">$${t.monto_compra.toFixed(2)}</td>
+                    <td class="px-6 py-4">${t.fecha_vencimiento || 'Sin fecha'}</td>
+                    <td class="px-6 py-4 text-center">${t.is_recurrente ? '✅' : '❌'}</td>
+                </tr>
+            `).join('');
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!selectedCliente) {
+                alert("Por favor, seleccione un cliente válido.");
+                return;
+            }
+            const { error } = await sb.rpc('crear_tarjeta_libras', {
+                p_cliente_id: selectedCliente.id,
+                p_libras_disponibles: librasInput.value,
+                p_monto_compra: montoInput.value,
+                p_fecha_vencimiento: fechaVencimientoInput.value || null,
+                p_is_recurrente: isRecurrenteCheckbox.checked
+            });
+            if (error) {
+                alert(`Error: ${error.message}`);
+                console.error(error);
+                return;
+            }
+            alert("Tarjeta de libras creada con éxito.");
+            form.reset();
+            selectedCliente = null;
+            clienteInfoP.textContent = '';
+            await cargarTarjetas();
+        });
+
+        clienteSearchInput.addEventListener('change', buscarCliente);
+        cargarTarjetas();
+    });
+</script>
+</body>
+</html>
