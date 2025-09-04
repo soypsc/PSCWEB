@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGL1 - Gestión de Rayitos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="config.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .code { font-size: 13px; font-weight: 600; color: #94a3b8; margin-right: 12px; background-color: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+<script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+        const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+        (async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return; }
+            const { data: perfil, error } = await supabase.from('perfiles').select('rol').eq('id', session.user.id).single();
+            if (error || !perfil || (perfil.rol !== 'admin' && perfil.rol !== 'supervisor')) {
+                await supabase.auth.signOut();
+                window.location.href = 'login.html?error=unauthorized';
+            }
+        })();
+</script>
+
+<div class="relative min-h-screen md:flex">
+    <div id="menu-container"></div>
+
+    <main class="flex-1 p-8">
+        <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-6"><span class="code">[AD-07]</span>Gestión de Rayitos</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="md:col-span-1 bg-white p-6 rounded-lg border shadow-sm h-fit">
+                <h2 class="text-xl font-bold text-slate-800 mb-4">Consultar Cliente</h2>
+                <form id="form-consultar-cliente" class="space-y-4">
+                    <div>
+                        <label for="cliente-search" class="block text-sm font-medium">Cliente (Casillero/Email)</label>
+                        <input type="text" id="cliente-search" class="w-full p-2 border rounded-md" required>
+                        <p id="cliente-info" class="text-sm text-slate-500 mt-1"></p>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600">Consultar</button>
+                </form>
+                <div id="puntos-summary" class="mt-8 pt-4 border-t hidden">
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">Saldo Actual</h3>
+                    <p class="text-3xl font-bold text-green-600"><span id="saldo-actual">0</span> Rayitos</p>
+                </div>
+            </div>
+
+            <div class="md:col-span-2 bg-white rounded-lg border overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left">Tipo</th>
+                            <th class="px-6 py-3 text-left">Cantidad</th>
+                            <th class="px-6 py-3 text-left">Descripción</th>
+                            <th class="px-6 py-3 text-left">Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transacciones-table-body">
+                        <tr><td colspan="4" class="text-center p-4">Busque un cliente para ver transacciones.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script type="module" src="app.js"></script>
+<script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+        const form = document.getElementById('form-consultar-cliente');
+        const clienteSearchInput = document.getElementById('cliente-search');
+        const clienteInfoP = document.getElementById('cliente-info');
+        const saldoActualSpan = document.getElementById('saldo-actual');
+        const tableBody = document.getElementById('transacciones-table-body');
+        const puntosSummaryDiv = document.getElementById('puntos-summary');
+        let selectedCliente = null;
+
+        async function consultarCliente(e) {
+            e.preventDefault();
+            const searchTerm = clienteSearchInput.value.trim();
+            if (!searchTerm) return;
+
+            puntosSummaryDiv.classList.add('hidden');
+            tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4">Consultando...</td></tr>`;
+
+            const isEmail = searchTerm.includes('@');
+            let query = sb.from('clientes').select('id, nombre, box, saldo_rayitos');
+            if (isEmail) {
+                query = query.eq('email', searchTerm);
+            } else {
+                query = query.eq('box', searchTerm);
+            }
+            
+            const { data: cliente, error: clienteError } = await query.single();
+            if (clienteError || !cliente) {
+                clienteInfoP.textContent = 'Cliente no encontrado.';
+                tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4"></td></tr>`;
+                selectedCliente = null;
+                return;
+            }
+
+            clienteInfoP.textContent = `${cliente.nombre} (Box: ${cliente.box})`;
+            selectedCliente = cliente;
+            saldoActualSpan.textContent = cliente.saldo_rayitos.toFixed(0);
+            puntosSummaryDiv.classList.remove('hidden');
+
+            const { data: transacciones, error: transaccionesError } = await sb.from('transacciones_rayitos')
+                .select('*')
+                .eq('cliente_id', selectedCliente.id)
+                .order('created_at', { ascending: false });
+
+            if (transaccionesError) {
+                console.error(transaccionesError);
+                tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Error al cargar transacciones.</td></tr>`;
+                return;
+            }
+            
+            if (!transacciones || transacciones.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4">No hay transacciones de rayitos.</td></tr>`;
+                return;
+            }
+
+            tableBody.innerHTML = transacciones.map(t => {
+                const tipoClase = t.tipo_transaccion === 'acumulado' ? 'text-green-600' : 'text-red-600';
+                const monto = t.tipo_transaccion === 'acumulado' ? `+${t.monto_cambio}` : t.monto_cambio;
+                return `
+                    <tr class="border-b hover:bg-slate-50">
+                        <td class="px-6 py-4"><span class="font-bold ${tipoClase}">${t.tipo_transaccion}</span></td>
+                        <td class="px-6 py-4">${monto}</td>
+                        <td class="px-6 py-4">${t.descripcion || 'N/A'}</td>
+                        <td class="px-6 py-4">${new Date(t.created_at).toLocaleString('es-PA')}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        form.addEventListener('submit', consultarCliente);
+    });
+</script>
+</body>
+</html>
