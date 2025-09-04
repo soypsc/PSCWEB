@@ -35,8 +35,26 @@ loginForm.addEventListener('submit', async (e) => {
             throw error;
         }
 
-        // Si el inicio de sesión es exitoso, redirigimos al usuario a la página principal del panel
-        window.location.href = 'index.html'; // Puedes cambiar 'clientes.html' por la página que quieras que sea la principal
+        // --- CÓDIGO CLAVE PARA RESTRINGIR ACCESO ---
+        if (data.session) {
+            // 1. Obtener el perfil del usuario recién logueado
+            const { data: perfil, error: perfilError } = await supabase
+                .from('perfiles')
+                .select('rol')
+                .eq('id', data.session.user.id)
+                .single();
+
+            if (perfilError || !perfil || perfil.rol === 'cliente') {
+                // Si el perfil no existe, hay un error, o el rol es 'cliente',
+                // bloqueamos el acceso.
+                await supabase.auth.signOut(); // Cerramos la sesión por seguridad
+                errorMessage.textContent = 'Acceso denegado. Credenciales incorrectas o sin permisos.';
+                console.error('Intento de acceso denegado.');
+            } else {
+                // 2. Si el rol es válido, redirigimos al dashboard
+                window.location.href = 'index.html';
+            }
+        }
 
     } catch (error) {
         // Si ocurre cualquier error, mostramos un mensaje genérico
