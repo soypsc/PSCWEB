@@ -163,163 +163,167 @@
     <div id="factura-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-2xl shadow-xl max-h-[90vh] flex flex-col"><header class="p-4 flex items-center justify-between border-b border-slate-700"><h2 class="text-lg font-semibold text-white">Detalle de Factura</h2><div class="flex items-center gap-4"><button id="print-factura-btn" class="text-slate-400 hover:text-white"><i data-lucide="printer"></i></button><button id="close-factura-modal-btn" class="text-slate-400 hover:text-white"><i data-lucide="x"></i></button></div></header><main id="factura-modal-content" class="p-6 overflow-y-auto text-black"></main></div></div>
 
     <script type="module">
-        const { createClient } = supabase;
-        const supabaseClient = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
-        let currentUserProfile = null;
+    const { createClient } = supabase;
+    const supabaseClient = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+    let currentUserProfile = null;
 
-        const authContainer = document.getElementById('auth-container');
-        const appContainer = document.getElementById('app-container');
-        const allPages = document.querySelectorAll('.page');
-        const navLinks = document.querySelectorAll('.nav-link');
-        const logoutButton = document.getElementById('logout-button');
-        const userNameDisplay = document.getElementById('user-name-display');
-        const userBoxDisplay = document.getElementById('user-box-display');
+    const authContainer = document.getElementById('auth-container');
+    const appContainer = document.getElementById('app-container');
+    const allPages = document.querySelectorAll('.page');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const logoutButton = document.getElementById('logout-button');
+    const userNameDisplay = document.getElementById('user-name-display');
+    const userBoxDisplay = document.getElementById('user-box-display');
+    
+    const showPage = (pageId) => {
+        allPages.forEach(p => p.classList.remove('active'));
+        const targetPage = document.getElementById(pageId);
+        if (targetPage) targetPage.classList.add('active');
+        window.scrollTo(0, 0);
+
+        if (!currentUserProfile) return;
+        switch (pageId) {
+            case 'page-paquetes': loadPaquetes(); break;
+            case 'page-casillero': initializeDireccionesPage(); break;
+            case 'page-mi-perfil': loadProfileData(); break;
+            case 'page-facturas': loadFacturas(); break;
+            case 'page-notificaciones': loadNotificaciones(); marcarNotificacionesComoLeidas(); break; 
+        }
+    };
+
+    const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString('es-PA', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
+
+    const showAuth = () => { authContainer.style.display = 'block'; appContainer.classList.add('hidden'); showPage('page-login'); };
+    const showApp = async (user) => {
+        const { data } = await supabaseClient.from('clientes').select('nombre, box, tarifa_1').eq('user_id', user.id).single();
+        if (data) currentUserProfile = data;
         
-        const showPage = (pageId) => {
-            allPages.forEach(p => p.classList.remove('active'));
-            const targetPage = document.getElementById(pageId);
-            if (targetPage) targetPage.classList.add('active');
-            window.scrollTo(0, 0);
+        userNameDisplay.textContent = currentUserProfile?.nombre || 'Usuario';
+        userBoxDisplay.textContent = `(Box ${currentUserProfile?.box || 'N/A'})`;
+        
+        authContainer.style.display = 'none';
+        appContainer.classList.remove('hidden');
+        showPage('page-home');
+        await actualizarContadorNotificaciones();
+        
+        const iosInstallPrompt = document.getElementById('ios-install-prompt');
+        const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+        if (iosInstallPrompt && isIOS() && !isInStandaloneMode()) {
+            iosInstallPrompt.classList.remove('hidden');
+            lucide.createIcons();
+        }
+    };
 
-            if (!currentUserProfile) return;
-            switch (pageId) {
-                case 'page-paquetes': loadPaquetes(); break;
-                case 'page-casillero': initializeDireccionesPage(); break;
-                case 'page-mi-perfil': loadProfileData(); break;
-                case 'page-facturas': loadFacturas(); break;
-                case 'page-notificaciones': loadNotificaciones(); marcarNotificacionesComoLeidas(); break; 
-            }
+    const handleLogin = async (e) => { 
+        e.preventDefault(); 
+        const email = document.getElementById('login-email').value; 
+        const password = document.getElementById('login-password').value; 
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); 
+        document.getElementById('login-error').textContent = error ? 'Email o contraseña incorrectos.' : ''; 
+    };
+    
+    const handleRegister = async (e) => { 
+        e.preventDefault(); 
+        const errorEl = document.getElementById('register-error');
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        
+        // --- Validaciones ---
+        const password = document.getElementById('register-password').value;
+        const passwordConfirm = document.getElementById('register-password-confirm').value;
+
+        if (password !== passwordConfirm) {
+            errorEl.textContent = 'Las contraseñas no coinciden.';
+            return;
+        }
+        if (password.length < 6) {
+            errorEl.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+            return;
+        }
+        errorEl.textContent = '';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creando cuenta...';
+
+        // --- Recopilar todos los datos del formulario ---
+        const registrationData = {
+            nombre: document.getElementById('register-name').value,
+            email: document.getElementById('register-email').value,
+            whatsapp: document.getElementById('register-whatsapp').value,
+            fecha_nac: document.getElementById('register-dob').value,
+            sucursal: document.getElementById('register-sucursal').value,
+            promo_code: document.getElementById('register-promo').value || null,
+            password: password,
         };
 
-        const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString('es-PA', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
-
-        const showAuth = () => { authContainer.style.display = 'block'; appContainer.classList.add('hidden'); showPage('page-login'); };
-        const showApp = async (user) => {
-            const { data } = await supabaseClient.from('clientes').select('nombre, box, tarifa_1').eq('user_id', user.id).single();
-            if (data) currentUserProfile = data;
-            
-            userNameDisplay.textContent = currentUserProfile?.nombre || 'Usuario';
-            userBoxDisplay.textContent = `(Box ${currentUserProfile?.box || 'N/A'})`;
-            
-            authContainer.style.display = 'none';
-            appContainer.classList.remove('hidden');
-            showPage('page-home');
-            await actualizarContadorNotificaciones();
-            
-            const iosInstallPrompt = document.getElementById('ios-install-prompt');
-            const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
-            if (iosInstallPrompt && isIOS() && !isInStandaloneMode()) {
-                iosInstallPrompt.classList.remove('hidden');
-                lucide.createIcons();
-            }
-        };
-
-        const handleLogin = async (e) => { e.preventDefault(); const email = document.getElementById('login-email').value; const password = document.getElementById('login-password').value; const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); document.getElementById('login-error').textContent = error ? 'Email o contraseña incorrectos.' : ''; };
-        
-        // ### LÓGICA DE REGISTRO ORIGINAL (SERÁ REEMPLAZADA) ###
-        const handleRegister = async (e) => { 
-            e.preventDefault(); 
-            const errorEl = document.getElementById('register-error');
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            
-            // --- Validaciones ---
-            const password = document.getElementById('register-password').value;
-            const passwordConfirm = document.getElementById('register-password-confirm').value;
-
-            if (password !== passwordConfirm) {
-                errorEl.textContent = 'Las contraseñas no coinciden.';
-                return;
-            }
-            if (password.length < 6) {
-                errorEl.textContent = 'La contraseña debe tener al menos 6 caracteres.';
-                return;
-            }
-            errorEl.textContent = '';
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Creando cuenta...';
-
-            // --- Recopilar todos los datos del formulario ---
-            const registrationData = {
-                nombre: document.getElementById('register-name').value,
-                email: document.getElementById('register-email').value,
-                whatsapp: document.getElementById('register-whatsapp').value,
-                fecha_nac: document.getElementById('register-dob').value,
-                sucursal: document.getElementById('register-sucursal').value,
-                promo_code: document.getElementById('register-promo').value || null,
-                password: password,
-            };
-
-            // --- Llamar a la nueva Edge Function ---
-            // (Esta función la crearemos en el siguiente paso)
-            const { data, error } = await supabaseClient.functions.invoke('crear-cliente', {
-                body: registrationData
-            });
-
-            if (error) {
-                errorEl.textContent = 'Error al registrar. El email ya podría existir.';
-                console.error('Error invoking function:', error);
-            } else {
-                alert('¡Registro exitoso! Revisa tu correo electrónico para confirmar tu cuenta.');
-                e.target.reset(); // Limpiar el formulario
-                showPage('page-login');
-            }
-
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Crear Cuenta';
-        };
-
-        const handleLogout = () => supabaseClient.auth.signOut();
-        
-        const loadSucursales = async (selectElementId) => { const selectEl = document.getElementById(selectElementId); const { data } = await supabaseClient.from('sucursales').select('sucursal').order('sucursal'); if (data) selectEl.innerHTML = '<option value="">Selecciona sucursal</option>' + data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join(''); };
-        const loadPaquetes = async () => { const container = document.getElementById('paquetes-list-container'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; const { data: paquetes } = await supabaseClient.from('paquetes').select('*').eq('cliente_box', currentUserProfile.box).order('created_at', { ascending: false }); const tarifaCliente = currentUserProfile?.tarifa_1 || 4.00; let statusCount = { 'En transito': 0, 'En Sucursal': 0, 'Entregado': 0 }; let saldoEnSucursal = 0; if (paquetes) { paquetes.forEach(p => { if (p.status in statusCount) statusCount[p.status]++; if (p.status === 'En Sucursal') saldoEnSucursal += (p.peso || 0) * tarifaCliente; }); } document.getElementById('summary-transito').textContent = statusCount['En transito']; document.getElementById('summary-sucursal').textContent = statusCount['En Sucursal']; document.getElementById('summary-entregado').textContent = statusCount['Entregado']; document.getElementById('summary-saldo').textContent = `$${saldoEnSucursal.toFixed(2)}`; if (!paquetes || !paquetes.length) { container.innerHTML = `<div class="text-center p-8"><i data-lucide="package-search" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes paquetes.</p></div>`; } else { const statusBadge = (s) => ({ 'En transito': 'bg-yellow-500/20 text-yellow-300', 'En Sucursal': 'bg-green-500/20 text-green-300', 'Entregado': 'bg-slate-500/20 text-slate-400' }[s] || 'bg-slate-700'); container.innerHTML = paquetes.map(p => `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div class="flex justify-between items-center mb-2"><p class="font-mono font-semibold text-white">${p.tracking}</p><span class="text-xs font-bold px-2 py-1 rounded-full ${statusBadge(p.status)}">${p.status || 'N/A'}</span></div><div class="text-sm text-slate-400 flex justify-between"><span>Recibido: ${formatDate(p.fecha_bodega).split(',')[0]}</span><span>${p.peso ? p.peso.toFixed(2) + ' lbs' : ''}</span></div></div>`).join(''); } lucide.createIcons(); };
-        const loadFacturas = async () => { const container = document.getElementById('facturas-list-container'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; if (!currentUserProfile?.box) { container.innerHTML = `<p class="text-red-500 text-center">Casillero no encontrado.</p>`; return; } const { data, error } = await supabaseClient.from('facturas').select('id, created_at, monto_total, html_recibo').eq('cliente_box', currentUserProfile.box).order('created_at', { ascending: false }); if (error) { container.innerHTML = `<p class="text-red-500 text-center">Error al cargar facturas.</p>`; return; } if (!data.length) { container.innerHTML = `<div class="text-center p-8"><i data-lucide="receipt" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes facturas.</p></div>`; lucide.createIcons(); return; } container.innerHTML = data.map(f => `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div class="flex justify-between items-center"><div><p class="font-bold text-lg font-mono text-white">$${(f.monto_total || 0).toFixed(2)}</p><p class="text-xs text-slate-400">Factura #${f.id.substring(0, 8).toUpperCase()}</p><p class="text-xs text-slate-500 mt-1">${formatDate(f.created_at)}</p></div>${f.html_recibo ? `<button data-factura-id="${f.id}" class="view-receipt-btn bg-blue-600 text-white font-semibold text-xs px-3 py-1.5 rounded-md hover:bg-blue-700">Ver Recibo</button>` : ''}</div></div>`).join(''); };
-        const initializeDireccionesPage = async () => { const container = document.getElementById('direcciones-content'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; const { data: userInfo } = await supabaseClient.rpc('get_direcciones_casillero'); if (!userInfo) { container.innerHTML = `<p class="text-red-500 text-center">No se pudo cargar tu información.</p>`; return; } const { nombre, box, codigo_sucursal } = userInfo; const nombreLinea1 = `${codigo_sucursal || 'PSC'}${box || ''} ${nombre || ''}`; const renderAddressCard = (addr) => { let copyIdCounter = Math.random().toString(36).substring(7); return `<section><h2 class="text-base font-semibold text-white mb-3">${addr.titulo}</h2>${addr.nota ? `<p class="text-xs text-yellow-500 bg-yellow-500/10 p-2 rounded-md mb-3">${addr.nota}</p>` : ''}<div class="bg-slate-800 border border-slate-700 rounded-xl divide-y divide-slate-700">${addr.datos.map((item, index) => { const uniqueId = `copy-${copyIdCounter}-${index}`; return `<div class="px-3 py-2 flex justify-between items-center"><div><p class="text-xs text-slate-400">${item.label}:</p><p class="text-sm font-mono text-white" id="${uniqueId}">${item.value}</p></div><button class="copy-btn p-2 rounded-lg hover:bg-slate-700" data-target="${uniqueId}"><i data-lucide="copy" class="h-4 w-4 text-slate-400"></i></button></div>`; }).join('')}</div></section>`; }; container.innerHTML = `${renderAddressCard({ titulo: 'Bodega Principal (Aéreo)', datos: [ { label: 'Nombre', value: nombreLinea1 }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })} ${renderAddressCard({ titulo: 'Dirección Marítima', datos: [ { label: 'Nombre', value: `OCEAN ${nombreLinea1}` }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })}`; container.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', () => { navigator.clipboard.writeText(document.getElementById(btn.dataset.target).innerText).then(() => { btn.innerHTML = '<i data-lucide="check" class="h-4 w-4 text-green-500"></i>'; setTimeout(() => { btn.innerHTML = '<i data-lucide="copy" class="h-4 w-4 text-slate-400"></i>'; lucide.createIcons(); }, 2000); lucide.createIcons(); }); })); lucide.createIcons(); };
-        const loadProfileData = async () => { const { data: { user } } = await supabaseClient.auth.getUser(); const { data: profile } = await supabaseClient.from('clientes').select('nombre, box, telefono, sucursal').eq('user_id', user.id).single(); document.getElementById('profile-name').textContent = profile?.nombre || ''; document.getElementById('profile-box').textContent = profile?.box || ''; document.getElementById('profile-email').textContent = user.email; document.getElementById('profile-phone').value = profile?.telefono || ''; await loadSucursales('profile-sucursal'); document.getElementById('profile-sucursal').value = profile?.sucursal || ''; };
-        const handleProfileUpdate = async (e) => { e.preventDefault(); const msgEl = document.getElementById('profile-message'); msgEl.textContent = 'Guardando...'; msgEl.classList.remove('text-red-500', 'text-green-500'); const { data: { user } } = await supabaseClient.auth.getUser(); const { error } = await supabaseClient.from('clientes').update({ telefono: document.getElementById('profile-phone').value, sucursal: document.getElementById('profile-sucursal').value }).eq('user_id', user.id); if(error){ msgEl.textContent = 'Error al actualizar.'; msgEl.classList.add('text-red-500'); } else { msgEl.textContent = '¡Perfil actualizado!'; msgEl.classList.add('text-green-500'); } };
-        const loadNotificaciones = async () => { const container = document.getElementById('notificaciones-list-container'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; const { data: notificaciones, error } = await supabaseClient.rpc('get_my_notifications'); if (error) { container.innerHTML = `<p class="text-red-500 text-center">Error al cargar notificaciones.</p>`; return; } if (!notificaciones || !notificaciones.length) { container.innerHTML = `<div class="text-center p-8"><i data-lucide="bell-off" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes notificaciones.</p></div>`; } else { container.innerHTML = notificaciones.map(n => `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><p class="text-white">${n.mensaje}</p><p class="text-xs text-slate-500 text-right mt-2">${formatDate(n.created_at)}</p></div>`).join(''); } lucide.createIcons(); };
-        const actualizarContadorNotificaciones = async () => { const badge = document.getElementById('notification-badge'); const iconLink = document.getElementById('notification-link'); if (!badge || !iconLink) return; const { data: count, error } = await supabaseClient.rpc('get_unread_notification_count'); if (error || count === 0) { badge.classList.add('hidden'); badge.textContent = ''; iconLink.classList.remove('anim-tiembla'); } else { badge.textContent = count > 9 ? '9+' : count; badge.classList.remove('hidden'); iconLink.classList.add('anim-tiembla'); setTimeout(() => { iconLink.classList.remove('anim-tiembla'); }, 600); } };
-        const marcarNotificacionesComoLeidas = async () => { const { data: { user } } = await supabaseClient.auth.getUser(); if (!user) return; const { error } = await supabaseClient.from('notificaciones_pendientes').update({ leido: true }).eq('cliente_id', user.id).eq('leido', false); if (!error) { document.getElementById('notification-badge').classList.add('hidden'); } };
-        function urlBase64ToUint8Array(base64String) { const padding = '='.repeat((4 - base64String.length % 4) % 4); const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/'); const rawData = window.atob(base64); const outputArray = new Uint8Array(rawData.length); for (let i = 0; i < rawData.length; ++i) { outputArray[i] = rawData.charCodeAt(i); } return outputArray; }
-        async function subscribeToPushNotifications() { console.group("Proceso de Suscripción a Notificaciones Push"); try { console.log("1. Pidiendo permiso al usuario..."); const permission = await Notification.requestPermission(); if (permission !== 'granted') { console.warn("Permiso denegado por el usuario."); console.groupEnd(); return; } console.log("-> Permiso concedido."); console.log("2. Obteniendo registro del Service Worker..."); const registration = await navigator.serviceWorker.ready; console.log("-> Service Worker listo.", registration); console.log("3. Obteniendo VAPID Public Key de la base de datos..."); const { data: vapid_public_key, error: rpcError } = await supabaseClient.rpc('get_vapid_public_key'); if (rpcError || !vapid_public_key) { console.error("ERROR FATAL: No se pudo obtener la VAPID public key usando la función RPC.", rpcError); console.groupEnd(); return; } console.log("-> VAPID Key obtenida:", vapid_public_key); console.log("4. Solicitando suscripción al Push Manager..."); const subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(vapid_public_key) }); console.log("-> Suscripción obtenida del navegador:", subscription); console.log("5. Guardando suscripción en Supabase..."); const { data: { user } } = await supabaseClient.auth.getUser(); if (user) { const { error: saveError } = await supabaseClient.from('push_subscriptions').upsert({ user_id: user.id, subscription_details: subscription.toJSON() }, { onConflict: 'user_id' }); if(saveError) { console.error("ERROR FATAL: No se pudo guardar la suscripción en la BD.", saveError); } else { console.log("-> ¡ÉXITO! Suscripción guardada en la base de datos."); } } else { console.warn("No hay un usuario logueado para guardar la suscripción."); } } catch (error) { console.error("ERROR INESPERADO en el proceso de suscripción:", error); } console.groupEnd(); }
-        
-        document.getElementById('show-register-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-register'); });
-        document.getElementById('show-login-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-login'); });
-        document.getElementById('login-form').addEventListener('submit', handleLogin);
-        document.getElementById('register-form').addEventListener('submit', handleRegister);
-        logoutButton.addEventListener('click', handleLogout);
-        navLinks.forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); showPage(link.dataset.target); }));
-        document.getElementById('profile-form').addEventListener('submit', handleProfileUpdate);
-        document.querySelectorAll('.toggle-password').forEach(btn => btn.addEventListener('click', () => { const input = btn.previousElementSibling; input.type = input.type === 'password' ? 'text' : 'password'; }));
-        
-        // document.querySelectorAll('input[name="promo-toggle"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const promoInput = document.getElementById('register-promo');
-                if (this.value === 'yes') {
-                    promoInput.classList.remove('hidden');
-                } else {
-                    promoInput.classList.add('hidden');
-                    promoInput.value = ''; // Limpia el valor si el usuario selecciona "No"
-                }
-            });
+        // --- Llamar a la nueva Edge Function ---
+        const { data, error } = await supabaseClient.functions.invoke('crear-cliente', {
+            body: registrationData
         });
 
-        const facturaModal = document.getElementById('factura-modal'); const facturaModalContent = document.getElementById('factura-modal-content'); appContainer.addEventListener('click', async (e) => { const viewButton = e.target.closest('.view-receipt-btn'); if (viewButton) { const facturaId = viewButton.dataset.facturaId; facturaModalContent.innerHTML = `<div class="text-center p-8 text-black"><div class="spinner w-8 h-8 mx-auto"></div></div>`; facturaModal.classList.remove('hidden'); const { data } = await supabaseClient.from('facturas').select('html_recibo').eq('id', facturaId).single(); facturaModalContent.innerHTML = data?.html_recibo || '<p class="text-slate-700">No se encontró el contenido del recibo.</p>'; } });
-        document.getElementById('close-factura-modal-btn').addEventListener('click', () => facturaModal.classList.add('hidden'));
-        document.getElementById('print-factura-btn').addEventListener('click', () => { const printWindow = window.open('', '', 'height=600,width=800'); printWindow.document.write('<html><head><title>Recibo</title>'); printWindow.document.write('<style>body{font-family:sans-serif;}</style>'); printWindow.document.write('</head><body>'); printWindow.document.write(facturaModalContent.innerHTML); printWindow.document.write('</body></html>'); printWindow.document.close(); printWindow.print(); });
+        if (error) {
+            errorEl.textContent = 'Error al registrar. El email ya podría existir.';
+            console.error('Error invoking function:', error);
+        } else {
+            alert('¡Registro exitoso! Revisa tu correo electrónico para confirmar tu cuenta.');
+            e.target.reset(); // Limpiar el formulario
+            showPage('page-login');
+        }
 
-        supabaseClient.auth.onAuthStateChange((event, session) => { if (session) { showApp(session.user); } else { currentUserProfile = null; showAuth(); } });
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('service-worker.js') .then(function(swReg) { console.log('Service Worker registrado.', swReg); supabaseClient.auth.onAuthStateChange((event, session) => { if (event === 'SIGNED_IN') { setTimeout(subscribeToPushNotifications, 3000); } }); }).catch(function(error) { console.error('Error al registrar el Service Worker.', error); }); }
-        
-        const installPwaBtn = document.getElementById('install-pwa-btn');
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; if (installPwaBtn) { installPwaBtn.classList.remove('hidden'); lucide.createIcons(); } });
-        if (installPwaBtn) { installPwaBtn.addEventListener('click', async () => { if (!deferredPrompt) return; installPwaBtn.classList.add('hidden'); deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; console.log(`Respuesta del usuario: ${outcome}`); deferredPrompt = null; }); }
-        window.addEventListener('appinstalled', () => { if (installPwaBtn) { installPwaBtn.classList.add('hidden'); } deferredPrompt = null; console.log('PWA instalada con éxito.'); });
-        
-        loadSucursales('register-sucursal');
-        lucide.createIcons();
-    </script>
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Crear Cuenta';
+    };
+
+    const handleLogout = () => supabaseClient.auth.signOut();
+    
+    const loadSucursales = async (selectElementId) => { const selectEl = document.getElementById(selectElementId); const { data } = await supabaseClient.from('sucursales').select('sucursal').order('sucursal'); if (data) selectEl.innerHTML = '<option value="">Selecciona sucursal</option>' + data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join(''); };
+    const loadPaquetes = async () => { const container = document.getElementById('paquetes-list-container'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; const { data: paquetes } = await supabaseClient.from('paquetes').select('*').eq('cliente_box', currentUserProfile.box).order('created_at', { ascending: false }); const tarifaCliente = currentUserProfile?.tarifa_1 || 4.00; let statusCount = { 'En transito': 0, 'En Sucursal': 0, 'Entregado': 0 }; let saldoEnSucursal = 0; if (paquetes) { paquetes.forEach(p => { if (p.status in statusCount) statusCount[p.status]++; if (p.status === 'En Sucursal') saldoEnSucursal += (p.peso || 0) * tarifaCliente; }); } document.getElementById('summary-transito').textContent = statusCount['En transito']; document.getElementById('summary-sucursal').textContent = statusCount['En Sucursal']; document.getElementById('summary-entregado').textContent = statusCount['Entregado']; document.getElementById('summary-saldo').textContent = `$${saldoEnSucursal.toFixed(2)}`; if (!paquetes || !paquetes.length) { container.innerHTML = `<div class="text-center p-8"><i data-lucide="package-search" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes paquetes.</p></div>`; } else { const statusBadge = (s) => ({ 'En transito': 'bg-yellow-500/20 text-yellow-300', 'En Sucursal': 'bg-green-500/20 text-green-300', 'Entregado': 'bg-slate-500/20 text-slate-400' }[s] || 'bg-slate-700'); container.innerHTML = paquetes.map(p => `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div class="flex justify-between items-center mb-2"><p class="font-mono font-semibold text-white">${p.tracking}</p><span class="text-xs font-bold px-2 py-1 rounded-full ${statusBadge(p.status)}">${p.status || 'N/A'}</span></div><div class="text-sm text-slate-400 flex justify-between"><span>Recibido: ${formatDate(p.fecha_bodega).split(',')[0]}</span><span>${p.peso ? p.peso.toFixed(2) + ' lbs' : ''}</span></div></div>`).join(''); } lucide.createIcons(); };
+    const loadFacturas = async () => { const container = document.getElementById('facturas-list-container'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; if (!currentUserProfile?.box) { container.innerHTML = `<p class="text-red-500 text-center">Casillero no encontrado.</p>`; return; } const { data, error } = await supabaseClient.from('facturas').select('id, created_at, monto_total, html_recibo').eq('cliente_box', currentUserProfile.box).order('created_at', { ascending: false }); if (error) { container.innerHTML = `<p class="text-red-500 text-center">Error al cargar facturas.</p>`; return; } if (!data.length) { container.innerHTML = `<div class="text-center p-8"><i data-lucide="receipt" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes facturas.</p></div>`; lucide.createIcons(); return; } container.innerHTML = data.map(f => `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div class="flex justify-between items-center"><div><p class="font-bold text-lg font-mono text-white">$${(f.monto_total || 0).toFixed(2)}</p><p class="text-xs text-slate-400">Factura #${f.id.substring(0, 8).toUpperCase()}</p><p class="text-xs text-slate-500 mt-1">${formatDate(f.created_at)}</p></div>${f.html_recibo ? `<button data-factura-id="${f.id}" class="view-receipt-btn bg-blue-600 text-white font-semibold text-xs px-3 py-1.5 rounded-md hover:bg-blue-700">Ver Recibo</button>` : ''}</div></div>`).join(''); };
+    const initializeDireccionesPage = async () => { const container = document.getElementById('direcciones-content'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; const { data: userInfo } = await supabaseClient.rpc('get_direcciones_casillero'); if (!userInfo) { container.innerHTML = `<p class="text-red-500 text-center">No se pudo cargar tu información.</p>`; return; } const { nombre, box, codigo_sucursal } = userInfo; const nombreLinea1 = `${codigo_sucursal || 'PSC'}${box || ''} ${nombre || ''}`; const renderAddressCard = (addr) => { let copyIdCounter = Math.random().toString(36).substring(7); return `<section><h2 class="text-base font-semibold text-white mb-3">${addr.titulo}</h2>${addr.nota ? `<p class="text-xs text-yellow-500 bg-yellow-500/10 p-2 rounded-md mb-3">${addr.nota}</p>` : ''}<div class="bg-slate-800 border border-slate-700 rounded-xl divide-y divide-slate-700">${addr.datos.map((item, index) => { const uniqueId = `copy-${copyIdCounter}-${index}`; return `<div class="px-3 py-2 flex justify-between items-center"><div><p class="text-xs text-slate-400">${item.label}:</p><p class="text-sm font-mono text-white" id="${uniqueId}">${item.value}</p></div><button class="copy-btn p-2 rounded-lg hover:bg-slate-700" data-target="${uniqueId}"><i data-lucide="copy" class="h-4 w-4 text-slate-400"></i></button></div>`; }).join('')}</div></section>`; }; container.innerHTML = `${renderAddressCard({ titulo: 'Bodega Principal (Aéreo)', datos: [ { label: 'Nombre', value: nombreLinea1 }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })} ${renderAddressCard({ titulo: 'Dirección Marítima', datos: [ { label: 'Nombre', value: `OCEAN ${nombreLinea1}` }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })}`; container.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', () => { navigator.clipboard.writeText(document.getElementById(btn.dataset.target).innerText).then(() => { btn.innerHTML = '<i data-lucide="check" class="h-4 w-4 text-green-500"></i>'; setTimeout(() => { btn.innerHTML = '<i data-lucide="copy" class="h-4 w-4 text-slate-400"></i>'; lucide.createIcons(); }, 2000); lucide.createIcons(); }); })); lucide.createIcons(); };
+    const loadProfileData = async () => { const { data: { user } } = await supabaseClient.auth.getUser(); const { data: profile } = await supabaseClient.from('clientes').select('nombre, box, telefono, sucursal').eq('user_id', user.id).single(); document.getElementById('profile-name').textContent = profile?.nombre || ''; document.getElementById('profile-box').textContent = profile?.box || ''; document.getElementById('profile-email').textContent = user.email; document.getElementById('profile-phone').value = profile?.telefono || ''; await loadSucursales('profile-sucursal'); document.getElementById('profile-sucursal').value = profile?.sucursal || ''; };
+    const handleProfileUpdate = async (e) => { e.preventDefault(); const msgEl = document.getElementById('profile-message'); msgEl.textContent = 'Guardando...'; msgEl.classList.remove('text-red-500', 'text-green-500'); const { data: { user } } = await supabaseClient.auth.getUser(); const { error } = await supabaseClient.from('clientes').update({ telefono: document.getElementById('profile-phone').value, sucursal: document.getElementById('profile-sucursal').value }).eq('user_id', user.id); if(error){ msgEl.textContent = 'Error al actualizar.'; msgEl.classList.add('text-red-500'); } else { msgEl.textContent = '¡Perfil actualizado!'; msgEl.classList.add('text-green-500'); } };
+    const loadNotificaciones = async () => { const container = document.getElementById('notificaciones-list-container'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; const { data: notificaciones, error } = await supabaseClient.rpc('get_my_notifications'); if (error) { container.innerHTML = `<p class="text-red-500 text-center">Error al cargar notificaciones.</p>`; return; } if (!notificaciones || !notificaciones.length) { container.innerHTML = `<div class="text-center p-8"><i data-lucide="bell-off" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes notificaciones.</p></div>`; } else { container.innerHTML = notificaciones.map(n => `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><p class="text-white">${n.mensaje}</p><p class="text-xs text-slate-500 text-right mt-2">${formatDate(n.created_at)}</p></div>`).join(''); } lucide.createIcons(); };
+    const actualizarContadorNotificaciones = async () => { const badge = document.getElementById('notification-badge'); const iconLink = document.getElementById('notification-link'); if (!badge || !iconLink) return; const { data: count, error } = await supabaseClient.rpc('get_unread_notification_count'); if (error || count === 0) { badge.classList.add('hidden'); badge.textContent = ''; iconLink.classList.remove('anim-tiembla'); } else { badge.textContent = count > 9 ? '9+' : count; badge.classList.remove('hidden'); iconLink.classList.add('anim-tiembla'); setTimeout(() => { iconLink.classList.remove('anim-tiembla'); }, 600); } };
+    const marcarNotificacionesComoLeidas = async () => { const { data: { user } } = await supabaseClient.auth.getUser(); if (!user) return; const { error } = await supabaseClient.from('notificaciones_pendientes').update({ leido: true }).eq('cliente_id', user.id).eq('leido', false); if (!error) { document.getElementById('notification-badge').classList.add('hidden'); } };
+    function urlBase64ToUint8Array(base64String) { const padding = '='.repeat((4 - base64String.length % 4) % 4); const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/'); const rawData = window.atob(base64); const outputArray = new Uint8Array(rawData.length); for (let i = 0; i < rawData.length; ++i) { outputArray[i] = rawData.charCodeAt(i); } return outputArray; }
+    async function subscribeToPushNotifications() { console.group("Proceso de Suscripción a Notificaciones Push"); try { console.log("1. Pidiendo permiso al usuario..."); const permission = await Notification.requestPermission(); if (permission !== 'granted') { console.warn("Permiso denegado por el usuario."); console.groupEnd(); return; } console.log("-> Permiso concedido."); console.log("2. Obteniendo registro del Service Worker..."); const registration = await navigator.serviceWorker.ready; console.log("-> Service Worker listo.", registration); console.log("3. Obteniendo VAPID Public Key de la base de datos..."); const { data: vapid_public_key, error: rpcError } = await supabaseClient.rpc('get_vapid_public_key'); if (rpcError || !vapid_public_key) { console.error("ERROR FATAL: No se pudo obtener la VAPID public key usando la función RPC.", rpcError); console.groupEnd(); return; } console.log("-> VAPID Key obtenida:", vapid_public_key); console.log("4. Solicitando suscripción al Push Manager..."); const subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(vapid_public_key) }); console.log("-> Suscripción obtenida del navegador:", subscription); console.log("5. Guardando suscripción en Supabase..."); const { data: { user } } = await supabaseClient.auth.getUser(); if (user) { const { error: saveError } = await supabaseClient.from('push_subscriptions').upsert({ user_id: user.id, subscription_details: subscription.toJSON() }, { onConflict: 'user_id' }); if(saveError) { console.error("ERROR FATAL: No se pudo guardar la suscripción en la BD.", saveError); } else { console.log("-> ¡ÉXITO! Suscripción guardada en la base de datos."); } } else { console.warn("No hay un usuario logueado para guardar la suscripción."); } } catch (error) { console.error("ERROR INESPERADO en el proceso de suscripción:", error); } console.groupEnd(); }
+    
+    document.getElementById('show-register-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-register'); });
+    document.getElementById('show-login-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-login'); });
+    document.getElementById('login-form').addEventListener('submit', handleLogin);
+    document.getElementById('register-form').addEventListener('submit', handleRegister);
+    logoutButton.addEventListener('click', handleLogout);
+    navLinks.forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); showPage(link.dataset.target); }));
+    document.getElementById('profile-form').addEventListener('submit', handleProfileUpdate);
+    document.querySelectorAll('.toggle-password').forEach(btn => btn.addEventListener('click', () => { const input = btn.previousElementSibling; input.type = input.type === 'password' ? 'text' : 'password'; }));
+    
+    document.querySelectorAll('input[name="promo-toggle"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const promoInput = document.getElementById('register-promo');
+            if (this.value === 'yes') {
+                promoInput.classList.remove('hidden');
+            } else {
+                promoInput.classList.add('hidden');
+                promoInput.value = '';
+            }
+        });
+    });
+
+    const facturaModal = document.getElementById('factura-modal'); const facturaModalContent = document.getElementById('factura-modal-content'); appContainer.addEventListener('click', async (e) => { const viewButton = e.target.closest('.view-receipt-btn'); if (viewButton) { const facturaId = viewButton.dataset.facturaId; facturaModalContent.innerHTML = `<div class="text-center p-8 text-black"><div class="spinner w-8 h-8 mx-auto"></div></div>`; facturaModal.classList.remove('hidden'); const { data } = await supabaseClient.from('facturas').select('html_recibo').eq('id', facturaId).single(); facturaModalContent.innerHTML = data?.html_recibo || '<p class="text-slate-700">No se encontró el contenido del recibo.</p>'; } });
+    document.getElementById('close-factura-modal-btn').addEventListener('click', () => facturaModal.classList.add('hidden'));
+    document.getElementById('print-factura-btn').addEventListener('click', () => { const printWindow = window.open('', '', 'height=600,width=800'); printWindow.document.write('<html><head><title>Recibo</title>'); printWindow.document.write('<style>body{font-family:sans-serif;}</style>'); printWindow.document.write('</head><body>'); printWindow.document.write(facturaModalContent.innerHTML); printWindow.document.write('</body></html>'); printWindow.document.close(); printWindow.print(); });
+
+    supabaseClient.auth.onAuthStateChange((event, session) => { if (session) { showApp(session.user); } else { currentUserProfile = null; showAuth(); } });
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('service-worker.js') .then(function(swReg) { console.log('Service Worker registrado.', swReg); supabaseClient.auth.onAuthStateChange((event, session) => { if (event === 'SIGNED_IN') { setTimeout(subscribeToPushNotifications, 3000); } }); }).catch(function(error) { console.error('Error al registrar el Service Worker.', error); }); }
+    
+    const installPwaBtn = document.getElementById('install-pwa-btn');
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; if (installPwaBtn) { installPwaBtn.classList.remove('hidden'); lucide.createIcons(); } });
+    if (installPwaBtn) { installPwaBtn.addEventListener('click', async () => { if (!deferredPrompt) return; installPwaBtn.classList.add('hidden'); deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; console.log(`Respuesta del usuario: ${outcome}`); deferredPrompt = null; }); }
+    window.addEventListener('appinstalled', () => { if (installPwaBtn) { installPwaBtn.classList.add('hidden'); } deferredPrompt = null; console.log('PWA instalada con éxito.'); });
+    
+    loadSucursales('register-sucursal');
+    lucide.createIcons();
+</script>
 </body>
 </html>
 
