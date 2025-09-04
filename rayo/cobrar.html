@@ -13,7 +13,7 @@
         .code { font-size: 13px; font-weight: 600; color: #94a3b8; margin-right: 12px; background-color: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
         .fade-in { animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .scan-success { background-color: #dcfce7 !important; transition: background-color 0.3s; }
+        .scan-success { background-color: #dcfce7 !important; transition: background-color: 0.3s; }
         .scan-error { background-color: #fee2e2 !important; transition: background-color 0.3s; }
         .verified-item { text-decoration: line-through; color: #9ca3af; }
     </style>
@@ -22,13 +22,13 @@
 
     <script type="module">
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-        const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
         (async () => {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await sb.auth.getSession();
             if (!session) { window.location.href = 'login.html'; return; }
-            const { data: perfil, error } = await supabase.from('perfiles').select('rol').eq('id', session.user.id).single();
-            if (error || !perfil) { await supabase.auth.signOut(); window.location.href = 'login.html?error=unauthorized'; }
+            const { data: perfil, error } = await sb.from('perfiles').select('rol').eq('id', session.user.id).single();
+            if (error || !perfil) { await sb.auth.signOut(); window.location.href = 'login.html?error=unauthorized'; }
         })();
     </script>
 
@@ -165,7 +165,8 @@
         let clienteActual=null, paquetesPendientes=[], carrito=[], pagos=[], paqueteParaEditar=null;
         let descuentoGeneralPorcentaje=0, cuponAplicado=null;
         let ventaSuspendidaActual=null, modoVerificacion=false;
-
+        
+        // --- DOM Elements ---
         const searchClienteInput = document.getElementById('search-cliente');
         const terminalContent = document.getElementById('terminal-content');
         const clienteNombreTitulo = document.getElementById('cliente-nombre-titulo');
@@ -284,14 +285,13 @@
             }
             if (!searchTerm) return;
             const isNumeric = !isNaN(searchTerm);
-            let query = sb.from('clientes').select('*, saldo_libras, saldo_rayitos');
+            let query = sb.from('clientes').select('*, saldo_libras, saldo_rayitos, tarifa_1');
             if (isNumeric) query = query.eq('box', parseInt(searchTerm));
             else query = query.ilike('nombre', `%${searchTerm}%`);
             const { data, error } = await query.limit(1).single();
             if (error || !data) { alert("Cliente no encontrado."); return; }
             
             clienteActual = data;
-            
             if (!isContinuation) {
                 const { data: paquetes, error: paquetesError } = await sb.rpc('get_paquetes_para_entrega', { p_cliente_box: clienteActual.box });
                 if (paquetesError) { alert("Error al cargar paquetes del cliente."); console.error(paquetesError); return; }
@@ -490,8 +490,12 @@
         
         async function handleAplicarLibras() {
             if (!clienteActual || (clienteActual.saldo_libras || 0) <= 0) return;
-            const costoLibras = carrito.reduce((acc, p) => acc + (p.peso || 0), 0) * (clienteActual.tarifa_1 || 4.00);
-            const librasAConsumir = costoLibras / (clienteActual.tarifa_1 || 4.00);
+            const sucursal = sucursalPagoSelect.value;
+            if (!sucursal) { alert("Seleccione una sucursal."); return; }
+
+            const costoFlete = carrito.reduce((acc, p) => acc + (p.costo_flete || 0), 0);
+            const librasAConsumir = costoFlete / (clienteActual.tarifa_1 || 4.00);
+            const costoLibras = librasAConsumir * (clienteActual.tarifa_1 || 4.00);
 
             if ((clienteActual.saldo_libras || 0) < librasAConsumir) {
                 alert("El cliente no tiene suficientes libras para cubrir el flete.");
@@ -503,7 +507,7 @@
             }
 
             try {
-                // Lógica de la base de datos para consumir las libras y aplicar el descuento
+                // Lógica de la base de datos para consumir las libras
                 const { error } = await sb.rpc('consumir_libras_paquete', {
                     p_cliente_id: clienteActual.id,
                     p_libras_a_consumir: librasAConsumir,
@@ -512,7 +516,6 @@
                 if (error) throw error;
 
                 // Aplicar el descuento al total del carrito
-                const montoDescuento = costoLibras;
                 pagos.push({ metodo: 'Saldo de Libras', monto: costoLibras, sucursal: sucursal });
                 clienteActual.saldo_libras -= librasAConsumir;
                 saldoLibrasDisplay.textContent = `${(clienteActual.saldo_libras || 0).toFixed(2)} lbs`;
@@ -528,10 +531,13 @@
         
         async function handleAplicarRayitos() {
             if (!clienteActual || (clienteActual.saldo_rayitos || 0) < CONVERSION_RAYITOS) {
-                alert("El cliente no tiene suficientes rayitos para canjear (mínimo 100).");
+                alert(`El cliente no tiene suficientes rayitos para canjear (mínimo ${CONVERSION_RAYITOS}).`);
                 return;
             }
             
+            const sucursal = sucursalPagoSelect.value;
+            if (!sucursal) { alert("Seleccione una sucursal."); return; }
+
             const rayitosACanajear = clienteActual.saldo_rayitos;
             const montoDescuento = rayitosACanajear / CONVERSION_RAYITOS;
 
@@ -549,7 +555,7 @@
                 if (error) throw error;
 
                 // Aplicar el descuento al total del carrito
-                pagos.push({ metodo: 'Rayitos', monto: montoDescuento, sucursal: 'N/A' });
+                pagos.push({ metodo: 'Rayitos', monto: montoDescuento, sucursal: sucursal });
                 clienteActual.saldo_rayitos = 0;
                 saldoRayitosDisplay.textContent = '0';
                 btnAplicarRayitos.disabled = true;
@@ -807,14 +813,7 @@
             document.getElementById('close-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
             document.getElementById('cancel-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
             btnApplyCredit.addEventListener('click', handleApplyCredit);
-            
-            btnAplicarLibras.addEventListener('click', handleAplicarLibras);
-            btnAplicarRayitos.addEventListener('click', handleAplicarRayitos);
-            
             lucide.createIcons();
-            
-            cargarSucursales();
-            configurarSucursalPorDefecto();
         });
     </script>
 </body>
