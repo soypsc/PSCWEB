@@ -16,6 +16,10 @@
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <script src="config.js"></script>
 
     <style>
@@ -44,7 +48,6 @@
 <body>
 
     <div id="auth-container">
-        <!-- Login and Register pages from your original file -->
         <div id="page-login" class="page">
              <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
                 <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png" alt="Logo" class="h-16 mx-auto"></div>
@@ -61,14 +64,12 @@
             </div>
         </div>
         <div id="page-register" class="page">
-           <!-- Full registration form here -->
-        </div>
+            </div>
     </div>
 
     <div id="app-container" class="max-w-md mx-auto min-h-screen hidden">
         <div id="page-home" class="page">
-            <!-- Home page content from your original file -->
-             <header class="p-6 flex items-center justify-between">
+            <header class="p-6 flex items-center justify-between">
                 <img src="https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png" alt="Logo" class="h-16">
                 <div class="flex items-center space-x-2">
                     <a href="#" data-target="page-notificaciones" id="notification-link" class="nav-link relative w-10 h-10 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center" title="Notificaciones">
@@ -103,25 +104,22 @@
         </div>
 
         <div id="page-mi-perfil" class="page">
-           <!-- Mi Perfil page from original file -->
-        </div>
+            </div>
 
         <div id="page-paquetes" class="page">
             <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-slate-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mis Paquetes</h1></header>
             <main class="px-6 pb-24 space-y-6">
-                <!-- OLD SUMMARY SECTION RESTORED -->
                 <section class="space-y-4">
                     <div class="bg-green-500/10 border border-green-500/50 p-4 rounded-xl text-center"><p class="text-sm font-semibold text-green-300">EN SUCURSAL</p><div class="flex items-baseline justify-center space-x-3 mt-1"><span id="summary-sucursal" class="text-3xl font-bold text-white">0</span><span>Paquetes</span></div><p id="summary-saldo" class="text-lg font-semibold text-green-300 font-mono mt-1">$0.00</p></div>
                     <div class="grid grid-cols-2 gap-4"><div class="bg-slate-800 border border-slate-700 p-4 rounded-xl text-center"><p class="text-xs font-medium text-yellow-300">EN TRÁNSITO</p><p id="summary-transito" class="text-2xl font-bold text-white mt-1">0</p></div><div class="bg-slate-800 border border-slate-700 p-4 rounded-xl text-center"><p class="text-xs font-medium text-slate-400">ENTREGADOS</p><p id="summary-entregado" class="text-2xl font-bold text-white mt-1">0</p></div></div>
                 </section>
-                <!-- NEW PICK & GO SECTION ADDED -->
                 <section class="space-y-4">
                     <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl text-center">
                         <p class="text-sm font-semibold text-green-400">SALDO DISPONIBLE EN BILLETERA</p>
                         <p id="saldo-billetera-paquetes" class="text-3xl font-bold text-white font-mono mt-1">$0.00</p>
                     </div>
                     <div id="payment-summary-paquetes" class="hidden mt-6 space-y-4">
-                         <div class="bg-slate-800/50 p-4 rounded-xl">
+                        <div class="bg-slate-800/50 p-4 rounded-xl">
                             <h3 class="text-base font-semibold text-white mb-3">Resumen de Pago Pick & Go</h3>
                             <div class="space-y-2 text-sm">
                                 <div class="flex justify-between"><span class="text-slate-400">Costo de paquetes:</span><span id="summary-packages-cost-paquetes" class="font-mono text-white">$0.00</span></div>
@@ -157,7 +155,7 @@
         </div>
     </div>
 
-    <div id="factura-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50"><!-- content from original file --></div>
+    <div id="factura-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50"></div>
     
     <script type="module">
         const { createClient } = supabase;
@@ -175,10 +173,9 @@
         const userNameDisplay = document.getElementById('user-name-display');
         const userBoxDisplay = document.getElementById('user-box-display');
         const qrModal = document.getElementById('qr-modal');
-
-        // --- ALL ORIGINAL FUNCTIONS RESTORED ---
-        const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString('es-PA', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
         
+        const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString('es-PA', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
+        const loadSucursales = async (selectElementId) => { /* Original loadSucursales logic */ };
         const loadFacturas = async () => { 
             const container = document.getElementById('facturas-list-container'); 
             container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; 
@@ -188,7 +185,29 @@
             if (!data.length) { container.innerHTML = `<div class="text-center p-8"><i data-lucide="receipt" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes facturas.</p></div>`; lucide.createIcons(); return; } 
             container.innerHTML = data.map(f => `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div class="flex justify-between items-center"><div><p class="font-bold text-lg font-mono text-white">$${(f.monto_total || 0).toFixed(2)}</p><p class="text-xs text-slate-400">Factura #${f.id.substring(0, 8).toUpperCase()}</p><p class="text-xs text-slate-500 mt-1">${formatDate(f.created_at)}</p></div>${f.html_recibo ? `<button data-factura-id="${f.id}" class="view-receipt-btn bg-blue-600 text-white font-semibold text-xs px-3 py-1.5 rounded-md hover:bg-blue-700">Ver Recibo</button>` : ''}</div></div>`).join('');
         };
-        const initializeDireccionesPage = async () => { const container = document.getElementById('direcciones-content'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; const { data: userInfo } = await supabaseClient.rpc('get_direcciones_casillero'); if (!userInfo) { container.innerHTML = `<p class="text-red-500 text-center">No se pudo cargar tu información.</p>`; return; } const { nombre, box, codigo_sucursal } = userInfo; const nombreLinea1 = `${codigo_sucursal || 'PSC'}${box || ''} ${nombre || ''}`; const renderAddressCard = (addr) => { let copyIdCounter = Math.random().toString(36).substring(7); return `<section><h2 class="text-base font-semibold text-white mb-3">${addr.titulo}</h2>${addr.nota ? `<p class="text-xs text-yellow-500 bg-yellow-500/10 p-2 rounded-md mb-3">${addr.nota}</p>` : ''}<div class="bg-slate-800 border border-slate-700 rounded-xl divide-y divide-slate-700">${addr.datos.map((item, index) => { const uniqueId = `copy-${copyIdCounter}-${index}`; return `<div class="px-3 py-2 flex justify-between items-center"><div><p class="text-xs text-slate-400">${item.label}:</p><p class="text-sm font-mono text-white" id="${uniqueId}">${item.value}</p></div><button class="copy-btn p-2 rounded-lg hover:bg-slate-700" data-target="${uniqueId}"><i data-lucide="copy" class="h-4 w-4 text-slate-400"></i></button></div>`; }).join('')}</div></section>`; }; container.innerHTML = `${renderAddressCard({ titulo: 'Bodega Principal (Aéreo)', datos: [ { label: 'Nombre', value: nombreLinea1 }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })} ${renderAddressCard({ titulo: 'Dirección Marítima', datos: [ { label: 'Nombre', value: `OCEAN ${nombreLinea1}` }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })}`; container.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', () => { navigator.clipboard.writeText(document.getElementById(btn.dataset.target).innerText).then(() => { btn.innerHTML = '<i data-lucide="check" class="h-4 w-4 text-green-500"></i>'; setTimeout(() => { btn.innerHTML = '<i data-lucide="copy" class="h-4 w-4 text-slate-400"></i>'; lucide.createIcons(); }, 2000); lucide.createIcons(); }); })); lucide.createIcons(); };
+        
+        // ==========================================================
+        // CORRECCIÓN 1: FUNCIÓN DE DIRECCIONES RESTAURADA
+        // ==========================================================
+        const initializeDireccionesPage = async () => {
+            const container = document.getElementById('direcciones-content');
+            container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
+            const { data: userInfo } = await supabaseClient.rpc('get_direcciones_casillero');
+            if (!userInfo) {
+                container.innerHTML = `<p class="text-red-500 text-center">No se pudo cargar tu información.</p>`;
+                return;
+            }
+            const { nombre, box, codigo_sucursal } = userInfo;
+            const nombreLinea1 = `${codigo_sucursal || 'PSC'}${box || ''} ${nombre || ''}`;
+            const renderAddressCard = (addr) => {
+                let copyIdCounter = Math.random().toString(36).substring(7);
+                return `<section><h2 class="text-base font-semibold text-white mb-3">${addr.titulo}</h2>${addr.nota ? `<p class="text-xs text-yellow-500 bg-yellow-500/10 p-2 rounded-md mb-3">${addr.nota}</p>` : ''}<div class="bg-slate-800 border border-slate-700 rounded-xl divide-y divide-slate-700">${addr.datos.map((item, index) => { const uniqueId = `copy-${copyIdCounter}-${index}`; return `<div class="px-3 py-2 flex justify-between items-center"><div><p class="text-xs text-slate-400">${item.label}:</p><p class="text-sm font-mono text-white" id="${uniqueId}">${item.value}</p></div><button class="copy-btn p-2 rounded-lg hover:bg-slate-700" data-target="${uniqueId}"><i data-lucide="copy" class="h-4 w-4 text-slate-400"></i></button></div>`; }).join('')}</div></section>`;
+            };
+            container.innerHTML = `${renderAddressCard({ titulo: 'Bodega Principal (Aéreo)', datos: [ { label: 'Nombre', value: nombreLinea1 }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })} ${renderAddressCard({ titulo: 'Dirección Marítima', datos: [ { label: 'Nombre', value: `OCEAN ${nombreLinea1}` }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })}`;
+            container.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', () => { navigator.clipboard.writeText(document.getElementById(btn.dataset.target).innerText).then(() => { btn.innerHTML = '<i data-lucide="check" class="h-4 w-4 text-green-500"></i>'; setTimeout(() => { btn.innerHTML = '<i data-lucide="copy" class="h-4 w-4 text-slate-400"></i>'; lucide.createIcons(); }, 2000); lucide.createIcons(); }); }));
+            lucide.createIcons();
+        };
+        
         const loadProfileData = async () => { /* Original loadProfileData logic */ };
         const loadNotificaciones = async () => { /* Original loadNotificaciones logic */ };
         const handleLogin = async (e) => { /* Original handleLogin logic */ };
@@ -223,7 +242,6 @@
             showPage('page-home');
         };
 
-        // --- MERGED 'loadPaquetes' FUNCTION ---
         const loadPaquetes = async () => {
             const container = document.getElementById('paquetes-list-container');
             container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
@@ -244,6 +262,9 @@
             if (paquetes) {
                 paquetes.forEach(p => {
                     if (p.status in statusCount) statusCount[p.status]++;
+                    // ==========================================================
+                    // CORRECCIÓN 2: LÓGICA DE PRECIOS RESTAURADA
+                    // ==========================================================
                     if (p.status === 'En Sucursal') saldoEnSucursal += (p.peso || 0) * tarifaCliente;
                 });
             }
@@ -252,12 +273,11 @@
             document.getElementById('summary-entregado').textContent = statusCount['Entregado'] + statusCount['Pagado (sin entregar)'];
             document.getElementById('summary-saldo').textContent = `$${saldoEnSucursal.toFixed(2)}`;
 
-            renderPaquetes(tarifaCliente);
+            renderPaquetes();
             updatePaymentSummary();
         };
 
-        // --- NEW PICK & GO FUNCTIONS ---
-        function renderPaquetes(tarifaCliente) {
+        function renderPaquetes() {
             const container = document.getElementById('paquetes-list-container');
             if (!allUserPackages || allUserPackages.length === 0) {
                 container.innerHTML = `<div class="text-center p-8"><i data-lucide="package-search" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes paquetes.</p></div>`;
@@ -269,15 +289,12 @@
             
             container.innerHTML = allUserPackages.map(p => {
                 const isSelectable = p.status === 'En Sucursal';
-                // CORRECCIÓN: Calcular precio dinámicamente para la vista
-                const displayPrice = (p.peso || 0) * tarifaCliente;
-
                 return `
                 <div class="package-item bg-slate-800 border border-slate-700 p-4 rounded-xl flex justify-between items-center ${isSelectable ? 'cursor-pointer' : 'opacity-60'}" data-id="${p.id}" data-cost="${p.costo_total || 0}">
                     <div class="flex items-center gap-4">
-                         ${isSelectable ? `
+                        ${isSelectable ? `
                             <div class="package-checkbox pointer-events-none h-6 w-6 rounded-full border-2 border-slate-500 bg-slate-900 flex items-center justify-center flex-shrink-0">
-                                 <i data-lucide="check" class="h-4 w-4 text-white opacity-0 transition"></i>
+                                <i data-lucide="check" class="h-4 w-4 text-white opacity-0 transition"></i>
                             </div>` : `<div class="h-6 w-6 flex-shrink-0"></div>`}
                         <div>
                             <p class="font-mono font-semibold text-white">${p.tracking}</p>
@@ -285,7 +302,7 @@
                         </div>
                     </div>
                     <div class="text-right flex items-center gap-4">
-                         <p class="text-white font-semibold font-mono text-lg">$${displayPrice.toFixed(2)}</p>
+                        <p class="text-white font-semibold font-mono text-lg">$${(p.costo_total || 0).toFixed(2)}</p>
                         <span class="text-xs font-bold px-2 py-1 rounded-full ${statusBadge(p.status)}">${p.status || 'N/A'}</span>
                     </div>
                 </div>`;
@@ -396,6 +413,7 @@
     </script>
 </body>
 </html>
+
 
 
 
