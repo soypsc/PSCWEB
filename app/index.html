@@ -9,24 +9,24 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="PSC App">
-    <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png">
+    <link rel="apple-touch-icon" href="[https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png](https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png)">
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
+    <script src="[https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2](https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2)"></script>
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    <script src="[https://unpkg.com/lucide@latest/dist/umd/lucide.js](https://unpkg.com/lucide@latest/dist/umd/lucide.js)"></script>
+    <script src="[https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js](https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js)"></script>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
+    <link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
+    <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap)" rel="stylesheet">
 
     <script src="config.js"></script>
 
     <style>
         body { 
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a; /* bg-slate-900 */
-            color: #e2e8f0; /* text-slate-200 */
+            background-color: #0f172a;
+            color: #e2e8f0;
         }
         .page { display: none; }
         .page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
@@ -50,7 +50,7 @@
     <div id="auth-container">
         <div id="page-login" class="page">
              <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
-                <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png" alt="Logo" class="h-16 mx-auto"></div>
+                <div class="text-center mb-8"><img src="[https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png](https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png)" alt="Logo" class="h-16 mx-auto"></div>
                 <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
                     <h1 class="text-2xl font-bold text-center text-white">Bienvenido</h1>
                     <p class="text-slate-400 text-center mb-6">Inicia sesión para continuar</p>
@@ -65,7 +65,7 @@
         </div>
         <div id="page-register" class="page">
             <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
-                <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png" alt="Logo" class="h-16 mx-auto"></div>
+                <div class="text-center mb-8"><img src="[https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png](https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png)" alt="Logo" class="h-16 mx-auto"></div>
                  <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
                     <h1 class="text-2xl font-bold text-center text-white">Crear Cuenta</h1><p class="text-slate-400 text-center mb-6">Completa tus datos</p>
                     <form id="register-form" class="space-y-4">
@@ -90,7 +90,7 @@
     <div id="app-container" class="max-w-md mx-auto min-h-screen hidden">
         <div id="page-home" class="page">
             <header class="p-6 flex items-center justify-between">
-                <img src="https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png" alt="Logo" class="h-16">
+                <img src="[https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png](https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png)" alt="Logo" class="h-16">
                 <div class="flex items-center space-x-2">
                     <a href="#" data-target="page-notificaciones" id="notification-link" class="nav-link relative w-10 h-10 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center" title="Notificaciones">
                         <i data-lucide="bell" class="text-slate-400"></i>
@@ -153,7 +153,7 @@
                     </div>
                     <div id="payment-summary-paquetes" class="hidden mt-6 space-y-4">
                         <div class="bg-slate-800/50 p-4 rounded-xl">
-                            <h3 class="text-base font-semibold text-white mb-3">Resumen de Pago Pick & Go</h3>
+                            <h3 class="text-base font-semibold text-white mb-3">Resumen de Pago</h3>
                             <div class="space-y-2 text-sm">
                                 <div class="flex justify-between"><span class="text-slate-400">Costo de paquetes:</span><span id="summary-packages-cost-paquetes" class="font-mono text-white">$0.00</span></div>
                                 <div class="flex justify-between"><span class="text-slate-400">Servicio Pick & Go:</span><span class="font-mono text-white">$1.00</span></div>
@@ -162,7 +162,7 @@
                             </div>
                         </div>
                         <button id="pay-button-paquetes" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-indigo-700 disabled:bg-slate-500">
-                            Pagar con Saldo y Generar QR
+                            Pagar con Saldo
                         </button>
                     </div>
                 </section>
@@ -188,7 +188,7 @@
         </div>
     </div>
 
-    <div id="factura-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-2xl shadow-xl max-h-[90vh] flex flex-col"><header class="p-4 flex items-center justify-between border-b border-slate-700"><h2 class="text-lg font-semibold text-white">Detalle de Factura</h2><div class="flex items-center gap-4"><button id="print-factura-btn" class="text-slate-400 hover:text-white"><i data-lucide="printer"></i></button><button id="close-factura-modal-btn" class="text-slate-400 hover:text-white"><i data-lucide="x"></i></button></div></header><main id="factura-modal-content" class="p-6 overflow-y-auto text-black"></main></div></div>
+    <div id="factura-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-2xl shadow-xl max-h-[90vh] flex flex-col"><header class="p-4 flex items-center justify-between border-b border-slate-700"><h2 class="text-lg font-semibold text-white">Detalle de Factura</h2><div class="flex items-center gap-4"><button id="print-factura-btn" class="text-slate-400 hover:text-white"><i data-lucide="printer"></i></button><button id="close-factura-modal-btn" class="text-slate-400 hover:text-white"><i data-lucide="x"></i></button></div></header><main id="factura-modal-content" class="p-6 overflow-y-auto bg-white text-black"></main></div></div>
     
     <script type="module">
         const { createClient } = supabase;
@@ -198,6 +198,7 @@
         let selectedPackageIds = [];
         const PICKGO_COST = 1.00;
 
+        // --- DOM Element References ---
         const authContainer = document.getElementById('auth-container');
         const appContainer = document.getElementById('app-container');
         const allPages = document.querySelectorAll('.page');
@@ -206,7 +207,10 @@
         const userNameDisplay = document.getElementById('user-name-display');
         const userBoxDisplay = document.getElementById('user-box-display');
         const qrModal = document.getElementById('qr-modal');
+        const facturaModal = document.getElementById('factura-modal');
+        const facturaModalContent = document.getElementById('factura-modal-content');
         
+        // --- Page Navigation ---
         const showPage = (pageId) => {
             allPages.forEach(p => p.classList.remove('active'));
             const targetPage = document.getElementById(pageId);
@@ -225,6 +229,7 @@
 
         const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString('es-PA', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
         
+        // --- Auth State & UI Management ---
         const showAuth = () => { 
             authContainer.style.display = 'block'; 
             appContainer.classList.add('hidden'); 
@@ -244,6 +249,7 @@
             await actualizarContadorNotificaciones();
         };
 
+        // --- Auth Functions ---
         const handleLogin = async (e) => { 
             e.preventDefault(); 
             const email = document.getElementById('login-email').value; 
@@ -300,6 +306,7 @@
 
         const handleLogout = () => supabaseClient.auth.signOut();
         
+        // --- Data Loading Functions ---
         const loadSucursales = async (selectElementId) => { 
             const selectEl = document.getElementById(selectElementId); 
             const { data } = await supabaseClient.from('sucursales').select('sucursal').order('sucursal'); 
@@ -364,6 +371,7 @@
         const actualizarContadorNotificaciones = async () => { const badge = document.getElementById('notification-badge'); const iconLink = document.getElementById('notification-link'); if (!badge || !iconLink) return; const { data: count, error } = await supabaseClient.rpc('get_unread_notification_count'); if (error || count === 0) { badge.classList.add('hidden'); badge.textContent = ''; iconLink.classList.remove('anim-tiembla'); } else { badge.textContent = count > 9 ? '9+' : count; badge.classList.remove('hidden'); iconLink.classList.add('anim-tiembla'); setTimeout(() => { iconLink.classList.remove('anim-tiembla'); }, 600); } };
         const marcarNotificacionesComoLeidas = async () => { const { data: { user } } = await supabaseClient.auth.getUser(); if (!user) return; const { error } = await supabaseClient.from('notificaciones_pendientes').update({ leido: true }).eq('cliente_id', user.id).eq('leido', false); if (!error) { document.getElementById('notification-badge').classList.add('hidden'); } };
 
+        // --- Package & Payment Logic ---
         const loadPaquetes = async () => {
             const container = document.getElementById('paquetes-list-container');
             container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
@@ -474,14 +482,14 @@
             payButton.textContent = 'Procesando...';
 
             try {
-                const { data: retiroId, error } = await supabaseClient.rpc('pagar_paquetes_con_saldo', {
+                const { data: resultado, error } = await supabaseClient.rpc('pagar_paquetes_con_saldo', {
                     p_paquetes_a_pagar: selectedPackageIds,
                     p_es_pick_and_go: true 
                 });
 
                 if (error) throw error;
                 
-                showQrModal(retiroId);
+                showQrModal(resultado);
                 const { data: updatedProfile } = await supabaseClient.from('clientes').select('saldo_a_favor').eq('id', currentUserProfile.id).single();
                 if(updatedProfile) currentUserProfile.saldo_a_favor = updatedProfile.saldo_a_favor;
 
@@ -508,7 +516,7 @@
             qrModal.classList.remove('hidden');
         }
 
-        // Event Listeners Setup
+        // --- Event Listeners Setup ---
         document.getElementById('show-register-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-register'); });
         document.getElementById('show-login-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-login'); });
         document.getElementById('login-form').addEventListener('submit', handleLogin);
@@ -521,6 +529,34 @@
         document.getElementById('close-qr-modal-btn').addEventListener('click', () => qrModal.classList.add('hidden'));
         document.querySelectorAll('.toggle-password').forEach(btn => btn.addEventListener('click', () => { const input = btn.previousElementSibling; input.type = input.type === 'password' ? 'text' : 'password'; }));
         
+        // --- LÓGICA DEL MODAL DE FACTURAS (RESTAURADA) ---
+        appContainer.addEventListener('click', async (e) => {
+            const viewButton = e.target.closest('.view-receipt-btn');
+            if (viewButton) {
+                const facturaId = viewButton.dataset.facturaId;
+                facturaModalContent.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto border-slate-700 border-t-blue-500"></div></div>`;
+                facturaModal.classList.remove('hidden');
+                
+                const { data } = await supabaseClient.from('facturas').select('html_recibo').eq('id', facturaId).single();
+                
+                facturaModalContent.innerHTML = data?.html_recibo || '<p class="text-slate-700">No se encontró el contenido del recibo.</p>';
+            }
+        });
+
+        document.getElementById('close-factura-modal-btn').addEventListener('click', () => facturaModal.classList.add('hidden'));
+        
+        document.getElementById('print-factura-btn').addEventListener('click', () => {
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>Recibo PSC</title>');
+            printWindow.document.write('<style>body{font-family:sans-serif;}</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(facturaModalContent.innerHTML);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        });
+
+        // --- App Initialization ---
         supabaseClient.auth.onAuthStateChange((event, session) => { 
             if (session) { 
                 showApp(session.user);
@@ -536,6 +572,7 @@
     </script>
 </body>
 </html>
+
 
 
 
