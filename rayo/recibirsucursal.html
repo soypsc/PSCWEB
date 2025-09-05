@@ -302,47 +302,50 @@
                 
                 // ULTIMO CAMBIO: Lógica de escaneo maneja paquetes que no existen.
                 async function procesarEscaneo(tracking) {
-                    if (!tracking) return;
-                    trackingInput.value = '';
-                    if (Object.values(gruposVerificados).some(g => g.paquetes.some(p => p.tracking === tracking)) || paquetesPorExcepcion.some(p => p.tracking === tracking) || trackingsNuevos.some(t => t.tracking === tracking)) {
-                        showInfoAlert(`El tracking ${tracking} ya fue procesado en esta sesión.`); return;
-                    }
-                    const paquete = todosLosPaquetesGlobal.find(p => p.tracking === tracking);
-                    if (paquete) { // El paquete existe en el sistema
-                        if (paquete.status !== 'En transito') {
-                            showInfoAlert(`El paquete "${tracking}" no puede ser recibido. Su estado es: "${paquete.status}".`); return;
-                        }
-                        if (paquete.sucursal === sucursalSelect.value) { // Flujo normal
-                            const paqueteIndex = paquetesEnTransito.findIndex(p => p.tracking === tracking);
-                            if (paqueteIndex !== -1) {
-                                const [paqueteParaMover] = paquetesEnTransito.splice(paqueteIndex, 1);
-                                const clienteBox = paqueteParaMover.cliente_box;
-                                if (!gruposVerificados[clienteBox]) {
-                                    const clienteData = paqueteParaMover.clientes;
-                                    gruposVerificados[clienteBox] = { info: { nombre: paqueteParaMover.cliente_nombre, box: clienteBox, telefono: clienteData.telefono, tarifa_1: clienteData.tarifa_1 }, paquetes: [] };
-                                }
-                                gruposVerificados[clienteBox].paquetes.push(paqueteParaMover);
-                                infoPaqueteDiv.innerHTML = `<p><strong>Tracking:</strong> ${paqueteParaMover.tracking}</p><p><strong>Cliente:</strong> ${paqueteParaMover.cliente_nombre}</p><p><strong>Agregado a grupo ✅</strong></p>`;
-                                renderTablaEnTransito(); renderGruposVerificados();
-                            }
-                        } else { // Flujo de excepción (paquete conocido)
-                            const title = "Recepción por Excepción";
-                            const body = `<p class="text-base">El paquete <strong>${tracking}</strong> pertenece a la sucursal <strong>${paquete.sucursal}</strong>.</p><p class="mt-4">Para recibirlo aquí, escribe <strong class="text-emerald-600">aceptar</strong>.</p><input type="text" id="confirm-override-input" placeholder="Escribe 'aceptar'..." class="w-full mt-2 p-2 border rounded-md">`;
-                            showConfirmationAlert(title, body, () => {
-                                paquetesPorExcepcion.push(paquete);
-                                infoPaqueteDiv.innerHTML = `<p class="font-bold text-orange-600">¡Recibido por Excepción! ⚠️</p><p><strong>Tracking:</strong> ${paquete.tracking}</p><p><strong>Suc. Original:</strong> ${paquete.sucursal}</p>`;
-                                renderExcepciones();
-                            });
-                        }
-                    } else { // El paquete NO existe en el sistema
-                        infoPaqueteDiv.innerHTML = `<p class="font-bold text-indigo-600">Buscando tracking desconocido... 🔎</p>`;
-                        const { data: cargaData, error: cargaError } = await sb.from('cargado').select('peso').eq('tracking', tracking).single();
-                        const pesoEncontrado = cargaData ? cargaData.peso : null;
-                        trackingsNuevos.push({ tracking: tracking, peso: pesoEncontrado });
-                        infoPaqueteDiv.innerHTML = `<p class="font-bold text-indigo-600">¡Tracking Desconocido Añadido! ⚠️</p><p><strong>Tracking:</strong> ${tracking}</p>`;
-                        renderExcepciones();
-                    }
+    if (!tracking) return;
+    trackingInput.value = '';
+    if (Object.values(gruposVerificados).some(g => g.paquetes.some(p => p.tracking === tracking)) || paquetesPorExcepcion.some(p => p.tracking === tracking) || trackingsNuevos.some(t => t.tracking === tracking)) {
+        showInfoAlert(`El tracking ${tracking} ya fue procesado en esta sesión.`); return;
+    }
+    const paquete = todosLosPaquetesGlobal.find(p => p.tracking === tracking);
+    if (paquete) { // El paquete existe en el sistema
+        if (paquete.status !== 'En transito') {
+            showInfoAlert(`El paquete "${tracking}" no puede ser recibido. Su estado es: "${paquete.status}".`); return;
+        }
+        if (paquete.sucursal === sucursalSelect.value) { // Flujo normal
+            const paqueteIndex = paquetesEnTransito.findIndex(p => p.tracking === tracking);
+            if (paqueteIndex !== -1) {
+                const [paqueteParaMover] = paquetesEnTransito.splice(paqueteIndex, 1);
+                const clienteBox = paqueteParaMover.cliente_box;
+                if (!gruposVerificados[clienteBox]) {
+                    const clienteData = paqueteParaMover.clientes;
+                    gruposVerificados[clienteBox] = { info: { nombre: paqueteParaMover.cliente_nombre, box: clienteBox, telefono: clienteData.telefono, tarifa_1: clienteData.tarifa_1 }, paquetes: [] };
                 }
+                gruposVerificados[clienteBox].paquetes.push(paqueteParaMover);
+                infoPaqueteDiv.innerHTML = `<p><strong>Tracking:</strong> ${paqueteParaMover.tracking}</p><p><strong>Cliente:</strong> ${paqueteParaMover.cliente_nombre}</p><p><strong>Agregado a grupo ✅</strong></p>`;
+                renderTablaEnTransito(); renderGruposVerificados();
+            }
+        } else { // Flujo de excepción (paquete conocido)
+            const title = "Recepción por Excepción";
+            const body = `<p class="text-base">El paquete <strong>${tracking}</strong> pertenece a la sucursal <strong>${paquete.sucursal}</strong>.</p><p class="mt-4">Para recibirlo aquí, escribe <strong class="text-emerald-600">aceptar</strong>.</p><input type="text" id="confirm-override-input" placeholder="Escribe 'aceptar'..." class="w-full mt-2 p-2 border rounded-md">`;
+            showConfirmationAlert(title, body, () => {
+                paquetesPorExcepcion.push(paquete);
+                infoPaqueteDiv.innerHTML = `<p class="font-bold text-orange-600">¡Recibido por Excepción! ⚠️</p><p><strong>Tracking:</strong> ${paquete.tracking}</p><p><strong>Suc. Original:</strong> ${paquete.sucursal}</p>`;
+                renderExcepciones();
+            });
+        }
+    } else { // El paquete NO existe en el sistema
+        infoPaqueteDiv.innerHTML = `<p class="font-bold text-indigo-600">Buscando tracking desconocido... 🔎</p>`;
+        
+        // CORRECCIÓN AQUÍ: Se cambió 'cargado' por 'paquetes_cargados'
+        const { data: cargaData, error: cargaError } = await sb.from('paquetes_cargados').select('peso').eq('tracking', tracking).single();
+        
+        const pesoEncontrado = cargaData ? cargaData.peso : null;
+        trackingsNuevos.push({ tracking: tracking, peso: pesoEncontrado });
+        infoPaqueteDiv.innerHTML = `<p class="font-bold text-indigo-600">¡Tracking Desconocido Añadido! ⚠️</p><p><strong>Tracking:</strong> ${tracking}</p>`;
+        renderExcepciones();
+    }
+}
                 
                 formConfirmar.addEventListener('submit', async (e) => {
                     e.preventDefault();
