@@ -405,40 +405,42 @@
         };
 
         function renderPaquetes(tarifaCliente) {
-            const container = document.getElementById('paquetes-list-container');
-            if (!allUserPackages || allUserPackages.length === 0) {
-                container.innerHTML = `<div class="text-center p-8"><i data-lucide="package-search" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes paquetes.</p></div>`;
-                lucide.createIcons();
-                return;
-            }
+    const container = document.getElementById('paquetes-list-container');
+    if (!allUserPackages || allUserPackages.length === 0) {
+        container.innerHTML = `<div class="text-center p-8"><i data-lucide="package-search" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes paquetes.</p></div>`;
+        lucide.createIcons();
+        return;
+    }
 
-            const statusBadge = (s) => ({ 'En transito': 'bg-yellow-500/20 text-yellow-300', 'En Sucursal': 'bg-green-500/20 text-green-300', 'Pagado (sin entregar)': 'bg-blue-500/20 text-blue-300', 'Entregado': 'bg-slate-500/20 text-slate-400' }[s] || 'bg-slate-700');
+    const statusBadge = (s) => ({ 'En transito': 'bg-yellow-500/20 text-yellow-300', 'En Sucursal': 'bg-green-500/20 text-green-300', 'Pagado (sin entregar)': 'bg-blue-500/20 text-blue-300', 'Entregado': 'bg-slate-500/20 text-slate-400' }[s] || 'bg-slate-700');
+    
+    container.innerHTML = allUserPackages.map(p => {
+        const isSelectable = p.status === 'En Sucursal';
+        const costoCalculado = (p.peso || 0) * tarifaCliente;
+
+        return `
+        <div class="package-item bg-slate-800 border border-slate-700 p-4 rounded-xl flex justify-between items-center" data-id="${p.id}" data-cost="${costoCalculado}">
             
-            container.innerHTML = allUserPackages.map(p => {
-                const isSelectable = p.status === 'En Sucursal';
-                // --- CORRECCIÓN FINAL: CÁLCULO DE PRECIO INDIVIDUAL ---
-                const costoCalculado = (p.peso || 0) * tarifaCliente;
+            <div class="flex items-center gap-4 min-w-0">
+                ${isSelectable ? `
+                    <div class="package-checkbox pointer-events-none h-6 w-6 rounded-full border-2 border-slate-500 bg-slate-900 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="check" class="h-4 w-4 text-white opacity-0 transition"></i>
+                    </div>` : `<div class="h-6 w-6 flex-shrink-0"></div>`}
+                
+                <div class="min-w-0">
+                    <p class="font-mono font-semibold text-white text-sm truncate">${p.tracking}</p>
+                    <p class="text-xs text-slate-400">${p.peso ? p.peso.toFixed(2) + ' lbs' : 'Sin peso'}</p>
+                </div>
+            </div>
 
-                return `
-                <div class="package-item bg-slate-800 border border-slate-700 p-4 rounded-xl flex justify-between items-center ${isSelectable ? 'cursor-pointer' : 'opacity-60'}" data-id="${p.id}" data-cost="${costoCalculado}">
-                    <div class="flex items-center gap-4">
-                        ${isSelectable ? `
-                            <div class="package-checkbox pointer-events-none h-6 w-6 rounded-full border-2 border-slate-500 bg-slate-900 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="check" class="h-4 w-4 text-white opacity-0 transition"></i>
-                            </div>` : `<div class="h-6 w-6 flex-shrink-0"></div>`}
-                        <div>
-                            <p class="font-mono font-semibold text-white">${p.tracking}</p>
-                            <p class="text-xs text-slate-400">${p.peso ? p.peso.toFixed(2) + ' lbs' : 'Sin peso'}</p>
-                        </div>
-                    </div>
-                    <div class="text-right flex items-center gap-4">
-                        <p class="text-white font-semibold font-mono text-lg">$${costoCalculado.toFixed(2)}</p>
-                        <span class="text-xs font-bold px-2 py-1 rounded-full ${statusBadge(p.status)}">${p.status || 'N/A'}</span>
-                    </div>
-                </div>`;
-            }).join('');
-            lucide.createIcons();
-        }
+            <div class="text-right flex items-center gap-4 flex-shrink-0">
+                <p class="text-white font-semibold font-mono text-lg">$${costoCalculado.toFixed(2)}</p>
+                <span class="text-xs font-bold px-2 py-1 rounded-full ${statusBadge(p.status)}">${p.status || 'N/A'}</span>
+            </div>
+        </div>`;
+    }).join('');
+    lucide.createIcons();
+}
         
         function handlePackageSelection(e) {
             const packageItem = e.target.closest('.package-item');
@@ -544,6 +546,7 @@
     </script>
 </body>
 </html>
+
 
 
 
