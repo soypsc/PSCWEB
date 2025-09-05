@@ -14,7 +14,7 @@
         .fade-in { animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         .scan-success { background-color: #dcfce7 !important; transition: background-color: 0.3s; }
-        .scan-error { background-color: #fee2e2 !important; transition: background-color 0.3s; }
+        .scan-error { background-color: #fee2e2 !important; transition: background-color: 0.3s; }
         .verified-item { text-decoration: line-through; color: #9ca3af; }
     </style>
 </head>
@@ -22,13 +22,13 @@
 
     <script type="module">
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+        const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
         (async () => {
-            const { data: { session } } = await sb.auth.getSession();
+            const { data: { session } } = await supabase.auth.getSession();
             if (!session) { window.location.href = 'login.html'; return; }
-            const { data: perfil, error } = await sb.from('perfiles').select('rol').eq('id', session.user.id).single();
-            if (error || !perfil) { await sb.auth.signOut(); window.location.href = 'login.html?error=unauthorized'; }
+            const { data: perfil, error } = await supabase.from('perfiles').select('rol').eq('id', session.user.id).single();
+            if (error || !perfil) { await supabase.auth.signOut(); window.location.href = 'login.html?error=unauthorized'; }
         })();
     </script>
 
