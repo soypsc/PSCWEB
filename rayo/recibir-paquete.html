@@ -769,6 +769,31 @@
                 document.querySelector("main").innerHTML = `<p class="text-red-500">Error crítico. Revise la consola.</p>`;
             }
         }
+
+
+                function handleEnterSearch(event, target) {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Evita que el formulario principal se envíe por error.
+        const terminoBusqueda = event.target.value.trim();
+        if (terminoBusqueda) {
+            // Reutilizamos la función de autocompletado para buscar y seleccionar el primer resultado
+            handleAutocomplete(event.target, document.getElementById(`${target}-cliente-suggestions`), (box) => {
+                event.target.value = box;
+                buscarCliente(box, target);
+            });
+            // Hacemos la búsqueda directa por si es un casillero exacto
+             if(!isNaN(terminoBusqueda)) {
+                buscarCliente(terminoBusqueda, target);
+             }
+        }
+        // Ocultamos cualquier sugerencia visible
+        document.querySelectorAll('.autocomplete-suggestions').forEach(el => el.classList.add('hidden'));
+    }
+}
+
+casilleroSearchInput.addEventListener('keydown', (e) => handleEnterSearch(e, 'cliente'));
+manualCasilleroInput.addEventListener('keydown', (e) => handleEnterSearch(e, 'manual'));
+procesarCasilleroInput.addEventListener('keydown', (e) => handleEnterSearch(e, 'procesar'));
     </script>
 </body>
 </html>
