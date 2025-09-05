@@ -88,8 +88,8 @@
 
     function onScanSuccess(decodedText, decodedResult) {
         qrReaderStatus.textContent = `Código detectado: ${decodedText.substring(0,12)}...`;
-        if (html5QrcodeScanner.getState() === Html5QrcodeScannerState.SCANNING) {
-            html5QrcodeScanner.clear();
+        if (html5QrcodeScanner && typeof html5QrcodeScanner.clear === 'function') {
+             html5QrcodeScanner.clear();
         }
         loadRetiroDetails(decodedText);
     }
@@ -100,19 +100,25 @@
         retiroDetailsContainer.classList.remove('hidden');
 
         try {
-            const { data, error } = await sb.from('retiros')
-                .select('*, clientes(nombre, box), paquetes(tracking)')
+            const { data: retiro, error: retiroError } = await sb.from('retiros')
+                .select('*, clientes(nombre, box), paquetes_ids')
                 .eq('id', retiroId)
                 .single();
 
-            if (error || !data) throw new Error("No se encontró la orden de retiro.");
+            if (retiroError || !retiro) throw new Error("No se encontró la orden de retiro.");
+            
+            const { data: paquetes, error: paquetesError } = await sb.from('paquetes')
+                .select('tracking')
+                .in('id', retiro.paquetes_ids);
 
-            document.getElementById('detalle-cliente').textContent = `${data.clientes.nombre} (Box: ${data.clientes.box})`;
-            document.getElementById('detalle-monto').textContent = `$${(data.monto_total || 0).toFixed(2)}`;
+            if (paquetesError) throw new Error("Error al cargar los trackings de los paquetes.");
+
+            document.getElementById('detalle-cliente').textContent = `${retiro.clientes.nombre} (Box: ${retiro.clientes.box})`;
+            document.getElementById('detalle-monto').textContent = `$${(retiro.monto_total || 0).toFixed(2)}`;
             
             const estadoEl = document.getElementById('detalle-estado');
-            estadoEl.textContent = data.status;
-            if (data.status === 'pagado' || data.status === 'listo_para_retiro') {
+            estadoEl.textContent = retiro.status;
+            if (retiro.status === 'pagado' || retiro.status === 'listo_para_retiro') {
                 estadoEl.className = 'font-semibold px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800';
                 btnMarcarEntregado.disabled = false;
             } else {
@@ -122,7 +128,7 @@
             }
 
             const paquetesList = document.getElementById('detalle-paquetes');
-            paquetesList.innerHTML = data.paquetes.map(p => `<li>${p.tracking}</li>`).join('');
+            paquetesList.innerHTML = paquetes.map(p => `<li>${p.tracking}</li>`).join('');
 
         } catch(error) {
             alert(`Error: ${error.message}`);
@@ -160,8 +166,18 @@
     }
     
     function startScanner(){
-        if (!html5QrcodeScanner || html5QrcodeScanner.getState() !== Html5QrcodeScannerState.SCANNING) {
-            html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: {width: 250, height: 250} });
+        const qrboxFunction = function(viewfinderWidth, viewfinderHeight) {
+            let minEdgePercentage = 0.7; // 70%
+            let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+            let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+            return {
+                width: qrboxSize,
+                height: qrboxSize
+            };
+        }
+
+        if (!html5QrcodeScanner || (html5QrcodeScanner && typeof html5QrcodeScanner.getState === 'function' && html5QrcodeScanner.getState() !== 2)) {
+            html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: qrboxFunction });
             html5QrcodeScanner.render(onScanSuccess);
             qrReaderStatus.textContent = 'Apunte la cámara al código QR.';
         }
@@ -177,5 +193,7 @@
 
 </body>
 </html>
+
+
 
 
