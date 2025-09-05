@@ -429,12 +429,12 @@
                         const peso = button.dataset.peso ? parseFloat(button.dataset.peso) : null;
                         if (confirm(`¿Seguro que desea crear un registro para el tracking desconocido ${tracking}?`)) {
                             button.disabled = true; button.textContent = "Creando...";
-                            const { error } = await sb.from('paquetes').insert({ tracking: tracking, peso: peso, status: 'sin procesar', sucursal_recibido: sucursalSelect.value, fecha_recibido: new Date() });
+                            const { error } = await sb.from('paquetes').insert({ tracking: tracking, peso: peso, status: 'Sin procesar', sucursal_recibido: sucursalSelect.value, fecha_recibido: new Date() });
                             if (error) {
                                 showInfoAlert(`No se pudo crear el registro para ${tracking}: ${error.message}`, true);
                                 button.disabled = false; button.textContent = "Reportar y Crear";
                             } else {
-                                showInfoAlert(`Registro para ${tracking} creado con estado "sin procesar".`);
+                                showInfoAlert(`Registro para ${tracking} creado con estado "Sin procesar".`);
                                 trackingsNuevos = trackingsNuevos.filter(t => t.tracking !== tracking);
                                 renderExcepciones();
                             }
