@@ -16,28 +16,20 @@
         .view-btn { transition: all 0.2s; }
         .view-btn.active { background-color: #1e293b; color: white; }
         .view-btn:not(.active) { background-color: #e2e8f0; color: #475569; }
+        /* Estilo para el link activo del sidebar */
+        .sidebar-link.active { background-color: #f0f9ff; color: #0284c7; font-weight: 600; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
-
-<script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-    const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
-    (async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) { window.location.href = 'login.html'; return; }
-        const { data: perfil, error } = await supabase.from('perfiles').select('rol').eq('id', session.user.id).single();
-        if (error || !perfil || !['admin', 'supervisor', 'empleado'].includes(perfil.rol)) {
-            await supabase.auth.signOut();
-            window.location.href = 'login.html?error=unauthorized';
-        }
-    })();
-</script>
 
 <div class="relative min-h-screen md:flex">
     <div id="menu-container"></div>
 
     <main class="flex-1 p-8">
+        <button id="mobile-menu-button" class="md:hidden fixed top-4 right-4 z-50 bg-slate-800 text-white p-2 rounded-full shadow-lg">
+            <i data-lucide="menu" class="h-6 w-6"></i>
+        </button>
+
         <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-6"><span class="code">[OP-06]</span>Verificador Pick & Go</h1>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -95,10 +87,23 @@
 </div>
 
 <script type="module" src="app.js"></script>
+
 <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
     
+    // --- AUTENTICACIÓN Y ROLES (YA NO SE NECESITA EL BLOQUE SEPARADO) ---
+    (async () => {
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) { window.location.href = 'login.html'; return; }
+        const { data: perfil, error } = await sb.from('perfiles').select('rol').eq('id', session.user.id).single();
+        if (error || !perfil || !['admin', 'supervisor', 'empleado'].includes(perfil.rol)) {
+            await sb.auth.signOut();
+            window.location.href = 'login.html?error=unauthorized';
+        }
+    })();
+
+    // --- ELEMENTOS DEL DOM ---
     const qrReaderStatus = document.getElementById('qr-reader-status');
     const retiroDetailsContainer = document.getElementById('retiro-details-container');
     const initialMessage = document.getElementById('initial-message');
@@ -245,23 +250,19 @@
 
     // --- EVENT LISTENERS ---
     btnMarcarEntregado.addEventListener('click', markAsDelivered);
-    
     sucursalFilter.addEventListener('change', loadRetirosList);
-
     btnPendientes.addEventListener('click', () => {
         currentView = 'pendiente';
         btnPendientes.classList.add('active');
         btnEntregados.classList.remove('active');
         loadRetirosList();
     });
-
     btnEntregados.addEventListener('click', () => {
         currentView = 'entregado';
         btnEntregados.classList.add('active');
         btnPendientes.classList.remove('active');
         loadRetirosList();
     });
-
     listContainer.addEventListener('click', (e) => {
         const item = e.target.closest('.list-item');
         if (item) {
@@ -269,13 +270,12 @@
         }
     });
     
-    // --- SCRIPT INITIALIZATION (CORRECTED) ---
+    // --- SCRIPT INITIALIZATION ---
     startScanner();
     loadSucursales();
     lucide.createIcons();
 
 </script>
-
 </body>
 </html>
 
