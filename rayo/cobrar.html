@@ -489,6 +489,7 @@
         }
         
         async function handleAplicarLibras() {
+            console.log('Botón de libras presionado');
             if (!clienteActual || (clienteActual.saldo_libras || 0) <= 0) return;
             const sucursal = sucursalPagoSelect.value;
             if (!sucursal) { alert("Seleccione una sucursal."); return; }
