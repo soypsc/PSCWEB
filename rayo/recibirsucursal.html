@@ -53,9 +53,9 @@
                             <table class="w-full text-sm">
                                 <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0">
                                     <tr>
+                                        <th class="px-6 py-3 text-left">Tracking</th>
                                         <th class="px-6 py-3 text-left">Cliente</th>
                                         <th class="px-6 py-3 text-left">Casillero</th>
-                                        <th class="px-6 py-3 text-left">Tracking</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tabla-paquetes-transito">
@@ -221,12 +221,23 @@
                     }
                 }
 
+                // --- MODIFICADO: Añade indicador visual para paquetes reportados ---
                 function renderTablaEnTransito() {
                     if (paquetesEnTransito.length === 0) {
-                        tablaTransitoBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500">No hay paquetes en tránsito para esta sucursal.</td></tr>`;
+                        tablaTransitoBody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-slate-500">No hay paquetes en tránsito para esta sucursal.</td></tr>`;
                         return;
                     }
-                    tablaTransitoBody.innerHTML = paquetesEnTransito.map(p => `<tr class="border-b hover:bg-slate-50"><td class="px-6 py-3">${p.cliente_nombre||'N/A'}</td><td class="px-6 py-3 font-semibold">${p.cliente_box||'N/A'}</td><td class="px-6 py-3 font-medium">${p.tracking}</td></tr>`).join('');
+                    tablaTransitoBody.innerHTML = paquetesEnTransito.map(p => {
+                        const esReportado = p.status === 'Reportado en transito';
+                        const indicadorReportado = esReportado ? `<span class="ml-2 px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800 rounded-full">Reportado</span>` : '';
+
+                        return `
+                            <tr class="border-b hover:bg-slate-50 ${esReportado ? 'bg-amber-50' : ''}">
+                                <td class="px-6 py-3 font-medium">${p.tracking} ${indicadorReportado}</td>
+                                <td class="px-6 py-3">${p.cliente_nombre || 'N/A'}</td>
+                                <td class="px-6 py-3 font-semibold">${p.cliente_box || 'N/A'}</td>
+                            </tr>`;
+                    }).join('');
                 }
 
                 function renderGruposVerificados() {
@@ -240,7 +251,6 @@
                     }).join('');
                 }
                 
-                // --- MODIFICADO: Renderiza botones de Aceptar y Reportar ---
                 function renderExcepciones() {
                     const hayExcepcionesConocidas = paquetesPorExcepcion.length > 0;
                     const hayTrackingsNuevos = trackingsNuevos.length > 0;
@@ -248,8 +258,8 @@
                     
                     let html = '';
                     html += paquetesPorExcepcion.map(paquete => `
-                        <div class="p-4 border rounded-lg bg-orange-50 fade-in flex justify-between items-center">
-                            <div>
+                        <div class="p-4 border rounded-lg bg-orange-50 fade-in flex justify-between items-center flex-wrap">
+                            <div class="mb-2 w-full sm:w-auto sm:mb-0">
                                 <h3 class="font-bold text-slate-800">${paquete.cliente_nombre || 'Cliente no especificado'}</h3>
                                 <p class="text-sm text-slate-500">Casillero: ${paquete.cliente_box || 'N/A'}</p>
                                 <ul class="text-sm list-disc list-inside mt-2">
@@ -257,8 +267,8 @@
                                     <li>Sucursal Original: <strong class="text-orange-700">${paquete.sucursal}</strong></li>
                                 </ul>
                             </div>
-                            <div class="flex flex-col sm:flex-row gap-2">
-                                <button data-id="${paquete.id}" data-tracking="${paquete.tracking}" class="aceptar-btn bg-emerald-500 text-white font-semibold py-2 px-3 rounded-md hover:bg-emerald-600 text-sm">Aceptar</button>
+                            <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                                <button data-id="${paquete.id}" data-tracking="${paquete.tracking}" class="aceptar-btn bg-emerald-500 text-white font-semibold py-2 px-3 rounded-md hover:bg-emerald-600 text-sm">Aceptar Aquí</button>
                                 <button data-id="${paquete.id}" data-tracking="${paquete.tracking}" class="reportar-btn bg-red-500 text-white font-semibold py-2 px-3 rounded-md hover:bg-red-600 text-sm">Reportar</button>
                             </div>
                         </div>`).join('');
@@ -283,14 +293,13 @@
                     if (!sucursal) return;
                     mainSucursalTitle.textContent = `- ${sucursal}`;
                     sucursalTitle.textContent = `Paquetes en estado "Tránsito" para: ${sucursal}`;
-                    tablaTransitoBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500">Cargando...</td></tr>`;
+                    tablaTransitoBody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-slate-500">Cargando...</td></tr>`;
                     const { data, error: rpcError } = await sb.rpc('get_all_paquetes');
                     if (rpcError) {
-                        tablaTransitoBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Error.</td></tr>`; console.error(rpcError); return;
+                        tablaTransitoBody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500">Error.</td></tr>`; console.error(rpcError); return;
                     }
                     todosLosPaquetesGlobal = data || [];
                     
-                    // --- MODIFICADO: Filtra por 'En transito' Y 'Reportado en transito' ---
                     const paquetesFiltrados = todosLosPaquetesGlobal.filter(p => 
                         p.sucursal === sucursal && ['En transito', 'Reportado en transito'].includes(p.status)
                     );
@@ -339,7 +348,7 @@
                                 renderExcepciones();
                             });
                         }
-                    } else { // El paquete NO existe en el sistema
+                    } else {
                         infoPaqueteDiv.innerHTML = `<p class="font-bold text-indigo-600">Buscando tracking desconocido... 🔎</p>`;
                         const { data: cargaData } = await sb.from('paquetes_cargados').select('peso').eq('tracking', tracking).single();
                         const pesoEncontrado = cargaData ? cargaData.peso : null;
@@ -366,12 +375,10 @@
                         showInfoAlert(`${updates_payload.length} paquetes han sido confirmados. ✅`);
                         infoPaqueteDiv.innerHTML = '<p>Esperando escaneo...</p>'; anaquelSelect.value = '';
                         gruposVerificados = {}; renderGruposVerificados();
-                        // Refresca la lista en tránsito para quitar los que ya se confirmaron
                         await refrescarListaPrincipal();
                     }
                 });
 
-                // --- MODIFICADO: Maneja los 3 botones de la sección de excepciones ---
                 async function handleExcepcionClick(e) {
                     const button = e.target.closest('button');
                     if (!button) return;
@@ -379,13 +386,19 @@
                     const tracking = button.dataset.tracking;
 
                     if (button.classList.contains('aceptar-btn')) {
-                        if (confirm(`¿Desea ACEPTAR el paquete ${tracking} en esta sucursal? Se marcará como 'En Sucursal'.`)) {
+                        if (confirm(`¿Desea ACEPTAR el paquete ${tracking} en esta sucursal? Se marcará como 'En Sucursal' y se le debe asignar un anaquel.`)) {
+                             const anaquelAsignado = anaquelSelect.value;
+                             if (!anaquelAsignado) {
+                                 showInfoAlert("Por favor, seleccione un anaquel en el panel de la derecha antes de aceptar un paquete por excepción.", true);
+                                 return;
+                             }
                             button.disabled = true;
                             const { error } = await sb.from('paquetes').update({ 
                                 status: 'En Sucursal', 
                                 sucursal_recibido: sucursalSelect.value, 
                                 fecha_recibido: new Date(),
-                                fecha_sucursal: new Date()
+                                fecha_sucursal: new Date(),
+                                anaquel: anaquelAsignado
                             }).eq('id', paqueteId);
                             if (error) {
                                 showInfoAlert(`No se pudo aceptar ${tracking}: ${error.message}`, true);
@@ -431,10 +444,28 @@
                 
                 excepcionesContainer.addEventListener('click', handleExcepcionClick);
                 
-                btnNotificarTodos.addEventListener('click', async () => { /* ... sin cambios ... */ });
+                btnNotificarTodos.addEventListener('click', async () => {
+                    const todosLosPaquetesVerificados = Object.values(gruposVerificados).flatMap(g => g.paquetes);
+                    const paqueteIds = todosLosPaquetesVerificados.map(p => p.id);
+                    if (paqueteIds.length === 0) { alert("No hay paquetes verificados para notificar."); return; }
+                    if (!confirm(`¿Desea preparar notificaciones para ${paqueteIds.length} paquetes?`)) return;
+                    btnNotificarTodos.disabled = true; btnNotificarTodos.textContent = "Preparando...";
+                    const { error } = await sb.rpc('crear_notificaciones_masivas', { p_paquete_ids: paqueteIds });
+                    if (error) {
+                        alert("Error al preparar notificaciones: " + error.message); btnNotificarTodos.disabled = false;
+                    } else {
+                        alert("¡Notificaciones preparadas con éxito!"); btnNotificarTodos.textContent = "Notificaciones Preparadas";
+                        btnNotificarTodos.classList.replace('bg-orange-500', 'bg-green-500');
+                    }
+                });
                 trackingInput.addEventListener('change', (e) => procesarEscaneo(e.target.value.trim()));
                 sucursalSelect.addEventListener('change', refrescarListaPrincipal);
-                lockButton.addEventListener('click', () => { /* ... sin cambios ... */ });
+                lockButton.addEventListener('click', () => {
+                    isSucursalLocked = !isSucursalLocked;
+                    sucursalSelect.disabled = isSucursalLocked;
+                    lockButton.innerHTML = isSucursalLocked ? lockedIcon : unlockedIcon;
+                });
+                
                 lockButton.innerHTML = unlockedIcon;
                 cargarDependencias();
 
