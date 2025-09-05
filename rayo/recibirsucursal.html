@@ -83,7 +83,8 @@
                             <p id="excepciones-placeholder" class="text-center p-4 text-slate-500">No hay paquetes recibidos por excepción.</p>
                         </div>
                     </div>
-                    </div>
+
+                </div>
                 
                 <div class="lg:col-span-1">
                      <form id="form-confirmar" class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm sticky top-8">
@@ -97,7 +98,7 @@
                                 </div>
                             </div>
                             <div>
-                                <label for="anaquel-destino" class="block text-sm font-medium text-slate-600 mb-1">Asignar Anaquel (A todos los verificados)</label>
+                                <label for="anaquel-destino" class="block text-sm font-medium text-slate-600 mb-1">Asignar Anaquel (A paquetes verificados)</label>
                                 <select id="anaquel-destino" class="w-full p-2 border border-slate-300 rounded-md" required></select>
                             </div>
                         </div>
@@ -108,7 +109,7 @@
                             </div>
                         </div>
                         <button type="submit" id="btn-confirmar-lote" class="w-full mt-6 bg-sky-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-sky-600 disabled:bg-slate-400" disabled>
-                            Confirmar Recepción de Lote
+                            Confirmar Lote Verificado
                         </button>
                     </form>
                 </div>
@@ -152,10 +153,8 @@
                 const verificadosContainer = document.getElementById('verificados-container');
                 const verificadosPlaceholder = document.getElementById('verificados-placeholder');
                 const btnNotificarTodos = document.getElementById('btn-notificar-todos');
-                // --- INICIO PASO 3: Referencias a nuevos elementos HTML ---
                 const excepcionesContainer = document.getElementById('excepciones-container');
                 const excepcionesPlaceholder = document.getElementById('excepciones-placeholder');
-                // --- FIN PASO 3 ---
 
                 let paquetesEnTransito = [];
                 let gruposVerificados = {}; 
@@ -167,9 +166,9 @@
                 const unlockedIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v3m-6 4h12a2 2 0 002-2v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7a2 2 0 002 2z" /></svg>`;
                 const lockedIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7a2 2 0 002 2z" /></svg>`;
                 
-                function showInfoAlert(message) {
+                function showInfoAlert(message, isError = false) {
                     const alertContainer = document.getElementById('custom-alert');
-                    document.getElementById('custom-alert-title').textContent = 'Información';
+                    document.getElementById('custom-alert-title').textContent = isError ? 'Error' : 'Información';
                     document.getElementById('custom-alert-body').innerHTML = `<p>${message}</p>`;
                     document.getElementById('custom-alert-confirm').style.display = 'none';
                     document.getElementById('custom-alert-cancel').textContent = 'Entendido';
@@ -197,12 +196,9 @@
                     const handleConfirm = () => {
                         const input = document.getElementById('confirm-override-input');
                         if (input && input.value.trim().toLowerCase() !== 'aceptar') {
-                            input.classList.add('border-red-500', 'border-2');
-                            input.focus();
-                            return; 
+                            input.classList.add('border-red-500', 'border-2'); input.focus(); return; 
                         }
-                        cleanup();
-                        onConfirm();
+                        cleanup(); onConfirm();
                     };
                     const cleanup = () => {
                         alertContainer.classList.add('hidden');
@@ -242,7 +238,7 @@
                     const grupos = Object.values(gruposVerificados);
                     const hayVerificados = grupos.length > 0;
                     verificadosPlaceholder.classList.toggle('hidden', hayVerificados);
-                    btnConfirmarLote.disabled = !hayVerificados && paquetesPorExcepcion.length === 0;
+                    btnConfirmarLote.disabled = !hayVerificados;
                     btnNotificarTodos.disabled = !hayVerificados;
                     if (!hayVerificados) {
                         verificadosContainer.innerHTML = '';
@@ -254,32 +250,31 @@
                     }).join('');
                 }
                 
-                // --- INICIO PASO 3: Lógica de renderizado para la nueva sección ---
+                // MODIFICADO: Ahora incluye un botón de "Reportar"
                 function renderExcepciones() {
                     const hayExcepciones = paquetesPorExcepcion.length > 0;
                     excepcionesPlaceholder.classList.toggle('hidden', hayExcepciones);
-                     btnConfirmarLote.disabled = Object.keys(gruposVerificados).length === 0 && !hayExcepciones;
-
                     if (!hayExcepciones) {
-                        excepcionesContainer.innerHTML = '';
-                        return;
+                        excepcionesContainer.innerHTML = ''; return;
                     }
                     excepcionesContainer.innerHTML = paquetesPorExcepcion.map(paquete => {
                         return `
-                            <div class="p-4 border rounded-lg bg-orange-50 fade-in">
-                                <div class="border-b pb-2 mb-2">
+                            <div class="p-4 border rounded-lg bg-orange-50 fade-in flex justify-between items-center">
+                                <div>
                                     <h3 class="font-bold text-slate-800">${paquete.cliente_nombre || 'Cliente no especificado'}</h3>
                                     <p class="text-sm text-slate-500">Casillero: ${paquete.cliente_box || 'N/A'}</p>
+                                    <ul class="text-sm list-disc list-inside mt-2">
+                                        <li>Tracking: <strong>${paquete.tracking}</strong></li>
+                                        <li>Sucursal Original: <strong class="text-orange-700">${paquete.sucursal}</strong></li>
+                                    </ul>
                                 </div>
-                                <ul class="text-sm list-disc list-inside">
-                                    <li>Tracking: <strong>${paquete.tracking}</strong></li>
-                                    <li>Sucursal Original: <strong class="text-orange-700">${paquete.sucursal}</strong></li>
-                                </ul>
+                                <button data-id="${paquete.id}" data-tracking="${paquete.tracking}" class="reportar-btn bg-red-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-red-600">
+                                    Reportar
+                                </button>
                             </div>
                         `;
                     }).join('');
                 }
-                // --- FIN PASO 3 ---
 
                 async function refrescarListaPrincipal() {
                     const sucursal = sucursalSelect.value;
@@ -290,51 +285,35 @@
                     const { data, error: rpcError } = await sb.rpc('get_all_paquetes');
                     if (rpcError) {
                         tablaTransitoBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Error al cargar paquetes.</td></tr>`;
-                        console.error("Error con RPC get_all_paquetes:", rpcError);
-                        return;
+                        console.error("Error con RPC get_all_paquetes:", rpcError); return;
                     }
                     todosLosPaquetesGlobal = data || [];
-                    if (todosLosPaquetesGlobal.length === 0) {
-                        paquetesEnTransito = [];
-                        renderTablaEnTransito();
-                        return;
-                    }
                     const paquetesFiltrados = todosLosPaquetesGlobal.filter(p => p.sucursal === sucursal && p.status === 'En transito');
                     const clienteBoxes = [...new Set(paquetesFiltrados.map(p => p.cliente_box).filter(b => b))];
                     let clientesMap = {};
                     if (clienteBoxes.length > 0) {
                         const { data: clientesData } = await sb.from('clientes').select('box, telefono, tarifa_1').in('box', clienteBoxes);
-                        if (clientesData) {
-                            clientesMap = clientesData.reduce((map, cliente) => { map[cliente.box] = cliente; return map; }, {});
-                        }
+                        if (clientesData) { clientesMap = clientesData.reduce((map, cliente) => { map[cliente.box] = cliente; return map; }, {}); }
                     }
                     paquetesEnTransito = paquetesFiltrados.map(p => ({ ...p, clientes: clientesMap[p.cliente_box] || {} }));
-                    // Limpiar estado en cada recarga
-                    gruposVerificados = {};
-                    paquetesPorExcepcion = [];
-                    // Renderizar todo
-                    renderTablaEnTransito();
-                    renderGruposVerificados();
-                    renderExcepciones();
+                    gruposVerificados = {}; paquetesPorExcepcion = [];
+                    renderTablaEnTransito(); renderGruposVerificados(); renderExcepciones();
                 }
                 
                 async function procesarEscaneo(tracking) {
                     if (!tracking) return;
                     trackingInput.value = '';
                     if (Object.values(gruposVerificados).some(g => g.paquetes.some(p => p.tracking === tracking)) || paquetesPorExcepcion.some(p => p.tracking === tracking)) {
-                        showInfoAlert(`El paquete ${tracking} ya fue verificado en esta sesión.`);
-                        return;
+                        showInfoAlert(`El paquete ${tracking} ya fue verificado en esta sesión.`); return;
                     }
                     const paquete = todosLosPaquetesGlobal.find(p => p.tracking === tracking);
                     const sucursalActual = sucursalSelect.value;
                     if (!paquete) {
                         showInfoAlert(`Paquete con tracking "${tracking}" no fue encontrado en el sistema.`);
-                        infoPaqueteDiv.innerHTML = '<p>Escanee un paquete válido.</p>';
-                        return;
+                        infoPaqueteDiv.innerHTML = '<p>Escanee un paquete válido.</p>'; return;
                     }
                     if (paquete.status !== 'En transito') {
-                        showInfoAlert(`El paquete "${tracking}" no puede ser recibido. Su estado actual es: "${paquete.status}".`);
-                        return;
+                        showInfoAlert(`El paquete "${tracking}" no puede ser recibido. Su estado actual es: "${paquete.status}".`); return;
                     }
                     if (paquete.sucursal === sucursalActual) {
                         const paqueteIndex = paquetesEnTransito.findIndex(p => p.tracking === tracking);
@@ -343,16 +322,12 @@
                             const clienteBox = paqueteParaMover.cliente_box;
                             if (!gruposVerificados[clienteBox]) {
                                 const clienteData = paqueteParaMover.clientes;
-                                const clienteInfo = {
-                                    nombre: paqueteParaMover.cliente_nombre, box: clienteBox,
-                                    telefono: clienteData.telefono, tarifa_1: clienteData.tarifa_1
-                                };
+                                const clienteInfo = { nombre: paqueteParaMover.cliente_nombre, box: clienteBox, telefono: clienteData.telefono, tarifa_1: clienteData.tarifa_1 };
                                 gruposVerificados[clienteBox] = { info: clienteInfo, paquetes: [] };
                             }
                             gruposVerificados[clienteBox].paquetes.push(paqueteParaMover);
                             infoPaqueteDiv.innerHTML = `<p><strong>Tracking:</strong> ${paqueteParaMover.tracking}</p><p><strong>Cliente:</strong> ${paqueteParaMover.cliente_nombre}</p><p><strong>Agregado a grupo ✅</strong></p>`;
-                            renderTablaEnTransito();
-                            renderGruposVerificados();
+                            renderTablaEnTransito(); renderGruposVerificados();
                         }
                     } else {
                         const title = "Recepción por Excepción";
@@ -365,67 +340,79 @@
                     }
                 }
                 
-                // --- INICIO PASO 4: Lógica de guardado final y completa ---
+                // MODIFICADO: La lógica de guardado ahora ignora las excepciones.
                 formConfirmar.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    const anaquel = anaquelSelect.value;
-                    const sucursal = sucursalSelect.value;
-                    if (!anaquel) {
-                        showInfoAlert("Debe seleccionar un anaquel para asignar a todo el lote.");
-                        return;
-                    }
-                    // Unir ambas listas de paquetes
+                    const anaquel = anaquelSelect.value; const sucursal = sucursalSelect.value;
+                    if (!anaquel) { showInfoAlert("Debe seleccionar un anaquel para asignar a los paquetes verificados."); return; }
+                    
                     const paquetesRegulares = Object.values(gruposVerificados).flatMap(g => g.paquetes);
-                    const todosLosPaquetesParaConfirmar = [...paquetesRegulares, ...paquetesPorExcepcion];
-
-                    if (todosLosPaquetesParaConfirmar.length === 0) {
-                        showInfoAlert("No hay paquetes verificados para confirmar.");
-                        return;
+                    if (paquetesRegulares.length === 0) {
+                        showInfoAlert("No hay paquetes correctos en la lista de 'Verificados' para confirmar."); return;
                     }
 
-                    // Crear el payload con la lista unificada
-                    const updates_payload = todosLosPaquetesParaConfirmar.map(p => ({ id: p.id }));
-
-                    btnConfirmarLote.textContent = "Procesando...";
-                    btnConfirmarLote.disabled = true;
+                    const updates_payload = paquetesRegulares.map(p => ({ id: p.id }));
+                    btnConfirmarLote.textContent = "Procesando..."; btnConfirmarLote.disabled = true;
 
                     const { error } = await sb.rpc('confirmar_recepcion_lote', {
-                        updates: updates_payload,
-                        sucursal_recibido_nombre: sucursal,
-                        anaquel_nombre: anaquel
+                        updates: updates_payload, sucursal_recibido_nombre: sucursal, anaquel_nombre: anaquel
                     });
 
                     if (error) {
-                        showInfoAlert(`Error de base de datos: ${error.message}`);
-                        console.error("Error en RPC confirmar_recepcion_lote:", error);
-                        btnConfirmarLote.textContent = "Confirmar Recepción de Lote";
-                        btnConfirmarLote.disabled = false;
+                        showInfoAlert(`Error de base de datos: ${error.message}`, true);
+                        btnConfirmarLote.textContent = "Confirmar Lote Verificado"; btnConfirmarLote.disabled = false;
                     } else {
-                        showInfoAlert(`Lote de ${updates_payload.length} paquetes confirmado exitosamente. ✅`);
-                        // Limpiar completamente el estado y la UI
-                        infoPaqueteDiv.innerHTML = '<p>Esperando escaneo...</p>';
-                        anaquelSelect.value = '';
-                        await refrescarListaPrincipal(); // Esto ya limpia los arrays y re-renderiza todo
+                        showInfoAlert(`${updates_payload.length} paquetes del lote verificado han sido confirmados exitosamente. ✅`);
+                        infoPaqueteDiv.innerHTML = '<p>Esperando escaneo...</p>'; anaquelSelect.value = '';
+                        // Limpiar solo los verificados, dejando las excepciones
+                        gruposVerificados = {};
+                        renderGruposVerificados();
+                        // Recargar la lista de "en tránsito" para reflejar los cambios
+                        const sucursalActual = sucursalSelect.value;
+                        const paquetesFiltrados = todosLosPaquetesGlobal.filter(p => p.sucursal === sucursalActual && p.status === 'En transito');
+                        paquetesEnTransito = paquetesFiltrados.map(p => ({ ...p, clientes: p.clientes || {} }));
+                        renderTablaEnTransito();
                     }
                 });
-                // --- FIN PASO 4 ---
 
+                // NUEVO: Manejador para el botón "Reportar"
+                async function handleReportarClick(e) {
+                    if (!e.target.classList.contains('reportar-btn')) return;
+
+                    const button = e.target;
+                    const paqueteId = button.dataset.id;
+                    const tracking = button.dataset.tracking;
+
+                    if (confirm(`¿Está seguro de que desea reportar el tracking ${tracking}? Esta acción cambiará su estado a "reportado".`)) {
+                        button.disabled = true; button.textContent = "Reportando...";
+                        
+                        const { error } = await sb.from('paquetes').update({ status: 'reportado' }).eq('id', paqueteId);
+
+                        if (error) {
+                            showInfoAlert(`No se pudo reportar el paquete ${tracking}: ${error.message}`, true);
+                            button.disabled = false; button.textContent = "Reportar";
+                        } else {
+                            showInfoAlert(`Paquete ${tracking} reportado exitosamente.`);
+                            // Quitar de la lista de excepciones en la UI
+                            paquetesPorExcepcion = paquetesPorExcepcion.filter(p => p.id != paqueteId);
+                            renderExcepciones();
+                        }
+                    }
+                }
+                
+                excepcionesContainer.addEventListener('click', handleReportarClick);
+                
                 btnNotificarTodos.addEventListener('click', async () => {
                     const todosLosPaquetesVerificados = Object.values(gruposVerificados).flatMap(g => g.paquetes);
                     const paqueteIds = todosLosPaquetesVerificados.map(p => p.id);
-                    if (paqueteIds.length === 0) {
-                        alert("No hay paquetes verificados para notificar."); return;
-                    }
+                    if (paqueteIds.length === 0) { alert("No hay paquetes verificados para notificar."); return; }
                     if (!confirm(`¿Desea preparar notificaciones para ${paqueteIds.length} paquetes?`)) return;
-                    btnNotificarTodos.disabled = true;
-                    btnNotificarTodos.textContent = "Preparando...";
+                    btnNotificarTodos.disabled = true; btnNotificarTodos.textContent = "Preparando...";
                     const { error } = await sb.rpc('crear_notificaciones_masivas', { p_paquete_ids: paqueteIds });
                     if (error) {
-                        alert("Error al preparar notificaciones: " + error.message);
-                        btnNotificarTodos.disabled = false;
+                        alert("Error al preparar notificaciones: " + error.message); btnNotificarTodos.disabled = false;
                     } else {
-                        alert("¡Notificaciones preparadas con éxito!");
-                        btnNotificarTodos.textContent = "Notificaciones Preparadas";
+                        alert("¡Notificaciones preparadas con éxito!"); btnNotificarTodos.textContent = "Notificaciones Preparadas";
                         btnNotificarTodos.classList.replace('bg-orange-500', 'bg-green-500');
                     }
                 });
