@@ -781,7 +781,6 @@
             scanInput.classList.add(className);
             setTimeout(() => scanInput.classList.remove(className), 500);
         }
-
         document.addEventListener('DOMContentLoaded', () => {
             searchClienteInput.addEventListener('change', (e) => buscarCliente(e.target.value.trim()));
             scanInput.addEventListener('change', handleScan);
@@ -813,9 +812,7 @@
             if(formEditPeso) formEditPeso.addEventListener('submit', handleEditPesoSubmit);
             document.getElementById('close-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
             document.getElementById('cancel-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
-            btnApplyCredit.addEventListener('click', handleApplyCredit);
+            btnApplyCredit.addEventListener('click', handleApplyCredit);            
             lucide.createIcons();
         });
-    </script>
-</body>
-</html>
+    </script></body></html>
