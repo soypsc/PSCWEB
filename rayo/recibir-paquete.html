@@ -21,7 +21,6 @@
         .info-grid-value { font-size: 14px; color: #0f172a; font-weight: 600; }
         #video-feed, #barcode-reader { border-radius: 0.5rem; width: 100%; background-color: #000; }
         
-        /* --- MEJORA: Estilos para el autocompletado --- */
         .autocomplete-suggestions {
             position: absolute;
             border: 1px solid #e2e8f0;
@@ -281,10 +280,28 @@
 
                 const formRecibir = document.getElementById('form-recibir');
                 const trackingInput = document.getElementById('tracking-main');
+                const infoPaqueteDiv = document.getElementById('info-paquete-cargado');
                 const casilleroSearchInput = document.getElementById('casillero-search');
                 const clienteSuggestionsContainer = document.getElementById('cliente-suggestions');
                 const clienteInput = document.getElementById('cliente');
                 const sucursalInput = document.getElementById('sucursal');
+                const anaquelSelect = document.getElementById('anaquel-select');
+                const step2 = document.getElementById('step2');
+                const step3 = document.getElementById('step3');
+                const tablaPendientesBody = document.getElementById('tabla-pendientes');
+                const manualModal = document.getElementById('manual-paquete-modal');
+                const openManualModalBtn = document.getElementById('add-manual-btn');
+                const formManual = document.getElementById('form-manual');
+                const manualCasilleroInput = document.getElementById('manual-casillero');
+                const manualClienteInfoInput = document.getElementById('manual-cliente-info');
+                const manualClienteSuggestionsContainer = document.getElementById('manual-cliente-suggestions');
+                const casosEspecialesBtn = document.getElementById('casos-especiales-btn');
+                const casosEspecialesContainer = document.getElementById('casos-especiales-container');
+                const malIdentificadoInput = document.getElementById('mal-identificado-input');
+                const tablaMalIdentificadosBody = document.getElementById('tabla-mal-identificados');
+                const filtrosTrackingInput = document.getElementById('filtros-tracking-input');
+                const filtrosFotoInput = document.getElementById('filtros-foto');
+                const guardarFiltroBtn = document.getElementById('guardar-filtro-btn');
                 const tablaCasosEspecialesBody = document.getElementById('tabla-casos-especiales');
                 const procesarModal = document.getElementById('procesar-paquete-modal');
                 const closeProcesarModalBtn = document.getElementById('close-procesar-modal');
@@ -294,12 +311,7 @@
                 const procesarCasilleroInput = document.getElementById('procesar-casillero-search');
                 const procesarClienteInfoInput = document.getElementById('procesar-cliente-info');
                 const procesarClienteSuggestionsContainer = document.getElementById('procesar-cliente-suggestions');
-                const manualModal = document.getElementById('manual-paquete-modal');
-                const formManual = document.getElementById('form-manual');
-                const manualCasilleroInput = document.getElementById('manual-casillero');
-                const manualClienteInfoInput = document.getElementById('manual-cliente-info');
-                const manualClienteSuggestionsContainer = document.getElementById('manual-cliente-suggestions');
-
+                
                 let paqueteCargadoActual = null;
                 let clienteSeleccionado = null;
                 let clienteManualSeleccionado = null;
@@ -314,22 +326,119 @@
                     document.getElementById('custom-alert-close').onclick = () => document.getElementById('custom-alert').classList.add('hidden');
                 }
                 function resetFormularioPrincipal() {
-                    // ... (sin cambios)
+                    formRecibir.reset();
+                    step2.classList.remove('visible');
+                    step3.classList.remove('visible');
+                    infoPaqueteDiv.classList.add('hidden');
+                    casosEspecialesContainer.classList.add('hidden');
+                    paqueteCargadoActual = null;
+                    clienteSeleccionado = null;
+                    paqueteVieneDeMalIdentificado = false;
+                    trackingInput.focus();
+                }
+
+                async function cargarPaquetesPendientes() {
+                    const { data, error } = await sb.from('paquetes_cargados').select('tracking, cliente_box').eq('cargados', false);
+                    if (error) { tablaPendientesBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`; return; }
+                    if (!data || data.length === 0) { tablaPendientesBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-slate-500">¡No hay paquetes pendientes!</td></tr>`; return; }
+                    tablaPendientesBody.innerHTML = data.map(p => `<tr class="border-b hover:bg-slate-50"><td class="px-4 py-2 font-medium">${p.tracking}</td><td class="px-4 py-2">${p.cliente_box || 'N/A'}</td></tr>`).join('');
+                }
+                async function cargarPaquetesMalIdentificados() {
+                    const { data, error } = await sb.from('paquetes_mal_identificados').select('*').order('created_at', { ascending: false }).limit(20);
+                    if (error) { tablaMalIdentificadosBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`; return; }
+                    if (!data.length) { tablaMalIdentificadosBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-slate-500">No hay registros.</td></tr>`; return; }
+                    tablaMalIdentificadosBody.innerHTML = data.map(p => `<tr class="border-b"><td class="px-4 py-2">${p.tracking}</td><td class="px-4 py-2">${fmtDate(p.created_at)}</td></tr>`).join('');
+                }
+                async function cargarAnaqueles() {
+                    const { data, error } = await sb.from('anaqueles').select('nombre').order('nombre');
+                    if (error) { console.error("Error cargando anaqueles:", error); return; }
+                    anaquelSelect.innerHTML = '<option value="">(Sin anaquel)</option>';
+                    if (data) { data.forEach(a => { anaquelSelect.innerHTML += `<option value="${a.nombre}">${a.nombre}</option>`; }); }
                 }
 
                 async function cargarCasosEspeciales() {
-                    // ... (sin cambios, ya está bien)
+                    const { data, error } = await sb.from('paquetes')
+                        .select('id, tracking, status, sucursal_recibido')
+                        .in('status', ['Reportado', 'Reportado en transito', 'Sin procesar'])
+                        .order('created_at', { ascending: false });
+
+                    if (error) {
+                        tablaCasosEspecialesBody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`;
+                        return;
+                    }
+                    if (!data || data.length === 0) {
+                        tablaCasosEspecialesBody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-slate-500">No hay casos especiales pendientes.</td></tr>`;
+                        return;
+                    }
+
+                    tablaCasosEspecialesBody.innerHTML = data.map(p => {
+                        let statusClass = '';
+                        if (p.status === 'Reportado') statusClass = 'bg-red-100 text-red-800';
+                        if (p.status === 'Reportado en transito') statusClass = 'bg-amber-100 text-amber-800';
+                        if (p.status === 'Sin procesar') statusClass = 'bg-indigo-100 text-indigo-800';
+
+                        const botonProcesar = p.status === 'Sin procesar' ? 
+                            `<button data-id="${p.id}" data-tracking="${p.tracking}" class="procesar-btn bg-blue-500 text-white text-xs font-semibold py-1 px-2 rounded-md hover:bg-blue-600">Procesar</button>` :
+                            '<span>-</span>';
+
+                        return `
+                            <tr class="border-b hover:bg-slate-50">
+                                <td class="px-4 py-2 font-medium">${p.tracking}</td>
+                                <td class="px-4 py-2">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${p.status}</span>
+                                    <p class="text-xs text-slate-500 mt-1">${p.sucursal_recibido || 'N/A'}</p>
+                                </td>
+                                <td class="px-4 py-2 text-center">${botonProcesar}</td>
+                            </tr>
+                        `;
+                    }).join('');
                 }
-                
-                async function buscarCliente(terminoBusqueda, target) {
-                    if (!terminoBusqueda) return;
-                    const { data, error } = await sb.from('clientes').select('nombre, box, sucursal').eq('box', parseInt(terminoBusqueda)).limit(1).maybeSingle();
+
+                async function buscarPaqueteCargado(tracking) {
+                    if (!tracking) { resetFormularioPrincipal(); return; }
+                    const { data: malIdentificado } = await sb.from('paquetes_mal_identificados').select('tracking').eq('tracking', tracking).maybeSingle();
+                    let query = sb.from('paquetes_cargados').select('id, tracking, peso, valor, cliente_box, status, fecha_bodega, cargados').eq('tracking', tracking);
+                    if (malIdentificado) {
+                        paqueteVieneDeMalIdentificado = true;
+                    } else {
+                        paqueteVieneDeMalIdentificado = false;
+                        query = query.eq('cargados', false);
+                    }
+                    const { data, error } = await query.maybeSingle();
+                    if (error) { showAlert('Error al buscar el tracking.'); return; }
+                    if (data) {
+                        if (data.cargados === true && !paqueteVieneDeMalIdentificado) { showAlert('Este paquete ya fue recibido y registrado.'); resetFormularioPrincipal(); return; }
+                        paqueteCargadoActual = data;
+                        document.getElementById('info-fecha').textContent = fmtDate(data.fecha_bodega);
+                        document.getElementById('info-status').textContent = data.status || 'N/A';
+                        document.getElementById('info-box').textContent = data.cliente_box || 'N/A';
+                        document.getElementById('info-peso').textContent = data.peso ? `${data.peso} lbs` : 'N/A';
+                        document.getElementById('info-valor').textContent = data.valor ? `$${Number(data.valor).toFixed(2)}` : 'N/A';
+                        infoPaqueteDiv.classList.remove('hidden');
+                        if (data.cliente_box) {
+                            casilleroSearchInput.value = data.cliente_box;
+                            await buscarCliente(data.cliente_box, 'main');
+                        } else {
+                            casilleroSearchInput.value = '';
+                            clienteSeleccionado = null;
+                            actualizarInfoClienteUI();
+                        }
+                        step2.classList.add('visible');
+                        step3.classList.add('visible');
+                    } else {
+                        resetFormularioPrincipal();
+                        showAlert('Tracking no encontrado en la carga de paquetes pendientes.');
+                    }
+                }
+
+                async function buscarCliente(box, target) {
+                    if (!box) return;
+                    const { data, error } = await sb.from('clientes').select('nombre, box, sucursal').eq('box', parseInt(box)).limit(1).maybeSingle();
                     if (error) { showAlert("Error buscando cliente."); return; }
 
                     if (target === 'main') {
                         clienteSeleccionado = data;
-                        clienteInput.value = data ? `${data.nombre} (Box: ${data.box})` : "No encontrado";
-                        sucursalInput.value = data ? data.sucursal || 'No asignada' : '';
+                        actualizarInfoClienteUI();
                     } else if (target === 'manual') {
                         clienteManualSeleccionado = data;
                         manualClienteInfoInput.value = data ? `${data.nombre} (Box: ${data.box})` : "No encontrado";
@@ -340,7 +449,16 @@
                     }
                 }
 
-                // --- MEJORA: Lógica de Autocompletado (Reutilizable) ---
+                function actualizarInfoClienteUI() {
+                    if (clienteSeleccionado) {
+                        clienteInput.value = `${clienteSeleccionado.nombre} (Box: ${clienteSeleccionado.box})`;
+                        sucursalInput.value = clienteSeleccionado.sucursal || 'No asignada';
+                    } else {
+                        clienteInput.value = 'Cliente no encontrado';
+                        sucursalInput.value = '';
+                    }
+                }
+                
                 async function handleAutocomplete(inputElement, containerElement, callback) {
                     const termino = inputElement.value.trim();
                     if (termino.length < 2) { containerElement.classList.add('hidden'); return; }
@@ -370,55 +488,282 @@
                     });
                 }
 
-
+                async function handleMalIdentificado() {
+                    const tracking = malIdentificadoInput.value.trim();
+                    if (!tracking) return;
+                    const { data: paquete, error } = await sb.from('paquetes_cargados').select('peso').eq('tracking', tracking).maybeSingle();
+                    if (error || !paquete) { showAlert(`Tracking ${tracking} no encontrado en carga.`); return; }
+                    const { error: insertError } = await sb.from('paquetes_mal_identificados').insert({ tracking: tracking, peso: paquete.peso });
+                    if (insertError) { showAlert(`Error al registrar mal identificado: ${insertError.message}`); return; }
+                    await sb.from('paquetes_cargados').update({ cargados: true }).eq('tracking', tracking);
+                    showAlert(`Paquete ${tracking} registrado como MAL IDENTIFICADO.`);
+                    resetFormularioPrincipal();
+                    await Promise.all([cargarPaquetesPendientes(), cargarPaquetesMalIdentificados()]);
+                }
+                async function handleFiltro() {
+                    const tracking = filtrosTrackingInput.value.trim();
+                    const foto = filtrosFotoInput.files[0];
+                    if (!tracking) { showAlert("Debe ingresar el tracking que desea filtrar."); return; }
+                    const { data: paquete, error } = await sb.from('paquetes_cargados').select('peso').eq('tracking', tracking).maybeSingle();
+                    if (error || !paquete) { showAlert(`Tracking ${tracking} no encontrado en carga.`); return; }
+                    let urlFoto = null;
+                    if (foto) {
+                        const filePath = `filtros/${tracking}-${Date.now()}`;
+                        const { error: uploadError } = await sb.storage.from('public-files').upload(filePath, foto);
+                        if (uploadError) { showAlert(`Error subiendo foto: ${uploadError.message}`); return; }
+                        const { data: urlData } = sb.storage.from('public-files').getPublicUrl(filePath);
+                        urlFoto = urlData.publicUrl;
+                    }
+                    const { error: insertError } = await sb.from('paquetes_con_filtro').insert({ tracking, peso: paquete.peso, foto_url: urlFoto });
+                    if (insertError) { showAlert(`Error al registrar filtro: ${insertError.message}`); return; }
+                    await sb.from('paquetes_cargados').update({ cargados: true }).eq('tracking', tracking);
+                    showAlert(`Paquete ${tracking} registrado CON FILTRO.`);
+                    resetFormularioPrincipal();
+                    await Promise.all([cargarPaquetesPendientes(), cargarPaquetesMalIdentificados()]);
+                }
+                
                 formRecibir.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     if (!paqueteCargadoActual) {
-                        showAlert("Primero debe escanear y cargar un tracking válido."); return;
+                        showAlert("Primero debe escanear y cargar un tracking válido."); 
+                        return;
                     }
                     if (!clienteSeleccionado) {
-                        showAlert("Debe asignar un cliente válido al paquete."); return;
+                        showAlert("Debe asignar un cliente válido al paquete."); 
+                        return;
                     }
-                    // ... (resto de la función de submit sin cambios)
+                    
+                    const now = new Date().toISOString();
+                    const payload = {
+                        tracking: paqueteCargadoActual.tracking, peso: paqueteCargadoActual.peso || null, valor: paqueteCargadoActual.valor || null,
+                        cliente_nombre: clienteSeleccionado.nombre, cliente_box: clienteSeleccionado.box, sucursal: clienteSeleccionado.sucursal,
+                        anaquel: anaquelSelect.value || null, status: anaquelSelect.value ? 'En Sucursal' : 'En transito',
+                        sucursal_recibido: anaquelSelect.value ? clienteSeleccionado.sucursal : null, fecha_bodega: paqueteCargadoActual.fecha_bodega || now,
+                        fecha_recibido: now, fecha_sucursal: anaquelSelect.value ? now : null
+                    };
+                    const { error } = await sb.rpc('crear_paquete_admin', { paquete_data: payload });
+                    if (error) { showAlert(`Error al registrar el paquete: ${error.message}`); return; }
+                    
+                    if (paqueteVieneDeMalIdentificado) {
+                        await sb.from('paquetes_mal_identificados').delete().eq('tracking', paqueteCargadoActual.tracking);
+                    }
+                    
+                    await sb.from('paquetes_cargados').update({ cargados: true }).eq('tracking', paqueteCargadoActual.tracking);
+                    showAlert(`Paquete ${paqueteCargadoActual.tracking} registrado y asignado a ${clienteSeleccionado.nombre} ✅`);
+                    resetFormularioPrincipal();
+                    await Promise.all([cargarPaquetesPendientes(), cargarPaquetesMalIdentificados(), cargarCasosEspeciales()]);
                 });
                 
                 formManual.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     const tracking1 = document.getElementById('manual-tracking1').value.trim();
-                    // --- MEJORA: Alerta específica para el formulario manual ---
+                    
                     if (!tracking1) {
                         showAlert("El campo Tracking Principal es obligatorio."); return;
                     }
                     if (!clienteManualSeleccionado) {
                         showAlert("Debe asignar un cliente válido."); return;
                     }
-                    // ... (resto de la función de submit manual sin cambios)
-                });
-                
-                // --- (Resto de funciones como openProcesarModal, handleConfirmarProceso, etc., sin cambios)
 
-                // --- EVENT LISTENERS ---
+                    const now = new Date().toISOString();
+                    const payload = {
+                        tracking: tracking1, peso: parseFloat(document.getElementById('manual-peso').value) || null,
+                        cliente_nombre: clienteManualSeleccionado.nombre, cliente_box: clienteManualSeleccionado.box, sucursal: clienteManualSeleccionado.sucursal,
+                        status: 'En transito', fecha_bodega: now, fecha_recibido: now, valor: null, anaquel: null, sucursal_recibido: null, fecha_sucursal: null
+                    };
+                    const { error } = await sb.rpc('crear_paquete_admin', { paquete_data: payload });
+                    if (error) { showAlert(`Error al crear el paquete: ${error.message}`); return; }
+                    
+                    showAlert(`Paquete ${tracking1} creado y asignado a ${clienteManualSeleccionado.nombre} ✅`);
+                    manualModal.classList.add('hidden');
+                    formManual.reset();
+                });
+
+                function openProcesarModal(paqueteId, tracking) {
+                    paqueteParaProcesarId = paqueteId;
+                    clienteParaProcesar = null;
+                    procesarTrackingInfo.textContent = tracking;
+                    procesarCasilleroInput.value = '';
+                    procesarClienteInfoInput.value = 'Ningún cliente seleccionado.';
+                    confirmarProcesarBtn.disabled = true;
+                    procesarModal.classList.remove('hidden');
+                }
+
+                function closeProcesarModal() {
+                    procesarModal.classList.add('hidden');
+                }
+
+                async function handleConfirmarProceso() {
+                    if (!paqueteParaProcesarId || !clienteParaProcesar) {
+                        showAlert("Error: No hay un paquete o cliente válido seleccionado.");
+                        return;
+                    }
+                    
+                    confirmarProcesarBtn.disabled = true;
+                    confirmarProcesarBtn.textContent = 'Procesando...';
+
+                    const { error } = await sb.from('paquetes')
+                        .update({
+                            cliente_nombre: clienteParaProcesar.nombre,
+                            cliente_box: clienteParaProcesar.box,
+                            sucursal: clienteParaProcesar.sucursal,
+                            status: 'Reportado en transito'
+                        })
+                        .eq('id', paqueteParaProcesarId);
+
+                    if (error) {
+                        showAlert(`Error al procesar el paquete: ${error.message}`);
+                    } else {
+                        showAlert("Paquete procesado y asignado exitosamente.");
+                        closeProcesarModal();
+                        await cargarCasosEspeciales();
+                    }
+                    
+                    confirmarProcesarBtn.disabled = false;
+                    confirmarProcesarBtn.textContent = 'Asignar Cliente y Procesar';
+                }
+
+                function initializeAllScanners() {
+                    let ocrStream, ocrWorker, html5QrcodeScanner, currentOcrTargetInput;
+                    const ocrScannerModal = document.getElementById('ocr-scanner-modal');
+                    const openOcrBtns = document.querySelectorAll('.scan-ocr-btn');
+                    const closeOcrBtn = document.getElementById('close-ocr-btn');
+                    const captureBtn = document.getElementById('capture-ocr-btn');
+                    const videoFeed = document.getElementById('video-feed');
+                    const ocrStatus = document.getElementById('ocr-status');
+                    const barcodeScannerModal = document.getElementById('barcode-scanner-modal');
+                    const openBarcodeBtn = document.getElementById('scan-tracking-barcode-btn');
+                    const closeBarcodeBtn = document.getElementById('close-barcode-btn');
+
+                    const startOcrCamera = async (targetInputId) => {
+                        currentOcrTargetInput = document.getElementById(targetInputId);
+                        ocrScannerModal.classList.remove('hidden');
+                        try {
+                            ocrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                            videoFeed.srcObject = ocrStream;
+                            ocrStatus.textContent = 'Apunte a la etiqueta y presione "Capturar".';
+                            captureBtn.disabled = false;
+                        } catch (err) {
+                            showAlert("No se pudo acceder a la cámara. Asegúrate de dar los permisos.");
+                            stopOcrCamera();
+                        }
+                    };
+
+                    const stopOcrCamera = () => {
+                        if (ocrStream) ocrStream.getTracks().forEach(track => track.stop());
+                        ocrScannerModal.classList.add('hidden');
+                    };
+
+                    const captureAndProcessImage = async () => {
+                        ocrStatus.textContent = 'Procesando imagen...';
+                        captureBtn.disabled = true;
+                        const guideBox = document.getElementById('ocr-guide-box');
+                        const canvas = document.createElement('canvas');
+                        const videoRect = videoFeed.getBoundingClientRect();
+                        const guideRect = guideBox.getBoundingClientRect();
+                        const scaleX = videoFeed.videoWidth / videoRect.width;
+                        const scaleY = videoFeed.videoHeight / videoRect.height;
+                        const cropX = (guideRect.left - videoRect.left) * scaleX;
+                        const cropY = (guideRect.top - videoRect.top) * scaleY;
+                        const cropWidth = guideRect.width * scaleX;
+                        const cropHeight = guideRect.height * scaleY;
+                        canvas.width = cropWidth;
+                        canvas.height = cropHeight;
+                        const context = canvas.getContext('2d');
+                        context.drawImage(videoFeed, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+                        
+                        if (!ocrWorker || ocrWorker.terminated) {
+                             ocrWorker = await Tesseract.createWorker('eng');
+                        }
+                        const { data: { text } } = await ocrWorker.recognize(canvas.toDataURL('image/jpeg'));
+                        
+                        parseOcrText(text);
+                        stopOcrCamera();
+                    };
+                    
+                    const parseOcrText = (text) => {
+                        const words = text.split(/[\s\n]+/).filter(w => w.length > 5);
+                        const bestGuess = words.sort((a, b) => b.length - a.length)[0] || "";
+                        currentOcrTargetInput.value = bestGuess.replace(/[^a-zA-Z0-9-]/g, '');
+                        currentOcrTargetInput.dispatchEvent(new Event('change'));
+                    };
+
+                    const onBarcodeScanSuccess = (decodedText, decodedResult) => {
+                        trackingInput.value = decodedText;
+                        stopBarcodeScanner();
+                        trackingInput.dispatchEvent(new Event('change'));
+                    };
+
+                    const startBarcodeScanner = () => {
+                        barcodeScannerModal.classList.remove('hidden');
+                        html5QrcodeScanner = new Html5Qrcode("barcode-reader");
+                        html5QrcodeScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, onBarcodeScanSuccess)
+                            .catch(err => {
+                                showAlert("No se pudo iniciar el escáner de código de barras.");
+                                stopBarcodeScanner();
+                            });
+                    };
+
+                    const stopBarcodeScanner = () => {
+                        if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
+                            html5QrcodeScanner.stop().catch(err => console.error("Error al detener el escáner.", err));
+                        }
+                        barcodeScannerModal.classList.add('hidden');
+                    };
+
+                    openOcrBtns.forEach(btn => btn.addEventListener('click', () => startOcrCamera(btn.dataset.target)));
+                    closeOcrBtn.addEventListener('click', stopOcrCamera);
+                    captureBtn.addEventListener('click', captureAndProcessImage);
+                    openBarcodeBtn.addEventListener('click', startBarcodeScanner);
+                    closeBarcodeBtn.addEventListener('click', stopBarcodeScanner);
+                }
+
+                casosEspecialesBtn.addEventListener('click', () => casosEspecialesContainer.classList.toggle('hidden'));
+                trackingInput.addEventListener('change', (e) => buscarPaqueteCargado(e.target.value.trim()));
                 casilleroSearchInput.addEventListener('input', () => handleAutocomplete(casilleroSearchInput, clienteSuggestionsContainer, (box) => {
                     casilleroSearchInput.value = box;
                     buscarCliente(box, 'main');
                 }));
+                malIdentificadoInput.addEventListener('change', handleMalIdentificado);
+                guardarFiltroBtn.addEventListener('click', handleFiltro);
+                openManualModalBtn.addEventListener('click', () => {
+                    formManual.reset();
+                    clienteManualSeleccionado = null;
+                    manualModal.classList.remove('hidden');
+                });
+                manualModal.querySelectorAll('.close-modal').forEach(btn => btn.addEventListener('click', () => manualModal.classList.add('hidden')));
                 manualCasilleroInput.addEventListener('input', () => handleAutocomplete(manualCasilleroInput, manualClienteSuggestionsContainer, (box) => {
                     manualCasilleroInput.value = box;
                     buscarCliente(box, 'manual');
                 }));
+
+                tablaCasosEspecialesBody.addEventListener('click', (e) => {
+                    const boton = e.target.closest('.procesar-btn');
+                    if (boton) {
+                        const id = boton.dataset.id;
+                        const tracking = boton.dataset.tracking;
+                        openProcesarModal(id, tracking);
+                    }
+                });
+                closeProcesarModalBtn.addEventListener('click', closeProcesarModal);
+                cancelProcesarBtn.addEventListener('click', closeProcesarModal);
                 procesarCasilleroInput.addEventListener('input', () => handleAutocomplete(procesarCasilleroInput, procesarClienteSuggestionsContainer, (box) => {
                     procesarCasilleroInput.value = box;
                     buscarCliente(box, 'procesar');
                 }));
-
+                confirmarProcesarBtn.addEventListener('click', handleConfirmarProceso);
+                
                 document.addEventListener('click', (e) => {
                     if (!casilleroSearchInput.contains(e.target)) clienteSuggestionsContainer.classList.add('hidden');
                     if (!manualCasilleroInput.contains(e.target)) manualClienteSuggestionsContainer.classList.add('hidden');
                     if (!procesarCasilleroInput.contains(e.target)) procesarClienteSuggestionsContainer.classList.add('hidden');
                 });
-                
-                // --- (Resto de listeners sin cambios) ---
 
+                initializeAllScanners();
+                cargarPaquetesPendientes();
+                cargarAnaqueles();
+                cargarPaquetesMalIdentificados();
+                cargarCasosEspeciales();
             } catch (error) {
                 console.error("Error al inicializar:", error);
                 document.querySelector("main").innerHTML = `<p class="text-red-500">Error crítico. Revise la consola.</p>`;
