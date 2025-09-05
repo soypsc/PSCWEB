@@ -8,13 +8,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="config.js"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <!-- Librería para escanear QR -->
+    <!-- Librería para el escáner QR -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
         .code { font-size: 13px; font-weight: 600; color: #94a3b8; margin-right: 12px; background-color: #f1f5f9; padding: 2px 8px; border-radius: 6px; }
-        #qr-reader-container { max-width: 500px; margin: auto; }
-        #qr-reader { border: 2px solid #e2e8f0; border-radius: 8px; }
+        #qr-reader { border: 4px dashed #cbd5e1; border-radius: 12px; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -26,7 +25,7 @@
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) { window.location.href = 'login.html'; return; }
         const { data: perfil, error } = await supabase.from('perfiles').select('rol').eq('id', session.user.id).single();
-        if (error || !perfil || (perfil.rol !== 'admin' && perfil.rol !== 'supervisor' && perfil.rol !== 'employee')) {
+        if (error || !perfil || !['admin', 'supervisor', 'empleado'].includes(perfil.rol)) {
             await supabase.auth.signOut();
             window.location.href = 'login.html?error=unauthorized';
         }
@@ -39,34 +38,37 @@
     <main class="flex-1 p-8">
         <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-6"><span class="code">[OP-06]</span>Verificador Pick & Go</h1>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <!-- Columna del Escáner -->
-            <div class="bg-white p-6 rounded-lg border shadow-sm">
-                <h2 class="text-xl font-bold text-slate-800 mb-4">Escanear Código QR</h2>
-                <div id="qr-reader-container">
-                    <div id="qr-reader"></div>
+            <div>
+                <div class="bg-white p-6 rounded-lg border shadow-sm">
+                    <h2 class="text-xl font-bold text-slate-800 mb-4">Escanear Código QR</h2>
+                    <div id="qr-reader" class="w-full"></div>
+                    <p id="qr-reader-status" class="text-center text-sm text-slate-500 mt-4">Iniciando cámara...</p>
                 </div>
-                 <p id="scan-status" class="text-center mt-4 text-slate-500">Apunte la cámara al código QR del cliente.</p>
             </div>
 
-            <!-- Columna de Detalles de la Orden -->
-            <div id="order-details-container" class="bg-white p-6 rounded-lg border shadow-sm hidden">
-                <h2 class="text-xl font-bold text-slate-800 mb-4">Detalles de la Orden de Retiro</h2>
-                <div id="order-info" class="space-y-3">
-                    <p><strong>Cliente:</strong> <span id="cliente-nombre"></span></p>
-                    <p><strong>Monto Pagado:</strong> <span id="monto-pagado"></span></p>
-                    <p><strong>Estado:</strong> <span id="orden-status" class="font-bold px-2 py-1 rounded-full text-xs"></span></p>
-                    <h3 class="font-semibold text-slate-700 pt-3 border-t">Paquetes a Entregar:</h3>
-                    <ul id="packages-list" class="list-disc list-inside space-y-1 font-mono"></ul>
+            <!-- Columna de Detalles del Retiro -->
+            <div>
+                 <div id="retiro-details-container" class="bg-white p-6 rounded-lg border shadow-sm hidden">
+                    <h2 class="text-xl font-bold text-slate-800 mb-4">Detalles del Retiro</h2>
+                    <div class="space-y-2">
+                        <p><strong>Cliente:</strong> <span id="detalle-cliente"></span></p>
+                        <p><strong>Monto Pagado:</strong> <span id="detalle-monto" class="font-mono"></span></p>
+                        <p><strong>Estado:</strong> <span id="detalle-estado" class="font-semibold px-2 py-0.5 rounded-full text-xs"></span></p>
+                        <div class="border-t pt-2 mt-2">
+                            <p class="font-semibold mb-2">Paquetes a entregar:</p>
+                            <ul id="detalle-paquetes" class="list-disc list-inside space-y-1 font-mono text-sm"></ul>
+                        </div>
+                    </div>
+                    <button id="btn-marcar-entregado" class="w-full mt-6 bg-emerald-500 text-white font-bold py-3 rounded-lg hover:bg-emerald-600 disabled:bg-slate-400" disabled>
+                        Marcar como Entregado
+                    </button>
                 </div>
-                <button id="btn-entregar" class="w-full mt-6 bg-emerald-500 text-white font-semibold py-3 rounded-lg hover:bg-emerald-600 disabled:bg-slate-400">
-                    Marcar como Entregado
-                </button>
-            </div>
-             <div id="placeholder-container" class="bg-white p-6 rounded-lg border shadow-sm flex flex-col items-center justify-center text-center">
-                <i data-lucide="qr-code" class="h-16 w-16 text-slate-300 mb-4"></i>
-                <h2 class="text-xl font-bold text-slate-800">Esperando escaneo...</h2>
-                <p class="text-slate-500">Los detalles de la orden aparecerán aquí.</p>
+                <div id="initial-message" class="text-center p-8 bg-white rounded-lg border">
+                    <i data-lucide="scan-line" class="h-16 w-16 text-slate-400 mx-auto"></i>
+                    <p class="mt-4 text-slate-500">Esperando escaneo de un código QR...</p>
+                </div>
             </div>
         </div>
     </main>
@@ -77,34 +79,25 @@
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
     
-    const qrReaderEl = document.getElementById('qr-reader');
-    const scanStatusEl = document.getElementById('scan-status');
-    const orderDetailsContainer = document.getElementById('order-details-container');
-    const placeholderContainer = document.getElementById('placeholder-container');
-
-    const clienteNombreEl = document.getElementById('cliente-nombre');
-    const montoPagadoEl = document.getElementById('monto-pagado');
-    const ordenStatusEl = document.getElementById('orden-status');
-    const packagesListEl = document.getElementById('packages-list');
-    const btnEntregar = document.getElementById('btn-entregar');
+    const qrReaderStatus = document.getElementById('qr-reader-status');
+    const retiroDetailsContainer = document.getElementById('retiro-details-container');
+    const initialMessage = document.getElementById('initial-message');
+    const btnMarcarEntregado = document.getElementById('btn-marcar-entregado');
     let currentRetiroId = null;
+    let html5QrcodeScanner;
 
     function onScanSuccess(decodedText, decodedResult) {
-        console.log(`Scan result: ${decodedText}`);
-        html5QrcodeScanner.pause();
-        scanStatusEl.textContent = `Código detectado: ${decodedText.substring(0, 15)}...`;
-        scanStatusEl.classList.add('font-bold', 'text-green-600');
-        loadOrderDetails(decodedText);
-    }
-    
-    function onScanFailure(error) {
-        // console.warn(`QR error = ${error}`);
+        qrReaderStatus.textContent = `Código detectado: ${decodedText.substring(0,12)}...`;
+        if (html5QrcodeScanner.getState() === Html5QrcodeScannerState.SCANNING) {
+            html5QrcodeScanner.clear();
+        }
+        loadRetiroDetails(decodedText);
     }
 
-    async function loadOrderDetails(retiroId) {
+    async function loadRetiroDetails(retiroId) {
         currentRetiroId = retiroId;
-        orderDetailsContainer.classList.add('hidden');
-        placeholderContainer.classList.add('hidden');
+        initialMessage.classList.add('hidden');
+        retiroDetailsContainer.classList.remove('hidden');
 
         try {
             const { data, error } = await sb.from('retiros')
@@ -112,76 +105,77 @@
                 .eq('id', retiroId)
                 .single();
 
-            if (error || !data) throw new Error("Orden de retiro no encontrada.");
+            if (error || !data) throw new Error("No se encontró la orden de retiro.");
 
-            clienteNombreEl.textContent = `${data.clientes.nombre} (Box ${data.clientes.box})`;
-            montoPagadoEl.textContent = `$${(data.monto_total || 0).toFixed(2)}`;
-            ordenStatusEl.textContent = data.status;
-
-            const statusClasses = {
-                'pagado': 'bg-yellow-100 text-yellow-800',
-                'listo_para_retiro': 'bg-blue-100 text-blue-800',
-                'entregado': 'bg-green-100 text-green-800'
-            };
-            ordenStatusEl.className = `font-bold px-2 py-1 rounded-full text-xs ${statusClasses[data.status] || ''}`;
-
-            packagesListEl.innerHTML = data.paquetes.map(p => `<li>${p.tracking}</li>`).join('');
+            document.getElementById('detalle-cliente').textContent = `${data.clientes.nombre} (Box: ${data.clientes.box})`;
+            document.getElementById('detalle-monto').textContent = `$${(data.monto_total || 0).toFixed(2)}`;
             
-            btnEntregar.disabled = data.status === 'entregado';
-            orderDetailsContainer.classList.remove('hidden');
+            const estadoEl = document.getElementById('detalle-estado');
+            estadoEl.textContent = data.status;
+            if (data.status === 'pagado' || data.status === 'listo_para_retiro') {
+                estadoEl.className = 'font-semibold px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800';
+                btnMarcarEntregado.disabled = false;
+            } else {
+                estadoEl.className = 'font-semibold px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800';
+                btnMarcarEntregado.disabled = true;
+                btnMarcarEntregado.textContent = 'Ya fue Entregado';
+            }
 
-        } catch (error) {
+            const paquetesList = document.getElementById('detalle-paquetes');
+            paquetesList.innerHTML = data.paquetes.map(p => `<li>${p.tracking}</li>`).join('');
+
+        } catch(error) {
             alert(`Error: ${error.message}`);
             resetScanner();
         }
     }
 
-    async function handleEntrega() {
-        if (!currentRetiroId) return;
-
-        if (!confirm("¿Confirma la entrega de todos los paquetes de esta orden?")) {
-            return;
-        }
-
-        btnEntregar.disabled = true;
-        btnEntregar.textContent = 'Procesando...';
+    async function markAsDelivered() {
+        if (!currentRetiroId || btnMarcarEntregado.disabled) return;
+        
+        btnMarcarEntregado.disabled = true;
+        btnMarcarEntregado.textContent = 'Procesando...';
 
         try {
-            const { data, error } = await sb.rpc('marcar_retiro_entregado', { p_retiro_id: currentRetiroId });
+            const { error } = await sb.rpc('marcar_retiro_entregado', { p_retiro_id: currentRetiroId });
             if (error) throw error;
             
-            alert(`Entrega para ${data[0].cliente_nombre} completada con éxito.`);
+            alert("¡Entrega registrada con éxito!");
             resetScanner();
 
         } catch (error) {
             alert(`Error al marcar como entregado: ${error.message}`);
-            btnEntregar.disabled = false;
-        } finally {
-            btnEntregar.textContent = 'Marcar como Entregado';
+            btnMarcarEntregado.disabled = false;
+            btnMarcarEntregado.textContent = 'Marcar como Entregado';
         }
+    }
+
+    function resetScanner() {
+        retiroDetailsContainer.classList.add('hidden');
+        initialMessage.classList.remove('hidden');
+        btnMarcarEntregado.disabled = true;
+        btnMarcarEntregado.textContent = 'Marcar como Entregado';
+        currentRetiroId = null;
+        startScanner();
     }
     
-    function resetScanner() {
-        orderDetailsContainer.classList.add('hidden');
-        placeholderContainer.classList.remove('hidden');
-        scanStatusEl.textContent = 'Apunte la cámara al código QR del cliente.';
-        scanStatusEl.className = 'text-center mt-4 text-slate-500';
-        currentRetiroId = null;
-        try {
-            html5QrcodeScanner.resume();
-        } catch(e) {
-            console.error("Error resuming scanner", e);
+    function startScanner(){
+        if (!html5QrcodeScanner || html5QrcodeScanner.getState() !== Html5QrcodeScannerState.SCANNING) {
+            html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: {width: 250, height: 250} });
+            html5QrcodeScanner.render(onScanSuccess);
+            qrReaderStatus.textContent = 'Apunte la cámara al código QR.';
         }
     }
 
-    let html5QrcodeScanner;
+    btnMarcarEntregado.addEventListener('click', markAsDelivered);
+    
     document.addEventListener('DOMContentLoaded', () => {
-        html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: 250 });
-        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-        btnEntregar.addEventListener('click', handleEntrega);
+        startScanner();
         lucide.createIcons();
     });
-
 </script>
+
 </body>
 </html>
+
+
