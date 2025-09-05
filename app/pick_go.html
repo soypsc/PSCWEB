@@ -3,78 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pick & Go - PSC App</title>
+    <title>Mis Retiros Pick & Go - PSC App</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <!-- Librería para generar QR -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
     <script src="config.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
         .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; border-radius: 50%;}
         @keyframes spin{ to{transform:rotate(360deg)} }
-        .selected-package { background-color: #312e81; border-color: #818cf8; }
     </style>
 </head>
 <body>
     <div class="max-w-md mx-auto min-h-screen">
         <header class="p-6 flex items-center space-x-4">
-            <!-- BOTÓN "ATRÁS" AÑADIDO -->
             <a href="index.html" class="text-slate-400 hover:text-white transition">
                 <i data-lucide="arrow-left" class="h-6 w-6"></i>
             </a>
-            <h1 class="text-xl font-bold text-white">Pick & Go</h1>
+            <h1 class="text-xl font-bold text-white">Mis Retiros Pick & Go</h1>
         </header>
 
-        <main id="main-content" class="px-6 pb-24 space-y-6">
-            <!-- Loading State -->
+        <main class="px-6 pb-24 space-y-6">
             <div id="loading-container" class="text-center p-8">
                 <div class="spinner w-8 h-8 mx-auto"></div>
-                <p class="mt-4 text-slate-400">Cargando tus paquetes...</p>
+                <p class="mt-4 text-slate-400">Cargando historial...</p>
             </div>
-            
-            <!-- Content -->
-            <div id="content-container" class="hidden">
-                <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl text-center">
-                    <p class="text-sm font-semibold text-green-400">SALDO DISPONIBLE EN BILLETERA</p>
-                    <p id="saldo-disponible" class="text-3xl font-bold text-white font-mono mt-1">$0.00</p>
-                </div>
-
-                <h2 class="text-lg font-semibold text-white mt-6 mb-3">Tus Paquetes en Sucursal</h2>
-                <div id="packages-list" class="space-y-3"></div>
-
-                <div id="payment-summary" class="mt-6 space-y-4 hidden">
-                    <div class="bg-slate-800/50 p-4 rounded-xl">
-                        <h3 class="text-base font-semibold text-white mb-3">Resumen de Pago</h3>
-                        <div class="space-y-2 text-sm">
-                            <div class="flex justify-between"><span class="text-slate-400">Costo de paquetes:</span><span id="summary-packages-cost" class="font-mono text-white">$0.00</span></div>
-                            <div class="flex justify-between"><span class="text-slate-400">Servicio Pick & Go:</span><span id="summary-pickgo-cost" class="font-mono text-white">$1.00</span></div>
-                            <hr class="border-slate-700 my-2">
-                            <div class="flex justify-between font-bold text-base"><span class="text-white">Total a Pagar:</span><span id="summary-total-cost" class="font-mono text-indigo-400">$0.00</span></div>
-                        </div>
-                    </div>
-                     <div class="flex items-start space-x-3 bg-yellow-900/50 p-4 rounded-lg">
-                        <i data-lucide="alert-triangle" class="h-5 w-5 text-yellow-400 flex-shrink-0 mt-1"></i>
-                        <p class="text-xs text-yellow-200">
-                           El servicio Pick & Go tiene un costo de $1.00. Al pagar, se generará un código QR para un retiro rápido.
-                        </p>
-                    </div>
-                    <button id="pay-button" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-indigo-700 disabled:bg-slate-500">
-                        Pagar con Saldo
-                    </button>
-                </div>
-            </div>
-
-            <!-- QR Code display -->
-            <div id="qr-container" class="hidden text-center p-6 bg-white rounded-2xl">
-                 <h2 class="text-xl font-bold text-slate-800 mb-2">¡Pago Exitoso!</h2>
-                 <p class="text-slate-600 mb-4">Muestra este código QR a nuestro personal para retirar tus paquetes.</p>
-                 <div id="qrcode" class="flex justify-center items-center"></div>
-                 <p id="retiro-id-display" class="font-mono text-xs text-slate-500 mt-4"></p>
-                 <button onclick="window.location.href='index.html'" class="mt-6 w-full bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-md hover:bg-slate-300">Cerrar</button>
-            </div>
+            <div id="retiros-list" class="hidden space-y-4"></div>
         </main>
+    </div>
+    
+    <!-- QR Code Modal -->
+    <div id="qr-modal-historial" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl text-center p-6">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Código QR de Retiro</h2>
+            <div id="qrcode-historial" class="flex justify-center items-center"></div>
+            <p id="retiro-id-historial" class="font-mono text-xs text-slate-500 mt-4"></p>
+            <button id="close-qr-modal-historial-btn" class="mt-6 w-full bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-md hover:bg-slate-300">Cerrar</button>
+        </div>
     </div>
 
     <script type="module">
@@ -82,158 +48,84 @@
         const supabaseClient = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
         const loadingContainer = document.getElementById('loading-container');
-        const contentContainer = document.getElementById('content-container');
-        const saldoDisponibleEl = document.getElementById('saldo-disponible');
-        const packagesListEl = document.getElementById('packages-list');
-        const paymentSummaryEl = document.getElementById('payment-summary');
-        const summaryPackagesCostEl = document.getElementById('summary-packages-cost');
-        const summaryPickGoCostEl = document.getElementById('summary-pickgo-cost');
-        const summaryTotalCostEl = document.getElementById('summary-total-cost');
-        const payButton = document.getElementById('pay-button');
-        const mainContent = document.getElementById('main-content');
-        const qrContainer = document.getElementById('qr-container');
-        
-        let allPackages = [];
-        let selectedPackageIds = [];
-        let currentUserProfile = {};
-        const PICKGO_COST = 1.00;
+        const retirosList = document.getElementById('retiros-list');
+        const qrModal = document.getElementById('qr-modal-historial');
 
-        async function loadInitialData() {
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) { window.location.href = 'index.html'; return; }
-
-            // CORRECCIÓN: Pedir también el 'box' del cliente
-            const { data: profile, error: profileError } = await supabaseClient.from('clientes').select('id, box, saldo_a_favor').eq('user_id', user.id).single();
-            if (profileError || !profile) { console.error("Error fetching profile", profileError); return; }
-            currentUserProfile = profile;
-            saldoDisponibleEl.textContent = `$${(profile.saldo_a_favor || 0).toFixed(2)}`;
-
-            // CORRECCIÓN: Usar 'cliente_box' en lugar de 'cliente_id' para la consulta
-            const { data: packages, error: packagesError } = await supabaseClient
-                .from('paquetes')
-                .select('id, tracking, costo_total')
-                .eq('cliente_box', profile.box) 
-                .eq('status', 'En Sucursal');
+        async function loadRetiros() {
+            const { data, error } = await supabaseClient.rpc('get_mis_retiros');
             
-            if (packagesError) { 
-                console.error("Error fetching packages", packagesError);
-                packagesListEl.innerHTML = '<p class="text-center text-red-500">Error al cargar paquetes. Revisa los permisos RLS.</p>';
-                return;
-            }
-            allPackages = packages;
-
-            renderPackages();
             loadingContainer.classList.add('hidden');
-            contentContainer.classList.remove('hidden');
-            lucide.createIcons();
-        }
+            retirosList.classList.remove('hidden');
 
-        function renderPackages() {
-            if (allPackages.length === 0) {
-                packagesListEl.innerHTML = '<p class="text-slate-400 text-center">No tienes paquetes para retirar.</p>';
+            if (error) {
+                retirosList.innerHTML = `<p class="text-red-500 text-center">Error al cargar el historial.</p>`;
+                console.error(error);
                 return;
             }
-            packagesListEl.innerHTML = allPackages.map(pkg => `
-                <div class="package-item border-2 border-slate-700 p-3 rounded-lg flex justify-between items-center cursor-pointer transition" data-id="${pkg.id}">
-                    <div>
-                        <p class="font-semibold text-white">${pkg.tracking}</p>
-                        <p class="text-xs text-slate-400">Costo: $${(pkg.costo_total || 0).toFixed(2)}</p>
-                    </div>
-                    <div class="package-checkbox pointer-events-none h-6 w-6 rounded-full border-2 border-slate-500 bg-slate-800 flex items-center justify-center">
-                         <i data-lucide="check" class="h-4 w-4 text-white opacity-0 transition"></i>
-                    </div>
-                </div>
-            `).join('');
-            lucide.createIcons();
-        }
-        
-        function updateSelection(packageId) {
-            const index = selectedPackageIds.indexOf(packageId);
-            if (index > -1) {
-                selectedPackageIds.splice(index, 1);
-            } else {
-                selectedPackageIds.push(packageId);
-            }
-
-            document.querySelectorAll('.package-item').forEach(el => {
-                if (selectedPackageIds.includes(el.dataset.id)) {
-                    el.classList.add('selected-package');
-                    el.querySelector('.package-checkbox i').classList.remove('opacity-0');
-                } else {
-                    el.classList.remove('selected-package');
-                    el.querySelector('.package-checkbox i').classList.add('opacity-0');
-                }
-            });
-            updateSummary();
-        }
-        
-        function updateSummary() {
-            if (selectedPackageIds.length === 0) {
-                paymentSummaryEl.classList.add('hidden');
+            if (!data || data.length === 0) {
+                retirosList.innerHTML = `<div class="text-center p-8"><i data-lucide="inbox" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes retiros de Pick & Go.</p></div>`;
+                lucide.createIcons();
                 return;
             }
-            
-            const selectedPackages = allPackages.filter(p => selectedPackageIds.includes(p.id));
-            const packagesCost = selectedPackages.reduce((sum, p) => sum + p.costo_total, 0);
-            const totalCost = packagesCost + PICKGO_COST;
 
-            summaryPackagesCostEl.textContent = `$${packagesCost.toFixed(2)}`;
-            summaryPickGoCostEl.textContent = `$${PICKGO_COST.toFixed(2)}`;
-            summaryTotalCostEl.textContent = `$${totalCost.toFixed(2)}`;
-            
-            payButton.disabled = currentUserProfile.saldo_a_favor < totalCost;
-            paymentSummaryEl.classList.remove('hidden');
+            retirosList.innerHTML = data.map(retiro => {
+                 const statusInfo = {
+                    'pagado': { text: 'Pagado', class: 'bg-blue-500/20 text-blue-300' },
+                    'listo_para_retiro': { text: 'Listo para Retiro', class: 'bg-yellow-500/20 text-yellow-300' },
+                    'entregado': { text: 'Entregado', class: 'bg-green-500/20 text-green-300' },
+                }[retiro.estado] || { text: retiro.estado, class: 'bg-slate-700' };
+
+                return `
+                <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-white font-mono">$${retiro.monto.toFixed(2)}</p>
+                            <p class="text-xs text-slate-400">${new Date(retiro.fecha).toLocaleString('es-PA')}</p>
+                        </div>
+                        <span class="text-xs font-bold px-2 py-1 rounded-full ${statusInfo.class}">${statusInfo.text}</span>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-slate-700">
+                        <p class="text-xs font-semibold text-slate-300 mb-1">Paquetes:</p>
+                        <div class="text-xs text-slate-400 font-mono">
+                            ${retiro.paquetes.map(p => `<div>- ${p.tracking}</div>`).join('')}
+                        </div>
+                        <button class="show-qr-btn w-full mt-3 bg-slate-700 text-white font-semibold text-xs py-1.5 rounded-md hover:bg-slate-600" data-id="${retiro.retiro_id}">
+                            Ver Código QR
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+             lucide.createIcons();
         }
 
-        async function handlePayment() {
-            payButton.disabled = true;
-            payButton.textContent = 'Procesando...';
-
-            try {
-                const { data: retiroId, error } = await supabaseClient.rpc('pagar_paquetes_con_saldo', {
-                    p_paquetes_a_pagar: selectedPackageIds,
-                    p_es_pick_and_go: true
-                });
-
-                if (error) throw error;
-                
-                generateQRCode(retiroId);
-                mainContent.classList.add('hidden');
-                qrContainer.classList.remove('hidden');
-
-            } catch (error) {
-                alert(`Error en el pago: ${error.message}`);
-                payButton.disabled = false;
-                payButton.textContent = 'Pagar con Saldo';
-            }
-        }
-        
-        function generateQRCode(retiroId) {
-            document.getElementById('qrcode').innerHTML = '';
+        function showQrModal(retiroId) {
+            const qrCodeEl = document.getElementById('qrcode-historial');
+            qrCodeEl.innerHTML = '';
             const typeNumber = 4;
             const errorCorrectionLevel = 'L';
             const qr = qrcode(typeNumber, errorCorrectionLevel);
             qr.addData(retiroId);
             qr.make();
-            document.getElementById('qrcode').innerHTML = qr.createImgTag(6, 8);
-            document.getElementById('retiro-id-display').textContent = `ID de Retiro: ${retiroId}`;
+            qrCodeEl.innerHTML = qr.createImgTag(6, 8);
+            document.getElementById('retiro-id-historial').textContent = `ID de Retiro: ${retiroId}`;
+            qrModal.classList.remove('hidden');
         }
 
-        packagesListEl.addEventListener('click', (e) => {
-            const packageItem = e.target.closest('.package-item');
-            if (packageItem) {
-                updateSelection(packageItem.dataset.id);
+        retirosList.addEventListener('click', (e) => {
+            const qrButton = e.target.closest('.show-qr-btn');
+            if(qrButton) {
+                showQrModal(qrButton.dataset.id);
             }
         });
 
-        payButton.addEventListener('click', handlePayment);
-        
+        document.getElementById('close-qr-modal-historial-btn').addEventListener('click', () => {
+            qrModal.classList.add('hidden');
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
-            loadInitialData();
-            lucide.createIcons(); // Para el ícono del botón de atrás
+            loadRetiros();
         });
     </script>
 </body>
 </html>
-
 
