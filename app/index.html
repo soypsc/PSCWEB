@@ -64,7 +64,27 @@
             </div>
         </div>
         <div id="page-register" class="page">
+            <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
+                <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png" alt="Logo" class="h-16 mx-auto"></div>
+                 <div class="bg-slate-800 border border-slate-700 p-6 rounded-xl">
+                    <h1 class="text-2xl font-bold text-center text-white">Crear Cuenta</h1><p class="text-slate-400 text-center mb-6">Completa tus datos</p>
+                    <form id="register-form" class="space-y-4">
+                        <input id="register-name" type="text" required placeholder="Nombre y Apellido" class="w-full px-4 py-3 bg-slate-900 border-slate-700 rounded-lg text-white">
+                        <input id="register-email" type="email" required placeholder="Email" class="w-full px-4 py-3 bg-slate-900 border-slate-700 rounded-lg text-white">
+                        <input id="register-whatsapp" type="tel" required placeholder="WhatsApp" class="w-full px-4 py-3 bg-slate-900 border-slate-700 rounded-lg text-white">
+                        <div>
+                            <label for="register-dob" class="text-xs text-slate-400 px-1">Fecha de Nacimiento</label>
+                            <input id="register-dob" type="date" required class="w-full px-4 py-3 bg-slate-900 border-slate-700 rounded-lg text-white mt-1">
+                        </div>
+                        <select id="register-sucursal" required class="w-full px-4 py-3 bg-slate-900 border-slate-700 rounded-lg appearance-none text-white"><option value="">Cargando sucursales...</option></select>
+                        <div class="relative"><input id="register-password" type="password" required placeholder="Contraseña" class="w-full px-4 py-3 bg-slate-900 border-slate-700 rounded-lg pr-10 text-white"><button type="button" class="toggle-password absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400"><i data-lucide="eye" class="h-5 w-5"></i></button></div>
+                        <div class="relative"><input id="register-password-confirm" type="password" required placeholder="Confirmar Contraseña" class="w-full px-4 py-3 bg-slate-900 border-slate-700 rounded-lg pr-10 text-white"><button type="button" class="toggle-password absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400"><i data-lucide="eye" class="h-5 w-5"></i></button></div>
+                        <p id="register-error" class="text-red-500 text-sm text-center h-5"></p><button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 !mt-6">Crear Cuenta</button>
+                    </form>
+                </div>
+                <p class="text-center text-sm text-slate-400 mt-6">¿Ya tienes cuenta? <a href="#" id="show-login-link" class="font-semibold text-blue-500 hover:underline">Inicia sesión</a></p>
             </div>
+        </div>
     </div>
 
     <div id="app-container" class="max-w-md mx-auto min-h-screen hidden">
@@ -174,8 +194,107 @@
         const userBoxDisplay = document.getElementById('user-box-display');
         const qrModal = document.getElementById('qr-modal');
         
+        const showPage = (pageId) => {
+            allPages.forEach(p => p.classList.remove('active'));
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) targetPage.classList.add('active');
+            window.scrollTo(0, 0);
+
+            if (!currentUserProfile) return;
+            switch (pageId) {
+                case 'page-paquetes': loadPaquetes(); break;
+                case 'page-casillero': initializeDireccionesPage(); break;
+                case 'page-mi-perfil': loadProfileData(); break;
+                case 'page-facturas': loadFacturas(); break;
+                case 'page-notificaciones': loadNotificaciones(); break; 
+            }
+        };
+
         const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString('es-PA', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
-        const loadSucursales = async (selectElementId) => { /* Original loadSucursales logic */ };
+        
+        const showAuth = () => { 
+            authContainer.style.display = 'block'; 
+            appContainer.classList.add('hidden'); 
+            showPage('page-login'); 
+        };
+
+        const showApp = async (user) => {
+            const { data } = await supabaseClient.from('clientes').select('id, nombre, box, saldo_a_favor, tarifa_1').eq('user_id', user.id).single();
+            if (data) currentUserProfile = data;
+            
+            userNameDisplay.textContent = currentUserProfile?.nombre || 'Usuario';
+            userBoxDisplay.textContent = `(Box ${currentUserProfile?.box || 'N/A'})`;
+            
+            authContainer.style.display = 'none';
+            appContainer.classList.remove('hidden');
+            showPage('page-home');
+        };
+
+        // ==========================================================
+        // CORRECCIÓN 3: FUNCIONES DE LOGIN Y REGISTRO RESTAURADAS
+        // ==========================================================
+        const handleLogin = async (e) => { 
+            e.preventDefault(); 
+            const email = document.getElementById('login-email').value; 
+            const password = document.getElementById('login-password').value; 
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); 
+            document.getElementById('login-error').textContent = error ? 'Email o contraseña incorrectos.' : ''; 
+        };
+        
+        const handleRegister = async (e) => { 
+            e.preventDefault(); 
+            const errorEl = document.getElementById('register-error');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
+            const password = document.getElementById('register-password').value;
+            const passwordConfirm = document.getElementById('register-password-confirm').value;
+
+            if (password !== passwordConfirm) {
+                errorEl.textContent = 'Las contraseñas no coinciden.';
+                return;
+            }
+            if (password.length < 6) {
+                errorEl.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+                return;
+            }
+            errorEl.textContent = '';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creando cuenta...';
+
+            const registrationData = {
+                nombre: document.getElementById('register-name').value,
+                email: document.getElementById('register-email').value,
+                whatsapp: document.getElementById('register-whatsapp').value,
+                fecha_nac: document.getElementById('register-dob').value,
+                sucursal: document.getElementById('register-sucursal').value,
+                password: password,
+            };
+
+            const { data, error } = await supabaseClient.functions.invoke('crear-cliente', {
+                body: registrationData
+            });
+
+            if (error) {
+                errorEl.textContent = 'Error al registrar. El email ya podría existir.';
+                console.error('Error invoking function:', error);
+            } else {
+                alert('¡Registro exitoso! Revisa tu correo electrónico para confirmar tu cuenta.');
+                e.target.reset();
+                showPage('page-login');
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Crear Cuenta';
+        };
+
+        const handleLogout = () => supabaseClient.auth.signOut();
+        
+        const loadSucursales = async (selectElementId) => { 
+            const selectEl = document.getElementById(selectElementId); 
+            const { data } = await supabaseClient.from('sucursales').select('sucursal').order('sucursal'); 
+            if (data) selectEl.innerHTML = '<option value="">Selecciona sucursal</option>' + data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join(''); 
+        };
+
         const loadFacturas = async () => { 
             const container = document.getElementById('facturas-list-container'); 
             container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; 
@@ -186,9 +305,6 @@
             container.innerHTML = data.map(f => `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div class="flex justify-between items-center"><div><p class="font-bold text-lg font-mono text-white">$${(f.monto_total || 0).toFixed(2)}</p><p class="text-xs text-slate-400">Factura #${f.id.substring(0, 8).toUpperCase()}</p><p class="text-xs text-slate-500 mt-1">${formatDate(f.created_at)}</p></div>${f.html_recibo ? `<button data-factura-id="${f.id}" class="view-receipt-btn bg-blue-600 text-white font-semibold text-xs px-3 py-1.5 rounded-md hover:bg-blue-700">Ver Recibo</button>` : ''}</div></div>`).join('');
         };
         
-        // ==========================================================
-        // CORRECCIÓN 1: FUNCIÓN DE DIRECCIONES RESTAURADA
-        // ==========================================================
         const initializeDireccionesPage = async () => {
             const container = document.getElementById('direcciones-content');
             container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
@@ -210,38 +326,7 @@
         
         const loadProfileData = async () => { /* Original loadProfileData logic */ };
         const loadNotificaciones = async () => { /* Original loadNotificaciones logic */ };
-        const handleLogin = async (e) => { /* Original handleLogin logic */ };
-        const handleRegister = async (e) => { /* Original handleRegister logic */ };
-        const handleLogout = () => supabaseClient.auth.signOut();
         
-        const showPage = (pageId) => {
-            allPages.forEach(p => p.classList.remove('active'));
-            const targetPage = document.getElementById(pageId);
-            if (targetPage) targetPage.classList.add('active');
-            window.scrollTo(0, 0);
-
-            if (!currentUserProfile) return;
-            switch (pageId) {
-                case 'page-paquetes': loadPaquetes(); break;
-                case 'page-casillero': initializeDireccionesPage(); break;
-                case 'page-mi-perfil': loadProfileData(); break;
-                case 'page-facturas': loadFacturas(); break;
-                case 'page-notificaciones': loadNotificaciones(); break; 
-            }
-        };
-
-        const showApp = async (user) => {
-            const { data } = await supabaseClient.from('clientes').select('id, nombre, box, saldo_a_favor, tarifa_1').eq('user_id', user.id).single();
-            if (data) currentUserProfile = data;
-            
-            userNameDisplay.textContent = currentUserProfile?.nombre || 'Usuario';
-            userBoxDisplay.textContent = `(Box ${currentUserProfile?.box || 'N/A'})`;
-            
-            authContainer.style.display = 'none';
-            appContainer.classList.remove('hidden');
-            showPage('page-home');
-        };
-
         const loadPaquetes = async () => {
             const container = document.getElementById('paquetes-list-container');
             container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
@@ -262,9 +347,6 @@
             if (paquetes) {
                 paquetes.forEach(p => {
                     if (p.status in statusCount) statusCount[p.status]++;
-                    // ==========================================================
-                    // CORRECCIÓN 2: LÓGICA DE PRECIOS RESTAURADA
-                    // ==========================================================
                     if (p.status === 'En Sucursal') saldoEnSucursal += (p.peso || 0) * tarifaCliente;
                 });
             }
@@ -386,34 +468,33 @@
             qrModal.classList.remove('hidden');
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            navLinks.forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); showPage(link.dataset.target); }));
-            document.getElementById('paquetes-list-container').addEventListener('click', handlePackageSelection);
-            document.getElementById('pay-button-paquetes').addEventListener('click', handlePayment);
-            document.getElementById('close-qr-modal-btn').addEventListener('click', () => qrModal.classList.add('hidden'));
-
-            const loginForm = document.getElementById('login-form');
-            if (loginForm) loginForm.addEventListener('submit', (e) => handleLogin(e));
-            if (logoutButton) logoutButton.addEventListener('click', handleLogout);
-            
-            lucide.createIcons();
-        });
-
+        // Event Listeners Setup
+        document.getElementById('show-register-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-register'); });
+        document.getElementById('show-login-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-login'); });
+        document.getElementById('login-form').addEventListener('submit', handleLogin);
+        document.getElementById('register-form').addEventListener('submit', handleRegister);
+        logoutButton.addEventListener('click', handleLogout);
+        navLinks.forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); showPage(link.dataset.target); }));
+        document.getElementById('paquetes-list-container').addEventListener('click', handlePackageSelection);
+        document.getElementById('pay-button-paquetes').addEventListener('click', handlePayment);
+        document.getElementById('close-qr-modal-btn').addEventListener('click', () => qrModal.classList.add('hidden'));
+        document.querySelectorAll('.toggle-password').forEach(btn => btn.addEventListener('click', () => { const input = btn.previousElementSibling; input.type = input.type === 'password' ? 'text' : 'password'; }));
+        
         supabaseClient.auth.onAuthStateChange((event, session) => { 
             if (session) { 
                 showApp(session.user);
             } else { 
                 currentUserProfile = null; 
-                authContainer.style.display = 'block';
-                appContainer.classList.add('hidden');
-                showPage('page-login');
+                showAuth();
             }
         });
+        
+        loadSucursales('register-sucursal');
+        lucide.createIcons();
 
     </script>
 </body>
 </html>
-
 
 
 
