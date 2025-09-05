@@ -142,8 +142,9 @@
                 let gruposVerificados = {}; 
                 let isSucursalLocked = false;
                 const DEFAULT_TARIFA = 4.00;
+                let todosLosPaquetesGlobal = []; // NUEVO: Variable para guardar TODOS los paquetes del sistema.
                 
-                const unlockedIcon = `<svg xmlns="http://www.w.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v3m-6 4h12a2 2 0 002-2v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7a2 2 0 002 2z" /></svg>`;
+                const unlockedIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v3m-6 4h12a2 2 0 002-2v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7a2 2 0 002 2z" /></svg>`;
                 const lockedIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7a2 2 0 002 2z" /></svg>`;
                 
                 function showAlert(message) {
@@ -209,6 +210,7 @@
                     }).join('');
                 }
 
+                // MODIFICADO: Ahora esta función guarda todos los paquetes en una variable global
                 async function refrescarListaPrincipal() {
                     const sucursal = sucursalSelect.value;
                     if (!sucursal) return;
@@ -217,7 +219,7 @@
                     sucursalTitle.textContent = `Paquetes "En Tránsito" para: ${sucursal}`;
                     tablaTransitoBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500">Cargando...</td></tr>`;
 
-                    const { data: todosLosPaquetes, error: rpcError } = await sb.rpc('get_all_paquetes');
+                    const { data, error: rpcError } = await sb.rpc('get_all_paquetes');
                     
                     if (rpcError) {
                         tablaTransitoBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Error al cargar paquetes.</td></tr>`;
@@ -225,13 +227,18 @@
                         return;
                     }
 
-                    if (!todosLosPaquetes || todosLosPaquetes.length === 0) {
+                    // NUEVO: Guardamos la lista completa de paquetes en nuestra variable global.
+                    todosLosPaquetesGlobal = data || [];
+
+                    if (todosLosPaquetesGlobal.length === 0) {
                         paquetesEnTransito = [];
                         renderTablaEnTransito();
                         return;
                     }
                     
-                    const paquetesFiltrados = todosLosPaquetes.filter(p => p.sucursal === sucursal && p.status === 'En transito');
+                    // MODIFICADO: Filtramos desde la nueva variable global en lugar de la que devuelve la RPC.
+                    const paquetesFiltrados = todosLosPaquetesGlobal.filter(p => p.sucursal === sucursal && p.status === 'En transito');
+                    
                     const clienteBoxes = [...new Set(paquetesFiltrados.map(p => p.cliente_box).filter(b => b))];
                     let clientesMap = {};
                     if (clienteBoxes.length > 0) {
@@ -247,47 +254,75 @@
                     renderGruposVerificados();
                 }
                 
+                // MODIFICADO: Lógica de escaneo completamente nueva.
                 async function procesarEscaneo(tracking) {
                     if (!tracking) return;
                     trackingInput.value = '';
                     
+                    // 1. Revisa si ya fue verificado en esta sesión (sin cambios)
                     if (Object.values(gruposVerificados).some(g => g.paquetes.some(p => p.tracking === tracking))) {
                         showAlert(`El paquete ${tracking} ya fue verificado en esta sesión.`);
                         return;
                     }
 
-                    const paqueteIndex = paquetesEnTransito.findIndex(p => p.tracking === tracking);
-                    if (paqueteIndex === -1) {
-                        showAlert(`Paquete "${tracking}" no fue encontrado en la lista de "En Tránsito" para esta sucursal.`);
+                    // 2. Busca el paquete en la lista GLOBAL
+                    const paquete = todosLosPaquetesGlobal.find(p => p.tracking === tracking);
+                    const sucursalActual = sucursalSelect.value;
+
+                    // 3. Maneja los diferentes escenarios posibles
+                    if (!paquete) {
+                        showAlert(`Paquete con tracking "${tracking}" no fue encontrado en el sistema.`);
                         infoPaqueteDiv.innerHTML = '<p>Escanee un paquete válido.</p>';
                         return;
                     }
 
-                    const [paquete] = paquetesEnTransito.splice(paqueteIndex, 1);
-                    const clienteBox = paquete.cliente_box;
-
-                    if (!gruposVerificados[clienteBox]) {
-                        const clienteData = paquete.clientes;
-                        const clienteInfo = {
-                            nombre: paquete.cliente_nombre,
-                            box: clienteBox,
-                            telefono: clienteData.telefono,
-                            tarifa_1: clienteData.tarifa_1
-                        };
-                        gruposVerificados[clienteBox] = { info: clienteInfo, paquetes: [] };
+                    if (paquete.status !== 'En transito') {
+                        showAlert(`El paquete "${tracking}" no puede ser recibido. Su estado actual es: "${paquete.status}".`);
+                        return;
                     }
 
-                    gruposVerificados[clienteBox].paquetes.push(paquete);
-                    
-                    infoPaqueteDiv.innerHTML = `
-                        <p><strong>Tracking:</strong> ${paquete.tracking}</p>
-                        <p><strong>Cliente:</strong> ${paquete.cliente_nombre}</p>
-                        <p><strong>Casillero:</strong> ${paquete.cliente_box}</p>
-                        <p><strong>Agregado a grupo ✅</strong></p>
-                    `;
-                    
-                    renderTablaEnTransito();
-                    renderGruposVerificados();
+                    // 4. Lógica principal: ¿El paquete es de esta sucursal o de otra?
+                    if (paquete.sucursal === sucursalActual) {
+                        // --- CASO 1: EL PAQUETE ES CORRECTO (FLUJO NORMAL) ---
+                        console.log("Paquete correcto, procesando normalmente...");
+                        
+                        const paqueteIndex = paquetesEnTransito.findIndex(p => p.tracking === tracking);
+                        if (paqueteIndex !== -1) {
+                            const [paqueteParaMover] = paquetesEnTransito.splice(paqueteIndex, 1);
+                            const clienteBox = paqueteParaMover.cliente_box;
+
+                            if (!gruposVerificados[clienteBox]) {
+                                const clienteData = paqueteParaMover.clientes;
+                                const clienteInfo = {
+                                    nombre: paqueteParaMover.cliente_nombre,
+                                    box: clienteBox,
+                                    telefono: clienteData.telefono,
+                                    tarifa_1: clienteData.tarifa_1
+                                };
+                                gruposVerificados[clienteBox] = { info: clienteInfo, paquetes: [] };
+                            }
+
+                            gruposVerificados[clienteBox].paquetes.push(paqueteParaMover);
+                            
+                            infoPaqueteDiv.innerHTML = `
+                                <p><strong>Tracking:</strong> ${paqueteParaMover.tracking}</p>
+                                <p><strong>Cliente:</strong> ${paqueteParaMover.cliente_nombre}</p>
+                                <p><strong>Casillero:</strong> ${paqueteParaMover.cliente_box}</p>
+                                <p><strong>Agregado a grupo ✅</strong></p>
+                            `;
+                            
+                            renderTablaEnTransito();
+                            renderGruposVerificados();
+                        }
+                    } else {
+                        // --- CASO 2: EL PAQUETE ES DE OTRA SUCURSAL (FLUJO DE EXCEPCIÓN) ---
+                        console.log(`Paquete de otra sucursal detectado. Original: ${paquete.sucursal}, Actual: ${sucursalActual}`);
+                        
+                        // En el siguiente paso, cambiaremos esta alerta por el popup interactivo.
+                        alert(`⚠️ ATENCIÓN: El paquete "${tracking}" pertenece a la sucursal "${paquete.sucursal}".`);
+                        
+                        // Aquí llamaremos a la función para manejar la excepción en el Paso 2.
+                    }
                 }
 
                 formConfirmar.addEventListener('submit', async (e) => {
