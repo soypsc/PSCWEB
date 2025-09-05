@@ -20,6 +20,20 @@
 </head>
 <body class="bg-slate-50 text-slate-800">
 
+<script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+    (async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { window.location.href = 'login.html'; return; }
+        const { data: perfil, error } = await supabase.from('perfiles').select('rol').eq('id', session.user.id).single();
+        if (error || !perfil || !['admin', 'supervisor', 'empleado'].includes(perfil.rol)) {
+            await supabase.auth.signOut();
+            window.location.href = 'login.html?error=unauthorized';
+        }
+    })();
+</script>
+
 <div class="relative min-h-screen md:flex">
     <div id="menu-container"></div>
 
@@ -38,7 +52,20 @@
 
                 <div>
                      <div id="retiro-details-container" class="bg-white p-6 rounded-lg border shadow-sm hidden">
+                        <h2 class="text-xl font-bold text-slate-800 mb-4">Detalles del Retiro</h2>
+                        <div class="space-y-2">
+                            <p><strong>Cliente:</strong> <span id="detalle-cliente"></span></p>
+                            <p><strong>Monto Pagado:</strong> <span id="detalle-monto" class="font-mono"></span></p>
+                            <p><strong>Estado:</strong> <span id="detalle-estado" class="font-semibold px-2 py-0.5 rounded-full text-xs"></span></p>
+                            <div class="border-t pt-2 mt-2">
+                                <p class="font-semibold mb-2">Paquetes a entregar:</p>
+                                <ul id="detalle-paquetes" class="list-disc list-inside space-y-1 font-mono text-sm"></ul>
+                            </div>
                         </div>
+                        <button id="btn-marcar-entregado" class="w-full mt-6 bg-emerald-500 text-white font-bold py-3 rounded-lg hover:bg-emerald-600 disabled:bg-slate-400" disabled>
+                            Marcar como Entregado
+                        </button>
+                    </div>
                     <div id="initial-message" class="text-center p-8 bg-white rounded-lg border h-full flex flex-col justify-center">
                         <i data-lucide="scan-line" class="h-16 w-16 text-slate-400 mx-auto"></i>
                         <p class="mt-4 text-slate-500">Esperando escaneo o selección de una solicitud...</p>
@@ -72,36 +99,107 @@
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
     const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
     
-    // --- ELEMENTOS DEL DOM ---
+    const qrReaderStatus = document.getElementById('qr-reader-status');
+    const retiroDetailsContainer = document.getElementById('retiro-details-container');
+    const initialMessage = document.getElementById('initial-message');
+    const btnMarcarEntregado = document.getElementById('btn-marcar-entregado');
     const sucursalFilter = document.getElementById('sucursal-filter');
     const listContainer = document.getElementById('list-container');
     const btnPendientes = document.getElementById('btn-pendientes');
     const btnEntregados = document.getElementById('btn-entregados');
-    // ... (resto de elementos del DOM sin cambios)
-    let currentView = 'pendiente'; // Estado para saber qué lista mostrar
+    
+    let currentView = 'pendiente';
+    let currentRetiroId = null;
     let html5QrCode;
 
-    // --- LÓGICA DEL ESCÁNER (sin cambios) ---
+    function onScanSuccess(decodedText, decodedResult) {
+        qrReaderStatus.textContent = `Código detectado. Pausando cámara...`;
+        if (html5QrCode && html5QrCode.isScanning) {
+            html5QrCode.pause();
+        }
+        loadRetiroDetails(decodedText);
+    }
 
-    // --- LÓGICA DE DETALLES (sin cambios) ---
+    function onScanFailure(error) { /* Ignorar errores de "no se encontró QR" */ }
 
-    // --- LÓGICA DE ENTREGA (MEJORADA) ---
-    async function markAsDelivered() {
-        // ... (lógica sin cambios)
+    function startScanner() {
+        html5QrCode = new Html5Qrcode("qr-reader");
+        html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, onScanSuccess, onScanFailure)
+            .then(() => qrReaderStatus.textContent = 'Apunte la cámara al código QR.')
+            .catch(err => qrReaderStatus.textContent = 'Error al iniciar cámara.');
+    }
+
+    async function loadRetiroDetails(retiroId) {
+        currentRetiroId = retiroId;
+        initialMessage.classList.add('hidden');
+        retiroDetailsContainer.classList.remove('hidden');
+
         try {
-            // ...
+            const { data, error } = await sb.from('retiros')
+                .select('*, clientes(nombre, box)')
+                .eq('id', retiroId)
+                .single();
+
+            if (error || !data) throw new Error("No se encontró la orden de retiro.");
+
+            const { data: paquetes, error: paquetesError } = await sb.from('paquetes')
+                .select('tracking')
+                .in('id', data.paquetes_ids || []);
+            if (paquetesError) throw new Error("Error al cargar los paquetes.");
+
+            document.getElementById('detalle-cliente').textContent = `${data.clientes.nombre} (Box: ${data.clientes.box})`;
+            document.getElementById('detalle-monto').textContent = `$${(data.monto_total || 0).toFixed(2)}`;
+            
+            const estadoEl = document.getElementById('detalle-estado');
+            estadoEl.textContent = data.status;
+            if (data.status === 'pagado' || data.status === 'listo_para_retiro') {
+                estadoEl.className = 'font-semibold px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800';
+                btnMarcarEntregado.disabled = false;
+                btnMarcarEntregado.textContent = 'Marcar como Entregado';
+            } else {
+                estadoEl.className = 'font-semibold px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800';
+                btnMarcarEntregado.disabled = true;
+                btnMarcarEntregado.textContent = 'Ya fue Entregado';
+            }
+
+            const paquetesList = document.getElementById('detalle-paquetes');
+            paquetesList.innerHTML = paquetes.map(p => `<li>${p.tracking}</li>`).join('');
+
+        } catch(error) {
+            alert(`Error: ${error.message}`);
+            resetView();
+        }
+    }
+
+    async function markAsDelivered() {
+        if (!currentRetiroId || btnMarcarEntregado.disabled) return;
+        btnMarcarEntregado.disabled = true;
+        btnMarcarEntregado.textContent = 'Procesando...';
+        try {
+            const { error } = await sb.rpc('marcar_retiro_entregado', { p_retiro_id: currentRetiroId });
+            if (error) throw error;
             alert("¡Entrega registrada con éxito!");
             resetView();
-            // ACTUALIZAR LA LISTA AUTOMÁTICAMENTE
             loadRetirosList(); 
         } catch (error) {
-            // ... (lógica de error sin cambios)
+            alert(`Error al marcar como entregado: ${error.message}`);
+            btnMarcarEntregado.disabled = false;
+            btnMarcarEntregado.textContent = 'Marcar como Entregado';
         }
     }
     
-    // --- FUNCIÓN DE RESETEO (sin cambios) ---
+    function resetView() {
+        retiroDetailsContainer.classList.add('hidden');
+        initialMessage.classList.remove('hidden');
+        btnMarcarEntregado.disabled = true;
+        btnMarcarEntregado.textContent = 'Marcar como Entregado';
+        currentRetiroId = null;
+        if (html5QrCode && html5QrCode.getState() === 1) { // 1 = PAUSED
+            html5QrCode.resume();
+            qrReaderStatus.textContent = 'Apunte la cámara al código QR.';
+        }
+    }
 
-    // --- LÓGICA PARA CARGAR LISTAS ---
     async function loadSucursales() {
         const { data, error } = await sb.from('sucursales').select('sucursal').order('sucursal');
         if (data) {
@@ -118,10 +216,9 @@
         }
         listContainer.innerHTML = `<p class="text-slate-500 text-sm text-center">Buscando...</p>`;
         
-        // Llamada a la nueva función SQL versátil
         const { data, error } = await sb.rpc('get_retiros_por_estado_y_sucursal', { 
             p_sucursal_nombre: sucursal,
-            p_estado: currentView // Usa el estado actual (pendiente o entregado)
+            p_estado: currentView
         });
 
         if (error || !data || data.length === 0) {
@@ -147,6 +244,8 @@
     }
 
     // --- EVENT LISTENERS ---
+    btnMarcarEntregado.addEventListener('click', markAsDelivered);
+    
     sucursalFilter.addEventListener('change', loadRetirosList);
 
     btnPendientes.addEventListener('click', () => {
@@ -169,19 +268,16 @@
             loadRetiroDetails(item.dataset.id);
         }
     });
-
-    document.addEventListener('DOMContentLoaded', () => {
-        startScanner();
-        loadSucursales();
-        lucide.createIcons();
-    });
     
-    // ... (resto de funciones como startScanner, loadRetiroDetails, etc., que he omitido por brevedad pero deben estar en tu archivo)
+    // --- SCRIPT INITIALIZATION (CORRECTED) ---
+    startScanner();
+    loadSucursales();
+    lucide.createIcons();
+
 </script>
 
 </body>
 </html>
-
 
 
 
