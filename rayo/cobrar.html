@@ -519,7 +519,9 @@
                 // Aplicar el descuento al total del carrito
                 pagos.push({ metodo: 'Saldo de Libras', monto: costoLibras, sucursal: sucursal });
                 clienteActual.saldo_libras -= librasAConsumir;
-                saldoLibrasDisplay.textContent = `${(clienteActual.saldo_libras || 0).toFixed(2)} lbs`;
+                // CORRECCIÓN: Redondear el resultado para evitar errores de precisión
+                clienteActual.saldo_libras = Math.round(clienteActual.saldo_libras * 100) / 100;
+                saldoLibrasDisplay.textContent = `${clienteActual.saldo_libras.toFixed(2)} lbs`;
                 btnAplicarLibras.disabled = true;
 
                 renderPagos();
@@ -812,18 +814,16 @@
             if(formEditPeso) formEditPeso.addEventListener('submit', handleEditPesoSubmit);
             document.getElementById('close-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
             document.getElementById('cancel-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
-        btnApplyCredit.addEventListener('click', handleApplyCredit);
-        
-        // --- PEGA LAS DOS LÍNEAS AQUÍ ---
-        btnAplicarLibras.addEventListener('click', handleAplicarLibras);
-        btnAplicarRayitos.addEventListener('click', handleAplicarRayitos);
-        // ------------------------------------
-        
-        lucide.createIcons();
-        
-        cargarSucursales();
-        configurarSucursalPorDefecto();
-    });
-</script>
-</body>
-</html>
+            btnApplyCredit.addEventListener('click', handleApplyCredit);
+            
+            // --- CÓDIGO FALTANTE ESTABA AQUÍ ---
+            btnAplicarLibras.addEventListener('click', handleAplicarLibras);
+            btnAplicarRayitos.addEventListener('click', handleAplicarRayitos);
+            // ------------------------------------
+
+            lucide.createIcons();
+            
+            cargarSucursales();
+            configurarSucursalPorDefecto();
+        });
+    </script></body></html>
