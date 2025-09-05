@@ -812,16 +812,18 @@
             if(formEditPeso) formEditPeso.addEventListener('submit', handleEditPesoSubmit);
             document.getElementById('close-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
             document.getElementById('cancel-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
-            btnApplyCredit.addEventListener('click', handleApplyCredit);
-
-            btnAplicarLibras.addEventListener('click', handleAplicarLibras);
-            btnAplicarRayitos.addEventListener('click', handleAplicarRayitos);
-
-            lucide.createIcons();
-
-            cargarSucursales();
-            configurarSucursalPorDefecto();
-        });
-    </script>
+        btnApplyCredit.addEventListener('click', handleApplyCredit);
+        
+        // --- PEGA LAS DOS LÍNEAS AQUÍ ---
+        btnAplicarLibras.addEventListener('click', handleAplicarLibras);
+        btnAplicarRayitos.addEventListener('click', handleAplicarRayitos);
+        // ------------------------------------
+        
+        lucide.createIcons();
+        
+        cargarSucursales();
+        configurarSucursalPorDefecto();
+    });
+</script>
 </body>
 </html>
