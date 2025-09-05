@@ -431,9 +431,18 @@
                     }
                 }
 
-                async function buscarCliente(box, target) {
-                    if (!box) return;
-                    const { data, error } = await sb.from('clientes').select('nombre, box, sucursal').eq('box', parseInt(box)).limit(1).maybeSingle();
+                async function buscarCliente(terminoBusqueda, target) {
+                    if (!terminoBusqueda) return;
+                    
+                    const isNumeric = !isNaN(terminoBusqueda);
+                    let query = sb.from('clientes').select('nombre, box, sucursal');
+                    if (isNumeric) {
+                        query = query.eq('box', parseInt(terminoBusqueda));
+                    } else {
+                        query = query.ilike('nombre', `%${terminoBusqueda}%`);
+                    }
+                    const { data, error } = await query.limit(1).maybeSingle();
+                    
                     if (error) { showAlert("Error buscando cliente."); return; }
 
                     if (target === 'main') {
@@ -718,6 +727,17 @@
                     closeBarcodeBtn.addEventListener('click', stopBarcodeScanner);
                 }
 
+                function handleEnterSearch(event, target) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault(); 
+                        const terminoBusqueda = event.target.value.trim();
+                        if (terminoBusqueda) {
+                            buscarCliente(terminoBusqueda, target);
+                        }
+                        document.querySelectorAll('.autocomplete-suggestions').forEach(el => el.classList.add('hidden'));
+                    }
+                }
+
                 casosEspecialesBtn.addEventListener('click', () => casosEspecialesContainer.classList.toggle('hidden'));
                 trackingInput.addEventListener('change', (e) => buscarPaqueteCargado(e.target.value.trim()));
                 casilleroSearchInput.addEventListener('input', () => handleAutocomplete(casilleroSearchInput, clienteSuggestionsContainer, (box) => {
@@ -753,6 +773,10 @@
                 }));
                 confirmarProcesarBtn.addEventListener('click', handleConfirmarProceso);
                 
+                casilleroSearchInput.addEventListener('keydown', (e) => handleEnterSearch(e, 'main'));
+                manualCasilleroInput.addEventListener('keydown', (e) => handleEnterSearch(e, 'manual'));
+                procesarCasilleroInput.addEventListener('keydown', (e) => handleEnterSearch(e, 'procesar'));
+                
                 document.addEventListener('click', (e) => {
                     if (!casilleroSearchInput.contains(e.target)) clienteSuggestionsContainer.classList.add('hidden');
                     if (!manualCasilleroInput.contains(e.target)) manualClienteSuggestionsContainer.classList.add('hidden');
@@ -769,31 +793,6 @@
                 document.querySelector("main").innerHTML = `<p class="text-red-500">Error crítico. Revise la consola.</p>`;
             }
         }
-
-
-                function handleEnterSearch(event, target) {
-    if (event.key === 'Enter') {
-        event.preventDefault(); // Evita que el formulario principal se envíe por error.
-        const terminoBusqueda = event.target.value.trim();
-        if (terminoBusqueda) {
-            // Reutilizamos la función de autocompletado para buscar y seleccionar el primer resultado
-            handleAutocomplete(event.target, document.getElementById(`${target}-cliente-suggestions`), (box) => {
-                event.target.value = box;
-                buscarCliente(box, target);
-            });
-            // Hacemos la búsqueda directa por si es un casillero exacto
-             if(!isNaN(terminoBusqueda)) {
-                buscarCliente(terminoBusqueda, target);
-             }
-        }
-        // Ocultamos cualquier sugerencia visible
-        document.querySelectorAll('.autocomplete-suggestions').forEach(el => el.classList.add('hidden'));
-    }
-}
-
-casilleroSearchInput.addEventListener('keydown', (e) => handleEnterSearch(e, 'cliente'));
-manualCasilleroInput.addEventListener('keydown', (e) => handleEnterSearch(e, 'manual'));
-procesarCasilleroInput.addEventListener('keydown', (e) => handleEnterSearch(e, 'procesar'));
     </script>
 </body>
 </html>
