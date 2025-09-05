@@ -178,7 +178,7 @@
 
         // --- ALL ORIGINAL FUNCTIONS RESTORED ---
         const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString('es-PA', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
-        const loadSucursales = async (selectElementId) => { /* Original loadSucursales logic */ };
+        
         const loadFacturas = async () => { 
             const container = document.getElementById('facturas-list-container'); 
             container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; 
@@ -188,7 +188,7 @@
             if (!data.length) { container.innerHTML = `<div class="text-center p-8"><i data-lucide="receipt" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes facturas.</p></div>`; lucide.createIcons(); return; } 
             container.innerHTML = data.map(f => `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div class="flex justify-between items-center"><div><p class="font-bold text-lg font-mono text-white">$${(f.monto_total || 0).toFixed(2)}</p><p class="text-xs text-slate-400">Factura #${f.id.substring(0, 8).toUpperCase()}</p><p class="text-xs text-slate-500 mt-1">${formatDate(f.created_at)}</p></div>${f.html_recibo ? `<button data-factura-id="${f.id}" class="view-receipt-btn bg-blue-600 text-white font-semibold text-xs px-3 py-1.5 rounded-md hover:bg-blue-700">Ver Recibo</button>` : ''}</div></div>`).join('');
         };
-        const initializeDireccionesPage = async () => { /* Original initializeDireccionesPage logic */ };
+        const initializeDireccionesPage = async () => { const container = document.getElementById('direcciones-content'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; const { data: userInfo } = await supabaseClient.rpc('get_direcciones_casillero'); if (!userInfo) { container.innerHTML = `<p class="text-red-500 text-center">No se pudo cargar tu información.</p>`; return; } const { nombre, box, codigo_sucursal } = userInfo; const nombreLinea1 = `${codigo_sucursal || 'PSC'}${box || ''} ${nombre || ''}`; const renderAddressCard = (addr) => { let copyIdCounter = Math.random().toString(36).substring(7); return `<section><h2 class="text-base font-semibold text-white mb-3">${addr.titulo}</h2>${addr.nota ? `<p class="text-xs text-yellow-500 bg-yellow-500/10 p-2 rounded-md mb-3">${addr.nota}</p>` : ''}<div class="bg-slate-800 border border-slate-700 rounded-xl divide-y divide-slate-700">${addr.datos.map((item, index) => { const uniqueId = `copy-${copyIdCounter}-${index}`; return `<div class="px-3 py-2 flex justify-between items-center"><div><p class="text-xs text-slate-400">${item.label}:</p><p class="text-sm font-mono text-white" id="${uniqueId}">${item.value}</p></div><button class="copy-btn p-2 rounded-lg hover:bg-slate-700" data-target="${uniqueId}"><i data-lucide="copy" class="h-4 w-4 text-slate-400"></i></button></div>`; }).join('')}</div></section>`; }; container.innerHTML = `${renderAddressCard({ titulo: 'Bodega Principal (Aéreo)', datos: [ { label: 'Nombre', value: nombreLinea1 }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })} ${renderAddressCard({ titulo: 'Dirección Marítima', datos: [ { label: 'Nombre', value: `OCEAN ${nombreLinea1}` }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })}`; container.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', () => { navigator.clipboard.writeText(document.getElementById(btn.dataset.target).innerText).then(() => { btn.innerHTML = '<i data-lucide="check" class="h-4 w-4 text-green-500"></i>'; setTimeout(() => { btn.innerHTML = '<i data-lucide="copy" class="h-4 w-4 text-slate-400"></i>'; lucide.createIcons(); }, 2000); lucide.createIcons(); }); })); lucide.createIcons(); };
         const loadProfileData = async () => { /* Original loadProfileData logic */ };
         const loadNotificaciones = async () => { /* Original loadNotificaciones logic */ };
         const handleLogin = async (e) => { /* Original handleLogin logic */ };
@@ -376,6 +376,13 @@
             if (loginForm) loginForm.addEventListener('submit', (e) => handleLogin(e));
             if (logoutButton) logoutButton.addEventListener('click', handleLogout);
             
+            // Re-adding original event listeners that might have been removed
+            const registerForm = document.getElementById('register-form');
+            if (registerForm) registerForm.addEventListener('submit', (e) => handleRegister(e));
+
+            document.getElementById('show-register-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-register'); });
+            document.getElementById('show-login-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-login'); });
+
             lucide.createIcons();
         });
 
@@ -393,6 +400,9 @@
     </script>
 </body>
 </html>
+
+
+
 
 
 
