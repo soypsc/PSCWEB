@@ -244,6 +244,7 @@
             await actualizarContadorNotificaciones();
         };
 
+        // --- FUNCIÓN RESTAURADA ---
         const handleLogin = async (e) => { 
             e.preventDefault(); 
             const email = document.getElementById('login-email').value; 
@@ -252,6 +253,7 @@
             document.getElementById('login-error').textContent = error ? 'Email o contraseña incorrectos.' : ''; 
         };
         
+        // --- FUNCIÓN RESTAURADA ---
         const handleRegister = async (e) => { 
             e.preventDefault(); 
             const errorEl = document.getElementById('register-error');
@@ -300,15 +302,18 @@
 
         const handleLogout = () => supabaseClient.auth.signOut();
         
+        // --- FUNCIÓN RESTAURADA ---
         const loadSucursales = async (selectElementId) => { 
             const selectEl = document.getElementById(selectElementId); 
             const { data } = await supabaseClient.from('sucursales').select('sucursal').order('sucursal'); 
             if (data) selectEl.innerHTML = '<option value="">Selecciona sucursal</option>' + data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join(''); 
         };
         
+        // --- FUNCIÓN RESTAURADA ---
         const loadFacturas = async () => { 
             const container = document.getElementById('facturas-list-container'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; if (!currentUserProfile?.box) { container.innerHTML = `<p class="text-red-500 text-center">Casillero no encontrado.</p>`; return; } const { data, error } = await supabaseClient.from('facturas').select('id, created_at, monto_total, html_recibo').eq('cliente_box', currentUserProfile.box).order('created_at', { ascending: false }); if (error) { container.innerHTML = `<p class="text-red-500 text-center">Error al cargar facturas.</p>`; return; } if (!data.length) { container.innerHTML = `<div class="text-center p-8"><i data-lucide="receipt" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes facturas.</p></div>`; lucide.createIcons(); return; } container.innerHTML = data.map(f => `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div class="flex justify-between items-center"><div><p class="font-bold text-lg font-mono text-white">$${(f.monto_total || 0).toFixed(2)}</p><p class="text-xs text-slate-400">Factura #${f.id.substring(0, 8).toUpperCase()}</p><p class="text-xs text-slate-500 mt-1">${formatDate(f.created_at)}</p></div>${f.html_recibo ? `<button data-factura-id="${f.id}" class="view-receipt-btn bg-blue-600 text-white font-semibold text-xs px-3 py-1.5 rounded-md hover:bg-blue-700">Ver Recibo</button>` : ''}</div></div>`).join(''); };
         
+        // --- FUNCIÓN RESTAURADA ---
         const initializeDireccionesPage = async () => {
             const container = document.getElementById('direcciones-content');
             container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
@@ -328,6 +333,7 @@
             lucide.createIcons();
         };
         
+        // --- FUNCIÓN RESTAURADA ---
         const loadProfileData = async () => {
             const { data: { user } } = await supabaseClient.auth.getUser();
             const { data: profile } = await supabaseClient.from('clientes').select('nombre, box, telefono, sucursal, direccion').eq('user_id', user.id).single();
@@ -340,6 +346,7 @@
             document.getElementById('profile-sucursal').value = profile?.sucursal || '';
         };
 
+        // --- FUNCIÓN RESTAURADA ---
         const handleProfileUpdate = async (e) => {
             e.preventDefault();
             const msgEl = document.getElementById('profile-message');
@@ -360,6 +367,7 @@
             }
         };
 
+        // --- FUNCIÓN RESTAURADA ---
         const loadNotificaciones = async () => { const container = document.getElementById('notificaciones-list-container'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; const { data: notificaciones, error } = await supabaseClient.rpc('get_my_notifications'); if (error) { container.innerHTML = `<p class="text-red-500 text-center">Error al cargar notificaciones.</p>`; return; } if (!notificaciones || !notificaciones.length) { container.innerHTML = `<div class="text-center p-8"><i data-lucide="bell-off" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes notificaciones.</p></div>`; } else { container.innerHTML = notificaciones.map(n => `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><p class="text-white">${n.mensaje}</p><p class="text-xs text-slate-500 text-right mt-2">${formatDate(n.created_at)}</p></div>`).join(''); } lucide.createIcons(); };
         const actualizarContadorNotificaciones = async () => { const badge = document.getElementById('notification-badge'); const iconLink = document.getElementById('notification-link'); if (!badge || !iconLink) return; const { data: count, error } = await supabaseClient.rpc('get_unread_notification_count'); if (error || count === 0) { badge.classList.add('hidden'); badge.textContent = ''; iconLink.classList.remove('anim-tiembla'); } else { badge.textContent = count > 9 ? '9+' : count; badge.classList.remove('hidden'); iconLink.classList.add('anim-tiembla'); setTimeout(() => { iconLink.classList.remove('anim-tiembla'); }, 600); } };
         const marcarNotificacionesComoLeidas = async () => { const { data: { user } } = await supabaseClient.auth.getUser(); if (!user) return; const { error } = await supabaseClient.from('notificaciones_pendientes').update({ leido: true }).eq('cliente_id', user.id).eq('leido', false); if (!error) { document.getElementById('notification-badge').classList.add('hidden'); } };
@@ -392,44 +400,47 @@
             document.getElementById('summary-entregado').textContent = statusCount['Entregado'] + statusCount['Pagado (sin entregar)'];
             document.getElementById('summary-saldo').textContent = `$${saldoEnSucursal.toFixed(2)}`;
 
-            renderPaquetes(tarifaCliente);
+            renderPaquetes(tarifaCliente); // Pasamos la tarifa para el cálculo individual
             updatePaymentSummary();
         };
 
         function renderPaquetes(tarifaCliente) {
-            const container = document.getElementById('paquetes-list-container');
-            if (!allUserPackages || allUserPackages.length === 0) {
-                container.innerHTML = `<div class="text-center p-8"><i data-lucide="package-search" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes paquetes.</p></div>`;
-                lucide.createIcons();
-                return;
-            }
+    const container = document.getElementById('paquetes-list-container');
+    if (!allUserPackages || allUserPackages.length === 0) {
+        container.innerHTML = `<div class="text-center p-8"><i data-lucide="package-search" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes paquetes.</p></div>`;
+        lucide.createIcons();
+        return;
+    }
 
-            const statusBadge = (s) => ({ 'En transito': 'bg-yellow-500/20 text-yellow-300', 'En Sucursal': 'bg-green-500/20 text-green-300', 'Pagado (sin entregar)': 'bg-blue-500/20 text-blue-300', 'Entregado': 'bg-slate-500/20 text-slate-400' }[s] || 'bg-slate-700');
+    const statusBadge = (s) => ({ 'En transito': 'bg-yellow-500/20 text-yellow-300', 'En Sucursal': 'bg-green-500/20 text-green-300', 'Pagado (sin entregar)': 'bg-blue-500/20 text-blue-300', 'Entregado': 'bg-slate-500/20 text-slate-400' }[s] || 'bg-slate-700');
+    
+    container.innerHTML = allUserPackages.map(p => {
+        const isSelectable = p.status === 'En Sucursal';
+        const costoCalculado = (p.peso || 0) * tarifaCliente;
+
+        return `
+        <div class="package-item bg-slate-800 border border-slate-700 p-4 rounded-xl flex justify-between items-center" data-id="${p.id}" data-cost="${costoCalculado}">
             
-            container.innerHTML = allUserPackages.map(p => {
-                const isSelectable = p.status === 'En Sucursal';
-                const costoCalculado = (p.peso || 0) * tarifaCliente;
+            <div class="flex items-center gap-4 min-w-0">
+                ${isSelectable ? `
+                    <div class="package-checkbox pointer-events-none h-6 w-6 rounded-full border-2 border-slate-500 bg-slate-900 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="check" class="h-4 w-4 text-white opacity-0 transition"></i>
+                    </div>` : `<div class="h-6 w-6 flex-shrink-0"></div>`}
+                
+                <div class="min-w-0">
+                    <p class="font-mono font-semibold text-white text-sm truncate">${p.tracking}</p>
+                    <p class="text-xs text-slate-400">${p.peso ? p.peso.toFixed(2) + ' lbs' : 'Sin peso'}</p>
+                </div>
+            </div>
 
-                return `
-                <div class="package-item bg-slate-800 border border-slate-700 p-4 rounded-xl flex justify-between items-center ${isSelectable ? 'cursor-pointer' : 'opacity-60'}" data-id="${p.id}" data-cost="${costoCalculado}">
-                    <div class="flex items-center gap-4 min-w-0">
-                        ${isSelectable ? `
-                            <div class="package-checkbox pointer-events-none h-6 w-6 rounded-full border-2 border-slate-500 bg-slate-900 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="check" class="h-4 w-4 text-white opacity-0 transition"></i>
-                            </div>` : `<div class="h-6 w-6 flex-shrink-0"></div>`}
-                        <div class="min-w-0">
-                            <p class="font-mono font-semibold text-white text-sm truncate">${p.tracking}</p>
-                            <p class="text-xs text-slate-400">${p.peso ? p.peso.toFixed(2) + ' lbs' : 'Sin peso'}</p>
-                        </div>
-                    </div>
-                    <div class="text-right flex items-center gap-4 flex-shrink-0">
-                        <p class="text-white font-semibold font-mono text-lg">$${costoCalculado.toFixed(2)}</p>
-                        <span class="text-xs font-bold px-2 py-1 rounded-full ${statusBadge(p.status)}">${p.status || 'N/A'}</span>
-                    </div>
-                </div>`;
-            }).join('');
-            lucide.createIcons();
-        }
+            <div class="text-right flex items-center gap-4 flex-shrink-0">
+                <p class="text-white font-semibold font-mono text-lg">$${costoCalculado.toFixed(2)}</p>
+                <span class="text-xs font-bold px-2 py-1 rounded-full ${statusBadge(p.status)}">${p.status || 'N/A'}</span>
+            </div>
+        </div>`;
+    }).join('');
+    lucide.createIcons();
+}
         
         function handlePackageSelection(e) {
             const packageItem = e.target.closest('.package-item');
@@ -475,8 +486,7 @@
 
             try {
                 const { data: retiroId, error } = await supabaseClient.rpc('pagar_paquetes_con_saldo', {
-                    p_paquetes_a_pagar: selectedPackageIds,
-                    p_es_pick_and_go: true 
+                    p_paquetes_a_pagar: selectedPackageIds
                 });
 
                 if (error) throw error;
@@ -508,7 +518,7 @@
             qrModal.classList.remove('hidden');
         }
 
-        // Event Listeners Setup
+        // --- Event Listeners Setup ---
         document.getElementById('show-register-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-register'); });
         document.getElementById('show-login-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-login'); });
         document.getElementById('login-form').addEventListener('submit', handleLogin);
@@ -536,6 +546,90 @@
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
