@@ -359,7 +359,7 @@
                 async function cargarCasosEspeciales() {
                     const { data, error } = await sb.from('paquetes')
                         .select('id, tracking, status, sucursal_recibido')
-                        .in('status', ['Reportado', 'Reportado en transito', 'Sin procesar'])
+                        .in('status', ['Reportado', 'Reportado en transito', 'sin procesar'])
                         .order('created_at', { ascending: false });
 
                     if (error) {
