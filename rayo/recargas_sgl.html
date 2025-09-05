@@ -73,16 +73,17 @@
                             <tr>
                                 <th class="px-6 py-3 text-left">Cliente</th>
                                 <th class="px-6 py-3 text-left">Solicitud</th>
+                                <th class="px-6 py-3 text-left">Código Solicitud</th>
                                 <th class="px-6 py-3 text-left">Método Pago</th>
                                 <th class="px-6 py-3 text-center">Acción</th>
                             </tr>
                         </thead>
                         <tbody id="pending-requests-table-body">
-                            <tr><td colspan="4" class="text-center p-8 text-slate-500">Cargando solicitudes...</td></tr>
+                            <tr><td colspan="5" class="text-center p-8 text-slate-500">Cargando solicitudes...</td></tr>
                         </tbody>
                     </table>
                 </div>
-                <!-- CAMBIO: Nueva Tabla para Historial de Solicitudes Procesadas -->
+                <!-- Historial de Solicitudes Procesadas -->
                 <div class="bg-white rounded-lg border overflow-x-auto">
                     <h2 class="text-xl font-bold text-slate-800 p-4 border-b">Historial de Solicitudes Procesadas</h2>
                     <table class="w-full text-sm">
@@ -183,14 +184,12 @@
                 solicitudVerificadaId = null;
             }
 
-            // Recargar ambas tablas para reflejar el cambio
             await loadPendingRequests();
             await loadCompletedRequests();
 
         } catch (error) {
             alert(`Error al aprobar: ${error.message}`);
         } finally {
-             // Re-habilita el botón solo si es el manual, el de la tabla ya no existirá
             if (approveBtn.id === 'btn-aprobar-manual') {
                 approveBtn.disabled = false;
                 approveBtn.textContent = 'Aprobar Recarga';
@@ -206,19 +205,18 @@
     
     // --- Lógica de Carga de Tablas ---
     async function loadPendingRequests() {
-        pendingRequestsTableBody.innerHTML = `<tr><td colspan="4" class="text-center p-8 text-slate-500">Cargando...</td></tr>`;
+        pendingRequestsTableBody.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-slate-500">Cargando...</td></tr>`;
         const { data, error } = await sb.from('solicitudes_recarga')
             .select('*, clientes(nombre, box)')
             .eq('status', 'pendiente')
             .order('created_at', { ascending: true });
 
         if (error) {
-            pendingRequestsTableBody.innerHTML = `<tr><td colspan="4" class="text-center p-8 text-red-500">Error al cargar solicitudes.</td></tr>`;
-            console.error(error);
+            pendingRequestsTableBody.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-red-500">Error al cargar solicitudes.</td></tr>`;
             return;
         }
         if (!data || data.length === 0) {
-            pendingRequestsTableBody.innerHTML = `<tr><td colspan="4" class="text-center p-8 text-slate-500">No hay solicitudes pendientes.</td></tr>`;
+            pendingRequestsTableBody.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-slate-500">No hay solicitudes pendientes.</td></tr>`;
             return;
         }
 
@@ -234,6 +232,12 @@
                 <tr id="req-${req.id}" class="border-b hover:bg-slate-50">
                     <td class="px-6 py-4 font-medium">${req.clientes.nombre} (Box ${req.clientes.box})</td>
                     <td class="px-6 py-4">${details}</td>
+                    <td class="px-6 py-4 font-mono text-xs flex items-center gap-2">
+                        <span>${req.id.substring(0, 8)}...</span>
+                        <button class="copy-id-btn p-1 hover:bg-slate-200 rounded" data-id="${req.id}" title="Copiar código">
+                            <i data-lucide="copy" class="h-3 w-3"></i>
+                        </button>
+                    </td>
                     <td class="px-6 py-4">${req.metodo_pago}</td>
                     <td class="px-6 py-4 text-center">
                         <button class="approve-btn bg-green-500 text-white font-semibold py-1 px-3 rounded-md hover:bg-green-600" data-id="${req.id}">
@@ -252,7 +256,7 @@
             .select('*, clientes(nombre, box)')
             .neq('status', 'pendiente')
             .order('created_at', { ascending: false })
-            .limit(20); // Limitar a las últimas 20 para no sobrecargar
+            .limit(20);
 
         if (error) {
             completedRequestsTableBody.innerHTML = `<tr><td colspan="4" class="text-center p-8 text-red-500">Error al cargar historial.</td></tr>`;
@@ -289,6 +293,21 @@
         if (approveBtn) {
             approveRequest(approveBtn.dataset.id);
         }
+
+        const copyBtn = e.target.closest('.copy-id-btn');
+        if (copyBtn) {
+            const idToCopy = copyBtn.dataset.id;
+            navigator.clipboard.writeText(idToCopy).then(() => {
+                copyBtn.innerHTML = '<i data-lucide="check" class="h-3 w-3 text-green-600"></i>';
+                lucide.createIcons();
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<i data-lucide="copy" class="h-3 w-3"></i>';
+                    lucide.createIcons();
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy ID: ', err);
+            });
+        }
     });
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -299,5 +318,7 @@
 
 </body>
 </html>
+
+
 
 
