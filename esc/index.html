@@ -56,7 +56,6 @@
 
     <div class="max-w-md mx-auto min-h-screen flex flex-col">
         <header class="p-4 flex items-center space-x-4">
-            <!-- Idealmente, este botón llevaría a un menú o dashboard principal -->
             <h1 class="text-xl font-bold text-white">Recepción de Paquetes</h1>
         </header>
 
@@ -175,8 +174,8 @@
             <div id="scanner-container" class="w-full aspect-square bg-black rounded-lg overflow-hidden relative">
                 <video id="video-feed" autoplay playsinline class="w-full h-full object-cover hidden"></video>
                 <div id="barcode-reader" class="w-full h-full hidden"></div>
-                <!-- Guía para OCR -->
-                <div id="ocr-guide-box" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10/12 h-16 border-2 border-dashed border-white rounded-lg pointer-events-none hidden"></div>
+                <!-- Guía para OCR (Ahora más delgada para mayor precisión) -->
+                <div id="ocr-guide-box" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10/12 h-12 border-2 border-dashed border-white rounded-lg pointer-events-none hidden"></div>
             </div>
             <p id="scanner-status" class="text-sm text-slate-400 mt-3 text-center h-5"></p>
             <div class="mt-3 flex flex-col gap-3">
@@ -485,7 +484,9 @@
                 console.error("Fallo el proceso OCR:", error);
                 showAlert("No se pudo leer el texto de la imagen.");
             } finally {
-                stopAllScanners(); // Asegura que el modal siempre se cierre
+                // MEJORA: Este bloque 'finally' garantiza que el escáner SIEMPRE se cierre,
+                // incluso si el OCR falla, evitando que el modal se quede "pegado".
+                stopAllScanners();
             }
         };
 
@@ -596,6 +597,12 @@
     </script>
 </body>
 </html>
+
+
+
+
+
+
 
 
 
