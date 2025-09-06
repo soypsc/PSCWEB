@@ -249,22 +249,36 @@
         }
         
         async function initializePage() {
-            supabaseClient.auth.onAuthStateChange(async (event, session) => {
-                if (session?.user) {
-                    const { data, error } = await supabaseClient
-                        .from('clientes')
-                        .select('id, nombre, box, saldo_a_favor, tarifa_1')
-                        .eq('user_id', session.user.id)
-                        .single();
+            // First, get the current session to prevent a race condition on page load
+            const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
 
-                    if (data) {
-                        currentUserProfile = data;
-                        loadPaquetes();
-                    } else {
-                        document.getElementById('paquetes-list-container').innerHTML = `<p class="text-red-500 text-center">No se pudo cargar el perfil del usuario.</p>`;
-                    }
-                } else {
-                    // Si no hay sesión, redirigir al login
+            if (sessionError || !session) {
+                // If there's an error or no session, redirect to the login page
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // If a session exists, proceed to fetch the user's profile
+            const { data, error } = await supabaseClient
+                .from('clientes')
+                .select('id, nombre, box, saldo_a_favor, tarifa_1')
+                .eq('user_id', session.user.id)
+                .single();
+
+            if (error || !data) {
+                // If the profile can't be fetched, show an error message
+                document.getElementById('paquetes-list-container').innerHTML = `<p class="text-red-500 text-center">No se pudo cargar el perfil del usuario.</p>`;
+                return; // Stop execution if profile is not found
+            }
+            
+            // Profile loaded successfully, store it and load the packages
+            currentUserProfile = data;
+            await loadPaquetes();
+            
+            // Also, set up a listener for future authentication state changes (e.g., user logs out)
+            supabaseClient.auth.onAuthStateChange((_event, session) => {
+                if (!session) {
+                    // If the session is lost, redirect to login
                     window.location.href = 'index.html';
                 }
             });
