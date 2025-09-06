@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PSC - Recibir Paquete</title>
 
+    <!-- INICIO: Código para instalar como App en iPhone -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PSC SCAN">
+    <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png">
+    <!-- FIN: Código para instalar como App en iPhone -->
+
     <!-- Scripts de la App Original -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -425,11 +432,19 @@
         const scannerActionBtn = document.getElementById('scanner-action-btn');
 
         const stopAllScanners = () => {
-            if (ocrStream) ocrStream.getTracks().forEach(track => track.stop());
+            // MEJORA: Lógica de cierre robustecida para liberar la cámara completamente.
+            if (ocrStream) {
+                ocrStream.getTracks().forEach(track => track.stop());
+                ocrStream = null; // Limpiar la variable del stream
+            }
+            if (videoFeed.srcObject) {
+                videoFeed.srcObject = null; // Desconectar el stream del elemento de video
+            }
             if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
                 html5QrcodeScanner.stop().catch(err => console.error("Error al detener el escáner.", err));
+                html5QrcodeScanner = null; // Limpiar la variable del escáner
             }
-            scannerModal.classList.add('hidden');
+            scannerModal.style.display = 'none'; // Forzar el ocultamiento del modal
             videoFeed.classList.add('hidden');
             barcodeReader.classList.add('hidden');
             ocrGuideBox.classList.add('hidden');
@@ -597,6 +612,9 @@
     </script>
 </body>
 </html>
+
+
+
 
 
 
