@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PSC - Recibir Paquete</title>
+    <title>PSC SCAN</title>
 
-    <!-- INICIO: Código para instalar como App en iPhone -->
+    <!-- INICIO: Código para instalar como App en iPhone (Actualizado) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="PSC SCAN">
@@ -139,10 +139,15 @@
                         <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl space-y-4">
                             <div class="relative">
                                 <label for="casillero-search" class="block text-sm font-medium text-slate-400 mb-1">Buscar (Casillero/Nombre)</label>
+                                <!-- INICIO: Campo de búsqueda con botón OCR -->
                                 <div class="relative flex items-center">
-                                    <input type="text" id="casillero-search" class="w-full p-2 pl-8 bg-slate-700 border border-slate-600 rounded-md" autocomplete="off">
-                                    <i data-lucide="search" class="absolute left-2 h-4 w-4 text-slate-500"></i>
+                                    <i data-lucide="search" class="absolute left-3 h-4 w-4 text-slate-500 z-10"></i>
+                                    <input type="text" id="casillero-search" class="w-full p-2 pl-9 pr-10 bg-slate-700 border border-slate-600 rounded-md" autocomplete="off">
+                                    <button type="button" data-target="casillero-search" class="scan-ocr-btn absolute right-1 p-2 text-slate-400 hover:text-white rounded-full hover:bg-slate-600" title="Escanear Etiqueta (OCR)">
+                                        <i data-lucide="camera" class="h-5 w-5"></i>
+                                    </button>
                                 </div>
+                                <!-- FIN: Campo de búsqueda con botón OCR -->
                                 <div id="cliente-suggestions" class="autocomplete-suggestions hidden"></div>
                             </div>
                             <div>
@@ -182,7 +187,7 @@
                 <video id="video-feed" autoplay playsinline class="w-full h-full object-cover hidden"></video>
                 <div id="barcode-reader" class="w-full h-full hidden"></div>
                 <!-- Guía para OCR (Ahora más delgada para mayor precisión) -->
-                <div id="ocr-guide-box" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10/12 h-12 border-2 border-dashed border-white rounded-lg pointer-events-none hidden"></div>
+                <div id="ocr-guide-box" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10/12 h-10 border-2 border-dashed border-white rounded-lg pointer-events-none hidden"></div>
             </div>
             <p id="scanner-status" class="text-sm text-slate-400 mt-3 text-center h-5"></p>
             <div class="mt-3 flex flex-col gap-3">
@@ -432,19 +437,18 @@
         const scannerActionBtn = document.getElementById('scanner-action-btn');
 
         const stopAllScanners = () => {
-            // MEJORA: Lógica de cierre robustecida para liberar la cámara completamente.
             if (ocrStream) {
                 ocrStream.getTracks().forEach(track => track.stop());
-                ocrStream = null; // Limpiar la variable del stream
+                ocrStream = null;
             }
             if (videoFeed.srcObject) {
-                videoFeed.srcObject = null; // Desconectar el stream del elemento de video
+                videoFeed.srcObject = null;
             }
             if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
                 html5QrcodeScanner.stop().catch(err => console.error("Error al detener el escáner.", err));
-                html5QrcodeScanner = null; // Limpiar la variable del escáner
+                html5QrcodeScanner = null;
             }
-            scannerModal.style.display = 'none'; // Forzar el ocultamiento del modal
+            scannerModal.style.display = 'none';
             videoFeed.classList.add('hidden');
             barcodeReader.classList.add('hidden');
             ocrGuideBox.classList.add('hidden');
@@ -455,7 +459,7 @@
             currentOcrTargetInput = document.getElementById(targetInputId);
             scannerTitle.textContent = 'Escanear Etiqueta (OCR)';
             videoFeed.classList.remove('hidden');
-            ocrGuideBox.classList.remove('hidden'); // Mostrar guía
+            ocrGuideBox.classList.remove('hidden');
             scannerActionBtn.classList.remove('hidden');
             scannerModal.style.display = 'flex';
             try {
@@ -491,16 +495,21 @@
                 
                 const { data: { text } } = await ocrWorker.recognize(canvas.toDataURL('image/jpeg'));
                 
-                const bestGuess = text.split(/[\s\n]+/).filter(w => w.length > 5).sort((a, b) => b.length - a.length)[0] || "";
-                currentOcrTargetInput.value = bestGuess.replace(/[^a-zA-Z0-9-]/g, '');
+                const bestGuess = text.split(/[\s\n]+/).filter(w => w.length > 2).sort((a, b) => b.length - a.length)[0] || "";
+                const cleanedText = bestGuess.replace(/[^a-zA-Z0-9\s-]/g, '').trim();
+                currentOcrTargetInput.value = cleanedText;
                 
-                buscarPaqueteCargado();
+                // MEJORA: Lógica condicional para manejar diferentes campos OCR
+                if (currentOcrTargetInput.id === 'tracking-main') {
+                    buscarPaqueteCargado();
+                } else if (currentOcrTargetInput.id === 'casillero-search') {
+                    await buscarCliente(cleanedText, 'main');
+                }
+                
             } catch (error) {
                 console.error("Fallo el proceso OCR:", error);
                 showAlert("No se pudo leer el texto de la imagen.");
             } finally {
-                // MEJORA: Este bloque 'finally' garantiza que el escáner SIEMPRE se cierre,
-                // incluso si el OCR falla, evitando que el modal se quede "pegado".
                 stopAllScanners();
             }
         };
@@ -585,8 +594,10 @@
             }
         });
 
-        // Event Listeners para Escáneres
-        document.querySelector('.scan-ocr-btn').addEventListener('click', (e) => startOcrCamera(e.currentTarget.dataset.target));
+        // Event Listeners para Escáneres (Soporte para múltiples botones OCR)
+        document.querySelectorAll('.scan-ocr-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => startOcrCamera(e.currentTarget.dataset.target));
+        });
         document.getElementById('scan-tracking-barcode-btn').addEventListener('click', startBarcodeScanner);
         scannerActionBtn.addEventListener('click', captureAndProcessImage);
         document.getElementById('scanner-close-btn').addEventListener('click', stopAllScanners);
@@ -612,6 +623,9 @@
     </script>
 </body>
 </html>
+
+
+
 
 
 
