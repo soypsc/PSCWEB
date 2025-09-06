@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="PSC App">
-    <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/f7f5e1_bf0bb102d008448fad75bacc0e801e42~mv2.jpg">
+    <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -45,7 +45,6 @@
 <body>
 
     <div id="auth-container">
-        <!-- Login Page -->
         <div id="page-login" class="page">
              <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
                 <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png" alt="Logo" class="h-16 mx-auto"></div>
@@ -59,9 +58,9 @@
                     </form>
                 </div>
                 <p class="text-center text-sm text-slate-400 mt-6">¿No tienes cuenta? <a href="#" id="show-register-link" class="font-semibold text-blue-500 hover:underline">Regístrate</a></p>
+                <button id="install-pwa-btn" class="hidden w-full bg-teal-500 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:bg-teal-600 mt-6 flex items-center justify-center gap-2"><i data-lucide="download-cloud"></i>Instalar Aplicación</button>
             </div>
         </div>
-        <!-- Register Page -->
         <div id="page-register" class="page">
             <div class="max-w-md mx-auto min-h-screen flex flex-col justify-center p-6">
                 <div class="text-center mb-8"><img src="https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png" alt="Logo" class="h-16 mx-auto"></div>
@@ -76,6 +75,16 @@
                             <input id="register-dob" type="date" required class="w-full px-4 py-3 bg-slate-900 border-slate-700 rounded-lg text-white mt-1">
                         </div>
                         <select id="register-sucursal" required class="w-full px-4 py-3 bg-slate-900 border-slate-700 rounded-lg appearance-none text-white"><option value="">Cargando sucursales...</option></select>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-slate-400">¿Tienes un código promocional?</label>
+                            <div class="flex items-center space-x-6 mt-2 text-white">
+                                <label class="flex items-center space-x-2 cursor-pointer"><input type="radio" name="promo-toggle" value="no" checked class="h-4 w-4 bg-slate-700 border-slate-600 text-blue-600 focus:ring-blue-500"><span>No</span></label>
+                                <label class="flex items-center space-x-2 cursor-pointer"><input type="radio" name="promo-toggle" value="yes" class="h-4 w-4 bg-slate-700 border-slate-600 text-blue-600 focus:ring-blue-500"><span>Sí</span></label>
+                            </div>
+                        </div>
+                        <input id="register-promo" type="text" placeholder="Código Promocional" class="w-full px-4 py-3 bg-slate-900 border-slate-700 rounded-lg text-white hidden">
+
                         <div class="relative"><input id="register-password" type="password" required placeholder="Contraseña" class="w-full px-4 py-3 bg-slate-900 border-slate-700 rounded-lg pr-10 text-white"><button type="button" class="toggle-password absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400"><i data-lucide="eye" class="h-5 w-5"></i></button></div>
                         <div class="relative"><input id="register-password-confirm" type="password" required placeholder="Confirmar Contraseña" class="w-full px-4 py-3 bg-slate-900 border-slate-700 rounded-lg pr-10 text-white"><button type="button" class="toggle-password absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400"><i data-lucide="eye" class="h-5 w-5"></i></button></div>
                         <p id="register-error" class="text-red-500 text-sm text-center h-5"></p><button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 !mt-6">Crear Cuenta</button>
@@ -87,7 +96,6 @@
     </div>
 
     <div id="app-container" class="max-w-md mx-auto min-h-screen hidden">
-        <!-- Home Page -->
         <div id="page-home" class="page">
             <header class="p-6 flex items-center justify-between">
                 <img src="https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png" alt="Logo" class="h-16">
@@ -104,6 +112,12 @@
                 <section>
                     <p class="text-slate-400 text-lg">Hola,</p><div class="flex items-baseline space-x-2"><h1 id="user-name-display" class="text-3xl font-bold text-white"></h1><span id="user-box-display" class="font-mono text-lg text-blue-500"></span></div>
                 </section>
+                
+                <section id="ios-install-prompt" class="hidden bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl text-center">
+                    <h3 class="font-bold text-white mb-2">Instala la App en tu iPhone</h3><p class="text-sm text-blue-200">Para la mejor experiencia, sigue estos pasos:</p>
+                    <div class="flex justify-center items-center gap-4 mt-3 text-sm text-white"><span>1. Toca <i data-lucide="share" class="inline-block h-5 w-5 align-middle"></i></span><span>2. Elige "Agregar a inicio" <i data-lucide="plus-square" class="inline-block h-5 w-5 align-middle"></i></span></div>
+                </section>
+
                 <section><div class="grid grid-cols-3 gap-4">
                     <a href="paquetes.html" class="text-center p-2 flex flex-col items-center group no-underline"><div class="bg-slate-800 border border-slate-700 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-yellow-400"><i data-lucide="package" class="text-yellow-500 h-7 w-7 group-hover:text-white"></i></div><span class="font-medium text-xs mt-2 text-slate-300">Paquetes</span></a>
                     <a href="direcciones.html" class="text-center p-2 flex flex-col items-center group no-underline"><div class="bg-slate-800 border border-slate-700 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-green-500"><i data-lucide="archive" class="text-green-500 h-7 w-7 group-hover:text-white"></i></div><span class="font-medium text-xs mt-2 text-slate-300">Direcciones</span></a>
@@ -123,7 +137,6 @@
             </main>
         </div>
 
-        <!-- Profile Page -->
         <div id="page-mi-perfil" class="page">
             <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-slate-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mi Perfil</h1></header>
             <main class="px-6 pb-24">
@@ -140,7 +153,6 @@
             </main>
         </div>
 
-        <!-- Notifications Page -->
         <div id="page-notificaciones" class="page">
             <header class="p-6 flex items-center space-x-4">
                 <a href="#" data-target="page-home" class="nav-link text-slate-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a>
@@ -196,6 +208,15 @@
             appContainer.classList.remove('hidden');
             showPage('page-home');
             await actualizarContadorNotificaciones();
+
+            // Lógica de banner de instalación PWA (iOS) añadida
+            const iosInstallPrompt = document.getElementById('ios-install-prompt');
+            const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+            if (iosInstallPrompt && isIOS() && !isInStandaloneMode()) {
+                iosInstallPrompt.classList.remove('hidden');
+                lucide.createIcons();
+            }
         };
 
         // --- Auth Functions ---
@@ -234,6 +255,7 @@
                 fecha_nac: document.getElementById('register-dob').value,
                 sucursal: document.getElementById('register-sucursal').value,
                 password: password,
+                promo_code: document.getElementById('register-promo').value || null, // Campo promo_code añadido
             };
 
             const { data, error } = await supabaseClient.functions.invoke('crear-cliente', {
@@ -323,12 +345,66 @@
         const marcarNotificacionesComoLeidas = async () => { 
             const { data: { user } } = await supabaseClient.auth.getUser(); 
             if (!user) return; 
-            const { error } = await supabaseClient.from('notificaciones_pendientes').update({ leido: true }).eq('user_id', user.id).eq('leido', false);
+            const { error } = await supabaseClient.from('notificaciones_pendientes').update({ leido: true }).eq('cliente_id', user.id).eq('leido', false); // Corregido a cliente_id
             if (!error) { 
                 document.getElementById('notification-badge').classList.add('hidden'); 
             } 
         };
 
+        // Funciones para Notificaciones Push añadidas
+        function urlBase64ToUint8Array(base64String) { 
+            const padding = '='.repeat((4 - base64String.length % 4) % 4); 
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/'); 
+            const rawData = window.atob(base64); 
+            const outputArray = new Uint8Array(rawData.length); 
+            for (let i = 0; i < rawData.length; ++i) { 
+                outputArray[i] = rawData.charCodeAt(i); 
+            } 
+            return outputArray; 
+        }
+
+        async function subscribeToPushNotifications() { 
+            console.group("Proceso de Suscripción a Notificaciones Push"); 
+            try { 
+                console.log("1. Pidiendo permiso al usuario..."); 
+                const permission = await Notification.requestPermission(); 
+                if (permission !== 'granted') { 
+                    console.warn("Permiso denegado por el usuario."); 
+                    console.groupEnd(); 
+                    return; 
+                } 
+                console.log("-> Permiso concedido."); 
+                console.log("2. Obteniendo registro del Service Worker..."); 
+                const registration = await navigator.serviceWorker.ready; 
+                console.log("-> Service Worker listo.", registration); 
+                console.log("3. Obteniendo VAPID Public Key de la base de datos..."); 
+                const { data: vapid_public_key, error: rpcError } = await supabaseClient.rpc('get_vapid_public_key'); 
+                if (rpcError || !vapid_public_key) { 
+                    console.error("ERROR FATAL: No se pudo obtener la VAPID public key.", rpcError); 
+                    console.groupEnd(); 
+                    return; 
+                } 
+                console.log("-> VAPID Key obtenida:", vapid_public_key); 
+                console.log("4. Solicitando suscripción al Push Manager..."); 
+                const subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(vapid_public_key) }); 
+                console.log("-> Suscripción obtenida del navegador:", subscription); 
+                console.log("5. Guardando suscripción en Supabase..."); 
+                const { data: { user } } = await supabaseClient.auth.getUser(); 
+                if (user) { 
+                    const { error: saveError } = await supabaseClient.from('push_subscriptions').upsert({ user_id: user.id, subscription_details: subscription.toJSON() }, { onConflict: 'user_id' }); 
+                    if(saveError) { 
+                        console.error("ERROR FATAL: No se pudo guardar la suscripción en la BD.", saveError); 
+                    } else { 
+                        console.log("-> ¡ÉXITO! Suscripción guardada en la base de datos."); 
+                    } 
+                } else { 
+                    console.warn("No hay un usuario logueado para guardar la suscripción."); 
+                } 
+            } catch (error) { 
+                console.error("ERROR INESPERADO en el proceso de suscripción:", error); 
+            } 
+            console.groupEnd(); 
+        }
 
         // --- Event Listeners Setup ---
         document.getElementById('show-register-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-register'); });
@@ -340,7 +416,20 @@
         navLinks.forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); showPage(link.dataset.target); }));
         document.querySelectorAll('.toggle-password').forEach(btn => btn.addEventListener('click', () => { const input = btn.previousElementSibling; input.type = input.type === 'password' ? 'text' : 'password'; }));
 
-        // --- App Initialization ---
+        // Listener para código promocional añadido
+        document.querySelectorAll('input[name="promo-toggle"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const promoInput = document.getElementById('register-promo');
+                if (this.value === 'yes') {
+                    promoInput.classList.remove('hidden');
+                } else {
+                    promoInput.classList.add('hidden');
+                    promoInput.value = '';
+                }
+            });
+        });
+
+        // --- App Initialization --- (Bloque completo actualizado)
         supabaseClient.auth.onAuthStateChange((event, session) => { 
             if (session?.user) { 
                 showAppUI(session.user);
@@ -349,12 +438,57 @@
             }
         });
         
+        if ('serviceWorker' in navigator) { 
+            navigator.serviceWorker.register('service-worker.js')
+            .then(function(swReg) { 
+                console.log('Service Worker registrado.', swReg); 
+                supabaseClient.auth.onAuthStateChange((event, session) => { 
+                    if (event === 'SIGNED_IN') { 
+                        setTimeout(subscribeToPushNotifications, 3000); 
+                    } 
+                }); 
+            }).catch(function(error) { 
+                console.error('Error al registrar el Service Worker.', error); 
+            }); 
+        }
+
+        const installPwaBtn = document.getElementById('install-pwa-btn');
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => { 
+            e.preventDefault(); 
+            deferredPrompt = e; 
+            if (installPwaBtn) { 
+                installPwaBtn.classList.remove('hidden'); 
+                lucide.createIcons(); 
+            } 
+        });
+
+        if (installPwaBtn) { 
+            installPwaBtn.addEventListener('click', async () => { 
+                if (!deferredPrompt) return; 
+                installPwaBtn.classList.add('hidden'); 
+                deferredPrompt.prompt(); 
+                const { outcome } = await deferredPrompt.userChoice; 
+                console.log(`Respuesta del usuario: ${outcome}`); 
+                deferredPrompt = null; 
+            }); 
+        }
+
+        window.addEventListener('appinstalled', () => { 
+            if (installPwaBtn) { 
+                installPwaBtn.classList.add('hidden'); 
+            } 
+            deferredPrompt = null; 
+            console.log('PWA instalada con éxito.'); 
+        });
+        
         loadSucursales('register-sucursal');
         lucide.createIcons();
 
     </script>
 </body>
 </html>
+
 
 
 
