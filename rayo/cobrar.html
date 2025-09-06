@@ -167,7 +167,7 @@
             btnAplicarLibras.disabled = (clienteActual.saldo_libras || 0) <= 0;
             btnAplicarRayitos.disabled = (clienteActual.saldo_rayitos || 0) < CONVERSION_RAYITOS;
 
-            terminal-content.classList.remove('hidden');
+            terminalContent.classList.remove('hidden');
             if (clienteActual.saldo_a_favor > 0) {
                 creditBalanceSpan.textContent = `$${clienteActual.saldo_a_favor.toFixed(2)}`;
                 creditPanel.classList.remove('hidden');
@@ -351,8 +351,6 @@
         }
         
         async function handleAplicarLibras() {
-            console.log('Botón de libras presionado');
-            if (!clienteActual || (clienteActual.saldo_libras || 0) <= 0) return;
             const sucursal = sucursalPagoSelect.value;
             if (!sucursal) { alert("Seleccione una sucursal."); return; }
 
@@ -689,4 +687,6 @@
             cargarSucursales();
             configurarSucursalPorDefecto();
         });
-    </script></body></html>
+    </script>
+</body>
+</html>
