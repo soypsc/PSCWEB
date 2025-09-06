@@ -32,6 +32,11 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; border-radius: 50%;}
         @keyframes spin{ to{transform:rotate(360deg)} }
+        .anim-tiembla { animation: Tiembla 0.6s ease-in-out; }
+        @keyframes Tiembla {
+            0% { transform: rotate(0deg); } 20% { transform: rotate(-15deg); } 40% { transform: rotate(10deg); }
+            60% { transform: rotate(-10deg); } 80% { transform: rotate(5deg); } 100% { transform: rotate(0deg); }
+        }
         input[type="date"]::-webkit-calendar-picker-indicator {
             filter: invert(0.6);
         }
@@ -39,7 +44,6 @@
 </head>
 <body>
 
-    <!-- Auth Container -->
     <div id="auth-container">
         <!-- Login Page -->
         <div id="page-login" class="page">
@@ -82,60 +86,98 @@
         </div>
     </div>
 
-    <!-- App Container (Home Page) -->
     <div id="app-container" class="max-w-md mx-auto min-h-screen hidden">
-        <header class="p-6 flex items-center justify-between">
-            <img src="https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png" alt="Logo" class="h-16">
-            <div class="flex items-center space-x-2">
-                <button id="logout-button" class="w-10 h-10 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center" title="Cerrar Sesión"><i data-lucide="log-out" class="text-slate-400"></i></button>
-            </div>
-        </header>
-        <main class="px-6 pb-24 space-y-8">
-            <section>
-                <p class="text-slate-400 text-lg">Hola,</p><div class="flex items-baseline space-x-2"><h1 id="user-name-display" class="text-3xl font-bold text-white"></h1><span id="user-box-display" class="font-mono text-lg text-blue-500"></span></div>
-            </section>
-            <section>
-                <div class="grid grid-cols-3 gap-4">
-                    <a href="paquetes.html" class="text-center p-2 flex flex-col items-center group no-underline">
-                        <div class="bg-slate-800 border border-slate-700 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-yellow-400"><i data-lucide="package" class="text-yellow-500 h-7 w-7 group-hover:text-white"></i></div>
-                        <span class="font-medium text-xs mt-2 text-slate-300">Mis Paquetes</span>
+        <!-- Home Page -->
+        <div id="page-home" class="page">
+            <header class="p-6 flex items-center justify-between">
+                <img src="https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png" alt="Logo" class="h-16">
+                <div class="flex items-center space-x-2">
+                    <a href="#" data-target="page-notificaciones" id="notification-link" class="nav-link relative w-10 h-10 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center" title="Notificaciones">
+                        <i data-lucide="bell" class="text-slate-400"></i>
+                        <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center hidden"></span>
                     </a>
-                    <a href="direcciones.html" class="text-center p-2 flex flex-col items-center group no-underline">
-                        <div class="bg-slate-800 border border-slate-700 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-green-500"><i data-lucide="archive" class="text-green-500 h-7 w-7 group-hover:text-white"></i></div>
-                        <span class="font-medium text-xs mt-2 text-slate-300">Mis Direcciones</span>
-                    </a>
-                    <a href="recibos.html" class="text-center p-2 flex flex-col items-center group no-underline">
-                        <div class="bg-slate-800 border border-slate-700 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-indigo-500"><i data-lucide="receipt" class="text-indigo-500 h-7 w-7 group-hover:text-white"></i></div>
-                        <span class="font-medium text-xs mt-2 text-slate-300">Mis Recibos</span>
-                    </a>
+                    <a href="#" data-target="page-mi-perfil" class="nav-link w-10 h-10 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center" title="Mi Perfil"><i data-lucide="user" class="text-slate-400"></i></a>
+                    <button id="logout-button" class="w-10 h-10 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center" title="Cerrar Sesión"><i data-lucide="log-out" class="text-slate-400"></i></button>
                 </div>
-            </section>
-            <section>
-                <h2 class="text-lg font-semibold text-white mb-3">Herramientas</h2>
-                <div class="bg-slate-800 border border-slate-700 rounded-xl divide-y divide-slate-700">
-                    <a href="#" class="p-4 flex items-center space-x-4 hover:bg-slate-700/50 no-underline"><i data-lucide="search" class="text-blue-500"></i><span class="font-semibold text-slate-300">Rastrear Paquete</span></a>
-                    <a href="#" class="p-4 flex items-center space-x-4 hover:bg-slate-700/50 no-underline"><i data-lucide="calculator" class="text-purple-500"></i><span class="font-semibold text-slate-300">Cotizar Compra</span></a>
-                </div>
-            </section>
-        </main>
+            </header>
+            <main class="px-6 pb-24 space-y-8">
+                <section>
+                    <p class="text-slate-400 text-lg">Hola,</p><div class="flex items-baseline space-x-2"><h1 id="user-name-display" class="text-3xl font-bold text-white"></h1><span id="user-box-display" class="font-mono text-lg text-blue-500"></span></div>
+                </section>
+                <section><div class="grid grid-cols-3 gap-4">
+                    <a href="paquetes.html" class="text-center p-2 flex flex-col items-center group no-underline"><div class="bg-slate-800 border border-slate-700 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-yellow-400"><i data-lucide="package" class="text-yellow-500 h-7 w-7 group-hover:text-white"></i></div><span class="font-medium text-xs mt-2 text-slate-300">Paquetes</span></a>
+                    <a href="direcciones.html" class="text-center p-2 flex flex-col items-center group no-underline"><div class="bg-slate-800 border border-slate-700 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-green-500"><i data-lucide="archive" class="text-green-500 h-7 w-7 group-hover:text-white"></i></div><span class="font-medium text-xs mt-2 text-slate-300">Direcciones</span></a>
+                    <a href="recibos.html" class="text-center p-2 flex flex-col items-center group no-underline"><div class="bg-slate-800 border border-slate-700 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-indigo-500"><i data-lucide="receipt" class="text-indigo-500 h-7 w-7 group-hover:text-white"></i></div><span class="font-medium text-xs mt-2 text-slate-300">Recibos</span></a>
+                </div></section>
+                <section>
+                    <h2 class="text-lg font-semibold text-white mb-3">Herramientas</h2>
+                    <div class="bg-slate-800 border border-slate-700 rounded-xl divide-y divide-slate-700">
+                        <a href="rastreo.html" class="p-4 flex items-center space-x-4 hover:bg-slate-700/50 no-underline"><i data-lucide="search" class="text-blue-500"></i><span class="font-semibold text-slate-300">Rastrear Paquete</span></a>
+                        <a href="cotizar.html" class="p-4 flex items-center space-x-4 hover:bg-slate-700/50 no-underline"><i data-lucide="calculator" class="text-purple-500"></i><span class="font-semibold text-slate-300">Cotizar Compra</span></a>
+                        <a href="wallet.html" class="p-4 flex items-center space-x-4 hover:bg-slate-700/50 no-underline"><i data-lucide="wallet" class="text-green-500"></i><span class="font-semibold text-slate-300">Mi Billetera (Saldos)</span></a>
+                        <a href="tarjetas.html" class="p-4 flex items-center space-x-4 hover:bg-slate-700/50 no-underline"><i data-lucide="credit-card" class="text-indigo-500"></i><span class="font-semibold text-slate-300">Comprar Libras y Recargas</span></a>
+                        <a href="pick_go.html" class="p-4 flex items-center space-x-4 hover:bg-slate-700/50 no-underline"><i data-lucide="qr-code" class="text-teal-500"></i><span class="font-semibold text-slate-300">Mis Retiros Pick & Go</span></a>
+                        <a href="malidentificados.html" class="p-4 flex items-center space-x-4 hover:bg-slate-700/50 no-underline"><i data-lucide="alert-triangle" class="text-yellow-500"></i><span class="font-semibold text-slate-300">Paquete Mal Identificado</span></a>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="page-mi-perfil" class="page">
+            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-slate-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mi Perfil</h1></header>
+            <main class="px-6 pb-24">
+                <form id="profile-form" class="space-y-6">
+                    <div><label class="text-sm font-medium text-slate-400">Nombre Completo</label><p id="profile-name" class="mt-1 p-3 bg-slate-800 border border-slate-700 rounded-lg"></p></div>
+                    <div><label class="text-sm font-medium text-slate-400">Número de Casillero</label><p id="profile-box" class="mt-1 p-3 bg-slate-800 border border-slate-700 rounded-lg"></p></div>
+                    <div><label class="text-sm font-medium text-slate-400">Email</label><p id="profile-email" class="mt-1 p-3 bg-slate-800 border border-slate-700 rounded-lg"></p></div>
+                    <div><label for="profile-phone" class="text-sm font-medium text-slate-400">Teléfono / WhatsApp</label><input id="profile-phone" type="tel" class="w-full mt-1 p-3 bg-slate-800 border border-slate-700 rounded-lg"></div>
+                    <div><label for="profile-address" class="text-sm font-medium text-slate-400">Dirección</label><input id="profile-address" type="text" placeholder="Ingresa tu dirección" class="w-full mt-1 p-3 bg-slate-800 border border-slate-700 rounded-lg"></div>
+                    <div><label for="profile-sucursal" class="text-sm font-medium text-slate-400">Sucursal Preferida</label><select id="profile-sucursal" class="w-full mt-1 p-3 bg-slate-800 border border-slate-700 rounded-lg appearance-none"></select></div>
+                    <p id="profile-message" class="text-sm text-center h-5"></p>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 !mt-8">Guardar Cambios</button>
+                </form>
+            </main>
+        </div>
+
+        <!-- Notifications Page -->
+        <div id="page-notificaciones" class="page">
+            <header class="p-6 flex items-center space-x-4">
+                <a href="#" data-target="page-home" class="nav-link text-slate-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a>
+                <h1 class="text-xl font-bold text-white">Notificaciones</h1>
+            </header>
+            <main class="px-6 pb-24">
+                <div id="notificaciones-list-container" class="space-y-4"></div>
+            </main>
+        </div>
     </div>
     
     <script type="module">
         const { createClient } = supabase;
         const supabaseClient = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
-
+        
         // --- DOM Element References ---
         const authContainer = document.getElementById('auth-container');
         const appContainer = document.getElementById('app-container');
         const allPages = document.querySelectorAll('.page');
-        
+        const navLinks = document.querySelectorAll('.nav-link');
+        const userNameDisplay = document.getElementById('user-name-display');
+        const userBoxDisplay = document.getElementById('user-box-display');
+
         // --- Page Navigation ---
         const showPage = (pageId) => {
             allPages.forEach(p => p.classList.remove('active'));
             const targetPage = document.getElementById(pageId);
             if (targetPage) targetPage.classList.add('active');
             window.scrollTo(0, 0);
+
+            switch (pageId) {
+                case 'page-mi-perfil': loadProfileData(); break;
+                case 'page-notificaciones': loadNotificaciones(); marcarNotificacionesComoLeidas(); break; 
+            }
         };
+
+        const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString('es-PA', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
         
         // --- Auth State & UI Management ---
         const showAuthUI = () => { 
@@ -145,13 +187,15 @@
         };
 
         const showAppUI = async (user) => {
-            const { data: profile } = await supabaseClient.from('clientes').select('nombre, box').eq('user_id', user.id).single();
+            const { data } = await supabaseClient.from('clientes').select('nombre, box').eq('user_id', user.id).single();
             
-            document.getElementById('user-name-display').textContent = profile?.nombre || 'Usuario';
-            document.getElementById('user-box-display').textContent = `(Box ${profile?.box || 'N/A'})`;
+            userNameDisplay.textContent = data?.nombre || 'Usuario';
+            userBoxDisplay.textContent = `(Box ${data?.box || 'N/A'})`;
             
             authContainer.style.display = 'none';
             appContainer.classList.remove('hidden');
+            showPage('page-home');
+            await actualizarContadorNotificaciones();
         };
 
         // --- Auth Functions ---
@@ -210,19 +254,90 @@
 
         const handleLogout = () => supabaseClient.auth.signOut();
         
-        // --- Data Loading ---
+        // --- Data Loading & Profile Functions ---
         const loadSucursales = async (selectElementId) => { 
             const selectEl = document.getElementById(selectElementId); 
+            if (!selectEl) return;
             const { data } = await supabaseClient.from('sucursales').select('sucursal').order('sucursal'); 
-            if (data && selectEl) selectEl.innerHTML = '<option value="">Selecciona sucursal</option>' + data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join(''); 
+            if (data) selectEl.innerHTML = '<option value="">Selecciona sucursal</option>' + data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join(''); 
         };
+        
+        const loadProfileData = async () => {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if(!user) return;
+            const { data: profile } = await supabaseClient.from('clientes').select('nombre, box, telefono, sucursal, direccion').eq('user_id', user.id).single();
+            document.getElementById('profile-name').textContent = profile?.nombre || '';
+            document.getElementById('profile-box').textContent = profile?.box || '';
+            document.getElementById('profile-email').textContent = user.email;
+            document.getElementById('profile-phone').value = profile?.telefono || '';
+            document.getElementById('profile-address').value = profile?.direccion || '';
+            await loadSucursales('profile-sucursal');
+            document.getElementById('profile-sucursal').value = profile?.sucursal || '';
+        };
+
+        const handleProfileUpdate = async (e) => {
+            e.preventDefault();
+            const msgEl = document.getElementById('profile-message');
+            msgEl.textContent = 'Guardando...';
+            msgEl.classList.remove('text-red-500', 'text-green-500');
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            const { error } = await supabaseClient.from('clientes').update({ 
+                telefono: document.getElementById('profile-phone').value, 
+                sucursal: document.getElementById('profile-sucursal').value,
+                direccion: document.getElementById('profile-address').value
+            }).eq('user_id', user.id);
+            if(error){
+                msgEl.textContent = 'Error al actualizar.';
+                msgEl.classList.add('text-red-500');
+            } else {
+                msgEl.textContent = '¡Perfil actualizado!';
+                msgEl.classList.add('text-green-500');
+            }
+        };
+
+        // --- Notification Functions ---
+        const loadNotificaciones = async () => { 
+            const container = document.getElementById('notificaciones-list-container'); 
+            container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; 
+            const { data: notificaciones, error } = await supabaseClient.rpc('get_my_notifications'); 
+            if (error) { container.innerHTML = `<p class="text-red-500 text-center">Error al cargar notificaciones.</p>`; return; } 
+            if (!notificaciones || !notificaciones.length) { 
+                container.innerHTML = `<div class="text-center p-8"><i data-lucide="bell-off" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes notificaciones.</p></div>`; 
+            } else { 
+                container.innerHTML = notificaciones.map(n => `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><p class="text-white">${n.mensaje}</p><p class="text-xs text-slate-500 text-right mt-2">${formatDate(n.created_at)}</p></div>`).join(''); 
+            } 
+            lucide.createIcons(); 
+        };
+        const actualizarContadorNotificaciones = async () => { 
+            const badge = document.getElementById('notification-badge'); 
+            const iconLink = document.getElementById('notification-link'); 
+            if (!badge || !iconLink) return; 
+            const { data: count, error } = await supabaseClient.rpc('get_unread_notification_count'); 
+            if (error || count === 0) { 
+                badge.classList.add('hidden'); badge.textContent = ''; iconLink.classList.remove('anim-tiembla'); 
+            } else { 
+                badge.textContent = count > 9 ? '9+' : count; badge.classList.remove('hidden'); iconLink.classList.add('anim-tiembla'); 
+                setTimeout(() => { iconLink.classList.remove('anim-tiembla'); }, 600); 
+            } 
+        };
+        const marcarNotificacionesComoLeidas = async () => { 
+            const { data: { user } } = await supabaseClient.auth.getUser(); 
+            if (!user) return; 
+            const { error } = await supabaseClient.from('notificaciones_pendientes').update({ leido: true }).eq('user_id', user.id).eq('leido', false);
+            if (!error) { 
+                document.getElementById('notification-badge').classList.add('hidden'); 
+            } 
+        };
+
 
         // --- Event Listeners Setup ---
         document.getElementById('show-register-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-register'); });
         document.getElementById('show-login-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-login'); });
         document.getElementById('login-form').addEventListener('submit', handleLogin);
         document.getElementById('register-form').addEventListener('submit', handleRegister);
+        document.getElementById('profile-form').addEventListener('submit', handleProfileUpdate);
         document.getElementById('logout-button').addEventListener('click', handleLogout);
+        navLinks.forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); showPage(link.dataset.target); }));
         document.querySelectorAll('.toggle-password').forEach(btn => btn.addEventListener('click', () => { const input = btn.previousElementSibling; input.type = input.type === 'password' ? 'text' : 'password'; }));
 
         // --- App Initialization ---
@@ -238,9 +353,11 @@
         lucide.createIcons();
 
     </script>
-
 </body>
 </html>
+
+
+
 
 
 
