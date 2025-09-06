@@ -9,29 +9,28 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="PSC App">
-    <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/f7f5e1_a5d98b45aa6647c7a63a372f0ca2cd81~mv2.jpg">
+    <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+    
     <script src="config.js"></script>
 
     <style>
         body { 
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
-            color: #e2e8f0;
+            background-color: #0f172a; /* bg-slate-900 */
+            color: #e2e8f0; /* text-slate-200 */
         }
         .page { display: none; }
         .page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; border-radius: 50%;}
+        .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; }
         @keyframes spin{ to{transform:rotate(360deg)} }
         .anim-tiembla { animation: Tiembla 0.6s ease-in-out; }
         @keyframes Tiembla {
@@ -41,8 +40,6 @@
         input[type="date"]::-webkit-calendar-picker-indicator {
             filter: invert(0.6);
         }
-        .package-checkbox-selected { background-color: #4f46e5; border-color: #818cf8; }
-        .package-checkbox-selected i { opacity: 1; }
     </style>
 </head>
 <body>
@@ -61,6 +58,7 @@
                     </form>
                 </div>
                 <p class="text-center text-sm text-slate-400 mt-6">¿No tienes cuenta? <a href="#" id="show-register-link" class="font-semibold text-blue-500 hover:underline">Regístrate</a></p>
+                <button id="install-pwa-btn" class="hidden w-full bg-teal-500 text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:bg-teal-600 mt-6 flex items-center justify-center gap-2"><i data-lucide="download-cloud"></i>Instalar Aplicación</button>
             </div>
         </div>
         <div id="page-register" class="page">
@@ -77,6 +75,14 @@
                             <input id="register-dob" type="date" required class="w-full px-4 py-3 bg-slate-900 border-slate-700 rounded-lg text-white mt-1">
                         </div>
                         <select id="register-sucursal" required class="w-full px-4 py-3 bg-slate-900 border-slate-700 rounded-lg appearance-none text-white"><option value="">Cargando sucursales...</option></select>
+                        <div>
+                            <label class="text-sm font-medium text-slate-400">¿Tienes un código promocional?</label>
+                            <div class="flex items-center space-x-6 mt-2 text-white">
+                                <label class="flex items-center space-x-2 cursor-pointer"><input type="radio" name="promo-toggle" value="no" checked class="h-4 w-4 bg-slate-700 border-slate-600 text-blue-600 focus:ring-blue-500"><span>No</span></label>
+                                <label class="flex items-center space-x-2 cursor-pointer"><input type="radio" name="promo-toggle" value="yes" class="h-4 w-4 bg-slate-700 border-slate-600 text-blue-600 focus:ring-blue-500"><span>Sí</span></label>
+                            </div>
+                        </div>
+                        <input id="register-promo" type="text" placeholder="Código Promocional" class="w-full px-4 py-3 bg-slate-900 border-slate-700 rounded-lg text-white hidden">
                         <div class="relative"><input id="register-password" type="password" required placeholder="Contraseña" class="w-full px-4 py-3 bg-slate-900 border-slate-700 rounded-lg pr-10 text-white"><button type="button" class="toggle-password absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400"><i data-lucide="eye" class="h-5 w-5"></i></button></div>
                         <div class="relative"><input id="register-password-confirm" type="password" required placeholder="Confirmar Contraseña" class="w-full px-4 py-3 bg-slate-900 border-slate-700 rounded-lg pr-10 text-white"><button type="button" class="toggle-password absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400"><i data-lucide="eye" class="h-5 w-5"></i></button></div>
                         <p id="register-error" class="text-red-500 text-sm text-center h-5"></p><button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 !mt-6">Crear Cuenta</button>
@@ -104,6 +110,10 @@
                 <section>
                     <p class="text-slate-400 text-lg">Hola,</p><div class="flex items-baseline space-x-2"><h1 id="user-name-display" class="text-3xl font-bold text-white"></h1><span id="user-box-display" class="font-mono text-lg text-blue-500"></span></div>
                 </section>
+                <section id="ios-install-prompt" class="hidden bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl text-center">
+                    <h3 class="font-bold text-white mb-2">Instala la App en tu iPhone</h3><p class="text-sm text-blue-200">Para la mejor experiencia, sigue estos pasos:</p>
+                    <div class="flex justify-center items-center gap-4 mt-3 text-sm text-white"><span>1. Toca <i data-lucide="share" class="inline-block h-5 w-5 align-middle"></i></span><span>2. Elige "Agregar a inicio" <i data-lucide="plus-square" class="inline-block h-5 w-5 align-middle"></i></span></div>
+                </section>
                 <section><div class="grid grid-cols-3 gap-4">
                     <a href="#" data-target="page-paquetes" class="nav-link text-center p-2 flex flex-col items-center group no-underline"><div class="bg-slate-800 border border-slate-700 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-yellow-400"><i data-lucide="package" class="text-yellow-500 h-7 w-7 group-hover:text-white"></i></div><span class="font-medium text-xs mt-2 text-slate-300">Paquetes</span></a>
                     <a href="#" data-target="page-casillero" class="nav-link text-center p-2 flex flex-col items-center group no-underline"><div class="bg-slate-800 border border-slate-700 rounded-full h-16 w-16 flex items-center justify-center group-hover:bg-green-500"><i data-lucide="archive" class="text-green-500 h-7 w-7 group-hover:text-white"></i></div><span class="font-medium text-xs mt-2 text-slate-300">Direcciones</span></a>
@@ -116,7 +126,7 @@
                         <a href="cotizar.html" class="p-4 flex items-center space-x-4 hover:bg-slate-700/50 no-underline"><i data-lucide="calculator" class="text-purple-500"></i><span class="font-semibold text-slate-300">Cotizar Compra</span></a>
                         <a href="wallet.html" class="p-4 flex items-center space-x-4 hover:bg-slate-700/50 no-underline"><i data-lucide="wallet" class="text-green-500"></i><span class="font-semibold text-slate-300">Mi Billetera (Saldos)</span></a>
                         <a href="tarjetas.html" class="p-4 flex items-center space-x-4 hover:bg-slate-700/50 no-underline"><i data-lucide="credit-card" class="text-indigo-500"></i><span class="font-semibold text-slate-300">Comprar Libras y Recargas</span></a>
-                        <a href="pick_go.html" class="p-4 flex items-center space-x-4 hover:bg-slate-700/50 no-underline"><i data-lucide="qr-code" class="text-teal-500"></i><span class="font-semibold text-slate-300">Mis Retiros Pick & Go</span></a>
+                        <a href="pick_go.html" class="p-4 flex items-center space-x-4 hover:bg-slate-700/50 no-underline"><i data-lucide="qr-code" class="text-teal-500"></i><span class="font-semibold text-slate-300">Pick & Go (Retiro Rápido)</span></a>
                         <a href="malidentificados.html" class="p-4 flex items-center space-x-4 hover:bg-slate-700/50 no-underline"><i data-lucide="alert-triangle" class="text-yellow-500"></i><span class="font-semibold text-slate-300">Paquete Mal Identificado</span></a>
                     </div>
                 </section>
@@ -131,7 +141,12 @@
                     <div><label class="text-sm font-medium text-slate-400">Número de Casillero</label><p id="profile-box" class="mt-1 p-3 bg-slate-800 border border-slate-700 rounded-lg"></p></div>
                     <div><label class="text-sm font-medium text-slate-400">Email</label><p id="profile-email" class="mt-1 p-3 bg-slate-800 border border-slate-700 rounded-lg"></p></div>
                     <div><label for="profile-phone" class="text-sm font-medium text-slate-400">Teléfono / WhatsApp</label><input id="profile-phone" type="tel" class="w-full mt-1 p-3 bg-slate-800 border border-slate-700 rounded-lg"></div>
-                    <div><label for="profile-address" class="text-sm font-medium text-slate-400">Dirección</label><input id="profile-address" type="text" placeholder="Ingresa tu dirección" class="w-full mt-1 p-3 bg-slate-800 border border-slate-700 rounded-lg"></div>
+                    
+                    <div>
+                        <label for="profile-address" class="text-sm font-medium text-slate-400">Dirección</label>
+                        <input id="profile-address" type="text" placeholder="Ingresa tu dirección" class="w-full mt-1 p-3 bg-slate-800 border border-slate-700 rounded-lg">
+                    </div>
+
                     <div><label for="profile-sucursal" class="text-sm font-medium text-slate-400">Sucursal Preferida</label><select id="profile-sucursal" class="w-full mt-1 p-3 bg-slate-800 border border-slate-700 rounded-lg appearance-none"></select></div>
                     <p id="profile-message" class="text-sm text-center h-5"></p>
                     <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 !mt-8">Guardar Cambios</button>
@@ -139,66 +154,18 @@
             </main>
         </div>
 
-        <div id="page-paquetes" class="page">
-            <header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-slate-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mis Paquetes</h1></header>
-            <main class="px-6 pb-24 space-y-6">
-                <section class="space-y-4">
-                    <div class="bg-green-500/10 border border-green-500/50 p-4 rounded-xl text-center"><p class="text-sm font-semibold text-green-300">EN SUCURSAL</p><div class="flex items-baseline justify-center space-x-3 mt-1"><span id="summary-sucursal" class="text-3xl font-bold text-white">0</span><span>Paquetes</span></div><p id="summary-saldo" class="text-lg font-semibold text-green-300 font-mono mt-1">$0.00</p></div>
-                    <div class="grid grid-cols-2 gap-4"><div class="bg-slate-800 border border-slate-700 p-4 rounded-xl text-center"><p class="text-xs font-medium text-yellow-300">EN TRÁNSITO</p><p id="summary-transito" class="text-2xl font-bold text-white mt-1">0</p></div><div class="bg-slate-800 border border-slate-700 p-4 rounded-xl text-center"><p class="text-xs font-medium text-slate-400">ENTREGADOS</p><p id="summary-entregado" class="text-2xl font-bold text-white mt-1">0</p></div></div>
-                </section>
-                <section class="space-y-4">
-                    <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl text-center">
-                        <p class="text-sm font-semibold text-green-400">SALDO DISPONIBLE EN BILLETERA</p>
-                        <p id="saldo-billetera-paquetes" class="text-3xl font-bold text-white font-mono mt-1">$0.00</p>
-                    </div>
-                    <div id="payment-summary-paquetes" class="hidden mt-6 space-y-4">
-                        <div class="bg-slate-800/50 p-4 rounded-xl">
-                            <h3 class="text-base font-semibold text-white mb-3">Resumen de Pago</h3>
-                            <div class="space-y-2 text-sm">
-                                <div class="flex justify-between"><span class="text-slate-400">Costo de paquetes:</span><span id="summary-packages-cost-paquetes" class="font-mono text-white">$0.00</span></div>
-                                <div class="flex justify-between"><span class="text-slate-400">Servicio Pick & Go:</span><span class="font-mono text-white">$1.00</span></div>
-                                <hr class="border-slate-700 my-2">
-                                <div class="flex justify-between font-bold text-base"><span class="text-white">Total a Pagar:</span><span id="summary-total-cost-paquetes" class="font-mono text-indigo-400">$0.00</span></div>
-                            </div>
-                        </div>
-                        <button id="pay-button-paquetes" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-indigo-700 disabled:bg-slate-500">
-                            Pagar con Saldo y Generar QR
-                        </button>
-                    </div>
-                </section>
-                <section>
-                    <h2 class="text-lg font-semibold text-white mb-3">Historial de Paquetes</h2>
-                    <div id="paquetes-list-container" class="space-y-4"></div>
-                </section>
-            </main>
-        </div>
-        
+        <div id="page-paquetes" class="page"><header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-slate-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mis Paquetes</h1></header><main class="px-6 pb-24 space-y-6"><section class="space-y-4"><div class="bg-green-500/10 border border-green-500/50 p-4 rounded-xl text-center"><p class="text-sm font-semibold text-green-300">EN SUCURSAL</p><div class="flex items-baseline justify-center space-x-3 mt-1"><span id="summary-sucursal" class="text-3xl font-bold text-white">0</span><span>Paquetes</span></div><p id="summary-saldo" class="text-lg font-semibold text-green-300 font-mono mt-1">$0.00</p></div><div class="grid grid-cols-2 gap-4"><div class="bg-slate-800 border border-slate-700 p-4 rounded-xl text-center"><p class="text-xs font-medium text-yellow-300">EN TRÁNSITO</p><p id="summary-transito" class="text-2xl font-bold text-white mt-1">0</p></div><div class="bg-slate-800 border border-slate-700 p-4 rounded-xl text-center"><p class="text-xs font-medium text-slate-400">ENTREGADOS</p><p id="summary-entregado" class="text-2xl font-bold text-white mt-1">0</p></div></div></section><section><h2 class="text-lg font-semibold text-white mb-3">Historial</h2><div id="paquetes-list-container" class="space-y-4"></div></section></main></div>
         <div id="page-facturas" class="page"><header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-slate-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mis Facturas</h1></header><main class="px-6 pb-24 space-y-6"><div id="facturas-list-container" class="space-y-4"></div></main></div>
         <div id="page-casillero" class="page"><header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-slate-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Mis Direcciones</h1></header><main id="direcciones-content" class="px-6 pb-24 space-y-6"></main></div>
         <div id="page-notificaciones" class="page"><header class="p-6 flex items-center space-x-4"><a href="#" data-target="page-home" class="nav-link text-slate-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a><h1 class="text-xl font-bold text-white">Notificaciones</h1></header><main class="px-6 pb-24"><div id="notificaciones-list-container" class="space-y-4"></div></main></div>
     </div>
-    
-    <div id="qr-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl text-center p-6">
-            <h2 class="text-xl font-bold text-slate-800 mb-2">¡Pago Exitoso!</h2>
-            <p class="text-slate-600 mb-4">Muestra este código QR para retirar tus paquetes.</p>
-            <div id="qrcode-modal" class="flex justify-center items-center"></div>
-            <p id="retiro-id-modal" class="font-mono text-xs text-slate-500 mt-4"></p>
-            <button id="close-qr-modal-btn" class="mt-6 w-full bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-md hover:bg-slate-300">Cerrar</button>
-        </div>
-    </div>
+    <div id="factura-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-2xl shadow-xl max-h-[90vh] flex flex-col"><header class="p-4 flex items-center justify-between border-b border-slate-700"><h2 class="text-lg font-semibold text-white">Detalle de Factura</h2><div class="flex items-center gap-4"><button id="print-factura-btn" class="text-slate-400 hover:text-white"><i data-lucide="printer"></i></button><button id="close-factura-modal-btn" class="text-slate-400 hover:text-white"><i data-lucide="x"></i></button></div></header><main id="factura-modal-content" class="p-6 overflow-y-auto text-black"></main></div></div>
 
-    <div id="factura-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50"><div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-2xl shadow-xl max-h-[90vh] flex flex-col"><header class="p-4 flex items-center justify-between border-b border-slate-700"><h2 class="text-lg font-semibold text-white">Detalle de Factura</h2><div class="flex items-center gap-4"><button id="print-factura-btn" class="text-slate-400 hover:text-white"><i data-lucide="printer"></i></button><button id="close-factura-modal-btn" class="text-slate-400 hover:text-white"><i data-lucide="x"></i></button></div></header><main id="factura-modal-content" class="p-6 overflow-y-auto"></main></div></div>
-    
     <script type="module">
         const { createClient } = supabase;
         const supabaseClient = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
         let currentUserProfile = null;
-        let allUserPackages = [];
-        let selectedPackageIds = [];
-        const PICKGO_COST = 1.00;
 
-        // --- DOM Element References ---
         const authContainer = document.getElementById('auth-container');
         const appContainer = document.getElementById('app-container');
         const allPages = document.querySelectorAll('.page');
@@ -206,11 +173,7 @@
         const logoutButton = document.getElementById('logout-button');
         const userNameDisplay = document.getElementById('user-name-display');
         const userBoxDisplay = document.getElementById('user-box-display');
-        const qrModal = document.getElementById('qr-modal');
-        const facturaModal = document.getElementById('factura-modal');
-        const facturaModalContent = document.getElementById('factura-modal-content');
         
-        // --- Page Navigation ---
         const showPage = (pageId) => {
             allPages.forEach(p => p.classList.remove('active'));
             const targetPage = document.getElementById(pageId);
@@ -228,16 +191,10 @@
         };
 
         const formatDate = (dateStr) => dateStr ? new Date(dateStr).toLocaleDateString('es-PA', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
-        
-        // --- Auth State & UI Management ---
-        const showAuth = () => { 
-            authContainer.style.display = 'block'; 
-            appContainer.classList.add('hidden'); 
-            showPage('page-login'); 
-        };
 
+        const showAuth = () => { authContainer.style.display = 'block'; appContainer.classList.add('hidden'); showPage('page-login'); };
         const showApp = async (user) => {
-            const { data } = await supabaseClient.from('clientes').select('id, nombre, box, saldo_a_favor, tarifa_1').eq('user_id', user.id).single();
+            const { data } = await supabaseClient.from('clientes').select('nombre, box, tarifa_1').eq('user_id', user.id).single();
             if (data) currentUserProfile = data;
             
             userNameDisplay.textContent = currentUserProfile?.nombre || 'Usuario';
@@ -247,16 +204,17 @@
             appContainer.classList.remove('hidden');
             showPage('page-home');
             await actualizarContadorNotificaciones();
+            
+            const iosInstallPrompt = document.getElementById('ios-install-prompt');
+            const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+            if (iosInstallPrompt && isIOS() && !isInStandaloneMode()) {
+                iosInstallPrompt.classList.remove('hidden');
+                lucide.createIcons();
+            }
         };
 
-        // --- Auth Functions ---
-        const handleLogin = async (e) => { 
-            e.preventDefault(); 
-            const email = document.getElementById('login-email').value; 
-            const password = document.getElementById('login-password').value; 
-            const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); 
-            document.getElementById('login-error').textContent = error ? 'Email o contraseña incorrectos.' : ''; 
-        };
+        const handleLogin = async (e) => { e.preventDefault(); const email = document.getElementById('login-email').value; const password = document.getElementById('login-password').value; const { error } = await supabaseClient.auth.signInWithPassword({ email, password }); document.getElementById('login-error').textContent = error ? 'Email o contraseña incorrectos.' : ''; };
         
         const handleRegister = async (e) => { 
             e.preventDefault(); 
@@ -284,6 +242,7 @@
                 whatsapp: document.getElementById('register-whatsapp').value,
                 fecha_nac: document.getElementById('register-dob').value,
                 sucursal: document.getElementById('register-sucursal').value,
+                promo_code: document.getElementById('register-promo').value || null,
                 password: password,
             };
 
@@ -306,35 +265,12 @@
 
         const handleLogout = () => supabaseClient.auth.signOut();
         
-        // --- Data Loading Functions ---
-        const loadSucursales = async (selectElementId) => { 
-            const selectEl = document.getElementById(selectElementId); 
-            const { data } = await supabaseClient.from('sucursales').select('sucursal').order('sucursal'); 
-            if (data) selectEl.innerHTML = '<option value="">Selecciona sucursal</option>' + data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join(''); 
-        };
+        const loadSucursales = async (selectElementId) => { const selectEl = document.getElementById(selectElementId); const { data } = await supabaseClient.from('sucursales').select('sucursal').order('sucursal'); if (data) selectEl.innerHTML = '<option value="">Selecciona sucursal</option>' + data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join(''); };
+        const loadPaquetes = async () => { const container = document.getElementById('paquetes-list-container'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; const { data: paquetes } = await supabaseClient.from('paquetes').select('*').eq('cliente_box', currentUserProfile.box).order('created_at', { ascending: false }); const tarifaCliente = currentUserProfile?.tarifa_1 || 4.00; let statusCount = { 'En transito': 0, 'En Sucursal': 0, 'Entregado': 0 }; let saldoEnSucursal = 0; if (paquetes) { paquetes.forEach(p => { if (p.status in statusCount) statusCount[p.status]++; if (p.status === 'En Sucursal') saldoEnSucursal += (p.peso || 0) * tarifaCliente; }); } document.getElementById('summary-transito').textContent = statusCount['En transito']; document.getElementById('summary-sucursal').textContent = statusCount['En Sucursal']; document.getElementById('summary-entregado').textContent = statusCount['Entregado']; document.getElementById('summary-saldo').textContent = `$${saldoEnSucursal.toFixed(2)}`; if (!paquetes || !paquetes.length) { container.innerHTML = `<div class="text-center p-8"><i data-lucide="package-search" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes paquetes.</p></div>`; } else { const statusBadge = (s) => ({ 'En transito': 'bg-yellow-500/20 text-yellow-300', 'En Sucursal': 'bg-green-500/20 text-green-300', 'Entregado': 'bg-slate-500/20 text-slate-400' }[s] || 'bg-slate-700'); container.innerHTML = paquetes.map(p => `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div class="flex justify-between items-center mb-2"><p class="font-mono font-semibold text-white">${p.tracking}</p><span class="text-xs font-bold px-2 py-1 rounded-full ${statusBadge(p.status)}">${p.status || 'N/A'}</span></div><div class="text-sm text-slate-400 flex justify-between"><span>Recibido: ${formatDate(p.fecha_bodega).split(',')[0]}</span><span>${p.peso ? p.peso.toFixed(2) + ' lbs' : ''}</span></div></div>`).join(''); } lucide.createIcons(); };
+        const loadFacturas = async () => { const container = document.getElementById('facturas-list-container'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; if (!currentUserProfile?.box) { container.innerHTML = `<p class="text-red-500 text-center">Casillero no encontrado.</p>`; return; } const { data, error } = await supabaseClient.from('facturas').select('id, created_at, monto_total, html_recibo').eq('cliente_box', currentUserProfile.box).order('created_at', { ascending: false }); if (error) { container.innerHTML = `<p class="text-red-500 text-center">Error al cargar facturas.</p>`; return; } if (!data.length) { container.innerHTML = `<div class="text-center p-8"><i data-lucide="receipt" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes facturas.</p></div>`; lucide.createIcons(); return; } container.innerHTML = data.map(f => `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div class="flex justify-between items-center"><div><p class="font-bold text-lg font-mono text-white">$${(f.monto_total || 0).toFixed(2)}</p><p class="text-xs text-slate-400">Factura #${f.id.substring(0, 8).toUpperCase()}</p><p class="text-xs text-slate-500 mt-1">${formatDate(f.created_at)}</p></div>${f.html_recibo ? `<button data-factura-id="${f.id}" class="view-receipt-btn bg-blue-600 text-white font-semibold text-xs px-3 py-1.5 rounded-md hover:bg-blue-700">Ver Recibo</button>` : ''}</div></div>`).join(''); };
+        const initializeDireccionesPage = async () => { const container = document.getElementById('direcciones-content'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; const { data: userInfo } = await supabaseClient.rpc('get_direcciones_casillero'); if (!userInfo) { container.innerHTML = `<p class="text-red-500 text-center">No se pudo cargar tu información.</p>`; return; } const { nombre, box, codigo_sucursal } = userInfo; const nombreLinea1 = `${codigo_sucursal || 'PSC'}${box || ''} ${nombre || ''}`; const renderAddressCard = (addr) => { let copyIdCounter = Math.random().toString(36).substring(7); return `<section><h2 class="text-base font-semibold text-white mb-3">${addr.titulo}</h2>${addr.nota ? `<p class="text-xs text-yellow-500 bg-yellow-500/10 p-2 rounded-md mb-3">${addr.nota}</p>` : ''}<div class="bg-slate-800 border border-slate-700 rounded-xl divide-y divide-slate-700">${addr.datos.map((item, index) => { const uniqueId = `copy-${copyIdCounter}-${index}`; return `<div class="px-3 py-2 flex justify-between items-center"><div><p class="text-xs text-slate-400">${item.label}:</p><p class="text-sm font-mono text-white" id="${uniqueId}">${item.value}</p></div><button class="copy-btn p-2 rounded-lg hover:bg-slate-700" data-target="${uniqueId}"><i data-lucide="copy" class="h-4 w-4 text-slate-400"></i></button></div>`; }).join('')}</div></section>`; }; container.innerHTML = `${renderAddressCard({ titulo: 'Bodega Principal (Aéreo)', datos: [ { label: 'Nombre', value: nombreLinea1 }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })} ${renderAddressCard({ titulo: 'Dirección Marítima', datos: [ { label: 'Nombre', value: `OCEAN ${nombreLinea1}` }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })}`; container.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', () => { navigator.clipboard.writeText(document.getElementById(btn.dataset.target).innerText).then(() => { btn.innerHTML = '<i data-lucide="check" class="h-4 w-4 text-green-500"></i>'; setTimeout(() => { btn.innerHTML = '<i data-lucide="copy" class="h-4 w-4 text-slate-400"></i>'; lucide.createIcons(); }, 2000); lucide.createIcons(); }); })); lucide.createIcons(); };
         
-        const loadFacturas = async () => { 
-            const container = document.getElementById('facturas-list-container'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; if (!currentUserProfile?.box) { container.innerHTML = `<p class="text-red-500 text-center">Casillero no encontrado.</p>`; return; } const { data, error } = await supabaseClient.from('facturas').select('id, created_at, monto_total, html_recibo').eq('cliente_box', currentUserProfile.box).order('created_at', { ascending: false }); if (error) { container.innerHTML = `<p class="text-red-500 text-center">Error al cargar facturas.</p>`; return; } if (!data.length) { container.innerHTML = `<div class="text-center p-8"><i data-lucide="receipt" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes facturas.</p></div>`; lucide.createIcons(); return; } container.innerHTML = data.map(f => `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><div class="flex justify-between items-center"><div><p class="font-bold text-lg font-mono text-white">$${(f.monto_total || 0).toFixed(2)}</p><p class="text-xs text-slate-400">Factura #${f.id.substring(0, 8).toUpperCase()}</p><p class="text-xs text-slate-500 mt-1">${formatDate(f.created_at)}</p></div>${f.html_recibo ? `<button data-factura-id="${f.id}" class="view-receipt-btn bg-blue-600 text-white font-semibold text-xs px-3 py-1.5 rounded-md hover:bg-blue-700">Ver Recibo</button>` : ''}</div></div>`).join(''); };
-        
-        const initializeDireccionesPage = async () => {
-            const container = document.getElementById('direcciones-content');
-            container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
-            const { data: userInfo } = await supabaseClient.rpc('get_direcciones_casillero');
-            if (!userInfo) {
-                container.innerHTML = `<p class="text-red-500 text-center">No se pudo cargar tu información.</p>`;
-                return;
-            }
-            const { nombre, box, codigo_sucursal } = userInfo;
-            const nombreLinea1 = `${codigo_sucursal || 'PSC'}${box || ''} ${nombre || ''}`;
-            const renderAddressCard = (addr) => {
-                let copyIdCounter = Math.random().toString(36).substring(7);
-                return `<section><h2 class="text-base font-semibold text-white mb-3">${addr.titulo}</h2>${addr.nota ? `<p class="text-xs text-yellow-500 bg-yellow-500/10 p-2 rounded-md mb-3">${addr.nota}</p>` : ''}<div class="bg-slate-800 border border-slate-700 rounded-xl divide-y divide-slate-700">${addr.datos.map((item, index) => { const uniqueId = `copy-${copyIdCounter}-${index}`; return `<div class="px-3 py-2 flex justify-between items-center"><div><p class="text-xs text-slate-400">${item.label}:</p><p class="text-sm font-mono text-white" id="${uniqueId}">${item.value}</p></div><button class="copy-btn p-2 rounded-lg hover:bg-slate-700" data-target="${uniqueId}"><i data-lucide="copy" class="h-4 w-4 text-slate-400"></i></button></div>`; }).join('')}</div></section>`;
-            };
-            container.innerHTML = `${renderAddressCard({ titulo: 'Bodega Principal (Aéreo)', datos: [ { label: 'Nombre', value: nombreLinea1 }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })} ${renderAddressCard({ titulo: 'Dirección Marítima', datos: [ { label: 'Nombre', value: `OCEAN ${nombreLinea1}` }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })}`;
-            container.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', () => { navigator.clipboard.writeText(document.getElementById(btn.dataset.target).innerText).then(() => { btn.innerHTML = '<i data-lucide="check" class="h-4 w-4 text-green-500"></i>'; setTimeout(() => { btn.innerHTML = '<i data-lucide="copy" class="h-4 w-4 text-slate-400"></i>'; lucide.createIcons(); }, 2000); lucide.createIcons(); }); }));
-            lucide.createIcons();
-        };
-        
+        // CAMBIO: Cargar también la dirección
         const loadProfileData = async () => {
             const { data: { user } } = await supabaseClient.auth.getUser();
             const { data: profile } = await supabaseClient.from('clientes').select('nombre, box, telefono, sucursal, direccion').eq('user_id', user.id).single();
@@ -342,11 +278,12 @@
             document.getElementById('profile-box').textContent = profile?.box || '';
             document.getElementById('profile-email').textContent = user.email;
             document.getElementById('profile-phone').value = profile?.telefono || '';
-            document.getElementById('profile-address').value = profile?.direccion || '';
+            document.getElementById('profile-address').value = profile?.direccion || ''; // <-- NUEVO
             await loadSucursales('profile-sucursal');
             document.getElementById('profile-sucursal').value = profile?.sucursal || '';
         };
 
+        // CAMBIO: Guardar también la dirección
         const handleProfileUpdate = async (e) => {
             e.preventDefault();
             const msgEl = document.getElementById('profile-message');
@@ -356,7 +293,7 @@
             const { error } = await supabaseClient.from('clientes').update({ 
                 telefono: document.getElementById('profile-phone').value, 
                 sucursal: document.getElementById('profile-sucursal').value,
-                direccion: document.getElementById('profile-address').value
+                direccion: document.getElementById('profile-address').value // <-- NUEVO
             }).eq('user_id', user.id);
             if(error){
                 msgEl.textContent = 'Error al actualizar.';
@@ -366,212 +303,69 @@
                 msgEl.classList.add('text-green-500');
             }
         };
-
+        
         const loadNotificaciones = async () => { const container = document.getElementById('notificaciones-list-container'); container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`; const { data: notificaciones, error } = await supabaseClient.rpc('get_my_notifications'); if (error) { container.innerHTML = `<p class="text-red-500 text-center">Error al cargar notificaciones.</p>`; return; } if (!notificaciones || !notificaciones.length) { container.innerHTML = `<div class="text-center p-8"><i data-lucide="bell-off" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes notificaciones.</p></div>`; } else { container.innerHTML = notificaciones.map(n => `<div class="bg-slate-800 border border-slate-700 p-4 rounded-xl"><p class="text-white">${n.mensaje}</p><p class="text-xs text-slate-500 text-right mt-2">${formatDate(n.created_at)}</p></div>`).join(''); } lucide.createIcons(); };
         const actualizarContadorNotificaciones = async () => { const badge = document.getElementById('notification-badge'); const iconLink = document.getElementById('notification-link'); if (!badge || !iconLink) return; const { data: count, error } = await supabaseClient.rpc('get_unread_notification_count'); if (error || count === 0) { badge.classList.add('hidden'); badge.textContent = ''; iconLink.classList.remove('anim-tiembla'); } else { badge.textContent = count > 9 ? '9+' : count; badge.classList.remove('hidden'); iconLink.classList.add('anim-tiembla'); setTimeout(() => { iconLink.classList.remove('anim-tiembla'); }, 600); } };
         const marcarNotificacionesComoLeidas = async () => { const { data: { user } } = await supabaseClient.auth.getUser(); if (!user) return; const { error } = await supabaseClient.from('notificaciones_pendientes').update({ leido: true }).eq('cliente_id', user.id).eq('leido', false); if (!error) { document.getElementById('notification-badge').classList.add('hidden'); } };
-
-        // --- Package & Payment Logic ---
-        const loadPaquetes = async () => {
-            const container = document.getElementById('paquetes-list-container');
-            container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
-            document.getElementById('saldo-billetera-paquetes').textContent = `$${(currentUserProfile.saldo_a_favor || 0).toFixed(2)}`;
-
-            const { data: paquetes, error } = await supabaseClient.from('paquetes').select('*').eq('cliente_box', currentUserProfile.box).order('created_at', { ascending: false });
-            
-            if (error) {
-                 container.innerHTML = `<p class="text-red-500 text-center">Error al cargar paquetes.</p>`;
-                 return;
-            }
-            allUserPackages = paquetes;
-            selectedPackageIds = [];
-            
-            const tarifaCliente = currentUserProfile?.tarifa_1 || 4.00;
-            let statusCount = { 'En transito': 0, 'En Sucursal': 0, 'Entregado': 0, 'Pagado (sin entregar)': 0 };
-            let saldoEnSucursal = 0;
-            if (paquetes) {
-                paquetes.forEach(p => {
-                    if (p.status in statusCount) statusCount[p.status]++;
-                    if (p.status === 'En Sucursal') saldoEnSucursal += (p.peso || 0) * tarifaCliente;
-                });
-            }
-            document.getElementById('summary-transito').textContent = statusCount['En transito'];
-            document.getElementById('summary-sucursal').textContent = statusCount['En Sucursal'];
-            document.getElementById('summary-entregado').textContent = statusCount['Entregado'] + statusCount['Pagado (sin entregar)'];
-            document.getElementById('summary-saldo').textContent = `$${saldoEnSucursal.toFixed(2)}`;
-
-            renderPaquetes(tarifaCliente);
-            updatePaymentSummary();
-        };
-
-        function renderPaquetes(tarifaCliente) {
-            const container = document.getElementById('paquetes-list-container');
-            if (!allUserPackages || allUserPackages.length === 0) {
-                container.innerHTML = `<div class="text-center p-8"><i data-lucide="package-search" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes paquetes.</p></div>`;
-                lucide.createIcons();
-                return;
-            }
-
-            const statusBadge = (s) => ({ 'En transito': 'bg-yellow-500/20 text-yellow-300', 'En Sucursal': 'bg-green-500/20 text-green-300', 'Pagado (sin entregar)': 'bg-blue-500/20 text-blue-300', 'Entregado': 'bg-slate-500/20 text-slate-400' }[s] || 'bg-slate-700');
-            
-            container.innerHTML = allUserPackages.map(p => {
-                const isSelectable = p.status === 'En Sucursal';
-                const costoCalculado = (p.peso || 0) * tarifaCliente;
-
-                return `
-                <div class="package-item bg-slate-800 border border-slate-700 p-4 rounded-xl flex justify-between items-center ${isSelectable ? 'cursor-pointer' : 'opacity-60'}" data-id="${p.id}" data-cost="${costoCalculado}">
-                    <div class="flex items-center gap-4 min-w-0">
-                        ${isSelectable ? `
-                            <div class="package-checkbox pointer-events-none h-6 w-6 rounded-full border-2 border-slate-500 bg-slate-900 flex items-center justify-center flex-shrink-0">
-                                <i data-lucide="check" class="h-4 w-4 text-white opacity-0 transition"></i>
-                            </div>` : `<div class="h-6 w-6 flex-shrink-0"></div>`}
-                        <div class="min-w-0">
-                            <p class="font-mono font-semibold text-white text-sm truncate">${p.tracking}</p>
-                            <p class="text-xs text-slate-400">${p.peso ? p.peso.toFixed(2) + ' lbs' : 'Sin peso'}</p>
-                        </div>
-                    </div>
-                    <div class="text-right flex items-center gap-4 flex-shrink-0">
-                        <p class="text-white font-semibold font-mono text-lg">$${costoCalculado.toFixed(2)}</p>
-                        <span class="text-xs font-bold px-2 py-1 rounded-full ${statusBadge(p.status)}">${p.status || 'N/A'}</span>
-                    </div>
-                </div>`;
-            }).join('');
-            lucide.createIcons();
-        }
+        function urlBase64ToUint8Array(base64String) { const padding = '='.repeat((4 - base64String.length % 4) % 4); const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/'); const rawData = window.atob(base64); const outputArray = new Uint8Array(rawData.length); for (let i = 0; i < rawData.length; ++i) { outputArray[i] = rawData.charCodeAt(i); } return outputArray; }
+        async function subscribeToPushNotifications() { console.group("Proceso de Suscripción a Notificaciones Push"); try { console.log("1. Pidiendo permiso al usuario..."); const permission = await Notification.requestPermission(); if (permission !== 'granted') { console.warn("Permiso denegado por el usuario."); console.groupEnd(); return; } console.log("-> Permiso concedido."); console.log("2. Obteniendo registro del Service Worker..."); const registration = await navigator.serviceWorker.ready; console.log("-> Service Worker listo.", registration); console.log("3. Obteniendo VAPID Public Key de la base de datos..."); const { data: vapid_public_key, error: rpcError } = await supabaseClient.rpc('get_vapid_public_key'); if (rpcError || !vapid_public_key) { console.error("ERROR FATAL: No se pudo obtener la VAPID public key usando la función RPC.", rpcError); console.groupEnd(); return; } console.log("-> VAPID Key obtenida:", vapid_public_key); console.log("4. Solicitando suscripción al Push Manager..."); const subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(vapid_public_key) }); console.log("-> Suscripción obtenida del navegador:", subscription); console.log("5. Guardando suscripción en Supabase..."); const { data: { user } } = await supabaseClient.auth.getUser(); if (user) { const { error: saveError } = await supabaseClient.from('push_subscriptions').upsert({ user_id: user.id, subscription_details: subscription.toJSON() }, { onConflict: 'user_id' }); if(saveError) { console.error("ERROR FATAL: No se pudo guardar la suscripción en la BD.", saveError); } else { console.log("-> ¡ÉXITO! Suscripción guardada en la base de datos."); } } else { console.warn("No hay un usuario logueado para guardar la suscripción."); } } catch (error) { console.error("ERROR INESPERADO en el proceso de suscripción:", error); } console.groupEnd(); }
         
-        function handlePackageSelection(e) {
-            const packageItem = e.target.closest('.package-item');
-            if (!packageItem || packageItem.classList.contains('opacity-60')) return;
-
-            const packageId = packageItem.dataset.id;
-            const checkbox = packageItem.querySelector('.package-checkbox');
-            const index = selectedPackageIds.indexOf(packageId);
-
-            if (index > -1) {
-                selectedPackageIds.splice(index, 1);
-                checkbox.classList.remove('package-checkbox-selected');
-            } else {
-                selectedPackageIds.push(packageId);
-                checkbox.classList.add('package-checkbox-selected');
-            }
-            updatePaymentSummary();
-        }
-
-        function updatePaymentSummary() {
-            const paymentSummaryEl = document.getElementById('payment-summary-paquetes');
-            if (selectedPackageIds.length === 0) {
-                paymentSummaryEl.classList.add('hidden');
-                return;
-            }
-
-            const selectedPackages = allUserPackages.filter(p => selectedPackageIds.includes(p.id));
-            const packagesCost = selectedPackages.reduce((sum, p) => sum + ((p.peso || 0) * (currentUserProfile?.tarifa_1 || 4.00)), 0);
-            const totalCost = packagesCost + PICKGO_COST;
-
-            document.getElementById('summary-packages-cost-paquetes').textContent = `$${packagesCost.toFixed(2)}`;
-            document.getElementById('summary-total-cost-paquetes').textContent = `$${totalCost.toFixed(2)}`;
-            
-            const payButton = document.getElementById('pay-button-paquetes');
-            payButton.disabled = currentUserProfile.saldo_a_favor < totalCost;
-            paymentSummaryEl.classList.remove('hidden');
-        }
-
-        async function handlePayment() {
-            const payButton = document.getElementById('pay-button-paquetes');
-            payButton.disabled = true;
-            payButton.textContent = 'Procesando...';
-
-            try {
-                const { data: resultado, error } = await supabaseClient.rpc('pagar_paquetes_con_saldo', {
-                    p_paquetes_a_pagar: selectedPackageIds,
-                    p_es_pick_and_go: true 
-                });
-
-                if (error) throw error;
-                
-                showQrModal(resultado);
-                const { data: updatedProfile } = await supabaseClient.from('clientes').select('saldo_a_favor').eq('id', currentUserProfile.id).single();
-                if(updatedProfile) currentUserProfile.saldo_a_favor = updatedProfile.saldo_a_favor;
-
-                await loadPaquetes();
-                
-            } catch (error) {
-                alert(`Error en el pago: ${error.message}`);
-            } finally {
-                payButton.disabled = false;
-                payButton.textContent = 'Pagar con Saldo y Generar QR';
-            }
-        }
-        
-        function showQrModal(retiroId) {
-            const qrCodeEl = document.getElementById('qrcode-modal');
-            qrCodeEl.innerHTML = '';
-            const typeNumber = 4;
-            const errorCorrectionLevel = 'L';
-            const qr = qrcode(typeNumber, errorCorrectionLevel);
-            qr.addData(retiroId);
-            qr.make();
-            qrCodeEl.innerHTML = qr.createImgTag(6, 8);
-            document.getElementById('retiro-id-modal').textContent = `ID de Retiro: ${retiroId}`;
-            qrModal.classList.remove('hidden');
-        }
-
-        // --- Event Listeners Setup ---
         document.getElementById('show-register-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-register'); });
         document.getElementById('show-login-link').addEventListener('click', (e) => { e.preventDefault(); showPage('page-login'); });
         document.getElementById('login-form').addEventListener('submit', handleLogin);
         document.getElementById('register-form').addEventListener('submit', handleRegister);
-        document.getElementById('profile-form').addEventListener('submit', handleProfileUpdate);
         logoutButton.addEventListener('click', handleLogout);
         navLinks.forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); showPage(link.dataset.target); }));
-        document.getElementById('paquetes-list-container').addEventListener('click', handlePackageSelection);
-        document.getElementById('pay-button-paquetes').addEventListener('click', handlePayment);
-        document.getElementById('close-qr-modal-btn').addEventListener('click', () => qrModal.classList.add('hidden'));
+        document.getElementById('profile-form').addEventListener('submit', handleProfileUpdate);
         document.querySelectorAll('.toggle-password').forEach(btn => btn.addEventListener('click', () => { const input = btn.previousElementSibling; input.type = input.type === 'password' ? 'text' : 'password'; }));
         
-        // --- LÓGICA DEL MODAL DE FACTURAS (RESTAURADA) ---
-        appContainer.addEventListener('click', async (e) => {
-            const viewButton = e.target.closest('.view-receipt-btn');
-            if (viewButton) {
-                const facturaId = viewButton.dataset.facturaId;
-                facturaModalContent.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto border-slate-700 border-t-blue-500"></div></div>`;
-                facturaModal.classList.remove('hidden');
-                
-                const { data } = await supabaseClient.from('facturas').select('html_recibo').eq('id', facturaId).single();
-                
-                facturaModalContent.innerHTML = data?.html_recibo || '<p class="text-slate-700">No se encontró el contenido del recibo.</p>';
-            }
+        document.querySelectorAll('input[name="promo-toggle"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const promoInput = document.getElementById('register-promo');
+                if (this.value === 'yes') {
+                    promoInput.classList.remove('hidden');
+                } else {
+                    promoInput.classList.add('hidden');
+                    promoInput.value = '';
+                }
+            });
         });
 
+        const facturaModal = document.getElementById('factura-modal'); const facturaModalContent = document.getElementById('factura-modal-content'); appContainer.addEventListener('click', async (e) => { const viewButton = e.target.closest('.view-receipt-btn'); if (viewButton) { const facturaId = viewButton.dataset.facturaId; facturaModalContent.innerHTML = `<div class="text-center p-8 text-black"><div class="spinner w-8 h-8 mx-auto"></div></div>`; facturaModal.classList.remove('hidden'); const { data } = await supabaseClient.from('facturas').select('html_recibo').eq('id', facturaId).single(); facturaModalContent.innerHTML = data?.html_recibo || '<p class="text-slate-700">No se encontró el contenido del recibo.</p>'; } });
         document.getElementById('close-factura-modal-btn').addEventListener('click', () => facturaModal.classList.add('hidden'));
-        
-        document.getElementById('print-factura-btn').addEventListener('click', () => {
-            const printWindow = window.open('', '', 'height=600,width=800');
-            printWindow.document.write('<html><head><title>Recibo PSC</title>');
-            printWindow.document.write('<style>body{font-family:sans-serif;}</style>');
-            printWindow.document.write('</head><body>');
-            printWindow.document.write(facturaModalContent.innerHTML);
-            printWindow.document.write('</body></html>');
-            printWindow.document.close();
-            printWindow.print();
-        });
+        document.getElementById('print-factura-btn').addEventListener('click', () => { const printWindow = window.open('', '', 'height=600,width=800'); printWindow.document.write('<html><head><title>Recibo</title>'); printWindow.document.write('<style>body{font-family:sans-serif;}</style>'); printWindow.document.write('</head><body>'); printWindow.document.write(facturaModalContent.innerHTML); printWindow.document.write('</body></html>'); printWindow.document.close(); printWindow.print(); });
 
-        // --- App Initialization ---
-        supabaseClient.auth.onAuthStateChange((event, session) => { 
-            if (session) { 
-                showApp(session.user);
-            } else { 
-                currentUserProfile = null; 
-                showAuth();
-            }
-        });
+        supabaseClient.auth.onAuthStateChange((event, session) => { if (session) { showApp(session.user); } else { currentUserProfile = null; showAuth(); } });
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('service-worker.js') .then(function(swReg) { console.log('Service Worker registrado.', swReg); supabaseClient.auth.onAuthStateChange((event, session) => { if (event === 'SIGNED_IN') { setTimeout(subscribeToPushNotifications, 3000); } }); }).catch(function(error) { console.error('Error al registrar el Service Worker.', error); }); }
+        
+        const installPwaBtn = document.getElementById('install-pwa-btn');
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; if (installPwaBtn) { installPwaBtn.classList.remove('hidden'); lucide.createIcons(); } });
+        if (installPwaBtn) { installPwaBtn.addEventListener('click', async () => { if (!deferredPrompt) return; installPwaBtn.classList.add('hidden'); deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; console.log(`Respuesta del usuario: ${outcome}`); deferredPrompt = null; }); }
+        window.addEventListener('appinstalled', () => { if (installPwaBtn) { installPwaBtn.classList.add('hidden'); } deferredPrompt = null; console.log('PWA instalada con éxito.'); });
         
         loadSucursales('register-sucursal');
         lucide.createIcons();
-
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
