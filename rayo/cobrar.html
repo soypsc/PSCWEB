@@ -264,8 +264,6 @@
         lucide.createIcons();
     }
 
-    // --- INICIO DE CAMBIOS ---
-    // Se modifica la función para añadir un botón de eliminar a cada pago.
     function renderPagos() {
         pagosRealizadosList.innerHTML = pagos.map((p, index) => 
             `<div class="flex justify-between items-center bg-emerald-100 p-1 pl-3 rounded-md">
@@ -278,9 +276,8 @@
                 </div>
             </div>`
         ).join('');
-        lucide.createIcons(); // Vuelve a renderizar los íconos de Lucide
+        lucide.createIcons();
     }
-    // --- FIN DE CAMBIOS ---
 
     function renderVerificationList() {
         verificationPanel.classList.remove('hidden');
@@ -481,6 +478,8 @@
         }
     }
     
+    // --- INICIO DE CAMBIOS ---
+    // Se modifica la función para añadir la cantidad de saldo a favor usado en el objeto de pago.
     async function handleApplyCredit() {
         if (!clienteActual || clienteActual.saldo_a_favor <= 0) return;
         const restante = parseFloat(pagoRestanteSpan.textContent.replace('$', ''));
@@ -497,8 +496,13 @@
                 p_monto_a_aplicar: montoAAplicar
             });
             if (error) throw error;
+            
+            // Se actualiza el saldo localmente en la pantalla
             clienteActual.saldo_a_favor = nuevoSaldo;
+            
+            // Se guarda el monto aplicado para poder revertirlo si se elimina
             pagos.push({ metodo: 'Saldo a Favor', monto: montoAAplicar, sucursal: sucursalPagoSelect.value, recibido_por: currentUserId });
+            
             renderPagos();
             calcularTotal();
             creditBalanceSpan.textContent = `$${nuevoSaldo.toFixed(2)}`;
@@ -508,11 +512,13 @@
         } catch (error) {
             alert(`Error al aplicar saldo: ${error.message}`);
         } finally {
-            btnApplyCredit.disabled = false;
+            // El botón se reactiva si se elimina el pago, no aquí.
+            // btnApplyCredit.disabled = false; 
             btnApplyCredit.textContent = "Aplicar Saldo";
         }
     }
     
+    // Se modifica la función para añadir la cantidad de libras usadas en el objeto de pago.
     async function handleAplicarLibras() {
         if (!clienteActual || (clienteActual.saldo_libras || 0) <= 0) return;
         const sucursal = sucursalPagoSelect.value;
@@ -538,7 +544,10 @@
                 p_descripcion: `Consumo en SGL1 por ${librasAConsumir.toFixed(2)} lbs.`
             });
             if (error) throw error;
-            pagos.push({ metodo: 'Saldo de Libras', monto: costoLibras, sucursal: sucursal, recibido_por: currentUserId });
+
+            // Se añade 'libras_consumidas' al objeto para poder revertirlo
+            pagos.push({ metodo: 'Saldo de Libras', monto: costoLibras, sucursal: sucursal, recibido_por: currentUserId, libras_consumidas: librasAConsumir });
+            
             clienteActual.saldo_libras -= librasAConsumir;
             clienteActual.saldo_libras = Math.round(clienteActual.saldo_libras * 100) / 100;
             saldoLibrasDisplay.textContent = `${clienteActual.saldo_libras.toFixed(2)} lbs`;
@@ -552,6 +561,7 @@
         }
     }
     
+    // Se modifica la función para añadir la cantidad de rayitos usados en el objeto de pago.
     async function handleAplicarRayitos() {
         if (!clienteActual || (clienteActual.saldo_rayitos || 0) < CONVERSION_RAYITOS) {
             alert(`El cliente no tiene suficientes rayitos para canjear (mínimo ${CONVERSION_RAYITOS}).`);
@@ -575,7 +585,10 @@
                 p_descripcion: `Canje por ${rayitosACanajear} rayitos en SGL1`
             });
             if (error) throw error;
-            pagos.push({ metodo: 'Rayitos', monto: montoDescuento, sucursal: sucursal, recibido_por: currentUserId });
+
+            // Se añade 'rayitos_canjeados' al objeto para poder revertirlo
+            pagos.push({ metodo: 'Rayitos', monto: montoDescuento, sucursal: sucursal, recibido_por: currentUserId, rayitos_canjeados: rayitosACanajear });
+            
             clienteActual.saldo_rayitos = 0;
             saldoRayitosDisplay.textContent = '0';
             btnAplicarRayitos.disabled = true;
@@ -587,6 +600,7 @@
             alert(`Error al canjear rayitos: ${error.message}`);
         }
     }
+    // --- FIN DE CAMBIOS ---
     
     function calcularTotal() {
         let subtotal=0, descuentoTotalItems=0;
@@ -815,19 +829,38 @@
         });
 
         // --- INICIO DE CAMBIOS ---
-        // Nuevo listener para la lista de pagos para manejar la eliminación
+        // Se añade lógica para revertir saldos al eliminar un pago.
         pagosRealizadosList.addEventListener('click', e => {
             const deleteBtn = e.target.closest('.btn-delete-pago');
             if (deleteBtn) {
                 const index = parseInt(deleteBtn.dataset.index, 10);
-                if (!isNaN(index)) {
-                    // Elimina el pago del array
-                    pagos.splice(index, 1);
-                    // Vuelve a renderizar la lista de pagos
-                    renderPagos();
-                    // Recalcula el total
-                    calcularTotal();
+                if (isNaN(index)) return;
+
+                const pagoAEliminar = pagos[index];
+
+                // Revertir saldos en la pantalla según el tipo de pago
+                switch (pagoAEliminar.metodo) {
+                    case 'Saldo a Favor':
+                        clienteActual.saldo_a_favor += pagoAEliminar.monto;
+                        creditBalanceSpan.textContent = `$${clienteActual.saldo_a_favor.toFixed(2)}`;
+                        creditPanel.classList.remove('hidden');
+                        btnApplyCredit.disabled = false;
+                        break;
+                    case 'Saldo de Libras':
+                        clienteActual.saldo_libras += pagoAEliminar.libras_consumidas;
+                        saldoLibrasDisplay.textContent = `${clienteActual.saldo_libras.toFixed(2)} lbs`;
+                        btnAplicarLibras.disabled = false;
+                        break;
+                    case 'Rayitos':
+                        clienteActual.saldo_rayitos += pagoAEliminar.rayitos_canjeados;
+                        saldoRayitosDisplay.textContent = `${clienteActual.saldo_rayitos}`;
+                        btnAplicarRayitos.disabled = false;
+                        break;
                 }
+
+                pagos.splice(index, 1);
+                renderPagos();
+                calcularTotal();
             }
         });
         // --- FIN DE CAMBIOS ---
