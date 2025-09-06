@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSC App</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PSC App">
+    <link rel="apple-touch-icon" href="https://static.wixstatic.com/media/f7f5e1_45fa790b891a4aa2aec1138028a69d9f~mv2.png">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="config.js"></script>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+    <!-- Contenedor principal que se llenará dinámicamente -->
+    <div id="main-container">
+        <!-- El contenido de login o la app se cargará aquí -->
+    </div>
+    
+    <!-- Scripts principales de la aplicación -->
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="app.js"></script>
+
+</body>
+</html>
