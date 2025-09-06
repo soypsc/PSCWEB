@@ -372,8 +372,7 @@
                 const { error } = await sb.rpc('consumir_libras_paquete', {
                     p_cliente_id: clienteActual.id,
                     p_libras_a_consumir: librasAConsumir,
-                    p_descripcion: `Consumo en SGL1 por ${librasAConsumir.toFixed(2)} lbs.`,
-                    p_sucursal: sucursal
+                    p_descripcion: `Consumo en SGL1 por ${librasAConsumir.toFixed(2)} lbs.`
                 });
                 if (error) throw error;
 
@@ -413,7 +412,7 @@
                 // Lógica de la base de datos para canjear los rayitos
                 const { error } = await sb.rpc('canjear_rayitos', {
                     p_cliente_id: clienteActual.id,
-                    p_rayitos_a_canajear: rayitosACanajear,
+                    p_rayitos_a_canjear: rayitosACanajear,
                     p_descripcion: `Canje por ${rayitosACanajear} rayitos en SGL1`
                 });
                 if (error) throw error;
@@ -465,7 +464,6 @@
             btnCompletarVenta.disabled = true;
             
             const montoTotalFinal = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
-            const { data: { user } } = await sb.auth.getUser();
 
             try {
                 const { data: facturaId, error: ventaError } = await sb.rpc('finalizar_venta', {
@@ -476,7 +474,7 @@
                     p_cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null,
                     p_venta_suspendida_id: ventaSuspendidaActual ? ventaSuspendidaActual.id : null,
                     p_carrito: carrito.map(p=>({id:p.id, tracking:p.tracking, costo_flete:(p.costo_flete||0)+(p.costo_impuestos||0), descuento_porcentaje:p.descuento_porcentaje||0})),
-                    p_pagos: pagos.map(p => ({...p, recibido_por: user.id}))
+                    p_pagos: pagos
                 });
                 if (ventaError) throw ventaError;
 
@@ -688,6 +686,4 @@
             cargarSucursales();
             configurarSucursalPorDefecto();
         });
-    </script>
-</body>
-</html>
+    </script></body></html>
