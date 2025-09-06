@@ -10,33 +10,33 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png",
+      "src": "https://static.wixstatic.com/media/f7f5e1_75732423b7f549b496fae22a94a7ec29~mv2.jpg",
       "sizes": "72x72",
       "type": "image/png"
     },
     {
-      "src": "https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png",
+      "src": "https://static.wixstatic.com/media/f7f5e1_75732423b7f549b496fae22a94a7ec29~mv2.jpg",
       "sizes": "96x96",
       "type": "image/png"
     },
     {
-      "src": "https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png",
+      "src": "https://static.wixstatic.com/media/f7f5e1_75732423b7f549b496fae22a94a7ec29~mv2.jpg",
       "sizes": "128x128",
       "type": "image/png"
     },
     {
-      "src": "https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png",
+      "src": "https://static.wixstatic.com/media/f7f5e1_75732423b7f549b496fae22a94a7ec29~mv2.jpg",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png",
+      "src": "https://static.wixstatic.com/media/f7f5e1_75732423b7f549b496fae22a94a7ec29~mv2.jpg",
       "sizes": "384x384",
       "type": "image/png"
     },
     {
-      "src": "https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png",
+      "src": "https://static.wixstatic.com/media/f7f5e1_75732423b7f549b496fae22a94a7ec29~mv2.jpg",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
