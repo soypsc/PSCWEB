@@ -478,8 +478,6 @@
         }
     }
     
-    // --- INICIO DE CAMBIOS ---
-    // Se modifica la función para añadir la cantidad de saldo a favor usado en el objeto de pago.
     async function handleApplyCredit() {
         if (!clienteActual || clienteActual.saldo_a_favor <= 0) return;
         const restante = parseFloat(pagoRestanteSpan.textContent.replace('$', ''));
@@ -488,37 +486,22 @@
             alert("No hay monto restante que cubrir.");
             return;
         }
-        btnApplyCredit.disabled = true;
-        btnApplyCredit.textContent = "Aplicando...";
-        try {
-            const { data: nuevoSaldo, error } = await sb.rpc('aplicar_saldo_a_favor', {
-                p_cliente_box: clienteActual.box,
-                p_monto_a_aplicar: montoAAplicar
-            });
-            if (error) throw error;
-            
-            // Se actualiza el saldo localmente en la pantalla
-            clienteActual.saldo_a_favor = nuevoSaldo;
-            
-            // Se guarda el monto aplicado para poder revertirlo si se elimina
-            pagos.push({ metodo: 'Saldo a Favor', monto: montoAAplicar, sucursal: sucursalPagoSelect.value, recibido_por: currentUserId });
-            
-            renderPagos();
-            calcularTotal();
-            creditBalanceSpan.textContent = `$${nuevoSaldo.toFixed(2)}`;
-            if (nuevoSaldo <= 0) {
-                creditPanel.classList.add('hidden');
-            }
-        } catch (error) {
-            alert(`Error al aplicar saldo: ${error.message}`);
-        } finally {
-            // El botón se reactiva si se elimina el pago, no aquí.
-            // btnApplyCredit.disabled = false; 
-            btnApplyCredit.textContent = "Aplicar Saldo";
+        
+        // La llamada a la base de datos se elimina de aquí.
+        // Solo se actualiza el estado en la pantalla (localmente).
+        clienteActual.saldo_a_favor -= montoAAplicar;
+        
+        pagos.push({ metodo: 'Saldo a Favor', monto: montoAAplicar, sucursal: sucursalPagoSelect.value, recibido_por: currentUserId });
+        
+        renderPagos();
+        calcularTotal();
+        creditBalanceSpan.textContent = `$${clienteActual.saldo_a_favor.toFixed(2)}`;
+        if (clienteActual.saldo_a_favor.toFixed(2) <= 0) {
+            creditPanel.classList.add('hidden');
         }
+        btnApplyCredit.disabled = true;
     }
     
-    // Se modifica la función para añadir la cantidad de libras usadas en el objeto de pago.
     async function handleAplicarLibras() {
         if (!clienteActual || (clienteActual.saldo_libras || 0) <= 0) return;
         const sucursal = sucursalPagoSelect.value;
@@ -532,36 +515,22 @@
             alert("El cliente no tiene suficientes libras para cubrir el flete.");
             return;
         }
-
         if (!confirm(`¿Desea usar ${librasAConsumir.toFixed(2)} lbs del saldo del cliente para pagar el flete?`)) {
             return;
         }
 
-        try {
-            const { error } = await sb.rpc('consumir_libras_paquete', {
-                p_cliente_id: clienteActual.id,
-                p_libras_a_consumir: librasAConsumir,
-                p_descripcion: `Consumo en SGL1 por ${librasAConsumir.toFixed(2)} lbs.`
-            });
-            if (error) throw error;
+        // La llamada a la base de datos se elimina de aquí.
+        pagos.push({ metodo: 'Saldo de Libras', monto: costoLibras, sucursal: sucursal, recibido_por: currentUserId, libras_consumidas: librasAConsumir });
+        
+        clienteActual.saldo_libras -= librasAConsumir;
+        clienteActual.saldo_libras = Math.round(clienteActual.saldo_libras * 100) / 100;
+        saldoLibrasDisplay.textContent = `${clienteActual.saldo_libras.toFixed(2)} lbs`;
+        btnAplicarLibras.disabled = true;
 
-            // Se añade 'libras_consumidas' al objeto para poder revertirlo
-            pagos.push({ metodo: 'Saldo de Libras', monto: costoLibras, sucursal: sucursal, recibido_por: currentUserId, libras_consumidas: librasAConsumir });
-            
-            clienteActual.saldo_libras -= librasAConsumir;
-            clienteActual.saldo_libras = Math.round(clienteActual.saldo_libras * 100) / 100;
-            saldoLibrasDisplay.textContent = `${clienteActual.saldo_libras.toFixed(2)} lbs`;
-            btnAplicarLibras.disabled = true;
-
-            renderPagos();
-            calcularTotal();
-            alert("Saldo de libras aplicado correctamente.");
-        } catch (error) {
-            alert(`Error al aplicar saldo de libras: ${error.message}`);
-        }
+        renderPagos();
+        calcularTotal();
     }
     
-    // Se modifica la función para añadir la cantidad de rayitos usados en el objeto de pago.
     async function handleAplicarRayitos() {
         if (!clienteActual || (clienteActual.saldo_rayitos || 0) < CONVERSION_RAYITOS) {
             alert(`El cliente no tiene suficientes rayitos para canjear (mínimo ${CONVERSION_RAYITOS}).`);
@@ -578,29 +547,16 @@
             return;
         }
         
-        try {
-            const { error } = await sb.rpc('canjear_rayitos', {
-                p_cliente_id: clienteActual.id,
-                p_rayitos_a_canjear: rayitosACanajear,
-                p_descripcion: `Canje por ${rayitosACanajear} rayitos en SGL1`
-            });
-            if (error) throw error;
+        // La llamada a la base de datos se elimina de aquí.
+        pagos.push({ metodo: 'Rayitos', monto: montoDescuento, sucursal: sucursal, recibido_por: currentUserId, rayitos_canjeados: rayitosACanajear });
+        
+        clienteActual.saldo_rayitos = 0;
+        saldoRayitosDisplay.textContent = '0';
+        btnAplicarRayitos.disabled = true;
 
-            // Se añade 'rayitos_canjeados' al objeto para poder revertirlo
-            pagos.push({ metodo: 'Rayitos', monto: montoDescuento, sucursal: sucursal, recibido_por: currentUserId, rayitos_canjeados: rayitosACanajear });
-            
-            clienteActual.saldo_rayitos = 0;
-            saldoRayitosDisplay.textContent = '0';
-            btnAplicarRayitos.disabled = true;
-
-            renderPagos();
-            calcularTotal();
-            alert("Rayitos canjeados correctamente.");
-        } catch (error) {
-            alert(`Error al canjear rayitos: ${error.message}`);
-        }
+        renderPagos();
+        calcularTotal();
     }
-    // --- FIN DE CAMBIOS ---
     
     function calcularTotal() {
         let subtotal=0, descuentoTotalItems=0;
@@ -828,8 +784,6 @@
             if (discountBtn) handleItemDiscount(discountBtn.dataset.tracking);
         });
 
-        // --- INICIO DE CAMBIOS ---
-        // Se añade lógica para revertir saldos al eliminar un pago.
         pagosRealizadosList.addEventListener('click', e => {
             const deleteBtn = e.target.closest('.btn-delete-pago');
             if (deleteBtn) {
@@ -838,7 +792,6 @@
 
                 const pagoAEliminar = pagos[index];
 
-                // Revertir saldos en la pantalla según el tipo de pago
                 switch (pagoAEliminar.metodo) {
                     case 'Saldo a Favor':
                         clienteActual.saldo_a_favor += pagoAEliminar.monto;
@@ -863,7 +816,6 @@
                 calcularTotal();
             }
         });
-        // --- FIN DE CAMBIOS ---
         
         btnDescuentoGeneral.addEventListener('click', handleGeneralDiscount);
         btnAplicarCupon.addEventListener('click', handleAplicarCupon);
