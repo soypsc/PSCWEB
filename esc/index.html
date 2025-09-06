@@ -3,386 +3,595 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGL Módulo - Recibir Paquete (OCR + Barcode)</title>
+    <title>PSC - Recibir Paquete</title>
+
+    <!-- Scripts de la App Original -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Librerías para OCR y Escáner de Códigos de Barras -->
+    <!-- Scripts para Escáner (de la versión anterior) -->
     <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Configuración (Asegúrate que este archivo exista y sea correcto) -->
+    <script src="config.js"></script>
+
     <style>
-        body {
+        body { 
             font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Fondo oscuro de la app */
+            color: #e2e8f0;
         }
-        .code {
-            font-size: 13px;
-            font-weight: 600;
-            color: #94a3b8;
-            margin-right: 12px;
-            background-color: #f1f5f9;
-            padding: 2px 8px;
-            border-radius: 6px;
-            user-select: none;
+        .phase {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
         }
-        .modal-backdrop {
-            transition: opacity 0.3s ease-in-out;
+        .phase.active {
+            display: block;
         }
-        .modal-content {
-            transition: all 0.3s ease-in-out;
-        }
-        #video-feed, #barcode-reader {
-            border: 2px solid #e5e7eb;
-            border-radius: 0.5rem;
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Estilos para Autocompletar */
+        .autocomplete-suggestions {
+            position: absolute;
+            border: 1px solid #334155;
+            background-color: #1e293b;
             width: 100%;
-            background-color: #000;
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 100;
+            border-radius: 0 0 0.5rem 0.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
-        .form-section {
-            transition: all 0.5s ease-in-out;
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            transform: translateY(-10px);
-        }
-        .form-section.visible {
-            max-height: 1000px;
-            opacity: 1;
-            transform: translateY(0);
-            margin-top: 2rem;
-        }
+        .suggestion-item { padding: 8px 12px; cursor: pointer; color: #cbd5e1; }
+        .suggestion-item:hover { background-color: #334155; }
+
+        /* Estilos para el Escáner */
+        #video-feed, #barcode-reader { border-radius: 0.5rem; width: 100%; background-color: #000; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 p-8">
+<body class="bg-slate-900">
 
-    <main id="content" class="w-full max-w-4xl mx-auto">
-        <!-- El contenido se renderizará aquí -->
-    </main>
+    <div class="max-w-md mx-auto min-h-screen flex flex-col">
+        <header class="p-4 flex items-center space-x-4">
+            <!-- Idealmente, este botón llevaría a un menú o dashboard principal -->
+            <a href="#" onclick="window.history.back(); return false;" class="text-slate-400 p-2 rounded-full hover:bg-slate-800">
+                <i data-lucide="arrow-left" class="h-6 w-6"></i>
+            </a>
+            <h1 class="text-xl font-bold text-white">Recepción de Paquetes</h1>
+        </header>
 
-    <!-- Custom Alert Modal -->
-    <div id="custom-alert" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6 text-center">
-            <p id="custom-alert-message" class="text-slate-700 mb-4">Mensaje de alerta.</p>
-            <button id="custom-alert-close" class="bg-emerald-500 text-white font-semibold py-2 px-6 rounded-md hover:bg-emerald-600">Entendido</button>
-        </div>
-    </div>
-    
-    <!-- Container oculto para el escáner de código de barras -->
-    <div id="barcode-scanner-container" style="display: none;"></div>
+        <main class="flex-1 p-4 pt-0 space-y-6">
 
-    <script>
-        // --- MINI BASE DE DATOS (SOLO PARA PRUEBAS) ---
-        const db = {
-            clients: [
-                { id: 1, box: 'PASC12345', name: 'Juan Pérez', sucursal: 'Vía España', sucursalColor: 'bg-blue-500' },
-                { id: 2, box: 'PASC2657', name: 'YABETH ATENCIO', sucursal: 'El Dorado', sucursalColor: 'bg-yellow-500' },
-                { id: 3, box: 'PASC4684', name: 'Angie Cassorla', sucursal: 'Condado del Rey', sucursalColor: 'bg-green-500' }
-            ],
-            packages: [
-                { id: 4, tracking: 'GF6409973277748', status: 'En Bodega Miami', clientId: null, weight: 2.0 },
-                { id: 5, tracking: '1Z456566552525', status: 'En Bodega Miami', clientId: null, weight: 5.0 },
-            ]
-        };
-
-        const contentEl = document.getElementById('content');
-
-        // --- Custom Alert Function ---
-        function showAlert(message) {
-            const alertBox = document.getElementById('custom-alert');
-            const messageEl = document.getElementById('custom-alert-message');
-            const closeBtn = document.getElementById('custom-alert-close');
-            
-            messageEl.textContent = message;
-            alertBox.classList.remove('hidden');
-            
-            closeBtn.onclick = () => {
-                alertBox.classList.add('hidden');
-            };
-        }
-
-        // --- LÓGICA DEL MÓDULO ---
-        function initializeRecibirPaqueteListeners() {
-            const trackingInput = document.getElementById('tracking-main');
-            const casilleroInput = document.getElementById('casillero');
-            const step2 = document.getElementById('step2');
-            const step3 = document.getElementById('step3');
-            const weightInfo = document.getElementById('weight-info');
-
-            trackingInput.addEventListener('blur', () => {
-                const pkg = db.packages.find(p => p.tracking.toUpperCase() === trackingInput.value.trim().toUpperCase());
-                if (pkg) {
-                    weightInfo.textContent = `Peso Registrado: ${pkg.weight} lbs`;
-                    weightInfo.classList.remove('hidden');
-                } else {
-                    weightInfo.classList.add('hidden');
-                }
-                
-                if (trackingInput.value.trim() !== '') {
-                    step2.classList.add('visible');
-                } else {
-                    step2.classList.remove('visible');
-                    step3.classList.remove('visible');
-                }
-            });
-
-            casilleroInput.addEventListener('blur', () => {
-                const inputValue = casilleroInput.value.trim().toUpperCase();
-                let client = db.clients.find(c => c.box.toUpperCase() === inputValue);
-                if (!client) {
-                    client = db.clients.find(c => c.name.toUpperCase() === inputValue);
-                }
-                
-                const colorDot = document.getElementById('sucursal-color-dot');
-                colorDot.className = 'h-4 w-4 rounded-full transition-colors'; // Reset classes
-
-                if (client) {
-                    casilleroInput.value = client.box;
-                    document.getElementById('cliente').value = client.name;
-                    document.getElementById('sucursal').value = client.sucursal;
-                    colorDot.classList.add(client.sucursalColor || 'bg-slate-200');
-                    step3.classList.add('visible');
-                } else {
-                    document.getElementById('cliente').value = 'Cliente no encontrado';
-                    document.getElementById('sucursal').value = '';
-                    colorDot.classList.add('bg-slate-200');
-                    step3.classList.add('visible'); // Permitir avanzar aunque el cliente sea nuevo
-                }
-            });
-            
-            initializeAllScanners();
-        }
-
-        function initializeAllScanners() {
-            let ocrStream;
-            let ocrWorker;
-            let html5QrcodeScanner;
-            let currentOcrTargetInput;
-
-            const ocrScannerModal = document.getElementById('ocr-scanner-modal');
-            const openOcrBtns = document.querySelectorAll('.scan-ocr-btn');
-            const closeOcrBtn = document.getElementById('close-ocr-btn');
-            const captureBtn = document.getElementById('capture-ocr-btn');
-            const videoFeed = document.getElementById('video-feed');
-            const ocrStatus = document.getElementById('ocr-status');
-            
-            const barcodeScannerModal = document.getElementById('barcode-scanner-modal');
-            const openBarcodeBtn = document.getElementById('scan-tracking-barcode-btn');
-            const closeBarcodeBtn = document.getElementById('close-barcode-btn');
-
-            const startOcrCamera = async (targetInputId) => {
-                currentOcrTargetInput = document.getElementById(targetInputId);
-                ocrScannerModal.classList.remove('hidden');
-                try {
-                    ocrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                    videoFeed.srcObject = ocrStream;
-                    ocrStatus.textContent = 'Cámara lista. Apunte a la etiqueta y presione "Capturar".';
-                    captureBtn.disabled = false;
-                } catch (err) {
-                    showAlert("No se pudo acceder a la cámara. Asegúrate de dar los permisos necesarios.");
-                    stopOcrCamera();
-                }
-            };
-
-            const stopOcrCamera = () => {
-                if (ocrStream) {
-                    ocrStream.getTracks().forEach(track => track.stop());
-                }
-                ocrScannerModal.classList.add('hidden');
-            };
-
-            const captureAndProcessImage = async () => {
-                ocrStatus.textContent = 'Procesando imagen... por favor espere.';
-                captureBtn.disabled = true;
-
-                const video = document.getElementById('video-feed');
-                const guideBox = document.getElementById('ocr-guide-box');
-                const canvas = document.createElement('canvas');
-
-                const videoWidth = video.videoWidth;
-                const videoHeight = video.videoHeight;
-                const guideRect = guideBox.getBoundingClientRect();
-                const videoRect = video.getBoundingClientRect();
-
-                const scaleX = videoWidth / videoRect.width;
-                const scaleY = videoHeight / videoRect.height;
-
-                const cropX = (guideRect.left - videoRect.left) * scaleX;
-                const cropY = (guideRect.top - videoRect.top) * scaleY;
-                const cropWidth = guideRect.width * scaleX;
-                const cropHeight = guideRect.height * scaleY;
-
-                canvas.width = cropWidth;
-                canvas.height = cropHeight;
-
-                const context = canvas.getContext('2d');
-                context.drawImage(video, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
-                
-                ocrWorker = await Tesseract.createWorker('spa');
-                const { data: { text } } = await ocrWorker.recognize(canvas.toDataURL('image/jpeg'));
-                await ocrWorker.terminate();
-
-                parseOcrText(text);
-                stopOcrCamera();
-            };
-            
-            const parseOcrText = (text) => {
-                const words = text.replace(/\n/g, ' ').split(' ');
-                let found = false;
-
-                if (currentOcrTargetInput.id === 'casillero') {
-                    for (const word of words) {
-                        const client = db.clients.find(c => c.box.toUpperCase() === word.trim().toUpperCase());
-                        if (client) {
-                            currentOcrTargetInput.value = client.box;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        const candidate = words.find(w => w.trim().toUpperCase().startsWith('PASC'));
-                        currentOcrTargetInput.value = candidate ? candidate.trim() : '';
-                        if(!candidate) showAlert("OCR no pudo encontrar un casillero en la etiqueta.");
-                    }
-                } else if (currentOcrTargetInput.id === 'tracking-main') {
-                     for (const word of words) {
-                        const pkg = db.packages.find(p => p.tracking.toUpperCase() === word.trim().toUpperCase());
-                        if (pkg) {
-                            currentOcrTargetInput.value = pkg.tracking;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        const candidate = words.filter(w => w.length > 8).sort((a,b) => b.length - a.length)[0];
-                        currentOcrTargetInput.value = candidate ? candidate.trim() : '';
-                        if(!candidate) showAlert("OCR no pudo encontrar un tracking en la etiqueta.");
-                    }
-                }
-                currentOcrTargetInput.dispatchEvent(new Event('blur'));
-            };
-
-            openOcrBtns.forEach(btn => {
-                btn.addEventListener('click', () => startOcrCamera(btn.dataset.target));
-            });
-            closeOcrBtn.addEventListener('click', stopOcrCamera);
-            captureBtn.addEventListener('click', captureAndProcessImage);
-
-            const onBarcodeScanSuccess = (decodedText, decodedResult) => {
-                const trackingInput = document.getElementById('tracking-main');
-                trackingInput.value = decodedText;
-                trackingInput.dispatchEvent(new Event('blur'));
-                stopBarcodeScanner();
-            };
-
-            const startBarcodeScanner = () => {
-                barcodeScannerModal.classList.remove('hidden');
-                html5QrcodeScanner = new Html5Qrcode("barcode-reader");
-                html5QrcodeScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, onBarcodeScanSuccess)
-                    .catch(err => {
-                        showAlert("No se pudo iniciar el escáner de código de barras.");
-                        stopBarcodeScanner();
-                    });
-            };
-
-            const stopBarcodeScanner = () => {
-                if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
-                    html5QrcodeScanner.stop().catch(err => console.error("Error al detener el escáner de código de barras.", err));
-                }
-                barcodeScannerModal.classList.add('hidden');
-            };
-
-            openBarcodeBtn.addEventListener('click', startBarcodeScanner);
-            closeBarcodeBtn.addEventListener('click', stopBarcodeScanner);
-        }
-
-        // --- PLANTILLA DE LA VISTA ---
-        function renderRecibirPaquete() {
-            return `
-                <div class="flex justify-between items-center mb-8">
-                    <h1 class="text-3xl font-bold text-slate-900 flex items-center"><span class="code">[OP-03A]</span>Recepción de Paquete</h1>
-                </div>
-                <div class="bg-white p-8 rounded-lg border border-slate-200 shadow-sm max-w-4xl mx-auto">
-                    <!-- PASO 1 -->
-                    <div>
-                        <label for="tracking-main" class="block text-lg font-semibold text-slate-700 mb-2">1. Tracking Principal</label>
-                        <div class="relative flex items-center">
-                            <input type="text" id="tracking-main" placeholder="Ingresar o escanear tracking..." class="w-full text-lg pl-4 pr-24 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 transition">
-                            <div class="absolute right-2 flex items-center gap-1">
-                                <button id="scan-tracking-barcode-btn" class="p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Código de Barras">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6.5 6.5l-1.5-1.5M4 12H2m13.5-6.5l-1.5 1.5M12 20v-1m0-10V4m0 18a9 9 0 110-18 9 9 0 010 18z" /></svg>
-                                </button>
-                                <button data-target="tracking-main" class="scan-ocr-btn p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Etiqueta (OCR)">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div id="weight-info" class="hidden mt-2 text-sm font-semibold text-emerald-600 bg-emerald-50 p-2 rounded-md"></div>
-                    </div>
+            <!-- FASE 1: BÚSQUEDA DE TRACKING -->
+            <div id="phase-1" class="phase active">
+                <div class="text-center p-6 bg-slate-800 border border-slate-700 rounded-xl">
+                    <i data-lucide="scan-line" class="h-16 w-16 text-blue-500 mx-auto mb-4"></i>
+                    <h2 class="text-lg font-semibold text-white">Identificar Paquete</h2>
+                    <p class="text-slate-400 text-sm mb-6">Ingresa o escanea el tracking principal.</p>
                     
-                    <!-- PASO 2 -->
-                    <div id="step2" class="form-section">
-                        <h2 class="text-lg font-semibold text-slate-700 mb-4">2. Asignar Cliente</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="relative flex items-center">
-                                <label for="casillero" class="absolute -top-6 left-0 block text-sm font-medium text-slate-600">Casillero o Nombre</label>
-                                <input type="text" id="casillero" placeholder="Buscar por nombre o escanear casillero..." class="w-full p-2 pr-12 border border-slate-300 rounded-md">
-                                <button id="scan-casillero-ocr-btn" data-target="casillero" class="scan-ocr-btn absolute right-1 p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Etiqueta (OCR)">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                </button>
+                    <div class="relative">
+                        <i data-lucide="package-search" class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500"></i>
+                        <input type="text" id="tracking-main" placeholder="Ej: 1Z9999W99999999999" class="w-full text-center text-lg font-mono px-4 py-3 bg-slate-900 border-2 border-slate-600 rounded-lg text-white focus:border-blue-500 focus:ring-blue-500 transition">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button id="scan-tracking-barcode-btn" class="w-full flex items-center justify-center gap-2 bg-slate-700 text-white font-semibold py-3 rounded-lg hover:bg-slate-600">
+                            <i data-lucide="qr-code" class="h-5 w-5"></i> Barras
+                        </button>
+                         <button data-target="tracking-main" class="scan-ocr-btn w-full flex items-center justify-center gap-2 bg-slate-700 text-white font-semibold py-3 rounded-lg hover:bg-slate-600">
+                            <i data-lucide="camera" class="h-5 w-5"></i> Etiqueta
+                        </button>
+                    </div>
+
+                    <button id="search-tracking-btn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 mt-6">
+                        Buscar Paquete
+                    </button>
+                </div>
+                
+                 <div class="mt-6">
+                    <h3 class="text-base font-semibold text-white mb-3">Otras Acciones</h3>
+                    <div class="bg-slate-800 border border-slate-700 rounded-xl divide-y divide-slate-700">
+                        <a href="#" id="add-manual-btn" class="p-4 flex items-center space-x-4 hover:bg-slate-700/50 no-underline">
+                            <i data-lucide="plus-circle" class="text-green-500"></i>
+                            <span class="font-semibold text-slate-300">Agregar Paquete Manualmente</span>
+                        </a>
+                        <a href="#" id="casos-especiales-btn" class="p-4 flex items-center space-x-4 hover:bg-slate-700/50 no-underline">
+                            <i data-lucide="alert-triangle" class="text-amber-500"></i>
+                            <span class="font-semibold text-slate-300">Registrar Caso Especial</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 2: ASIGNACIÓN Y REGISTRO -->
+            <div id="phase-2" class="phase">
+                <form id="form-recibir">
+                    <!-- Sección de detalles del paquete encontrado -->
+                    <section>
+                        <h2 class="text-lg font-semibold text-white mb-3">Paquete Encontrado</h2>
+                        <div id="info-paquete-cargado" class="bg-slate-800 border border-slate-700 p-4 rounded-xl space-y-3">
+                            <div class="flex justify-between items-center text-lg">
+                                <span class="text-slate-400">Tracking:</span>
+                                <span id="info-tracking" class="font-mono font-bold text-white"></span>
                             </div>
-                            <div>
-                                <label for="cliente" class="block text-sm font-medium text-slate-600 mb-1">Cliente</label>
-                                <input type="text" id="cliente" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
-                            </div>
-                            <div class="md:col-span-2">
-                                <label for="sucursal" class="block text-sm font-medium text-slate-600 mb-1">Sucursal</label>
-                                <div class="flex items-center gap-2">
-                                    <span id="sucursal-color-dot" class="h-4 w-4 rounded-full bg-slate-200 transition-colors"></span>
-                                    <input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div class="bg-slate-700/50 p-2 rounded-md">
+                                    <p class="text-xs text-slate-400">Peso (lbs)</p>
+                                    <p id="info-peso" class="font-bold text-white"></p>
+                                </div>
+                                <div class="bg-slate-700/50 p-2 rounded-md">
+                                    <p class="text-xs text-slate-400">Casillero (Carga)</p>
+                                    <p id="info-box" class="font-bold text-white"></p>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- PASO 3 -->
-                    <div id="step3" class="form-section">
-                        <div class="mt-8">
-                            <button class="w-full bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all">Registrar Paquete</button>
+                    </section>
+                    
+                    <!-- Sección de asignación de cliente -->
+                    <section class="mt-6">
+                        <h2 class="text-lg font-semibold text-white mb-3">Asignar Cliente</h2>
+                        <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl space-y-4">
+                            <div class="relative">
+                                <label for="casillero-search" class="block text-sm font-medium text-slate-400 mb-1">Buscar (Casillero/Nombre)</label>
+                                <div class="relative flex items-center">
+                                    <input type="text" id="casillero-search" class="w-full p-2 pl-8 bg-slate-700 border border-slate-600 rounded-md" autocomplete="off">
+                                    <i data-lucide="search" class="absolute left-2 h-4 w-4 text-slate-500"></i>
+                                </div>
+                                <div id="cliente-suggestions" class="autocomplete-suggestions hidden"></div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-400 mb-1">Cliente Encontrado</label>
+                                <input type="text" id="cliente" disabled class="w-full p-2 border border-slate-700 rounded-md bg-slate-900/50 text-green-400">
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    </section>
 
-                <!-- Modal de Escáner OCR -->
-                <div id="ocr-scanner-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
-                    <div class="bg-white w-full max-w-lg rounded-lg shadow-xl p-6 relative">
-                        <button id="close-ocr-btn" class="absolute top-2 right-2 text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
-                        <h2 class="text-xl font-bold text-slate-800 mb-4">Escanear Etiqueta con Cámara</h2>
-                        <div class="relative">
-                            <video id="video-feed" autoplay playsinline></video>
-                            <div id="ocr-guide-box" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10/12 h-12 border-2 border-dashed border-white rounded-lg pointer-events-none"></div>
-                        </div>
-                        <p id="ocr-status" class="text-sm text-slate-500 mt-2 text-center h-5">Iniciando cámara...</p>
-                        <button id="capture-ocr-btn" class="w-full mt-4 bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 transition-all disabled:opacity-50" disabled>Capturar Imagen</button>
-                    </div>
-                </div>
+                     <!-- Sección de asignación de anaquel -->
+                    <section class="mt-6">
+                        <h2 class="text-lg font-semibold text-white mb-3">Ubicación</h2>
+                         <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl space-y-4">
+                            <label for="anaquel-select" class="block text-sm font-medium text-slate-400 mb-1">Asignar Anaquel (Opcional)</label>
+                            <select id="anaquel-select" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-md appearance-none">
+                                <option value="">(Sin anaquel)</option>
+                            </select>
+                         </div>
+                    </section>
 
-                <!-- Modal de Escáner de Código de Barras -->
-                <div id="barcode-scanner-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
-                    <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6 relative">
-                        <button id="close-barcode-btn" class="absolute top-2 right-2 text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
-                        <h2 class="text-xl font-bold text-slate-800 mb-4">Escanear Código de Barras</h2>
-                        <div id="barcode-reader" class="w-full"></div>
-                        <p class="text-xs text-slate-500 mt-4 text-center">Apunte la cámara al código de barras o QR.</p>
+                    <div class="mt-8 grid grid-cols-2 gap-3">
+                         <button type="button" id="cancel-btn" class="w-full bg-slate-700 text-white font-bold py-3 px-4 rounded-lg hover:bg-slate-600">Cancelar</button>
+                         <button type="submit" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-green-600/20 hover:bg-green-700">Registrar Paquete</button>
                     </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODALS (Rediseñados con el tema oscuro) -->
+    
+    <!-- Modal Genérico para Escáner -->
+    <div id="scanner-modal" class="fixed inset-0 bg-black/80 flex-col items-center justify-center p-4 hidden z-50">
+        <div class="bg-slate-800 w-full max-w-md rounded-xl shadow-xl p-4 relative border border-slate-700">
+            <h2 id="scanner-title" class="text-lg font-bold text-white mb-4 text-center"></h2>
+            <div id="scanner-container" class="w-full aspect-square bg-black rounded-lg overflow-hidden">
+                <video id="video-feed" autoplay playsinline class="w-full h-full object-cover hidden"></video>
+                <div id="barcode-reader" class="w-full h-full hidden"></div>
+            </div>
+            <p id="scanner-status" class="text-sm text-slate-400 mt-3 text-center h-5"></p>
+            <div class="mt-3 flex flex-col gap-3">
+                <button id="scanner-action-btn" class="w-full bg-indigo-600 text-white font-bold py-2.5 px-4 rounded-lg disabled:opacity-50 hidden">Capturar</button>
+                <button id="scanner-close-btn" class="w-full bg-slate-700 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-slate-600">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Paquete Manual -->
+    <div id="manual-paquete-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-40">
+        <div class="bg-slate-800 w-full max-w-md rounded-xl shadow-xl p-6 border border-slate-700">
+            <h2 class="text-xl font-bold text-white mb-4">Agregar Paquete Manual</h2>
+            <form id="form-manual" class="space-y-4">
+                <div>
+                    <label for="manual-tracking1" class="block text-sm font-medium text-slate-400">Tracking Principal</label>
+                    <input id="manual-tracking1" type="text" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md" required>
                 </div>
-            `;
+                <div>
+                    <label for="manual-peso" class="block text-sm font-medium text-slate-400">Peso (lbs)</label>
+                    <input id="manual-peso" type="number" step="0.01" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md">
+                </div>
+                <div class="relative">
+                    <label for="manual-casillero" class="block text-sm font-medium text-slate-400">Buscar Cliente</label>
+                    <input id="manual-casillero" type="text" class="w-full mt-1 p-2 bg-slate-700 border border-slate-600 rounded-md" autocomplete="off">
+                    <div id="manual-cliente-suggestions" class="autocomplete-suggestions hidden"></div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-400">Cliente Encontrado</label>
+                    <input id="manual-cliente-info" type="text" class="w-full mt-1 p-2 bg-slate-900 border border-slate-700 rounded-md text-green-400" readonly>
+                </div>
+                <div class="flex justify-end gap-3 pt-4 mt-4 border-t border-slate-700">
+                    <button type="button" class="close-modal bg-slate-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-slate-500">Cancelar</button>
+                    <button type="submit" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-md hover:bg-blue-700">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Casos Especiales -->
+    <div id="casos-especiales-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-40">
+        <div class="bg-slate-800 w-full max-w-md rounded-xl shadow-xl p-6 border border-slate-700">
+             <h2 class="text-xl font-bold text-white mb-4">Casos Especiales</h2>
+             <div class="space-y-6">
+                <div>
+                    <h3 class="font-semibold text-amber-400">Paquete Mal Identificado</h3>
+                    <p class="text-xs text-slate-400 mb-2">Escanea el tracking para registrarlo.</p>
+                    <input type="text" id="mal-identificado-input" placeholder="Escanear tracking..." class="w-full p-2 bg-slate-700 border border-slate-600 rounded-md">
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-700">
+                    <button type="button" class="close-modal bg-slate-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-slate-500">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Custom Alert -->
+    <div id="custom-alert" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-slate-800 w-full max-w-sm rounded-xl shadow-xl p-6 text-center border border-slate-700">
+            <p id="custom-alert-message" class="text-slate-300 mb-6">Mensaje.</p>
+            <button id="custom-alert-close" class="w-full bg-blue-600 text-white font-semibold py-2 px-6 rounded-md hover:bg-blue-700">Entendido</button>
+        </div>
+    </div>
+
+    <script type="module">
+        const { createClient } = supabase;
+        // La configuración de Supabase debe estar en config.js
+        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
+        // --- State Management ---
+        let paqueteCargadoActual = null;
+        let clienteSeleccionado = null;
+        let paqueteVieneDeMalIdentificado = false; // Aún no implementado en esta UI, pero mantenemos la variable
+        let clienteManualSeleccionado = null;
+
+        // --- DOM Elements ---
+        const phase1 = document.getElementById('phase-1');
+        const phase2 = document.getElementById('phase-2');
+        const trackingInput = document.getElementById('tracking-main');
+        const searchTrackingBtn = document.getElementById('search-tracking-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const formRecibir = document.getElementById('form-recibir');
+        const casilleroSearchInput = document.getElementById('casillero-search');
+        const clienteSuggestionsContainer = document.getElementById('cliente-suggestions');
+        const clienteInput = document.getElementById('cliente');
+        const anaquelSelect = document.getElementById('anaquel-select');
+
+        // --- UI Control ---
+        function showPhase(phaseNum) {
+            phase1.classList.remove('active');
+            phase2.classList.remove('active');
+            if (phaseNum === 1) {
+                phase1.classList.add('active');
+            } else if (phaseNum === 2) {
+                phase2.classList.add('active');
+            }
+            lucide.createIcons();
         }
 
-        // --- INICIALIZACIÓN ---
-        window.addEventListener('load', () => {
-            contentEl.innerHTML = renderRecibirPaquete();
-            initializeRecibirPaqueteListeners();
+        function showAlert(message) {
+            document.getElementById('custom-alert-message').textContent = message;
+            document.getElementById('custom-alert').classList.remove('hidden');
+        }
+
+        function resetAll() {
+            formRecibir.reset();
+            paqueteCargadoActual = null;
+            clienteSeleccionado = null;
+            trackingInput.value = '';
+            showPhase(1);
+            trackingInput.focus();
+        }
+
+        // --- Core Logic (Adaptado de la versión anterior) ---
+        
+        async function buscarPaqueteCargado() {
+            const tracking = trackingInput.value.trim();
+            if (!tracking) {
+                showAlert('Por favor, ingresa un número de tracking.');
+                return;
+            }
+            // Simular carga
+            searchTrackingBtn.disabled = true;
+            searchTrackingBtn.innerHTML = '<span class="spinner-border animate-spin inline-block w-5 h-5 border-2 rounded-full" role="status"></span> Buscando...';
+
+            // La lógica de búsqueda es la misma
+            const { data, error } = await sb.from('paquetes_cargados')
+                .select('id, tracking, peso, valor, cliente_box, status, fecha_bodega, cargados')
+                .eq('tracking', tracking)
+                .maybeSingle();
+
+            searchTrackingBtn.disabled = false;
+            searchTrackingBtn.textContent = 'Buscar Paquete';
+
+            if (error) {
+                showAlert('Error al buscar el tracking en la base de datos.');
+                return;
+            }
+            if (!data) {
+                showAlert('Tracking no encontrado en la carga de paquetes pendientes.');
+                return;
+            }
+            if (data.cargados) {
+                 showAlert('Este paquete ya fue recibido y registrado anteriormente.');
+                 return;
+            }
+
+            // Paquete encontrado, poblar Fase 2 y cambiar de vista
+            paqueteCargadoActual = data;
+            document.getElementById('info-tracking').textContent = data.tracking;
+            document.getElementById('info-peso').textContent = data.peso ? `${data.peso} lbs` : 'N/A';
+            document.getElementById('info-box').textContent = data.cliente_box || 'Sin asignar';
+            
+            if (data.cliente_box) {
+                casilleroSearchInput.value = data.cliente_box;
+                await buscarCliente(data.cliente_box, 'main');
+            } else {
+                casilleroSearchInput.value = '';
+                clienteSeleccionado = null;
+                actualizarInfoClienteUI();
+            }
+            showPhase(2);
+        }
+
+        async function buscarCliente(terminoBusqueda, target) {
+            if (!terminoBusqueda) return;
+            const isNumeric = !isNaN(terminoBusqueda);
+            let query = sb.from('clientes').select('nombre, box, sucursal');
+            query = isNumeric ? query.eq('box', parseInt(terminoBusqueda)) : query.ilike('nombre', `%${terminoBusqueda}%`);
+            
+            const { data, error } = await query.limit(1).maybeSingle();
+            if (error) { showAlert("Error buscando cliente."); return; }
+
+            if (target === 'main') {
+                clienteSeleccionado = data;
+                actualizarInfoClienteUI();
+            } else if (target === 'manual') {
+                clienteManualSeleccionado = data;
+                document.getElementById('manual-cliente-info').value = data ? `${data.nombre} (Box: ${data.box})` : "No encontrado";
+            }
+        }
+        
+        function actualizarInfoClienteUI() {
+            if (clienteSeleccionado) {
+                clienteInput.value = `${clienteSeleccionado.nombre} (Box: ${clienteSeleccionado.box})`;
+            } else {
+                clienteInput.value = 'Cliente no encontrado o no asignado';
+            }
+        }
+        
+        async function handleAutocomplete(inputElement, containerElement, callback) {
+            const termino = inputElement.value.trim();
+            if (termino.length < 2) { containerElement.classList.add('hidden'); return; }
+            
+            let query = sb.from('clientes').select('nombre, box');
+            query = !isNaN(termino) ? query.like('box::text', `${termino}%`) : query.ilike('nombre', `%${termino}%`);
+            const { data, error } = await query.limit(5);
+
+            if (error || !data || !data.length) { containerElement.classList.add('hidden'); return; }
+
+            containerElement.innerHTML = data.map(cliente => 
+                `<div class="suggestion-item" data-box="${cliente.box}">${cliente.nombre} <span class="text-slate-500 text-xs">(${cliente.box})</span></div>`
+            ).join('');
+            containerElement.classList.remove('hidden');
+
+            containerElement.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    callback(item.dataset.box);
+                    containerElement.classList.add('hidden');
+                });
+            });
+        }
+        
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            if (!paqueteCargadoActual) { showAlert("Error: No hay un paquete cargado."); return; }
+            if (!clienteSeleccionado) { showAlert("Debe asignar un cliente válido al paquete."); return; }
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Registrando...';
+            
+            const now = new Date().toISOString();
+            const payload = {
+                tracking: paqueteCargadoActual.tracking, peso: paqueteCargadoActual.peso || null, valor: paqueteCargadoActual.valor || null,
+                cliente_nombre: clienteSeleccionado.nombre, cliente_box: clienteSeleccionado.box, sucursal: clienteSeleccionado.sucursal,
+                anaquel: anaquelSelect.value || null, status: anaquelSelect.value ? 'En Sucursal' : 'En transito',
+                sucursal_recibido: anaquelSelect.value ? clienteSeleccionado.sucursal : null, fecha_bodega: paqueteCargadoActual.fecha_bodega || now,
+                fecha_recibido: now, fecha_sucursal: anaquelSelect.value ? now : null
+            };
+            
+            const { error } = await sb.rpc('crear_paquete_admin', { paquete_data: payload });
+            if (error) { showAlert(`Error al registrar el paquete: ${error.message}`); submitBtn.disabled = false; submitBtn.textContent = 'Registrar Paquete'; return; }
+            
+            await sb.from('paquetes_cargados').update({ cargados: true }).eq('tracking', paqueteCargadoActual.tracking);
+            
+            showAlert(`Paquete ${paqueteCargadoActual.tracking} registrado a ${clienteSeleccionado.nombre} ✅`);
+            resetAll();
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Registrar Paquete';
+        }
+
+        async function cargarAnaqueles() {
+            const { data, error } = await sb.from('anaqueles').select('nombre').order('nombre');
+            if (error) { console.error("Error cargando anaqueles:", error); return; }
+            anaquelSelect.innerHTML = '<option value="">(Sin anaquel)</option>' + (data ? data.map(a => `<option value="${a.nombre}">${a.nombre}</option>`).join('') : '');
+        }
+
+        // --- INICIO: LÓGICA DE ESCÁNERES (OCR Y CÓDIGO DE BARRAS) ---
+        let ocrStream, ocrWorker, html5QrcodeScanner, currentOcrTargetInput;
+        const scannerModal = document.getElementById('scanner-modal');
+        const scannerTitle = document.getElementById('scanner-title');
+        const videoFeed = document.getElementById('video-feed');
+        const barcodeReader = document.getElementById('barcode-reader');
+        const scannerStatus = document.getElementById('scanner-status');
+        const scannerActionBtn = document.getElementById('scanner-action-btn');
+
+        // Función para detener todos los escáneres y cerrar el modal
+        const stopAllScanners = () => {
+            if (ocrStream) ocrStream.getTracks().forEach(track => track.stop());
+            if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
+                html5QrcodeScanner.stop().catch(err => console.error("Error al detener el escáner.", err));
+            }
+            scannerModal.classList.add('hidden');
+            videoFeed.classList.add('hidden');
+            barcodeReader.classList.add('hidden');
+            scannerActionBtn.classList.add('hidden');
+        };
+
+        // Función para iniciar la cámara para OCR
+        const startOcrCamera = async (targetInputId) => {
+            currentOcrTargetInput = document.getElementById(targetInputId);
+            scannerTitle.textContent = 'Escanear Etiqueta (OCR)';
+            videoFeed.classList.remove('hidden');
+            scannerActionBtn.classList.remove('hidden');
+            scannerModal.style.display = 'flex';
+            try {
+                ocrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                videoFeed.srcObject = ocrStream;
+                scannerStatus.textContent = 'Apunte a la etiqueta y capture.';
+                scannerActionBtn.disabled = false;
+            } catch (err) {
+                showAlert("No se pudo acceder a la cámara.");
+                stopAllScanners();
+            }
+        };
+
+        // Función para capturar la imagen y procesarla con Tesseract (OCR)
+        const captureAndProcessImage = async () => {
+            scannerStatus.textContent = 'Procesando...';
+            scannerActionBtn.disabled = true;
+            const canvas = document.createElement('canvas');
+            canvas.width = videoFeed.videoWidth;
+            canvas.height = videoFeed.videoHeight;
+            canvas.getContext('2d').drawImage(videoFeed, 0, 0);
+            
+            if (!ocrWorker || ocrWorker.terminated) ocrWorker = await Tesseract.createWorker('eng');
+            
+            const { data: { text } } = await ocrWorker.recognize(canvas.toDataURL('image/jpeg'));
+            const bestGuess = text.split(/[\s\n]+/).filter(w => w.length > 5).sort((a, b) => b.length - a.length)[0] || "";
+            currentOcrTargetInput.value = bestGuess.replace(/[^a-zA-Z0-9-]/g, '');
+            stopAllScanners();
+            buscarPaqueteCargado(); // Busca el paquete automáticamente
+        };
+
+        // Función para iniciar el escáner de código de barras
+        const startBarcodeScanner = () => {
+            scannerTitle.textContent = 'Escanear Código de Barras';
+            barcodeReader.classList.remove('hidden');
+            scannerModal.style.display = 'flex';
+            html5QrcodeScanner = new Html5Qrcode("barcode-reader");
+            html5QrcodeScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, 
+                (decodedText) => {
+                    trackingInput.value = decodedText;
+                    stopAllScanners();
+                    buscarPaqueteCargado(); // Busca el paquete automáticamente
+                }
+            ).catch(err => {
+                showAlert("No se pudo iniciar el escáner de código de barras.");
+                stopAllScanners();
+            });
+        };
+        // --- FIN: LÓGICA DE ESCÁNERES ---
+        
+        
+        // --- Manual & Special Cases Modals Logic ---
+        const manualModal = document.getElementById('manual-paquete-modal');
+        const casosModal = document.getElementById('casos-especiales-modal');
+        const malIdentificadoInput = document.getElementById('mal-identificado-input');
+        const formManual = document.getElementById('form-manual');
+        
+        async function handleMalIdentificado() {
+            const tracking = malIdentificadoInput.value.trim();
+            if (!tracking) return;
+            const { error: insertError } = await sb.from('paquetes_mal_identificados').insert({ tracking: tracking });
+            if (insertError) { showAlert(`Error: ${insertError.message}`); return; }
+            await sb.from('paquetes_cargados').update({ cargados: true }).eq('tracking', tracking);
+            showAlert(`Paquete ${tracking} registrado como MAL IDENTIFICADO.`);
+            malIdentificadoInput.value = '';
+            casosModal.classList.add('hidden');
+        }
+        
+        async function handleManualSubmit(e) {
+            e.preventDefault();
+            const tracking1 = document.getElementById('manual-tracking1').value.trim();
+            if (!tracking1 || !clienteManualSeleccionado) {
+                showAlert("Tracking y Cliente son obligatorios."); return;
+            }
+            const now = new Date().toISOString();
+            const payload = {
+                tracking: tracking1, peso: parseFloat(document.getElementById('manual-peso').value) || null,
+                cliente_nombre: clienteManualSeleccionado.nombre, cliente_box: clienteManualSeleccionado.box, sucursal: clienteManualSeleccionado.sucursal,
+                status: 'En transito', fecha_bodega: now, fecha_recibido: now
+            };
+            const { error } = await sb.rpc('crear_paquete_admin', { paquete_data: payload });
+            if (error) { showAlert(`Error: ${error.message}`); return; }
+            showAlert(`Paquete manual ${tracking1} creado.`);
+            manualModal.classList.add('hidden');
+            formManual.reset();
+        }
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            cargarAnaqueles();
+            showPhase(1);
         });
+        
+        searchTrackingBtn.addEventListener('click', buscarPaqueteCargado);
+        trackingInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') buscarPaqueteCargado(); });
+        cancelBtn.addEventListener('click', resetAll);
+        formRecibir.addEventListener('submit', handleFormSubmit);
+        document.getElementById('custom-alert-close').addEventListener('click', () => document.getElementById('custom-alert').classList.add('hidden'));
+
+        // Autocomplete
+        casilleroSearchInput.addEventListener('input', () => handleAutocomplete(casilleroSearchInput, clienteSuggestionsContainer, (box) => {
+            casilleroSearchInput.value = box;
+            buscarCliente(box, 'main');
+        }));
+         casilleroSearchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                buscarCliente(e.target.value.trim(), 'main');
+                clienteSuggestionsContainer.classList.add('hidden');
+            }
+        });
+
+        // --- Event Listeners para Escáneres ---
+        document.querySelector('.scan-ocr-btn').addEventListener('click', (e) => startOcrCamera(e.currentTarget.dataset.target));
+        document.getElementById('scan-tracking-barcode-btn').addEventListener('click', startBarcodeScanner);
+        scannerActionBtn.addEventListener('click', captureAndProcessImage);
+        document.getElementById('scanner-close-btn').addEventListener('click', stopAllScanners);
+
+        // Modals
+        document.getElementById('add-manual-btn').addEventListener('click', (e) => { e.preventDefault(); manualModal.classList.remove('hidden'); });
+        document.getElementById('casos-especiales-btn').addEventListener('click', (e) => { e.preventDefault(); casosModal.classList.remove('hidden'); });
+        document.querySelectorAll('.close-modal').forEach(btn => btn.addEventListener('click', () => {
+            manualModal.classList.add('hidden');
+            casosModal.classList.add('hidden');
+        }));
+        malIdentificadoInput.addEventListener('change', handleMalIdentificado);
+        formManual.addEventListener('submit', handleManualSubmit);
+        document.getElementById('manual-casillero').addEventListener('input', () => handleAutocomplete(
+            document.getElementById('manual-casillero'), 
+            document.getElementById('manual-cliente-suggestions'), 
+            (box) => {
+                document.getElementById('manual-casillero').value = box;
+                buscarCliente(box, 'manual');
+            }
+        ));
 
     </script>
 </body>
 </html>
+
+
+
