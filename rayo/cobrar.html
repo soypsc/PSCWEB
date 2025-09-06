@@ -116,7 +116,10 @@
         }
 
         function renderPagos() {
-            pagosRealizadosList.innerHTML = pagos.map(p => `<div class="flex justify-between bg-emerald-100 p-1 rounded-md"><span>${p.metodo} (${p.sucursal}):</span><span class="font-medium">$${p.monto.toFixed(2)}</span></div>`).join('');
+            pagosRealizadosList.innerHTML = pagos.map(p => {
+                const recibidoPor = p.recibido_por_nombre || 'N/A';
+                return `<div class="flex justify-between bg-emerald-100 p-1 rounded-md"><span>${p.metodo} (${p.sucursal}) - por ${recibidoPor}:</span><span class="font-medium">$${p.monto.toFixed(2)}</span></div>`
+            }).join('');
         }
 
         function renderVerificationList() {
@@ -351,8 +354,6 @@
         }
         
         async function handleAplicarLibras() {
-            console.log('Botón de libras presionado');
-            if (!clienteActual || (clienteActual.saldo_libras || 0) <= 0) return;
             const sucursal = sucursalPagoSelect.value;
             if (!sucursal) { alert("Seleccione una sucursal."); return; }
 
@@ -374,7 +375,8 @@
                 const { error } = await sb.rpc('consumir_libras_paquete', {
                     p_cliente_id: clienteActual.id,
                     p_libras_a_consumir: librasAConsumir,
-                    p_descripcion: `Consumo en SGL1 por ${librasAConsumir.toFixed(2)} lbs.`
+                    p_descripcion: `Consumo en SGL1 por ${librasAConsumir.toFixed(2)} lbs.`,
+                    p_sucursal: sucursal
                 });
                 if (error) throw error;
 
@@ -514,7 +516,7 @@
                 return `<tr><td>${p.tracking}</td><td>${(p.peso || 0).toFixed(2)} lbs</td><td>$${costoOriginal.toFixed(2)}</td></tr>`;
             }).join('');
             const desgloseItems = `<table width="100%"><thead><tr><th>Tracking</th><th>Peso</th><th>Costo</th></tr></thead><tbody>${itemsHTML}</tbody></table>`;
-            const pagosHTML = pagos.map(p => `<div>${p.metodo} (${p.sucursal}): $${p.monto.toFixed(2)}</div>`).join('');
+            const pagosHTML = pagos.map(p => `<div>${p.metodo} (${p.sucursal}) - por ${p.recibido_por_nombre}: $${p.monto.toFixed(2)}</div>`).join('');
             html = html.replace(/{{fecha_factura}}/g, new Date().toLocaleDateString('es-PA'));
             html = html.replace(/{{numero_factura}}/g, facturaId.substring(0, 8).toUpperCase());
             html = html.replace(/{{nombre_cliente}}/g, clienteActual.nombre);
