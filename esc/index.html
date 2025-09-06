@@ -139,7 +139,6 @@
                         <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl space-y-4">
                             <div class="relative">
                                 <label for="casillero-search" class="block text-sm font-medium text-slate-400 mb-1">Buscar (Casillero/Nombre)</label>
-                                <!-- INICIO: Campo de búsqueda con botón OCR -->
                                 <div class="relative flex items-center">
                                     <i data-lucide="search" class="absolute left-3 h-4 w-4 text-slate-500 z-10"></i>
                                     <input type="text" id="casillero-search" class="w-full p-2 pl-9 pr-10 bg-slate-700 border border-slate-600 rounded-md" autocomplete="off">
@@ -147,13 +146,18 @@
                                         <i data-lucide="camera" class="h-5 w-5"></i>
                                     </button>
                                 </div>
-                                <!-- FIN: Campo de búsqueda con botón OCR -->
                                 <div id="cliente-suggestions" class="autocomplete-suggestions hidden"></div>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-slate-400 mb-1">Cliente Encontrado</label>
                                 <input type="text" id="cliente" disabled class="w-full p-2 border border-slate-700 rounded-md bg-slate-900/50 text-green-400">
                             </div>
+                            <!-- INICIO: Campo de Sucursal Agregado -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-400 mb-1">Sucursal del Cliente</label>
+                                <input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-700 rounded-md bg-slate-900/50 text-amber-400 font-bold">
+                            </div>
+                            <!-- FIN: Campo de Sucursal Agregado -->
                         </div>
                     </section>
 
@@ -272,6 +276,7 @@
         const casilleroSearchInput = document.getElementById('casillero-search');
         const clienteSuggestionsContainer = document.getElementById('cliente-suggestions');
         const clienteInput = document.getElementById('cliente');
+        const sucursalInput = document.getElementById('sucursal'); // <-- Agregado
         const anaquelSelect = document.getElementById('anaquel-select');
 
         // --- UI Control ---
@@ -307,7 +312,6 @@
             searchTrackingBtn.disabled = true;
             searchTrackingBtn.innerHTML = '<span class="spinner-border animate-spin inline-block w-5 h-5 border-2 rounded-full" role="status"></span> Buscando...';
 
-            // MEJORA: Búsqueda no sensible a mayúsculas/minúsculas con .ilike()
             const { data, error } = await sb.from('paquetes_cargados')
                 .select('id, tracking, peso, valor, cliente_box, status, fecha_bodega, cargados')
                 .ilike('tracking', tracking)
@@ -364,8 +368,15 @@
             }
         }
         
+        // --- Función Actualizada ---
         function actualizarInfoClienteUI() {
-            clienteInput.value = clienteSeleccionado ? `${clienteSeleccionado.nombre} (Box: ${clienteSeleccionado.box})` : 'Cliente no encontrado o no asignado';
+            if (clienteSeleccionado) {
+                clienteInput.value = `${clienteSeleccionado.nombre} (Box: ${clienteSeleccionado.box})`;
+                sucursalInput.value = clienteSeleccionado.sucursal || 'No asignada';
+            } else {
+                clienteInput.value = 'Cliente no encontrado o no asignado';
+                sucursalInput.value = ''; // Limpiar campo de sucursal también
+            }
         }
         
         async function handleAutocomplete(inputElement, containerElement, callback) {
@@ -426,7 +437,7 @@
             anaquelSelect.innerHTML = '<option value="">(Sin anaquel)</option>' + (data ? data.map(a => `<option value="${a.nombre}">${a.nombre}</option>`).join('') : '');
         }
 
-        // --- INICIO: LÓGICA DE ESCÁNERES MEJORADA ---
+        // --- LÓGICA DE ESCÁNERES MEJORADA ---
         let ocrStream, ocrWorker, html5QrcodeScanner, currentOcrTargetInput;
         const scannerModal = document.getElementById('scanner-modal');
         const scannerTitle = document.getElementById('scanner-title');
@@ -499,7 +510,6 @@
                 const cleanedText = bestGuess.replace(/[^a-zA-Z0-9\s-]/g, '').trim();
                 currentOcrTargetInput.value = cleanedText;
                 
-                // MEJORA: Lógica condicional para manejar diferentes campos OCR
                 if (currentOcrTargetInput.id === 'tracking-main') {
                     buscarPaqueteCargado();
                 } else if (currentOcrTargetInput.id === 'casillero-search') {
@@ -530,7 +540,6 @@
                 stopAllScanners();
             });
         };
-        // --- FIN: LÓGICA DE ESCÁNERES MEJORADA ---
         
         // --- Manual & Special Cases Modals Logic ---
         const manualModal = document.getElementById('manual-paquete-modal');
@@ -623,6 +632,9 @@
     </script>
 </body>
 </html>
+
+
+
 
 
 
