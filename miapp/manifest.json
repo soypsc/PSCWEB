@@ -2,7 +2,7 @@
   "name": "PSC App - Tu Casillero",
   "short_name": "PSC App",
   "description": "Aplicación de Clientes para PSC. Gestiona tus paquetes y casillero.",
-  "start_url": "/",
+  "start_url": "/miapp",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0f172a",
