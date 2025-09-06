@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastrear Paquete - PSC App</title>
+    
+    <!-- Scripts y Estilos de tu App -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Estilos originales de tu App para mantener el diseño */
+        body { font-family: 'Inter', sans-serif; }
+        .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; }
+        @keyframes spin{ to{transform:rotate(360deg)} }
+        
+        .timeline-container { 
+            position: relative; 
+            margin-top: 2rem;
+        }
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            bottom: 12px;
+            width: 2px;
+            background-color: #374151;
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 3rem;
+            margin-bottom: 1.5rem;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: 3px; /* Centrado en la línea */
+            top: 0.25rem;
+            height: 1.25rem; /* 20px */
+            width: 1.25rem;  /* 20px */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #4b5563;
+            border-radius: 9999px;
+            border: 3px solid #1f2937;
+            transition: all 0.2s ease;
+        }
+        /* -- INICIO DE LA ACTUALIZACIÓN VISUAL -- */
+        .timeline-item.is-psc .timeline-dot {
+            width: 1.5rem; /* 24px */
+            height: 1.5rem; /* 24px */
+            left: 1px; /* Reposicionado para mantenerse centrado */
+            background-color: #ffffff;
+            border-color: #2563eb;
+            /* Icono de PSC */
+            background-image: url('https://static.wixstatic.com/media/f7f5e1_66b4f06d762d42dd83ca81d5b63ba450~mv2.png');
+            background-size: 20px 20px;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        .timeline-item.is-fz .timeline-dot {
+            background-color: #ffd60a; /* Color amarillo de Fuzion */
+        }
+         .timeline-item.is-pn .timeline-dot {
+            background-color: #ff9500; /* Color naranja de Postal Ninja */
+        }
+        /* -- FIN DE LA ACTUALIZACIÓN VISUAL -- */
+
+        .hiddenEvt { display: none; }
+        
+        /* Estilo para el botón de trackings alternos */
+        .alt-chip-btn {
+            background-color: #374151;
+            color: #d1d5db;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .alt-chip-btn:hover {
+            background-color: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-black text-gray-200">
+
+    <div class="max-w-md mx-auto min-h-screen">
+        <header class="p-6 flex items-center space-x-4">
+            <!-- Botón para volver al index.html -->
+            <a href="index.html" class="text-gray-400 hover:text-white transition">
+                <i data-lucide="arrow-left" class="h-6 w-6"></i>
+            </a>
+            <h1 class="text-xl font-bold text-white">Rastrear Paquete</h1>
+        </header>
+
+        <main class="px-6 pb-8 space-y-8">
+            <!-- Sección de Búsqueda (sin cambios) -->
+            <section>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="psc_trk" placeholder="Ingresa tu número de guía" class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                    <button id="psc_go" class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition shadow-lg flex-shrink-0"><i data-lucide="search"></i></button>
+                </div>
+                <div class="flex items-center gap-2 mt-3 h-5">
+                    <div id="psc_stateSpin" class="spinner w-4 h-4 rounded-full" style="display:none;"></div>
+                    <p id="psc_stateMsg" class="text-sm text-gray-400">Listo.</p>
+                </div>
+            </section>
+            
+            <!-- Sección de Resultados (sin cambios) -->
+            <section id="results-section" class="hidden">
+                <div class="bg-gray-800 p-4 rounded-xl space-y-2">
+                    <div class="flex justify-between text-sm"><span class="text-gray-400">Tracking:</span><b id="psc_qsTracking" class="font-mono text-right break-all">—</b></div>
+                    <div class="flex justify-between text-sm"><span class="text-gray-400">Status:</span><b id="psc_qsStatus" class="text-right">—</b></div>
+                    <div class="flex justify-between text-sm"><span class="text-gray-400">Courier:</span><b id="psc_qsCourier" class="text-right">—</b></div>
+                    <div class="flex justify-between text-sm"><span class="text-gray-400">Peso:</span><b id="psc_qsPeso" class="text-right">—</b></div>
+                    <div class="flex justify-between text-sm items-start"><span class="text-gray-400 mt-1">Alterno(s):</span>
+                        <div id="psc_qsAlt" class="text-right flex flex-wrap justify-end gap-2 max-w-[70%]">—</div>
+                    </div>
+                </div>
+                
+                <div id="psc_events_container" class="mt-8 hidden">
+                    <h2 class="text-lg font-semibold text-white mb-4">Historial de seguimiento (<span id="psc_evCount">0</span>)</h2>
+                    <div id="psc_events" class="timeline-container"></div>
+                    <div class="flex justify-center mt-4">
+                        <button id="psc_toggleMore" class="text-blue-400 font-semibold text-sm" style="display:none;">Mostrar más</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // --- SCRIPT COMBINADO Y ADAPTADO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Se toma toda la lógica del widget y se adapta a esta página
+            const root = document.body; // El alcance ahora es toda la página
+
+            // --- Configuración de la API del widget ---
+            const ENDPOINT = "https://ztdkaxbgpogudtrdgzic.functions.supabase.co/track_v2";
+            const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0ZGtheGJncG9ndWR0cmRnemljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NDE2MDYsImV4cCI6MjA3MDQxNzYwNn0.mpjY5nWiS48O0DAUkCL7Jl6agF6LurGneaY8d1u70Po";
+
+            // --- Elementos del DOM ---
+            const $ = (sel) => root.querySelector(sel);
+            const trk = $('#psc_trk');
+            const go = $('#psc_go');
+            const stateMsg = $('#psc_stateMsg');
+            const stateSpin = $('#psc_stateSpin');
+            const resultsSection = $('#results-section');
+            const qsTracking = $('#psc_qsTracking');
+            const qsStatus = $('#psc_qsStatus');
+            const qsCourier = $('#psc_qsCourier');
+            const qsPeso = $('#psc_qsPeso');
+            const qsAlt = $('#psc_qsAlt');
+            const eventsContainer = $('#psc_events_container');
+            const eventsEl = $('#psc_events');
+            const evCountEl = $('#psc_evCount');
+            const toggleMoreBtn = $('#psc_toggleMore');
+
+            // --- Lógica y Funciones del Widget (sin cambios en la funcionalidad) ---
+
+            function setState(kind, text, loading = false) {
+                stateSpin.style.display = loading ? 'block' : 'none';
+                stateMsg.textContent = text;
+                stateMsg.className = (kind === 'err') ? 'text-sm text-red-400' : 'text-sm text-gray-400';
+            }
+            
+            function fmtDate(iso) { 
+                if (!iso) return '—'; 
+                const d = new Date(iso); 
+                return new Intl.DateTimeFormat('es-PA', { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'America/Panama' }).format(d);
+            }
+
+            function esc(s) { return String(s ?? '').replace(/[<>&]/g, m => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[m])) }
+
+            function eventSource(ev, resp) {
+                try {
+                    if ((ev.location || '').toUpperCase() === 'DB') return 'psc';
+                    const fz = resp.sources?.fuzion?.events || [];
+                    const matchFz = fz.some((e) => e.time_iso === ev.time_iso && e.description === ev.description && (e.location || '') === (ev.location || ''));
+                    return matchFz ? 'fz' : 'pn';
+                } catch { return 'pn' }
+            }
+            
+            function transformDesc(src, ev, resp) {
+                let d = String(ev.description || '');
+                if (src === 'fz') {
+                    const low = d.toLowerCase().trim();
+                    if (low === 'miami') d = 'Doral - Miami';
+                    else if (low === 'mal') d = 'Mal Identificado';
+                    else if (low === 'panama' || low === 'panamá') d = 'Aduanas - Panama City';
+                }
+                if (src === 'psc') {
+                    const m = d.match(/peso\s*=?\s*(\d+(?:\.\d+)?)\s*lb/i);
+                    const lbs = m ? m[1] : (resp?.weight_lbs);
+                    const dbStatus = (resp?.db_status) || (resp?.sources?.db?.selected?.status) || '';
+                    const label = String(dbStatus).trim() || 'Centro de Dist. PSC';
+                    d = `${label} - Peso(Aprox.)` + (lbs ? ` ${lbs} lbs` : '');
+                }
+                return d;
+            }
+
+            function computeOrderedList(r) {
+                const all = Array.isArray(r.events) ? r.events : [];
+                const groups = { psc: [], fz: [], pn: [] };
+                for (const ev of all) {
+                    const s = eventSource(ev, r);
+                    groups[s].push(ev);
+                }
+                groups.pn.sort((a, b) => String(b.time_iso || '').localeCompare(String(a.time_iso || '')));
+                return [...groups.psc, ...groups.fz, ...groups.pn];
+            }
+
+            function getAltList(r) {
+                const a1 = r.alt_trackings || [];
+                const a2 = r.sources?.postal_ninja?.alt_trackings || [];
+                const all = [...a1, ...a2].map(v => String(v || '').trim()).filter(Boolean);
+                const primary = String(r.tracking || '').toUpperCase();
+                const seen = new Set();
+                const out = [];
+                for (const x of all) {
+                    const key = x.toUpperCase();
+                    if (!key || key === primary || seen.has(key)) continue;
+                    seen.add(key);
+                    out.push(x);
+                }
+                return out;
+            }
+
+            function renderAltTrackings(r) {
+                const alts = getAltList(r);
+                if (!alts.length) { qsAlt.innerHTML = '—'; return; }
+                qsAlt.innerHTML = '';
+                alts.slice(0, 3).forEach(code => {
+                    const btn = document.createElement('button');
+                    btn.className = 'alt-chip-btn';
+                    btn.textContent = esc(code);
+                    btn.onclick = () => {
+                        trk.value = code;
+                        doSearch();
+                    };
+                    qsAlt.appendChild(btn);
+                });
+            }
+
+            function renderTopSummary(r) {
+                resultsSection.classList.remove('hidden');
+                qsTracking.textContent = r.tracking || '—';
+                qsCourier.textContent = r.detected_courier || r.courier_detected || '—';
+                qsPeso.textContent = r.weight_lbs ? `${r.weight_lbs} lbs` : '—';
+                renderAltTrackings(r);
+                
+                const dbStatus = (r.db_status || r.sources?.db?.selected?.status) || null;
+                if (dbStatus && String(dbStatus).trim().length > 0) {
+                    qsStatus.textContent = String(dbStatus).trim();
+                } else {
+                    const list = computeOrderedList(r);
+                    const chosen = list[0];
+                    if (chosen) {
+                        const src = eventSource(chosen, r);
+                        let label = transformDesc(src, chosen, r);
+                        if(src === 'pn') label = /delivered/i.test(String(chosen.description||'')) ? 'Delivered' : 'In transit';
+                        qsStatus.textContent = label || '—';
+                    } else {
+                        qsStatus.textContent = 'Pendiente';
+                    }
+                }
+            }
+
+            function renderTimeline(r) {
+                const list = computeOrderedList(r);
+                evCountEl.textContent = list.length || 0;
+                if (!list.length) {
+                    eventsContainer.classList.add('hidden');
+                    return;
+                }
+                eventsContainer.classList.remove('hidden');
+                
+                const MAX_VISIBLE = 4;
+                eventsEl.innerHTML = list.map((ev, idx) => {
+                    const src = eventSource(ev, r);
+                    const isHidden = idx >= MAX_VISIBLE;
+                    const desc = esc(transformDesc(src, ev, r));
+                    const loc = esc(ev.location || '—');
+                    const when = fmtDate(ev.time_iso);
+                    
+                    return `
+                        <div class="timeline-item is-${src} ${isHidden ? 'hiddenEvt' : ''}">
+                            <div class="timeline-dot"></div>
+                            <div class="text-sm">
+                                <p class="font-semibold text-white">${desc}</p>
+                                <p class="text-gray-400">${loc}</p>
+                                <p class="text-xs text-gray-500 mt-1">${when}</p>
+                            </div>
+                        </div>`;
+                }).join('');
+                
+                toggleMoreBtn.style.display = list.length > MAX_VISIBLE ? 'block' : 'none';
+                toggleMoreBtn.textContent = 'Mostrar más';
+            }
+
+            async function doSearch() {
+                const code = trk.value.trim();
+                if (!code) { setState('err', 'Ingresa un tracking.'); return; }
+
+                setState('warn', 'Buscando…', true);
+                resultsSection.classList.add('hidden');
+
+                try {
+                    const res = await fetch(ENDPOINT, {
+                        method: 'POST',
+                        mode: 'cors',
+                        cache: 'no-store',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': `Bearer ${ANON_KEY}`,
+                            'apikey': ANON_KEY
+                        },
+                        body: JSON.stringify({ tracking: code })
+                    });
+                    if (!res.ok) {
+                       setState('err', `Error: ${res.statusText}`); 
+                       return;
+                    }
+                    const data = await res.json();
+                    setState('ok', 'Listo.');
+                    renderTopSummary(data);
+                    renderTimeline(data);
+                } catch (e) {
+                    console.error(e);
+                    setState('err', 'Fallo de red. Intente de nuevo.');
+                }
+            }
+
+            go.addEventListener('click', doSearch);
+            trk.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+            toggleMoreBtn.addEventListener('click', () => {
+                const hidden = eventsEl.querySelectorAll('.hiddenEvt');
+                const isExpanding = hidden.length > 0 && hidden[0].style.display === 'none';
+                hidden.forEach(el => { el.style.display = isExpanding ? 'block' : 'none'; });
+                toggleMoreBtn.textContent = isExpanding ? 'Mostrar menos' : 'Mostrar más';
+            });
+            
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
