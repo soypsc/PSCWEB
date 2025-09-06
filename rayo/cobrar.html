@@ -159,694 +159,712 @@
     
     <script type="module" src="app.js"></script>
     <script type="module">
-        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-        const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
-        let clienteActual=null, paquetesPendientes=[], carrito=[], pagos=[], paqueteParaEditar=null;
-        let descuentoGeneralPorcentaje=0, cuponAplicado=null;
-        let ventaSuspendidaActual=null, modoVerificacion=false;
-        
-        // --- INICIO DE CAMBIOS ---
-        let currentUserId = null; // Variable global para guardar el ID del usuario logueado
-        // --- FIN DE CAMBIOS ---
+    let clienteActual=null, paquetesPendientes=[], carrito=[], pagos=[], paqueteParaEditar=null;
+    let descuentoGeneralPorcentaje=0, cuponAplicado=null;
+    let ventaSuspendidaActual=null, modoVerificacion=false;
+    let currentUserId = null;
 
-        // --- DOM Elements ---
-        const searchClienteInput = document.getElementById('search-cliente');
-        const terminalContent = document.getElementById('terminal-content');
-        const clienteNombreTitulo = document.getElementById('cliente-nombre-titulo');
-        const pendientesListDiv = document.getElementById('pendientes-list');
-        const scanInput = document.getElementById('scan-input');
-        const carritoItemsDiv = document.getElementById('carrito-items');
-        const totalCarritoSpan = document.getElementById('total-carrito');
-        const pagoRestanteSpan = document.getElementById('pago-restante');
-        const pagosRealizadosList = document.getElementById('pagos-realizados-list');
-        const btnCompletarVenta = document.getElementById('btn-completar-venta');
-        const verificationPanel = document.getElementById('verification-panel');
-        const verificationList = document.getElementById('verification-list');
-        const btnSuspenderVenta = document.getElementById('btn-suspender-venta');
-        const paymentMethodsContainer = document.getElementById('payment-methods-container');
-        const subtotalCarritoSpan = document.getElementById('subtotal-carrito');
-        const descuentosCarritoSpan = document.getElementById('descuentos-carrito');
-        const btnDescuentoGeneral = document.getElementById('btn-descuento-general');
-        const cuponCodeInput = document.getElementById('cupon-code-input');
-        const btnAplicarCupon = document.getElementById('btn-aplicar-cupon');
-        const cuponMessage = document.getElementById('cupon-message');
-        const loadSuspendedModal = document.getElementById('load-suspended-modal');
-        const suspendedSalesList = document.getElementById('suspended-sales-list');
-        const editPesoModal = document.getElementById('edit-peso-modal');
-        const formEditPeso = document.getElementById('form-edit-peso');
-        const creditPanel = document.getElementById('credit-panel');
-        const creditBalanceSpan = document.getElementById('credit-balance');
-        const btnApplyCredit = document.getElementById('btn-apply-credit');
-        const sucursalPagoSelect = document.getElementById('sucursal-pago');
-        const saldoLibrasDisplay = document.getElementById('saldo-libras-display');
-        const saldoRayitosDisplay = document.getElementById('saldo-rayitos-display');
-        const btnAplicarLibras = document.getElementById('btn-aplicar-libras');
-        const btnAplicarRayitos = document.getElementById('btn-aplicar-rayitos');
-        const CONVERSION_RAYITOS = 100; // 100 rayitos = $1
+    // --- DOM Elements ---
+    const searchClienteInput = document.getElementById('search-cliente');
+    const terminalContent = document.getElementById('terminal-content');
+    const clienteNombreTitulo = document.getElementById('cliente-nombre-titulo');
+    const pendientesListDiv = document.getElementById('pendientes-list');
+    const scanInput = document.getElementById('scan-input');
+    const carritoItemsDiv = document.getElementById('carrito-items');
+    const totalCarritoSpan = document.getElementById('total-carrito');
+    const pagoRestanteSpan = document.getElementById('pago-restante');
+    const pagosRealizadosList = document.getElementById('pagos-realizados-list');
+    const btnCompletarVenta = document.getElementById('btn-completar-venta');
+    const verificationPanel = document.getElementById('verification-panel');
+    const verificationList = document.getElementById('verification-list');
+    const btnSuspenderVenta = document.getElementById('btn-suspender-venta');
+    const paymentMethodsContainer = document.getElementById('payment-methods-container');
+    const subtotalCarritoSpan = document.getElementById('subtotal-carrito');
+    const descuentosCarritoSpan = document.getElementById('descuentos-carrito');
+    const btnDescuentoGeneral = document.getElementById('btn-descuento-general');
+    const cuponCodeInput = document.getElementById('cupon-code-input');
+    const btnAplicarCupon = document.getElementById('btn-aplicar-cupon');
+    const cuponMessage = document.getElementById('cupon-message');
+    const loadSuspendedModal = document.getElementById('load-suspended-modal');
+    const suspendedSalesList = document.getElementById('suspended-sales-list');
+    const editPesoModal = document.getElementById('edit-peso-modal');
+    const formEditPeso = document.getElementById('form-edit-peso');
+    const creditPanel = document.getElementById('credit-panel');
+    const creditBalanceSpan = document.getElementById('credit-balance');
+    const btnApplyCredit = document.getElementById('btn-apply-credit');
+    const sucursalPagoSelect = document.getElementById('sucursal-pago');
+    const saldoLibrasDisplay = document.getElementById('saldo-libras-display');
+    const saldoRayitosDisplay = document.getElementById('saldo-rayitos-display');
+    const btnAplicarLibras = document.getElementById('btn-aplicar-libras');
+    const btnAplicarRayitos = document.getElementById('btn-aplicar-rayitos');
+    const CONVERSION_RAYITOS = 100;
 
-        // --- INICIO DE CAMBIOS ---
-        // Función para obtener y guardar el ID del usuario actual
-        async function getCurrentUserId() {
-            const { data: { user } } = await sb.auth.getUser();
-            if (user) {
-                currentUserId = user.id;
-            } else {
-                console.error("No se pudo obtener el usuario. Los pagos no podrán ser atribuidos.");
-                alert("Error de sesión. Por favor, recargue la página.");
+    async function getCurrentUserId() {
+        const { data: { user } } = await sb.auth.getUser();
+        if (user) {
+            currentUserId = user.id;
+        } else {
+            console.error("No se pudo obtener el usuario. Los pagos no podrán ser atribuidos.");
+            alert("Error de sesión. Por favor, recargue la página.");
+        }
+    }
+
+    async function cargarSucursales() {
+        const { data, error } = await sb.from('sucursales').select('sucursal').order('sucursal');
+        if (error || !data) {
+            sucursalPagoSelect.innerHTML = '<option value="">Error al cargar</option>';
+            return;
+        }
+        sucursalPagoSelect.innerHTML = data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join('');
+    }
+    
+    async function configurarSucursalPorDefecto() {
+        const { data: { user } } = await sb.auth.getUser();
+        if (!user) return;
+        const { data: perfil, error } = await sb.from('perfiles').select('rol, sucursal_defecto').eq('id', user.id).single();
+        sucursalPagoSelect.disabled = false;
+        if (perfil && perfil.sucursal_defecto) {
+            sucursalPagoSelect.value = perfil.sucursal_defecto;
+            if (perfil.rol !== 'admin') {
+                sucursalPagoSelect.disabled = true;
             }
         }
-        // --- FIN DE CAMBIOS ---
+    }
 
-        async function cargarSucursales() {
-            const { data, error } = await sb.from('sucursales').select('sucursal').order('sucursal');
-            if (error || !data) {
-                sucursalPagoSelect.innerHTML = '<option value="">Error al cargar</option>';
-                return;
-            }
-            sucursalPagoSelect.innerHTML = data.map(s => `<option value="${s.sucursal}">${s.sucursal}</option>`).join('');
+    function renderPendientes() {
+        if (paquetesPendientes.length === 0) {
+            pendientesListDiv.innerHTML = '<p class="text-center text-slate-500 p-4">¡No hay más paquetes pendientes para este cliente!</p>';
+            return;
         }
-        
-        async function configurarSucursalPorDefecto() {
-            const { data: { user } } = await sb.auth.getUser();
-            if (!user) return;
-            const { data: perfil, error } = await sb.from('perfiles').select('rol, sucursal_defecto').eq('id', user.id).single();
-            sucursalPagoSelect.disabled = false;
-            if (perfil && perfil.sucursal_defecto) {
-                sucursalPagoSelect.value = perfil.sucursal_defecto;
-                if (perfil.rol !== 'admin') {
-                    sucursalPagoSelect.disabled = true;
-                }
-            }
-        }
-
-        function renderPendientes() {
-            if (paquetesPendientes.length === 0) {
-                pendientesListDiv.innerHTML = '<p class="text-center text-slate-500 p-4">¡No hay más paquetes pendientes para este cliente!</p>';
-                return;
-            }
-            const agrupados = paquetesPendientes.reduce((acc, p) => {
-                const anaquel = p.anaquel || 'Sin Anaquel';
-                if (!acc[anaquel]) acc[anaquel] = [];
-                acc[anaquel].push(p);
-                return acc;
-            }, {});
-            pendientesListDiv.innerHTML = Object.entries(agrupados).map(([anaquel, paquetes]) => `<div class="p-3 bg-slate-100 rounded-md"><h4 class="font-bold text-slate-600 mb-2">📍 Anaquel: ${anaquel}</h4><div class="space-y-2">${paquetes.map(p => `<div id="pendiente-${p.tracking}" class="p-2 border bg-white rounded flex justify-between items-center"><span>${p.tracking}</span><span class="text-sm text-slate-500">${(p.peso || 0).toFixed(2)} lbs</span></div>`).join('')}</div></div>`).join('');
-        }
-        
-        function renderCarrito() {
-            if (carrito.length === 0) {
-                carritoItemsDiv.innerHTML = '<p class="text-slate-500">El carrito está vacío.</p>';
-            } else {
-                carritoItemsDiv.innerHTML = carrito.map(p => {
-                    const costoOriginal = (p.costo_flete || 0) + (p.costo_impuestos || 0);
-                    const montoDescuento = costoOriginal * ((p.descuento_porcentaje || 0) / 100);
-                    const costoFinal = costoOriginal - montoDescuento;
-                    return `<div class="p-2.5 bg-white rounded-lg border flex justify-between items-center fade-in"><div><p class="font-semibold">${p.tracking}</p><p class="text-xs text-slate-500">${(p.peso || 0).toFixed(2)} lbs</p>${montoDescuento > 0 ? `<p class="text-xs text-red-500 font-semibold">Descuento: ${p.descuento_porcentaje}% (-$${montoDescuento.toFixed(2)})</p>` : ''}</div><div class="flex items-center gap-3"><span class="font-bold text-emerald-700">$${costoFinal.toFixed(2)}</span><button class="btn-discount-item text-slate-400 hover:text-amber-600" data-tracking="${p.tracking}" title="Aplicar Descuento"><i data-lucide="tag" class="h-4 w-4"></i></button><button class="btn-edit-item text-slate-400 hover:text-blue-600" data-tracking="${p.tracking}" title="Editar Peso"><i data-lucide="edit" class="h-4 w-4"></i></button><button class="btn-delete-item text-slate-400 hover:text-red-600" data-tracking="${p.tracking}" title="Eliminar del Carrito"><i data-lucide="trash-2" class="h-4 w-4"></i></button></div></div>`;
-                }).join('');
-            }
-            btnSuspenderVenta.disabled = carrito.length === 0;
-            calcularTotal();
-            lucide.createIcons();
-        }
-
-        function renderPagos() {
-            pagosRealizadosList.innerHTML = pagos.map(p => `<div class="flex justify-between bg-emerald-100 p-1 rounded-md"><span>${p.metodo} (${p.sucursal}):</span><span class="font-medium">$${p.monto.toFixed(2)}</span></div>`).join('');
-        }
-
-        function renderVerificationList() {
-            verificationPanel.classList.remove('hidden');
-            const allTrackings = ventaSuspendidaActual.carrito_data.map(p => p.tracking);
-            verificationList.innerHTML = allTrackings.map(t => {
-                const isVerified = !ventaSuspendidaActual.trackings_pendientes.includes(t);
-                return `<li class="${isVerified ? 'verified-item' : ''}">${t}</li>`;
-            }).join('');
-        }
-
-        async function loadPaymentMethods() {
-            const { data, error } = await sb.from('metodos_pago').select('nombre').eq('is_activo', true).order('nombre');
-            if (error || !data) {
-                paymentMethodsContainer.innerHTML = '<p class="text-red-500 text-sm">Error al cargar métodos de pago.</p>';
-                return;
-            }
-            const colors = ['bg-sky-500', 'bg-indigo-500', 'bg-purple-500', 'bg-gray-500', 'bg-teal-500', 'bg-rose-500'];
-            paymentMethodsContainer.innerHTML = data.map((metodo, index) => {
-                const color = colors[index % colors.length];
-                return `<button data-metodo="${metodo.nombre}" class="payment-method-btn ${color} text-white p-2 rounded-md hover:opacity-80">${metodo.nombre}</button>`;
-            }).join('');
-        }
-        
-        async function buscarCliente(searchTerm, isContinuation = false) {
-            if (!isContinuation) {
-                resetTerminal();
-            }
-            if (!searchTerm) return;
-            const isNumeric = !isNaN(searchTerm);
-            let query = sb.from('clientes').select('*, saldo_libras, saldo_rayitos, tarifa_1');
-            if (isNumeric) query = query.eq('box', parseInt(searchTerm));
-            else query = query.ilike('nombre', `%${searchTerm}%`);
-            const { data, error } = await query.limit(1).single();
-            if (error || !data) { alert("Cliente no encontrado."); return; }
-            
-            clienteActual = data;
-            if (!isContinuation) {
-                const { data: paquetes, error: paquetesError } = await sb.rpc('get_paquetes_para_entrega', { p_cliente_box: clienteActual.box });
-                if (paquetesError) { alert("Error al cargar paquetes del cliente."); console.error(paquetesError); return; }
-                paquetesPendientes = paquetes.map(p => ({ ...p, costo_flete: p.costo_total, costo_impuestos: 0, descuento_porcentaje: 0 }));
-                renderPendientes();
-            }
-
-            clienteNombreTitulo.textContent = clienteActual.nombre;
-            saldoLibrasDisplay.textContent = `${(clienteActual.saldo_libras || 0).toFixed(2)} lbs`;
-            saldoRayitosDisplay.textContent = `${(clienteActual.saldo_rayitos || 0).toFixed(0)}`;
-            btnAplicarLibras.disabled = (clienteActual.saldo_libras || 0) <= 0;
-            btnAplicarRayitos.disabled = (clienteActual.saldo_rayitos || 0) < CONVERSION_RAYITOS;
-
-            terminalContent.classList.remove('hidden');
-            if (clienteActual.saldo_a_favor > 0) {
-                creditBalanceSpan.textContent = `$${clienteActual.saldo_a_favor.toFixed(2)}`;
-                creditPanel.classList.remove('hidden');
-            }
-            await loadPaymentMethods();
-            await cargarSucursales();
-            await configurarSucursalPorDefecto();
-            scanInput.focus();
-        }
-        
-        function handleScan() {
-            const tracking = scanInput.value.trim().toLowerCase();
-            if (!tracking) return;
-            scanInput.value = '';
-            scanInput.focus();
-            if (modoVerificacion) {
-                const itemIndex = ventaSuspendidaActual.trackings_pendientes.findIndex(t => t.trim().toLowerCase() === tracking);
-                if (itemIndex > -1) {
-                    ventaSuspendidaActual.trackings_pendientes.splice(itemIndex, 1);
-                    flashInputColor('scan-success');
-                    renderVerificationList();
-                    if (ventaSuspendidaActual.trackings_pendientes.length === 0) {
-                        modoVerificacion = false;
-                        verificationPanel.classList.add('hidden');
-                        alert("¡Verificación completada! El carrito está desbloqueado.");
-                        scanInput.placeholder = "Escanear paquete para AÑADIR";
-                        calcularTotal();
-                    }
-                } else {
-                    flashInputColor('scan-error');
-                    alert("Este tracking no pertenece a la venta suspendida o ya fue verificado.");
-                }
-            } else {
-                const paqueteIndex = paquetesPendientes.findIndex(p => p.tracking.toLowerCase() === tracking);
-                if (paqueteIndex > -1) {
-                    const [paquete] = paquetesPendientes.splice(paqueteIndex, 1);
-                    carrito.push(paquete);
-                    renderPendientes();
-                    renderCarrito();
-                    flashInputColor('scan-success');
-                } else {
-                    alert(`Error: Paquete ${tracking} no está en la lista de pendientes o ya fue escaneado.`);
-                    flashInputColor('scan-error');
-                }
-            }
-        }
-        
-        function handleRemoveFromCart(tracking) {
-            const paqueteIndex = carrito.findIndex(p => p.tracking === tracking);
-            if (paqueteIndex > -1) {
-                const [paquete] = carrito.splice(paqueteIndex, 1);
-                paquetesPendientes.push(paquete);
-                renderCarrito();
-                renderPendientes();
-            }
-        }
-
-        function handleOpenEditModal(tracking) {
-            const paquete = carrito.find(p => p.tracking === tracking);
-            if (paquete) {
-                paqueteParaEditar = paquete;
-                formEditPeso.reset();
-                editPesoMessage.textContent = '';
-                document.getElementById('edit-peso-tracking').textContent = paquete.tracking;
-                document.getElementById('edit-peso-nuevo').value = paquete.peso || 0;
-                editPesoModal.classList.remove('hidden');
-            }
-        }
-
-        async function handleEditPesoSubmit(e) {
-            e.preventDefault();
-            const submitButton = formEditPeso.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            document.getElementById('edit-peso-message').textContent = 'Procesando...';
-            const nuevoPeso = parseFloat(document.getElementById('edit-peso-nuevo').value);
-            const nota = document.getElementById('edit-peso-nota').value.trim();
-            const foto = document.getElementById('edit-peso-foto').files[0];
-            if (!nota || !foto || isNaN(nuevoPeso)) {
-                document.getElementById('edit-peso-message').textContent = 'Todos los campos son obligatorios.';
-                submitButton.disabled = false;
-                return;
-            }
-            try {
-                const filePath = `public/${paqueteParaEditar.tracking}-${Date.now()}.jpg`;
-                const { error: uploadError } = await sb.storage.from('ajustes-peso').upload(filePath, foto, { contentType: 'image/jpeg' });
-                if (uploadError) throw new Error(`Error al subir foto: ${uploadError.message}`);
-                const { data: urlData } = sb.storage.from('ajustes-peso').getPublicUrl(filePath);
-                if (!urlData) throw new Error("No se pudo obtener la URL de la foto.");
-                const { error: rpcError } = await sb.rpc('update_paquete_peso', {
-                    p_id: paqueteParaEditar.id, p_peso: nuevoPeso, p_nota: nota, p_foto_url: urlData.publicUrl
-                });
-                if (rpcError) throw new Error(`Error al guardar en DB: ${rpcError.message}`);
-                const { data: paqueteActualizado, error: fetchError } = await sb.rpc('get_paquetes_para_entrega', { p_cliente_box: clienteActual.box }).eq('id', paqueteParaEditar.id).single();
-                if (fetchError) throw new Error(`Error al refrescar datos: ${fetchError.message}`);
-                const indexEnCarrito = carrito.findIndex(p => p.id === paqueteParaEditar.id);
-                if (indexEnCarrito > -1) {
-                    carrito[indexEnCarrito] = { ...paqueteActualizado, costo_flete: paqueteActualizado.costo_total, costo_impuestos: 0, descuento_porcentaje: carrito[indexEnCarrito].descuento_porcentaje };
-                }
-                document.getElementById('edit-peso-message').textContent = '¡Ajuste guardado con éxito!';
-                setTimeout(() => { editPesoModal.classList.add('hidden'); renderCarrito(); }, 1500);
-            } catch (error) {
-                console.error("Error en ajuste de peso:", error);
-                document.getElementById('edit-peso-message').textContent = error.message;
-            } finally {
-                submitButton.disabled = false;
-            }
-        }
-
-        function handleItemDiscount(tracking) {
-            const item = carrito.find(p => p.tracking === tracking);
-            const porcentajeStr = prompt("Ingrese el porcentaje de descuento para este paquete:", item.descuento_porcentaje || "0");
-            const porcentaje = parseFloat(porcentajeStr);
-            if (!isNaN(porcentaje) && porcentaje >= 0 && porcentaje <= 100) {
-                item.descuento_porcentaje = porcentaje;
-                renderCarrito();
-            } else if (porcentajeStr !== null) {
-                alert("Porcentaje inválido.");
-            }
-        }
-
-        function handleGeneralDiscount() {
-            const porcentajeStr = prompt("Ingrese el porcentaje de descuento GENERAL:", descuentoGeneralPorcentaje || "0");
-            const porcentaje = parseFloat(porcentajeStr);
-            if (!isNaN(porcentaje) && porcentaje >= 0 && porcentaje <= 100) {
-                descuentoGeneralPorcentaje = porcentaje;
-                calcularTotal();
-            } else if (porcentajeStr !== null) {
-                alert("Porcentaje inválido.");
-            }
-        }
-
-        async function handleAplicarCupon() {
-            const codigo = cuponCodeInput.value.trim().toUpperCase();
-            if (!codigo) { cuponMessage.textContent = "Ingrese un código."; return; }
-            cuponMessage.textContent = "Validando...";
-            try {
-                const { data, error } = await sb.rpc('validar_y_obtener_cupon', { p_codigo: codigo });
-                if (error) throw error;
-                cuponAplicado = data;
-                cuponMessage.textContent = `✅ Cupón "${cuponAplicado.codigo}" aplicado.`;
-                cuponCodeInput.disabled = true;
-                btnAplicarCupon.disabled = true;
-                calcularTotal();
-            } catch (error) {
-                cuponAplicado = null;
-                const friendlyError = error.message.includes('RAISE EXCEPTION:') ? error.message.split('RAISE EXCEPTION:')[1].trim() : "Error de validación.";
-                cuponMessage.textContent = `❌ ${friendlyError}`;
-            }
-        }
-        
-        async function handleApplyCredit() {
-            if (!clienteActual || clienteActual.saldo_a_favor <= 0) return;
-            const restante = parseFloat(pagoRestanteSpan.textContent.replace('$', ''));
-            const montoAAplicar = Math.min(clienteActual.saldo_a_favor, restante);
-            if (montoAAplicar <= 0) {
-                alert("No hay monto restante que cubrir.");
-                return;
-            }
-            btnApplyCredit.disabled = true;
-            btnApplyCredit.textContent = "Aplicando...";
-            try {
-                const { data: nuevoSaldo, error } = await sb.rpc('aplicar_saldo_a_favor', {
-                    p_cliente_box: clienteActual.box,
-                    p_monto_a_aplicar: montoAAplicar
-                });
-                if (error) throw error;
-                clienteActual.saldo_a_favor = nuevoSaldo;
-                // --- INICIO DE CAMBIOS ---
-                pagos.push({ metodo: 'Saldo a Favor', monto: montoAAplicar, sucursal: sucursalPagoSelect.value, recibido_por: currentUserId });
-                // --- FIN DE CAMBIOS ---
-                renderPagos();
-                calcularTotal();
-                creditBalanceSpan.textContent = `$${nuevoSaldo.toFixed(2)}`;
-                if (nuevoSaldo <= 0) {
-                    creditPanel.classList.add('hidden');
-                }
-            } catch (error) {
-                alert(`Error al aplicar saldo: ${error.message}`);
-            } finally {
-                btnApplyCredit.disabled = false;
-                btnApplyCredit.textContent = "Aplicar Saldo";
-            }
-        }
-        
-        async function handleAplicarLibras() {
-            console.log('Botón de libras presionado');
-            if (!clienteActual || (clienteActual.saldo_libras || 0) <= 0) return;
-            const sucursal = sucursalPagoSelect.value;
-            if (!sucursal) { alert("Seleccione una sucursal."); return; }
-
-            const costoFlete = carrito.reduce((acc, p) => acc + (p.costo_flete || 0), 0);
-            const librasAConsumir = costoFlete / (clienteActual.tarifa_1 || 4.00);
-            const costoLibras = librasAConsumir * (clienteActual.tarifa_1 || 4.00);
-
-            if ((clienteActual.saldo_libras || 0) < librasAConsumir) {
-                alert("El cliente no tiene suficientes libras para cubrir el flete.");
-                return;
-            }
-
-            if (!confirm(`¿Desea usar ${librasAConsumir.toFixed(2)} lbs del saldo del cliente para pagar el flete?`)) {
-                return;
-            }
-
-            try {
-                const { error } = await sb.rpc('consumir_libras_paquete', {
-                    p_cliente_id: clienteActual.id,
-                    p_libras_a_consumir: librasAConsumir,
-                    p_descripcion: `Consumo en SGL1 por ${librasAConsumir.toFixed(2)} lbs.`
-                });
-                if (error) throw error;
-
-                // --- INICIO DE CAMBIOS ---
-                pagos.push({ metodo: 'Saldo de Libras', monto: costoLibras, sucursal: sucursal, recibido_por: currentUserId });
-                // --- FIN DE CAMBIOS ---
-                clienteActual.saldo_libras -= librasAConsumir;
-                clienteActual.saldo_libras = Math.round(clienteActual.saldo_libras * 100) / 100;
-                saldoLibrasDisplay.textContent = `${clienteActual.saldo_libras.toFixed(2)} lbs`;
-                btnAplicarLibras.disabled = true;
-
-                renderPagos();
-                calcularTotal();
-                alert("Saldo de libras aplicado correctamente.");
-            } catch (error) {
-                alert(`Error al aplicar saldo de libras: ${error.message}`);
-            }
-        }
-        
-        async function handleAplicarRayitos() {
-            if (!clienteActual || (clienteActual.saldo_rayitos || 0) < CONVERSION_RAYITOS) {
-                alert(`El cliente no tiene suficientes rayitos para canjear (mínimo ${CONVERSION_RAYITOS}).`);
-                return;
-            }
-            
-            const sucursal = sucursalPagoSelect.value;
-            if (!sucursal) { alert("Seleccione una sucursal."); return; }
-
-            const rayitosACanajear = clienteActual.saldo_rayitos;
-            const montoDescuento = rayitosACanajear / CONVERSION_RAYITOS;
-
-            if (!confirm(`¿Desea canjear los ${rayitosACanajear} rayitos del cliente por un descuento de $${montoDescuento.toFixed(2)}?`)) {
-                return;
-            }
-            
-            try {
-                const { error } = await sb.rpc('canjear_rayitos', {
-                    p_cliente_id: clienteActual.id,
-                    p_rayitos_a_canjear: rayitosACanajear,
-                    p_descripcion: `Canje por ${rayitosACanajear} rayitos en SGL1`
-                });
-                if (error) throw error;
-                // --- INICIO DE CAMBIOS ---
-                pagos.push({ metodo: 'Rayitos', monto: montoDescuento, sucursal: sucursal, recibido_por: currentUserId });
-                // --- FIN DE CAMBIOS ---
-                clienteActual.saldo_rayitos = 0;
-                saldoRayitosDisplay.textContent = '0';
-                btnAplicarRayitos.disabled = true;
-
-                renderPagos();
-                calcularTotal();
-                alert("Rayitos canjeados correctamente.");
-            } catch (error) {
-                alert(`Error al canjear rayitos: ${error.message}`);
-            }
-        }
-        
-        function calcularTotal() {
-            let subtotal=0, descuentoTotalItems=0;
-            carrito.forEach(p => {
+        const agrupados = paquetesPendientes.reduce((acc, p) => {
+            const anaquel = p.anaquel || 'Sin Anaquel';
+            if (!acc[anaquel]) acc[anaquel] = [];
+            acc[anaquel].push(p);
+            return acc;
+        }, {});
+        pendientesListDiv.innerHTML = Object.entries(agrupados).map(([anaquel, paquetes]) => `<div class="p-3 bg-slate-100 rounded-md"><h4 class="font-bold text-slate-600 mb-2">📍 Anaquel: ${anaquel}</h4><div class="space-y-2">${paquetes.map(p => `<div id="pendiente-${p.tracking}" class="p-2 border bg-white rounded flex justify-between items-center"><span>${p.tracking}</span><span class="text-sm text-slate-500">${(p.peso || 0).toFixed(2)} lbs</span></div>`).join('')}</div></div>`).join('');
+    }
+    
+    function renderCarrito() {
+        if (carrito.length === 0) {
+            carritoItemsDiv.innerHTML = '<p class="text-slate-500">El carrito está vacío.</p>';
+        } else {
+            carritoItemsDiv.innerHTML = carrito.map(p => {
                 const costoOriginal = (p.costo_flete || 0) + (p.costo_impuestos || 0);
-                subtotal += costoOriginal;
-                descuentoTotalItems += costoOriginal * ((p.descuento_porcentaje || 0) / 100);
-            });
-            const subtotalConDescuentosItems = subtotal - descuentoTotalItems;
-            let descuentoCuponMonto = 0;
-            if (cuponAplicado) {
-                if (cuponAplicado.tipo_descuento === 'porcentaje') descuentoCuponMonto = subtotalConDescuentosItems * (cuponAplicado.valor_descuento / 100);
-                else if (cuponAplicado.tipo_descuento === 'monto_fijo') descuentoCuponMonto = cuponAplicado.valor_descuento;
-            }
-            const subtotalConCupon = subtotalConDescuentosItems - descuentoCuponMonto;
-            const descuentoGeneralMonto = subtotalConCupon * (descuentoGeneralPorcentaje / 100);
-            const totalFinal = subtotalConCupon - descuentoGeneralMonto;
-            const descuentoTotalFinal = descuentoTotalItems + descuentoCuponMonto + descuentoGeneralMonto;
-            const totalPagado = pagos.reduce((acc, p) => acc + p.monto, 0);
-            const restante = totalFinal - totalPagado;
-            subtotalCarritoSpan.textContent = `$${subtotal.toFixed(2)}`;
-            descuentosCarritoSpan.textContent = `-$${descuentoTotalFinal.toFixed(2)}`;
-            totalCarritoSpan.textContent = `$${totalFinal.toFixed(2)}`;
-            pagoRestanteSpan.textContent = `$${restante.toFixed(2)}`;
-            btnCompletarVenta.disabled = modoVerificacion || carrito.length === 0 || restante > 0.001;
-        }
-
-        async function completarVenta() {
-            if (btnCompletarVenta.disabled) return;
-            btnCompletarVenta.textContent = "Procesando...";
-            btnCompletarVenta.disabled = true;
-            
-            const montoTotalFinal = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
-
-            try {
-                const { data: facturaId, error: ventaError } = await sb.rpc('finalizar_venta', {
-                    p_cliente_box: clienteActual.box,
-                    p_cliente_nombre: clienteActual.nombre,
-                    p_monto_total: montoTotalFinal,
-                    p_descuento_general_porcentaje: descuentoGeneralPorcentaje,
-                    p_cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null,
-                    p_venta_suspendida_id: ventaSuspendidaActual ? ventaSuspendidaActual.id : null,
-                    p_carrito: carrito.map(p=>({id:p.id, tracking:p.tracking, costo_flete:(p.costo_flete||0)+(p.costo_impuestos||0), descuento_porcentaje:p.descuento_porcentaje||0})),
-                    p_pagos: pagos
-                });
-                if (ventaError) throw ventaError;
-
-                const htmlRecibo = await generarReciboHTML(facturaId);
-                
-                const { error: updateError } = await sb.from('facturas').update({ html_recibo: htmlRecibo }).eq('id', facturaId);
-                
-                if (updateError) throw updateError;
-                
-                alert(`¡Venta completada! Factura #${facturaId.substring(0, 8).toUpperCase()} creada.`);
-                if (confirm("¿Desea ver el recibo?")) {
-                    window.open(`ver-factura.html?id=${facturaId}`, '_blank');
-                }
-                
-                resetTerminal(true);
-
-            } catch (error) {
-                console.error("Error al completar la venta:", error);
-                alert(`Error al finalizar la venta: ${error.message}`);
-                btnCompletarVenta.textContent = "Completar Venta";
-                btnCompletarVenta.disabled = false;
-            }
-        }
-        
-        async function generarReciboHTML(facturaId) {
-            const { data: plantilla, error } = await sb.from('plantillas').select('cuerpo_html').eq('identificador_unico', 'RECIBO_IMPRESION').single();
-            if (error || !plantilla) {
-                console.error("No se encontró la plantilla de recibo.");
-                return "<h1>Error: Plantilla de recibo no encontrada.</h1>";
-            }
-            let html = plantilla.cuerpo_html;
-            const itemsHTML = carrito.map(p => {
-                const costoOriginal = (p.costo_flete || 0) + (p.costo_impuestos || 0);
-                return `<tr><td>${p.tracking}</td><td>${(p.peso || 0).toFixed(2)} lbs</td><td>$${costoOriginal.toFixed(2)}</td></tr>`;
+                const montoDescuento = costoOriginal * ((p.descuento_porcentaje || 0) / 100);
+                const costoFinal = costoOriginal - montoDescuento;
+                return `<div class="p-2.5 bg-white rounded-lg border flex justify-between items-center fade-in"><div><p class="font-semibold">${p.tracking}</p><p class="text-xs text-slate-500">${(p.peso || 0).toFixed(2)} lbs</p>${montoDescuento > 0 ? `<p class="text-xs text-red-500 font-semibold">Descuento: ${p.descuento_porcentaje}% (-$${montoDescuento.toFixed(2)})</p>` : ''}</div><div class="flex items-center gap-3"><span class="font-bold text-emerald-700">$${costoFinal.toFixed(2)}</span><button class="btn-discount-item text-slate-400 hover:text-amber-600" data-tracking="${p.tracking}" title="Aplicar Descuento"><i data-lucide="tag" class="h-4 w-4"></i></button><button class="btn-edit-item text-slate-400 hover:text-blue-600" data-tracking="${p.tracking}" title="Editar Peso"><i data-lucide="edit" class="h-4 w-4"></i></button><button class="btn-delete-item text-slate-400 hover:text-red-600" data-tracking="${p.tracking}" title="Eliminar del Carrito"><i data-lucide="trash-2" class="h-4 w-4"></i></button></div></div>`;
             }).join('');
-            const desgloseItems = `<table width="100%"><thead><tr><th>Tracking</th><th>Peso</th><th>Costo</th></tr></thead><tbody>${itemsHTML}</tbody></table>`;
-            const pagosHTML = pagos.map(p => `<div>${p.metodo} (${p.sucursal}): $${p.monto.toFixed(2)}</div>`).join('');
-            html = html.replace(/{{fecha_factura}}/g, new Date().toLocaleDateString('es-PA'));
-            html = html.replace(/{{numero_factura}}/g, facturaId.substring(0, 8).toUpperCase());
-            html = html.replace(/{{nombre_cliente}}/g, clienteActual.nombre);
-            html = html.replace(/{{box}}/g, clienteActual.box);
-            html = html.replace(/{{desglose_items_html}}/g, desgloseItems);
-            html = html.replace(/{{subtotal}}/g, subtotalCarritoSpan.textContent.replace('$', ''));
-            html = html.replace(/{{descuentos}}/g, descuentosCarritoSpan.textContent.replace('-$', ''));
-            html = html.replace(/{{total_pagado}}/g, totalCarritoSpan.textContent.replace('$', ''));
-            html = html.replace(/{{metodos_pago_html}}/g, pagosHTML);
-            return html;
         }
+        btnSuspenderVenta.disabled = carrito.length === 0;
+        calcularTotal();
+        lucide.createIcons();
+    }
 
-        function handlePago(metodo) {
-            const sucursal = sucursalPagoSelect.value;
-            if (!sucursal) {
-                alert("Por favor, seleccione la sucursal donde se realiza el pago.");
-                return;
-            }
-            const total = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
-            const totalPagado = pagos.reduce((acc, p) => acc + p.monto, 0);
-            const restante = total - totalPagado;
-            if (restante <= 0.001) { alert("La cuenta ya está saldada."); return; }
-            const montoStr = prompt(`Ingrese el monto a pagar con ${metodo}:`, restante.toFixed(2));
-            const monto = parseFloat(montoStr);
-            if (!isNaN(monto) && monto > 0 && monto <= restante + 0.001) {
-                // --- INICIO DE CAMBIOS ---
-                pagos.push({ metodo, monto, sucursal, recibido_por: currentUserId });
-                // --- FIN DE CAMBIOS ---
-                renderPagos();
-                calcularTotal();
-            } else { alert("Monto inválido."); }
-        }
-        
-        async function handleSuspendSaleSubmit() {
-            const montoAbonado = pagos.reduce((acc, p) => acc + p.monto, 0);
-            const total = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
-            let status = 'Suspendida';
-            if (montoAbonado >= total - 0.001) status = 'Pagado';
-            else if (montoAbonado > 0) status = 'Abonado';
-            const payload = {
-                cliente_box: clienteActual.box, cliente_nombre: clienteActual.nombre, status,
-                carrito_data: carrito, descuento_general_porcentaje: descuentoGeneralPorcentaje,
-                cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null, monto_abonado: montoAbonado,
-                pagos_data: pagos
-            };
-            if (ventaSuspendidaActual) {
-                const { error } = await sb.from('ventas_suspendidas').update(payload).eq('id', ventaSuspendidaActual.id);
-                if (error) { alert(`Error al actualizar la venta: ${error.message}`); } 
-                else { alert(`Venta suspendida actualizada como: ${status}`); resetTerminal(true); }
-            } else {
-                const paqueteIds = carrito.map(p => p.id);
-                const { error } = await sb.from('ventas_suspendidas').insert(payload);
-                if (error) { alert(`Error al suspender la venta: ${error.message}`); } 
-                else { 
-                    await sb.rpc('cambiar_estado_paquetes', { p_paquete_ids: paqueteIds, p_nuevo_estado: 'suspendido' });
-                    alert(`Venta suspendida como: ${status}`); resetTerminal(true); 
-                }
-            }
-        }
+    // --- INICIO DE CAMBIOS ---
+    // Se modifica la función para añadir un botón de eliminar a cada pago.
+    function renderPagos() {
+        pagosRealizadosList.innerHTML = pagos.map((p, index) => 
+            `<div class="flex justify-between items-center bg-emerald-100 p-1 pl-3 rounded-md">
+                <span>${p.metodo} (${p.sucursal}):</span>
+                <div class="flex items-center gap-2">
+                    <span class="font-medium">$${p.monto.toFixed(2)}</span>
+                    <button class="btn-delete-pago text-red-500 hover:text-red-700 p-1" data-index="${index}" title="Eliminar Pago">
+                        <i data-lucide="x-circle" class="h-4 w-4 pointer-events-none"></i>
+                    </button>
+                </div>
+            </div>`
+        ).join('');
+        lucide.createIcons(); // Vuelve a renderizar los íconos de Lucide
+    }
+    // --- FIN DE CAMBIOS ---
 
-        async function handleOpenLoadSuspendedModal() {
-            suspendedSalesList.innerHTML = '<p>Cargando...</p>';
-            loadSuspendedModal.classList.remove('hidden');
-            try {
-                const { data, error } = await sb.from('ventas_suspendidas').select('*').order('created_at', { ascending: false });
-                if (error) throw error;
-                if (!data || data.length === 0) {
-                    suspendedSalesList.innerHTML = '<p>No hay ventas suspendidas.</p>'; return;
-                }
-                suspendedSalesList.innerHTML = data.map(v => `<div class="border rounded-md p-3 mb-2 flex justify-between items-center"><div><p class="font-semibold">${v.cliente_nombre} (Box: ${v.cliente_box})</p><p class="text-sm text-slate-500">${new Date(v.created_at).toLocaleString('es-PA')}</p><p class="text-sm font-bold ${v.status === 'Pagado' ? 'text-green-600' : v.status === 'Abonado' ? 'text-blue-600' : ''}">${v.status}</p></div><div class="flex gap-2"><button data-id="${v.id}" class="btn-cancel-sale bg-red-500 text-white font-semibold py-1 px-3 rounded-md">Cancelar</button><button data-id="${v.id}" class="btn-load-sale bg-emerald-500 text-white font-semibold py-1 px-3 rounded-md">Cargar</button></div></div>`).join('');
-            } catch (error) {
-                console.error("Error al cargar ventas suspendidas:", error);
-                suspendedSalesList.innerHTML = `<p class="text-red-500">Error: ${error.message}</p>`;
-            }
+    function renderVerificationList() {
+        verificationPanel.classList.remove('hidden');
+        const allTrackings = ventaSuspendidaActual.carrito_data.map(p => p.tracking);
+        verificationList.innerHTML = allTrackings.map(t => {
+            const isVerified = !ventaSuspendidaActual.trackings_pendientes.includes(t);
+            return `<li class="${isVerified ? 'verified-item' : ''}">${t}</li>`;
+        }).join('');
+    }
+
+    async function loadPaymentMethods() {
+        const { data, error } = await sb.from('metodos_pago').select('nombre').eq('is_activo', true).order('nombre');
+        if (error || !data) {
+            paymentMethodsContainer.innerHTML = '<p class="text-red-500 text-sm">Error al cargar métodos de pago.</p>';
+            return;
         }
+        const colors = ['bg-sky-500', 'bg-indigo-500', 'bg-purple-500', 'bg-gray-500', 'bg-teal-500', 'bg-rose-500'];
+        paymentMethodsContainer.innerHTML = data.map((metodo, index) => {
+            const color = colors[index % colors.length];
+            return `<button data-metodo="${metodo.nombre}" class="payment-method-btn ${color} text-white p-2 rounded-md hover:opacity-80">${metodo.nombre}</button>`;
+        }).join('');
+    }
+    
+    async function buscarCliente(searchTerm, isContinuation = false) {
+        if (!isContinuation) {
+            resetTerminal();
+        }
+        if (!searchTerm) return;
+        const isNumeric = !isNaN(searchTerm);
+        let query = sb.from('clientes').select('*, saldo_libras, saldo_rayitos, tarifa_1');
+        if (isNumeric) query = query.eq('box', parseInt(searchTerm));
+        else query = query.ilike('nombre', `%${searchTerm}%`);
+        const { data, error } = await query.limit(1).single();
+        if (error || !data) { alert("Cliente no encontrado."); return; }
         
-        async function handleLoadSuspendedSale(id) {
-            const { data: suspendedSale, error } = await sb.from('ventas_suspendidas').select('*').eq('id', id).single();
-            if (error || !suspendedSale) {
-                alert("No se pudo cargar la venta suspendida.");
-                return;
-            }
-            await buscarCliente(String(suspendedSale.cliente_box));
-            ventaSuspendidaActual = { ...suspendedSale, trackings_pendientes: suspendedSale.carrito_data.map(p => p.tracking) };
-            const cartTrackings = new Set(suspendedSale.carrito_data.map(p => p.tracking));
-            paquetesPendientes = paquetesPendientes.filter(p => !cartTrackings.has(p.tracking));
-            carrito = suspendedSale.carrito_data;
-            pagos = suspendedSale.pagos_data || [];
-            descuentoGeneralPorcentaje = suspendedSale.descuento_general_porcentaje || 0;
-            modoVerificacion = true;
+        clienteActual = data;
+        if (!isContinuation) {
+            const { data: paquetes, error: paquetesError } = await sb.rpc('get_paquetes_para_entrega', { p_cliente_box: clienteActual.box });
+            if (paquetesError) { alert("Error al cargar paquetes del cliente."); console.error(paquetesError); return; }
+            paquetesPendientes = paquetes.map(p => ({ ...p, costo_flete: p.costo_total, costo_impuestos: 0, descuento_porcentaje: 0 }));
             renderPendientes();
-            renderCarrito();
-            renderPagos();
-            renderVerificationList();
-            btnCompletarVenta.disabled = true;
-            btnSuspenderVenta.disabled = false;
-            scanInput.placeholder = "ESCANEAR TODOS LOS PAQUETES PARA VERIFICAR...";
-            loadSuspendedModal.classList.add('hidden');
         }
 
-        async function handleCancelSuspendedSale(ventaId) {
-            if (!confirm("¿Cancelar venta? Los paquetes serán liberados y los abonos irán a crédito.")) return;
-            try {
-                const { error } = await sb.rpc('cancelar_y_liberar_venta', { p_venta_id: ventaId });
-                if (error) throw error;
-                alert("Venta suspendida cancelada exitosamente.");
-                await handleOpenLoadSuspendedModal();
-            } catch (error) {
-                console.error("Error al cancelar la venta:", error);
-                alert(`No se pudo cancelar la venta: ${error.message}`);
+        clienteNombreTitulo.textContent = clienteActual.nombre;
+        saldoLibrasDisplay.textContent = `${(clienteActual.saldo_libras || 0).toFixed(2)} lbs`;
+        saldoRayitosDisplay.textContent = `${(clienteActual.saldo_rayitos || 0).toFixed(0)}`;
+        btnAplicarLibras.disabled = (clienteActual.saldo_libras || 0) <= 0;
+        btnAplicarRayitos.disabled = (clienteActual.saldo_rayitos || 0) < CONVERSION_RAYITOS;
+
+        terminalContent.classList.remove('hidden');
+        if (clienteActual.saldo_a_favor > 0) {
+            creditBalanceSpan.textContent = `$${clienteActual.saldo_a_favor.toFixed(2)}`;
+            creditPanel.classList.remove('hidden');
+        }
+        await loadPaymentMethods();
+        await cargarSucursales();
+        await configurarSucursalPorDefecto();
+        scanInput.focus();
+    }
+    
+    function handleScan() {
+        const tracking = scanInput.value.trim().toLowerCase();
+        if (!tracking) return;
+        scanInput.value = '';
+        scanInput.focus();
+        if (modoVerificacion) {
+            const itemIndex = ventaSuspendidaActual.trackings_pendientes.findIndex(t => t.trim().toLowerCase() === tracking);
+            if (itemIndex > -1) {
+                ventaSuspendidaActual.trackings_pendientes.splice(itemIndex, 1);
+                flashInputColor('scan-success');
+                renderVerificationList();
+                if (ventaSuspendidaActual.trackings_pendientes.length === 0) {
+                    modoVerificacion = false;
+                    verificationPanel.classList.add('hidden');
+                    alert("¡Verificación completada! El carrito está desbloqueado.");
+                    scanInput.placeholder = "Escanear paquete para AÑADIR";
+                    calcularTotal();
+                }
+            } else {
+                flashInputColor('scan-error');
+                alert("Este tracking no pertenece a la venta suspendida o ya fue verificado.");
+            }
+        } else {
+            const paqueteIndex = paquetesPendientes.findIndex(p => p.tracking.toLowerCase() === tracking);
+            if (paqueteIndex > -1) {
+                const [paquete] = paquetesPendientes.splice(paqueteIndex, 1);
+                carrito.push(paquete);
+                renderPendientes();
+                renderCarrito();
+                flashInputColor('scan-success');
+            } else {
+                alert(`Error: Paquete ${tracking} no está en la lista de pendientes o ya fue escaneado.`);
+                flashInputColor('scan-error');
             }
         }
-        
-        function resetTerminal(limpiarBuscador = false) {
-            clienteActual=null; paquetesPendientes=[]; carrito=[]; pagos=[]; paqueteParaEditar=null;
-            descuentoGeneralPorcentaje=0; cuponAplicado=null; ventaSuspendidaActual=null; modoVerificacion=false;
-            terminalContent.classList.add('hidden');
-            verificationPanel.classList.add('hidden');
-            if (limpiarBuscador) searchClienteInput.value = '';
-            cuponCodeInput.value = ''; cuponCodeInput.disabled = false;
-            btnAplicarCupon.disabled = false;
-            cuponMessage.textContent = '';
-            creditPanel.classList.add('hidden');
+    }
+    
+    function handleRemoveFromCart(tracking) {
+        const paqueteIndex = carrito.findIndex(p => p.tracking === tracking);
+        if (paqueteIndex > -1) {
+            const [paquete] = carrito.splice(paqueteIndex, 1);
+            paquetesPendientes.push(paquete);
             renderCarrito();
+            renderPendientes();
+        }
+    }
+
+    function handleOpenEditModal(tracking) {
+        const paquete = carrito.find(p => p.tracking === tracking);
+        if (paquete) {
+            paqueteParaEditar = paquete;
+            formEditPeso.reset();
+            editPesoMessage.textContent = '';
+            document.getElementById('edit-peso-tracking').textContent = paquete.tracking;
+            document.getElementById('edit-peso-nuevo').value = paquete.peso || 0;
+            editPesoModal.classList.remove('hidden');
+        }
+    }
+
+    async function handleEditPesoSubmit(e) {
+        e.preventDefault();
+        const submitButton = formEditPeso.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        document.getElementById('edit-peso-message').textContent = 'Procesando...';
+        const nuevoPeso = parseFloat(document.getElementById('edit-peso-nuevo').value);
+        const nota = document.getElementById('edit-peso-nota').value.trim();
+        const foto = document.getElementById('edit-peso-foto').files[0];
+        if (!nota || !foto || isNaN(nuevoPeso)) {
+            document.getElementById('edit-peso-message').textContent = 'Todos los campos son obligatorios.';
+            submitButton.disabled = false;
+            return;
+        }
+        try {
+            const filePath = `public/${paqueteParaEditar.tracking}-${Date.now()}.jpg`;
+            const { error: uploadError } = await sb.storage.from('ajustes-peso').upload(filePath, foto, { contentType: 'image/jpeg' });
+            if (uploadError) throw new Error(`Error al subir foto: ${uploadError.message}`);
+            const { data: urlData } = sb.storage.from('ajustes-peso').getPublicUrl(filePath);
+            if (!urlData) throw new Error("No se pudo obtener la URL de la foto.");
+            const { error: rpcError } = await sb.rpc('update_paquete_peso', {
+                p_id: paqueteParaEditar.id, p_peso: nuevoPeso, p_nota: nota, p_foto_url: urlData.publicUrl
+            });
+            if (rpcError) throw new Error(`Error al guardar en DB: ${rpcError.message}`);
+            const { data: paqueteActualizado, error: fetchError } = await sb.rpc('get_paquetes_para_entrega', { p_cliente_box: clienteActual.box }).eq('id', paqueteParaEditar.id).single();
+            if (fetchError) throw new Error(`Error al refrescar datos: ${fetchError.message}`);
+            const indexEnCarrito = carrito.findIndex(p => p.id === paqueteParaEditar.id);
+            if (indexEnCarrito > -1) {
+                carrito[indexEnCarrito] = { ...paqueteActualizado, costo_flete: paqueteActualizado.costo_total, costo_impuestos: 0, descuento_porcentaje: carrito[indexEnCarrito].descuento_porcentaje };
+            }
+            document.getElementById('edit-peso-message').textContent = '¡Ajuste guardado con éxito!';
+            setTimeout(() => { editPesoModal.classList.add('hidden'); renderCarrito(); }, 1500);
+        } catch (error) {
+            console.error("Error en ajuste de peso:", error);
+            document.getElementById('edit-peso-message').textContent = error.message;
+        } finally {
+            submitButton.disabled = false;
+        }
+    }
+
+    function handleItemDiscount(tracking) {
+        const item = carrito.find(p => p.tracking === tracking);
+        const porcentajeStr = prompt("Ingrese el porcentaje de descuento para este paquete:", item.descuento_porcentaje || "0");
+        const porcentaje = parseFloat(porcentajeStr);
+        if (!isNaN(porcentaje) && porcentaje >= 0 && porcentaje <= 100) {
+            item.descuento_porcentaje = porcentaje;
+            renderCarrito();
+        } else if (porcentajeStr !== null) {
+            alert("Porcentaje inválido.");
+        }
+    }
+
+    function handleGeneralDiscount() {
+        const porcentajeStr = prompt("Ingrese el porcentaje de descuento GENERAL:", descuentoGeneralPorcentaje || "0");
+        const porcentaje = parseFloat(porcentajeStr);
+        if (!isNaN(porcentaje) && porcentaje >= 0 && porcentaje <= 100) {
+            descuentoGeneralPorcentaje = porcentaje;
+            calcularTotal();
+        } else if (porcentajeStr !== null) {
+            alert("Porcentaje inválido.");
+        }
+    }
+
+    async function handleAplicarCupon() {
+        const codigo = cuponCodeInput.value.trim().toUpperCase();
+        if (!codigo) { cuponMessage.textContent = "Ingrese un código."; return; }
+        cuponMessage.textContent = "Validando...";
+        try {
+            const { data, error } = await sb.rpc('validar_y_obtener_cupon', { p_codigo: codigo });
+            if (error) throw error;
+            cuponAplicado = data;
+            cuponMessage.textContent = `✅ Cupón "${cuponAplicado.codigo}" aplicado.`;
+            cuponCodeInput.disabled = true;
+            btnAplicarCupon.disabled = true;
+            calcularTotal();
+        } catch (error) {
+            cuponAplicado = null;
+            const friendlyError = error.message.includes('RAISE EXCEPTION:') ? error.message.split('RAISE EXCEPTION:')[1].trim() : "Error de validación.";
+            cuponMessage.textContent = `❌ ${friendlyError}`;
+        }
+    }
+    
+    async function handleApplyCredit() {
+        if (!clienteActual || clienteActual.saldo_a_favor <= 0) return;
+        const restante = parseFloat(pagoRestanteSpan.textContent.replace('$', ''));
+        const montoAAplicar = Math.min(clienteActual.saldo_a_favor, restante);
+        if (montoAAplicar <= 0) {
+            alert("No hay monto restante que cubrir.");
+            return;
+        }
+        btnApplyCredit.disabled = true;
+        btnApplyCredit.textContent = "Aplicando...";
+        try {
+            const { data: nuevoSaldo, error } = await sb.rpc('aplicar_saldo_a_favor', {
+                p_cliente_box: clienteActual.box,
+                p_monto_a_aplicar: montoAAplicar
+            });
+            if (error) throw error;
+            clienteActual.saldo_a_favor = nuevoSaldo;
+            pagos.push({ metodo: 'Saldo a Favor', monto: montoAAplicar, sucursal: sucursalPagoSelect.value, recibido_por: currentUserId });
             renderPagos();
-            btnCompletarVenta.textContent = "Completar Venta";
-            scanInput.placeholder = "Esperando escaneo...";
+            calcularTotal();
+            creditBalanceSpan.textContent = `$${nuevoSaldo.toFixed(2)}`;
+            if (nuevoSaldo <= 0) {
+                creditPanel.classList.add('hidden');
+            }
+        } catch (error) {
+            alert(`Error al aplicar saldo: ${error.message}`);
+        } finally {
+            btnApplyCredit.disabled = false;
+            btnApplyCredit.textContent = "Aplicar Saldo";
+        }
+    }
+    
+    async function handleAplicarLibras() {
+        if (!clienteActual || (clienteActual.saldo_libras || 0) <= 0) return;
+        const sucursal = sucursalPagoSelect.value;
+        if (!sucursal) { alert("Seleccione una sucursal."); return; }
+
+        const costoFlete = carrito.reduce((acc, p) => acc + (p.costo_flete || 0), 0);
+        const librasAConsumir = costoFlete / (clienteActual.tarifa_1 || 4.00);
+        const costoLibras = librasAConsumir * (clienteActual.tarifa_1 || 4.00);
+
+        if ((clienteActual.saldo_libras || 0) < librasAConsumir) {
+            alert("El cliente no tiene suficientes libras para cubrir el flete.");
+            return;
         }
 
-        function flashInputColor(className) {
-            scanInput.classList.add(className);
-            setTimeout(() => scanInput.classList.remove(className), 500);
+        if (!confirm(`¿Desea usar ${librasAConsumir.toFixed(2)} lbs del saldo del cliente para pagar el flete?`)) {
+            return;
         }
 
-        document.addEventListener('DOMContentLoaded', async () => { // --- CAMBIO: Se hizo async
-            searchClienteInput.addEventListener('change', (e) => buscarCliente(e.target.value.trim()));
-            scanInput.addEventListener('change', handleScan);
-            btnCompletarVenta.addEventListener('click', completarVenta);
-            carritoItemsDiv.addEventListener('click', e => {
-                const deleteBtn = e.target.closest('.btn-delete-item');
-                const editBtn = e.target.closest('.btn-edit-item');
-                const discountBtn = e.target.closest('.btn-discount-item');
-                if (deleteBtn) handleRemoveFromCart(deleteBtn.dataset.tracking);
-                if (editBtn) handleOpenEditModal(editBtn.dataset.tracking);
-                if (discountBtn) handleItemDiscount(discountBtn.dataset.tracking);
+        try {
+            const { error } = await sb.rpc('consumir_libras_paquete', {
+                p_cliente_id: clienteActual.id,
+                p_libras_a_consumir: librasAConsumir,
+                p_descripcion: `Consumo en SGL1 por ${librasAConsumir.toFixed(2)} lbs.`
             });
-            btnDescuentoGeneral.addEventListener('click', handleGeneralDiscount);
-            btnAplicarCupon.addEventListener('click', handleAplicarCupon);
-            btnSuspenderVenta.addEventListener('click', handleSuspendSaleSubmit);
-            const btnCargarSuspendida = document.getElementById('btn-cargar-suspendida');
-            if(btnCargarSuspendida) btnCargarSuspendida.addEventListener('click', handleOpenLoadSuspendedModal);
-            document.getElementById('close-load-suspended-modal').addEventListener('click', () => loadSuspendedModal.classList.add('hidden'));
-            suspendedSalesList.addEventListener('click', e => {
-                const loadBtn = e.target.closest('.btn-load-sale');
-                const cancelBtn = e.target.closest('.btn-cancel-sale');
-                if (loadBtn) handleLoadSuspendedSale(loadBtn.dataset.id);
-                if (cancelBtn) handleCancelSuspendedSale(cancelBtn.dataset.id);
-            });
-            paymentMethodsContainer.addEventListener('click', e => {
-                const btn = e.target.closest('.payment-method-btn');
-                if (btn) handlePago(btn.dataset.metodo);
-            });
-            if(formEditPeso) formEditPeso.addEventListener('submit', handleEditPesoSubmit);
-            document.getElementById('close-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
-            document.getElementById('cancel-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
-            btnApplyCredit.addEventListener('click', handleApplyCredit);
-            
-            btnAplicarLibras.addEventListener('click', handleAplicarLibras);
-            btnAplicarRayitos.addEventListener('click', handleAplicarRayitos);
+            if (error) throw error;
+            pagos.push({ metodo: 'Saldo de Libras', monto: costoLibras, sucursal: sucursal, recibido_por: currentUserId });
+            clienteActual.saldo_libras -= librasAConsumir;
+            clienteActual.saldo_libras = Math.round(clienteActual.saldo_libras * 100) / 100;
+            saldoLibrasDisplay.textContent = `${clienteActual.saldo_libras.toFixed(2)} lbs`;
+            btnAplicarLibras.disabled = true;
 
-            lucide.createIcons();
-            
-            // --- INICIO DE CAMBIOS ---
-            await getCurrentUserId(); // Se llama a la función para obtener el ID del usuario
-            // --- FIN DE CAMBIOS ---
-            
-            cargarSucursales();
-            configurarSucursalPorDefecto();
+            renderPagos();
+            calcularTotal();
+            alert("Saldo de libras aplicado correctamente.");
+        } catch (error) {
+            alert(`Error al aplicar saldo de libras: ${error.message}`);
+        }
+    }
+    
+    async function handleAplicarRayitos() {
+        if (!clienteActual || (clienteActual.saldo_rayitos || 0) < CONVERSION_RAYITOS) {
+            alert(`El cliente no tiene suficientes rayitos para canjear (mínimo ${CONVERSION_RAYITOS}).`);
+            return;
+        }
+        
+        const sucursal = sucursalPagoSelect.value;
+        if (!sucursal) { alert("Seleccione una sucursal."); return; }
+
+        const rayitosACanajear = clienteActual.saldo_rayitos;
+        const montoDescuento = rayitosACanajear / CONVERSION_RAYITOS;
+
+        if (!confirm(`¿Desea canjear los ${rayitosACanajear} rayitos del cliente por un descuento de $${montoDescuento.toFixed(2)}?`)) {
+            return;
+        }
+        
+        try {
+            const { error } = await sb.rpc('canjear_rayitos', {
+                p_cliente_id: clienteActual.id,
+                p_rayitos_a_canjear: rayitosACanajear,
+                p_descripcion: `Canje por ${rayitosACanajear} rayitos en SGL1`
+            });
+            if (error) throw error;
+            pagos.push({ metodo: 'Rayitos', monto: montoDescuento, sucursal: sucursal, recibido_por: currentUserId });
+            clienteActual.saldo_rayitos = 0;
+            saldoRayitosDisplay.textContent = '0';
+            btnAplicarRayitos.disabled = true;
+
+            renderPagos();
+            calcularTotal();
+            alert("Rayitos canjeados correctamente.");
+        } catch (error) {
+            alert(`Error al canjear rayitos: ${error.message}`);
+        }
+    }
+    
+    function calcularTotal() {
+        let subtotal=0, descuentoTotalItems=0;
+        carrito.forEach(p => {
+            const costoOriginal = (p.costo_flete || 0) + (p.costo_impuestos || 0);
+            subtotal += costoOriginal;
+            descuentoTotalItems += costoOriginal * ((p.descuento_porcentaje || 0) / 100);
         });
-    </script>
+        const subtotalConDescuentosItems = subtotal - descuentoTotalItems;
+        let descuentoCuponMonto = 0;
+        if (cuponAplicado) {
+            if (cuponAplicado.tipo_descuento === 'porcentaje') descuentoCuponMonto = subtotalConDescuentosItems * (cuponAplicado.valor_descuento / 100);
+            else if (cuponAplicado.tipo_descuento === 'monto_fijo') descuentoCuponMonto = cuponAplicado.valor_descuento;
+        }
+        const subtotalConCupon = subtotalConDescuentosItems - descuentoCuponMonto;
+        const descuentoGeneralMonto = subtotalConCupon * (descuentoGeneralPorcentaje / 100);
+        const totalFinal = subtotalConCupon - descuentoGeneralMonto;
+        const descuentoTotalFinal = descuentoTotalItems + descuentoCuponMonto + descuentoGeneralMonto;
+        const totalPagado = pagos.reduce((acc, p) => acc + p.monto, 0);
+        const restante = totalFinal - totalPagado;
+        subtotalCarritoSpan.textContent = `$${subtotal.toFixed(2)}`;
+        descuentosCarritoSpan.textContent = `-$${descuentoTotalFinal.toFixed(2)}`;
+        totalCarritoSpan.textContent = `$${totalFinal.toFixed(2)}`;
+        pagoRestanteSpan.textContent = `$${restante.toFixed(2)}`;
+        btnCompletarVenta.disabled = modoVerificacion || carrito.length === 0 || restante > 0.001;
+    }
+
+    async function completarVenta() {
+        if (btnCompletarVenta.disabled) return;
+        btnCompletarVenta.textContent = "Procesando...";
+        btnCompletarVenta.disabled = true;
+        
+        const montoTotalFinal = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
+
+        try {
+            const { data: facturaId, error: ventaError } = await sb.rpc('finalizar_venta', {
+                p_cliente_box: clienteActual.box,
+                p_cliente_nombre: clienteActual.nombre,
+                p_monto_total: montoTotalFinal,
+                p_descuento_general_porcentaje: descuentoGeneralPorcentaje,
+                p_cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null,
+                p_venta_suspendida_id: ventaSuspendidaActual ? ventaSuspendidaActual.id : null,
+                p_carrito: carrito.map(p=>({id:p.id, tracking:p.tracking, costo_flete:(p.costo_flete||0)+(p.costo_impuestos||0), descuento_porcentaje:p.descuento_porcentaje||0})),
+                p_pagos: pagos
+            });
+            if (ventaError) throw ventaError;
+
+            const htmlRecibo = await generarReciboHTML(facturaId);
+            
+            const { error: updateError } = await sb.from('facturas').update({ html_recibo: htmlRecibo }).eq('id', facturaId);
+            
+            if (updateError) throw updateError;
+            
+            alert(`¡Venta completada! Factura #${facturaId.substring(0, 8).toUpperCase()} creada.`);
+            if (confirm("¿Desea ver el recibo?")) {
+                window.open(`ver-factura.html?id=${facturaId}`, '_blank');
+            }
+            
+            resetTerminal(true);
+
+        } catch (error) {
+            console.error("Error al completar la venta:", error);
+            alert(`Error al finalizar la venta: ${error.message}`);
+            btnCompletarVenta.textContent = "Completar Venta";
+            btnCompletarVenta.disabled = false;
+        }
+    }
+    
+    async function generarReciboHTML(facturaId) {
+        const { data: plantilla, error } = await sb.from('plantillas').select('cuerpo_html').eq('identificador_unico', 'RECIBO_IMPRESION').single();
+        if (error || !plantilla) {
+            console.error("No se encontró la plantilla de recibo.");
+            return "<h1>Error: Plantilla de recibo no encontrada.</h1>";
+        }
+        let html = plantilla.cuerpo_html;
+        const itemsHTML = carrito.map(p => {
+            const costoOriginal = (p.costo_flete || 0) + (p.costo_impuestos || 0);
+            return `<tr><td>${p.tracking}</td><td>${(p.peso || 0).toFixed(2)} lbs</td><td>$${costoOriginal.toFixed(2)}</td></tr>`;
+        }).join('');
+        const desgloseItems = `<table width="100%"><thead><tr><th>Tracking</th><th>Peso</th><th>Costo</th></tr></thead><tbody>${itemsHTML}</tbody></table>`;
+        const pagosHTML = pagos.map(p => `<div>${p.metodo} (${p.sucursal}): $${p.monto.toFixed(2)}</div>`).join('');
+        html = html.replace(/{{fecha_factura}}/g, new Date().toLocaleDateString('es-PA'));
+        html = html.replace(/{{numero_factura}}/g, facturaId.substring(0, 8).toUpperCase());
+        html = html.replace(/{{nombre_cliente}}/g, clienteActual.nombre);
+        html = html.replace(/{{box}}/g, clienteActual.box);
+        html = html.replace(/{{desglose_items_html}}/g, desgloseItems);
+        html = html.replace(/{{subtotal}}/g, subtotalCarritoSpan.textContent.replace('$', ''));
+        html = html.replace(/{{descuentos}}/g, descuentosCarritoSpan.textContent.replace('-$', ''));
+        html = html.replace(/{{total_pagado}}/g, totalCarritoSpan.textContent.replace('$', ''));
+        html = html.replace(/{{metodos_pago_html}}/g, pagosHTML);
+        return html;
+    }
+
+    function handlePago(metodo) {
+        const sucursal = sucursalPagoSelect.value;
+        if (!sucursal) {
+            alert("Por favor, seleccione la sucursal donde se realiza el pago.");
+            return;
+        }
+        const total = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
+        const totalPagado = pagos.reduce((acc, p) => acc + p.monto, 0);
+        const restante = total - totalPagado;
+        if (restante <= 0.001) { alert("La cuenta ya está saldada."); return; }
+        const montoStr = prompt(`Ingrese el monto a pagar con ${metodo}:`, restante.toFixed(2));
+        const monto = parseFloat(montoStr);
+        if (!isNaN(monto) && monto > 0 && monto <= restante + 0.001) {
+            pagos.push({ metodo, monto, sucursal, recibido_por: currentUserId });
+            renderPagos();
+            calcularTotal();
+        } else { alert("Monto inválido."); }
+    }
+    
+    async function handleSuspendSaleSubmit() {
+        const montoAbonado = pagos.reduce((acc, p) => acc + p.monto, 0);
+        const total = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
+        let status = 'Suspendida';
+        if (montoAbonado >= total - 0.001) status = 'Pagado';
+        else if (montoAbonado > 0) status = 'Abonado';
+        const payload = {
+            cliente_box: clienteActual.box, cliente_nombre: clienteActual.nombre, status,
+            carrito_data: carrito, descuento_general_porcentaje: descuentoGeneralPorcentaje,
+            cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null, monto_abonado: montoAbonado,
+            pagos_data: pagos
+        };
+        if (ventaSuspendidaActual) {
+            const { error } = await sb.from('ventas_suspendidas').update(payload).eq('id', ventaSuspendidaActual.id);
+            if (error) { alert(`Error al actualizar la venta: ${error.message}`); } 
+            else { alert(`Venta suspendida actualizada como: ${status}`); resetTerminal(true); }
+        } else {
+            const paqueteIds = carrito.map(p => p.id);
+            const { error } = await sb.from('ventas_suspendidas').insert(payload);
+            if (error) { alert(`Error al suspender la venta: ${error.message}`); } 
+            else { 
+                await sb.rpc('cambiar_estado_paquetes', { p_paquete_ids: paqueteIds, p_nuevo_estado: 'suspendido' });
+                alert(`Venta suspendida como: ${status}`); resetTerminal(true); 
+            }
+        }
+    }
+
+    async function handleOpenLoadSuspendedModal() {
+        suspendedSalesList.innerHTML = '<p>Cargando...</p>';
+        loadSuspendedModal.classList.remove('hidden');
+        try {
+            const { data, error } = await sb.from('ventas_suspendidas').select('*').order('created_at', { ascending: false });
+            if (error) throw error;
+            if (!data || data.length === 0) {
+                suspendedSalesList.innerHTML = '<p>No hay ventas suspendidas.</p>'; return;
+            }
+            suspendedSalesList.innerHTML = data.map(v => `<div class="border rounded-md p-3 mb-2 flex justify-between items-center"><div><p class="font-semibold">${v.cliente_nombre} (Box: ${v.cliente_box})</p><p class="text-sm text-slate-500">${new Date(v.created_at).toLocaleString('es-PA')}</p><p class="text-sm font-bold ${v.status === 'Pagado' ? 'text-green-600' : v.status === 'Abonado' ? 'text-blue-600' : ''}">${v.status}</p></div><div class="flex gap-2"><button data-id="${v.id}" class="btn-cancel-sale bg-red-500 text-white font-semibold py-1 px-3 rounded-md">Cancelar</button><button data-id="${v.id}" class="btn-load-sale bg-emerald-500 text-white font-semibold py-1 px-3 rounded-md">Cargar</button></div></div>`).join('');
+        } catch (error) {
+            console.error("Error al cargar ventas suspendidas:", error);
+            suspendedSalesList.innerHTML = `<p class="text-red-500">Error: ${error.message}</p>`;
+        }
+    }
+    
+    async function handleLoadSuspendedSale(id) {
+        const { data: suspendedSale, error } = await sb.from('ventas_suspendidas').select('*').eq('id', id).single();
+        if (error || !suspendedSale) {
+            alert("No se pudo cargar la venta suspendida.");
+            return;
+        }
+        await buscarCliente(String(suspendedSale.cliente_box));
+        ventaSuspendidaActual = { ...suspendedSale, trackings_pendientes: suspendedSale.carrito_data.map(p => p.tracking) };
+        const cartTrackings = new Set(suspendedSale.carrito_data.map(p => p.tracking));
+        paquetesPendientes = paquetesPendientes.filter(p => !cartTrackings.has(p.tracking));
+        carrito = suspendedSale.carrito_data;
+        pagos = suspendedSale.pagos_data || [];
+        descuentoGeneralPorcentaje = suspendedSale.descuento_general_porcentaje || 0;
+        modoVerificacion = true;
+        renderPendientes();
+        renderCarrito();
+        renderPagos();
+        renderVerificationList();
+        btnCompletarVenta.disabled = true;
+        btnSuspenderVenta.disabled = false;
+        scanInput.placeholder = "ESCANEAR TODOS LOS PAQUETES PARA VERIFICAR...";
+        loadSuspendedModal.classList.add('hidden');
+    }
+
+    async function handleCancelSuspendedSale(ventaId) {
+        if (!confirm("¿Cancelar venta? Los paquetes serán liberados y los abonos irán a crédito.")) return;
+        try {
+            const { error } = await sb.rpc('cancelar_y_liberar_venta', { p_venta_id: ventaId });
+            if (error) throw error;
+            alert("Venta suspendida cancelada exitosamente.");
+            await handleOpenLoadSuspendedModal();
+        } catch (error) {
+            console.error("Error al cancelar la venta:", error);
+            alert(`No se pudo cancelar la venta: ${error.message}`);
+        }
+    }
+    
+    function resetTerminal(limpiarBuscador = false) {
+        clienteActual=null; paquetesPendientes=[]; carrito=[]; pagos=[]; paqueteParaEditar=null;
+        descuentoGeneralPorcentaje=0; cuponAplicado=null; ventaSuspendidaActual=null; modoVerificacion=false;
+        terminalContent.classList.add('hidden');
+        verificationPanel.classList.add('hidden');
+        if (limpiarBuscador) searchClienteInput.value = '';
+        cuponCodeInput.value = ''; cuponCodeInput.disabled = false;
+        btnAplicarCupon.disabled = false;
+        cuponMessage.textContent = '';
+        creditPanel.classList.add('hidden');
+        renderCarrito();
+        renderPagos();
+        btnCompletarVenta.textContent = "Completar Venta";
+        scanInput.placeholder = "Esperando escaneo...";
+    }
+
+    function flashInputColor(className) {
+        scanInput.classList.add(className);
+        setTimeout(() => scanInput.classList.remove(className), 500);
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        searchClienteInput.addEventListener('change', (e) => buscarCliente(e.target.value.trim()));
+        scanInput.addEventListener('change', handleScan);
+        btnCompletarVenta.addEventListener('click', completarVenta);
+        
+        carritoItemsDiv.addEventListener('click', e => {
+            const deleteBtn = e.target.closest('.btn-delete-item');
+            const editBtn = e.target.closest('.btn-edit-item');
+            const discountBtn = e.target.closest('.btn-discount-item');
+            if (deleteBtn) handleRemoveFromCart(deleteBtn.dataset.tracking);
+            if (editBtn) handleOpenEditModal(editBtn.dataset.tracking);
+            if (discountBtn) handleItemDiscount(discountBtn.dataset.tracking);
+        });
+
+        // --- INICIO DE CAMBIOS ---
+        // Nuevo listener para la lista de pagos para manejar la eliminación
+        pagosRealizadosList.addEventListener('click', e => {
+            const deleteBtn = e.target.closest('.btn-delete-pago');
+            if (deleteBtn) {
+                const index = parseInt(deleteBtn.dataset.index, 10);
+                if (!isNaN(index)) {
+                    // Elimina el pago del array
+                    pagos.splice(index, 1);
+                    // Vuelve a renderizar la lista de pagos
+                    renderPagos();
+                    // Recalcula el total
+                    calcularTotal();
+                }
+            }
+        });
+        // --- FIN DE CAMBIOS ---
+        
+        btnDescuentoGeneral.addEventListener('click', handleGeneralDiscount);
+        btnAplicarCupon.addEventListener('click', handleAplicarCupon);
+        btnSuspenderVenta.addEventListener('click', handleSuspendSaleSubmit);
+        document.getElementById('btn-cargar-suspendida')?.addEventListener('click', handleOpenLoadSuspendedModal);
+        document.getElementById('close-load-suspended-modal').addEventListener('click', () => loadSuspendedModal.classList.add('hidden'));
+        
+        suspendedSalesList.addEventListener('click', e => {
+            const loadBtn = e.target.closest('.btn-load-sale');
+            const cancelBtn = e.target.closest('.btn-cancel-sale');
+            if (loadBtn) handleLoadSuspendedSale(loadBtn.dataset.id);
+            if (cancelBtn) handleCancelSuspendedSale(cancelBtn.dataset.id);
+        });
+
+        paymentMethodsContainer.addEventListener('click', e => {
+            const btn = e.target.closest('.payment-method-btn');
+            if (btn) handlePago(btn.dataset.metodo);
+        });
+
+        formEditPeso?.addEventListener('submit', handleEditPesoSubmit);
+        document.getElementById('close-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
+        document.getElementById('cancel-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
+        btnApplyCredit.addEventListener('click', handleApplyCredit);
+        
+        btnAplicarLibras.addEventListener('click', handleAplicarLibras);
+        btnAplicarRayitos.addEventListener('click', handleAplicarRayitos);
+
+        lucide.createIcons();
+        
+        await getCurrentUserId();
+        
+        cargarSucursales();
+        configurarSucursalPorDefecto();
+    });
+</script>
 </body>
 </html>
