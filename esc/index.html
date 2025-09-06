@@ -175,9 +175,11 @@
     <div id="scanner-modal" class="fixed inset-0 bg-black/80 flex-col items-center justify-center p-4 hidden z-50">
         <div class="bg-slate-800 w-full max-w-md rounded-xl shadow-xl p-4 relative border border-slate-700">
             <h2 id="scanner-title" class="text-lg font-bold text-white mb-4 text-center"></h2>
-            <div id="scanner-container" class="w-full aspect-square bg-black rounded-lg overflow-hidden">
+            <div id="scanner-container" class="w-full aspect-square bg-black rounded-lg overflow-hidden relative">
                 <video id="video-feed" autoplay playsinline class="w-full h-full object-cover hidden"></video>
                 <div id="barcode-reader" class="w-full h-full hidden"></div>
+                <!-- Guía para OCR -->
+                <div id="ocr-guide-box" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10/12 h-16 border-2 border-dashed border-white rounded-lg pointer-events-none hidden"></div>
             </div>
             <p id="scanner-status" class="text-sm text-slate-400 mt-3 text-center h-5"></p>
             <div class="mt-3 flex flex-col gap-3">
@@ -250,7 +252,6 @@
         // --- State Management ---
         let paqueteCargadoActual = null;
         let clienteSeleccionado = null;
-        let paqueteVieneDeMalIdentificado = false; // Aún no implementado en esta UI, pero mantenemos la variable
         let clienteManualSeleccionado = null;
 
         // --- DOM Elements ---
@@ -269,11 +270,8 @@
         function showPhase(phaseNum) {
             phase1.classList.remove('active');
             phase2.classList.remove('active');
-            if (phaseNum === 1) {
-                phase1.classList.add('active');
-            } else if (phaseNum === 2) {
-                phase2.classList.add('active');
-            }
+            if (phaseNum === 1) phase1.classList.add('active');
+            else if (phaseNum === 2) phase2.classList.add('active');
             lucide.createIcons();
         }
 
@@ -291,26 +289,25 @@
             trackingInput.focus();
         }
 
-        // --- Core Logic (Adaptado de la versión anterior) ---
-        
+        // --- Core Logic ---
         async function buscarPaqueteCargado() {
             const tracking = trackingInput.value.trim();
             if (!tracking) {
                 showAlert('Por favor, ingresa un número de tracking.');
                 return;
             }
-            // Simular carga
             searchTrackingBtn.disabled = true;
             searchTrackingBtn.innerHTML = '<span class="spinner-border animate-spin inline-block w-5 h-5 border-2 rounded-full" role="status"></span> Buscando...';
 
-            // La lógica de búsqueda es la misma
+            // MEJORA: Búsqueda no sensible a mayúsculas/minúsculas con .ilike()
             const { data, error } = await sb.from('paquetes_cargados')
                 .select('id, tracking, peso, valor, cliente_box, status, fecha_bodega, cargados')
-                .eq('tracking', tracking)
+                .ilike('tracking', tracking)
                 .maybeSingle();
 
             searchTrackingBtn.disabled = false;
             searchTrackingBtn.textContent = 'Buscar Paquete';
+            lucide.createIcons();
 
             if (error) {
                 showAlert('Error al buscar el tracking en la base de datos.');
@@ -325,7 +322,6 @@
                  return;
             }
 
-            // Paquete encontrado, poblar Fase 2 y cambiar de vista
             paqueteCargadoActual = data;
             document.getElementById('info-tracking').textContent = data.tracking;
             document.getElementById('info-peso').textContent = data.peso ? `${data.peso} lbs` : 'N/A';
@@ -361,11 +357,7 @@
         }
         
         function actualizarInfoClienteUI() {
-            if (clienteSeleccionado) {
-                clienteInput.value = `${clienteSeleccionado.nombre} (Box: ${clienteSeleccionado.box})`;
-            } else {
-                clienteInput.value = 'Cliente no encontrado o no asignado';
-            }
+            clienteInput.value = clienteSeleccionado ? `${clienteSeleccionado.nombre} (Box: ${clienteSeleccionado.box})` : 'Cliente no encontrado o no asignado';
         }
         
         async function handleAutocomplete(inputElement, containerElement, callback) {
@@ -412,7 +404,7 @@
             const { error } = await sb.rpc('crear_paquete_admin', { paquete_data: payload });
             if (error) { showAlert(`Error al registrar el paquete: ${error.message}`); submitBtn.disabled = false; submitBtn.textContent = 'Registrar Paquete'; return; }
             
-            await sb.from('paquetes_cargados').update({ cargados: true }).eq('tracking', paqueteCargadoActual.tracking);
+            await sb.from('paquetes_cargados').update({ cargados: true }).eq('id', paqueteCargadoActual.id);
             
             showAlert(`Paquete ${paqueteCargadoActual.tracking} registrado a ${clienteSeleccionado.nombre} ✅`);
             resetAll();
@@ -426,16 +418,16 @@
             anaquelSelect.innerHTML = '<option value="">(Sin anaquel)</option>' + (data ? data.map(a => `<option value="${a.nombre}">${a.nombre}</option>`).join('') : '');
         }
 
-        // --- INICIO: LÓGICA DE ESCÁNERES (OCR Y CÓDIGO DE BARRAS) ---
+        // --- INICIO: LÓGICA DE ESCÁNERES MEJORADA ---
         let ocrStream, ocrWorker, html5QrcodeScanner, currentOcrTargetInput;
         const scannerModal = document.getElementById('scanner-modal');
         const scannerTitle = document.getElementById('scanner-title');
         const videoFeed = document.getElementById('video-feed');
         const barcodeReader = document.getElementById('barcode-reader');
+        const ocrGuideBox = document.getElementById('ocr-guide-box');
         const scannerStatus = document.getElementById('scanner-status');
         const scannerActionBtn = document.getElementById('scanner-action-btn');
 
-        // Función para detener todos los escáneres y cerrar el modal
         const stopAllScanners = () => {
             if (ocrStream) ocrStream.getTracks().forEach(track => track.stop());
             if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
@@ -444,64 +436,79 @@
             scannerModal.classList.add('hidden');
             videoFeed.classList.add('hidden');
             barcodeReader.classList.add('hidden');
+            ocrGuideBox.classList.add('hidden');
             scannerActionBtn.classList.add('hidden');
         };
 
-        // Función para iniciar la cámara para OCR
         const startOcrCamera = async (targetInputId) => {
             currentOcrTargetInput = document.getElementById(targetInputId);
             scannerTitle.textContent = 'Escanear Etiqueta (OCR)';
             videoFeed.classList.remove('hidden');
+            ocrGuideBox.classList.remove('hidden'); // Mostrar guía
             scannerActionBtn.classList.remove('hidden');
             scannerModal.style.display = 'flex';
             try {
                 ocrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                 videoFeed.srcObject = ocrStream;
-                scannerStatus.textContent = 'Apunte a la etiqueta y capture.';
+                scannerStatus.textContent = 'Centre la etiqueta en el rectángulo.';
                 scannerActionBtn.disabled = false;
             } catch (err) {
-                showAlert("No se pudo acceder a la cámara.");
+                showAlert("No se pudo acceder a la cámara. Revisa los permisos.");
                 stopAllScanners();
             }
         };
 
-        // Función para capturar la imagen y procesarla con Tesseract (OCR)
         const captureAndProcessImage = async () => {
-            scannerStatus.textContent = 'Procesando...';
+            scannerStatus.textContent = 'Procesando imagen...';
             scannerActionBtn.disabled = true;
-            const canvas = document.createElement('canvas');
-            canvas.width = videoFeed.videoWidth;
-            canvas.height = videoFeed.videoHeight;
-            canvas.getContext('2d').drawImage(videoFeed, 0, 0);
-            
-            if (!ocrWorker || ocrWorker.terminated) ocrWorker = await Tesseract.createWorker('eng');
-            
-            const { data: { text } } = await ocrWorker.recognize(canvas.toDataURL('image/jpeg'));
-            const bestGuess = text.split(/[\s\n]+/).filter(w => w.length > 5).sort((a, b) => b.length - a.length)[0] || "";
-            currentOcrTargetInput.value = bestGuess.replace(/[^a-zA-Z0-9-]/g, '');
-            stopAllScanners();
-            buscarPaqueteCargado(); // Busca el paquete automáticamente
+            try {
+                const canvas = document.createElement('canvas');
+                const videoRect = videoFeed.getBoundingClientRect();
+                const guideRect = ocrGuideBox.getBoundingClientRect();
+                const scaleX = videoFeed.videoWidth / videoRect.width;
+                const scaleY = videoFeed.videoHeight / videoRect.height;
+                const cropX = (guideRect.left - videoRect.left) * scaleX;
+                const cropY = (guideRect.top - videoRect.top) * scaleY;
+                const cropWidth = guideRect.width * scaleX;
+                const cropHeight = guideRect.height * scaleY;
+                canvas.width = cropWidth;
+                canvas.height = cropHeight;
+                const context = canvas.getContext('2d');
+                context.drawImage(videoFeed, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+                
+                if (!ocrWorker || ocrWorker.terminated) ocrWorker = await Tesseract.createWorker('eng');
+                
+                const { data: { text } } = await ocrWorker.recognize(canvas.toDataURL('image/jpeg'));
+                
+                const bestGuess = text.split(/[\s\n]+/).filter(w => w.length > 5).sort((a, b) => b.length - a.length)[0] || "";
+                currentOcrTargetInput.value = bestGuess.replace(/[^a-zA-Z0-9-]/g, '');
+                
+                buscarPaqueteCargado();
+            } catch (error) {
+                console.error("Fallo el proceso OCR:", error);
+                showAlert("No se pudo leer el texto de la imagen.");
+            } finally {
+                stopAllScanners(); // Asegura que el modal siempre se cierre
+            }
         };
 
-        // Función para iniciar el escáner de código de barras
         const startBarcodeScanner = () => {
             scannerTitle.textContent = 'Escanear Código de Barras';
             barcodeReader.classList.remove('hidden');
             scannerModal.style.display = 'flex';
             html5QrcodeScanner = new Html5Qrcode("barcode-reader");
-            html5QrcodeScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, 
-                (decodedText) => {
-                    trackingInput.value = decodedText;
-                    stopAllScanners();
-                    buscarPaqueteCargado(); // Busca el paquete automáticamente
-                }
-            ).catch(err => {
+            const onScanSuccess = (decodedText, decodedResult) => {
+                trackingInput.value = decodedText;
+                stopAllScanners();
+                buscarPaqueteCargado();
+            };
+            html5QrcodeScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, onScanSuccess)
+            .catch(err => {
                 showAlert("No se pudo iniciar el escáner de código de barras.");
                 stopAllScanners();
             });
         };
-        // --- FIN: LÓGICA DE ESCÁNERES ---
-        
+        // --- FIN: LÓGICA DE ESCÁNERES MEJORADA ---
         
         // --- Manual & Special Cases Modals Logic ---
         const manualModal = document.getElementById('manual-paquete-modal');
@@ -514,7 +521,7 @@
             if (!tracking) return;
             const { error: insertError } = await sb.from('paquetes_mal_identificados').insert({ tracking: tracking });
             if (insertError) { showAlert(`Error: ${insertError.message}`); return; }
-            await sb.from('paquetes_cargados').update({ cargados: true }).eq('tracking', tracking);
+            await sb.from('paquetes_cargados').update({ cargados: true }).ilike('tracking', tracking);
             showAlert(`Paquete ${tracking} registrado como MAL IDENTIFICADO.`);
             malIdentificadoInput.value = '';
             casosModal.classList.add('hidden');
@@ -565,7 +572,7 @@
             }
         });
 
-        // --- Event Listeners para Escáneres ---
+        // Event Listeners para Escáneres
         document.querySelector('.scan-ocr-btn').addEventListener('click', (e) => startOcrCamera(e.currentTarget.dataset.target));
         document.getElementById('scan-tracking-barcode-btn').addEventListener('click', startBarcodeScanner);
         scannerActionBtn.addEventListener('click', captureAndProcessImage);
@@ -592,6 +599,9 @@
     </script>
 </body>
 </html>
+
+
+
 
 
 
