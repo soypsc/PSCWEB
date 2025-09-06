@@ -63,11 +63,16 @@
                             <div class="relative flex items-center">
                                 <input type="text" id="tracking-main" placeholder="Ingresar o escanear..." class="w-full text-lg pl-4 pr-24 md:pr-32 py-3 border-2 border-slate-300 rounded-lg">
                                 <div class="absolute right-2 flex items-center gap-1">
-                                    <button type="button" id="scan-tracking-barcode-btn" class="p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Código de Barras"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6.5 6.5l-1.5-1.5M4 12H2m13.5-6.5l-1.5 1.5M12 20v-1m0-10V4m0 18a9 9 0 110-18 9 9 0 010 18z" /></svg></button>
-                                    <button type="button" data-target="tracking-main" class="scan-ocr-btn p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Etiqueta (OCR)"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button>
+                                    <button type="button" id="scan-tracking-barcode-btn" class="p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Código de Barras">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6.5 6.5l-1.5-1.5M4 12H2m13.5-6.5l-1.5 1.5M12 20v-1m0-10V4m0 18a9 9 0 110-18 9 9 0 010 18z" /></svg>
+                                    </button>
+                                    <button type="button" data-target="tracking-main" class="scan-ocr-btn p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Etiqueta (OCR)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                    </button>
                                 </div>
                             </div>
                         </div>
+
                         <div id="casos-especiales-container" class="hidden mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-6">
                             <div>
                                 <h3 class="font-bold text-amber-800">Registro de Paquete Mal Identificado</h3>
@@ -77,15 +82,25 @@
                                     <input type="text" id="mal-identificado-input" placeholder="Escanear aquí para registro automático..." class="w-full p-2 border border-slate-300 rounded-md">
                                 </div>
                             </div>
+                            
                             <div>
                                  <h3 class="font-bold text-amber-800">Registro de Filtro</h3>
                                  <div class="flex flex-col md:grid md:grid-cols-2 gap-4 mt-2 items-end">
-                                     <div><label for="filtros-tracking-input" class="block text-sm font-medium text-slate-600 mb-1">Tracking a Filtrar</label><input type="text" id="filtros-tracking-input" class="w-full p-2 border border-slate-300 rounded-md"></div>
-                                     <div><label for="filtros-foto" class="block text-sm font-medium text-slate-600 mb-1">Foto</label><input type="file" id="filtros-foto" accept="image/*" class="w-full text-sm file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:font-semibold file:bg-amber-100 file:text-amber-700 hover:file:bg-amber-200"></div>
+                                     <div>
+                                        <label for="filtros-tracking-input" class="block text-sm font-medium text-slate-600 mb-1">Tracking a Filtrar</label>
+                                        <input type="text" id="filtros-tracking-input" class="w-full p-2 border border-slate-300 rounded-md">
+                                     </div>
+                                     <div>
+                                        <label for="filtros-foto" class="block text-sm font-medium text-slate-600 mb-1">Foto</label>
+                                        <input type="file" id="filtros-foto" accept="image/*" class="w-full text-sm file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:font-semibold file:bg-amber-100 file:text-amber-700 hover:file:bg-amber-200">
+                                     </div>
                                  </div>
-                                 <div class="mt-4"><button type="button" id="guardar-filtro-btn" class="w-full bg-amber-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-amber-700">Guardar Filtro</button></div>
+                                 <div class="mt-4">
+                                     <button type="button" id="guardar-filtro-btn" class="w-full bg-amber-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-amber-700">Guardar Filtro</button>
+                                 </div>
                             </div>
                         </div>
+
                         <div id="info-paquete-cargado" class="hidden mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
                             <div class="info-grid-item"><p class="info-grid-label">Fecha Bodega (Carga)</p><p id="info-fecha" class="info-grid-value"></p></div>
                             <div class="info-grid-item"><p class="info-grid-label">Status (Carga)</p><p id="info-status" class="info-grid-value"></p></div>
@@ -93,35 +108,82 @@
                             <div class="info-grid-item"><p class="info-grid-label">Peso (lbs)</p><p id="info-peso" class="info-grid-value"></p></div>
                             <div class="info-grid-item col-span-2 md:col-span-1"><p class="info-grid-label">Valor ($)</p><p id="info-valor" class="info-grid-value"></p></div>
                         </div>
+                        
                         <div id="step2" class="form-section">
                             <h2 class="text-lg font-semibold text-slate-700 mb-4">2. Cliente y Anaquel</h2>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="relative"><label for="casillero-search" class="block text-sm font-medium text-slate-600 mb-1">Buscar Cliente (Casillero/Nombre)</label><div class="relative flex items-center"><input type="text" id="casillero-search" class="w-full p-2 pr-12 border border-slate-300 rounded-md" autocomplete="off"><button type="button" data-target="casillero-search" class="scan-ocr-btn absolute right-1 p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Etiqueta (OCR)"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg></button></div><div id="cliente-suggestions" class="autocomplete-suggestions hidden"></div></div>
-                                <div><label for="cliente" class="block text-sm font-medium text-slate-600 mb-1">Cliente Encontrado</label><input type="text" id="cliente" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100"></div>
-                                <div><label for="sucursal" class="block text-sm font-medium text-slate-600 mb-1">Sucursal del Cliente</label><input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100"></div>
-                                <div><label for="anaquel-select" class="block text-sm font-medium text-slate-600 mb-1">Asignar Anaquel (Opcional)</label><select id="anaquel-select" class="w-full p-2 border border-slate-300 rounded-md"><option value="">(Sin anaquel)</option></select></div>
+                                <div class="relative">
+                                    <label for="casillero-search" class="block text-sm font-medium text-slate-600 mb-1">Buscar Cliente (Casillero/Nombre)</label>
+                                    <div class="relative flex items-center">
+                                        <input type="text" id="casillero-search" class="w-full p-2 pr-12 border border-slate-300 rounded-md" autocomplete="off">
+                                        <button type="button" data-target="casillero-search" class="scan-ocr-btn absolute right-1 p-2 text-slate-500 hover:text-indigo-600 rounded-full hover:bg-indigo-100" title="Escanear Etiqueta (OCR)">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                        </button>
+                                    </div>
+                                    <div id="cliente-suggestions" class="autocomplete-suggestions hidden"></div>
+                                </div>
+                                <div>
+                                    <label for="cliente" class="block text-sm font-medium text-slate-600 mb-1">Cliente Encontrado</label>
+                                    <input type="text" id="cliente" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
+                                </div>
+                                <div>
+                                    <label for="sucursal" class="block text-sm font-medium text-slate-600 mb-1">Sucursal del Cliente</label>
+                                    <input type="text" id="sucursal" disabled class="w-full p-2 border border-slate-300 rounded-md bg-slate-100">
+                                </div>
+                                <div>
+                                    <label for="anaquel-select" class="block text-sm font-medium text-slate-600 mb-1">Asignar Anaquel (Opcional)</label>
+                                    <select id="anaquel-select" class="w-full p-2 border border-slate-300 rounded-md">
+                                        <option value="">(Sin anaquel)</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                        <div id="step3" class="form-section"><div class="mt-8"><button type="submit" class="w-full bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-emerald-500/20 hover:bg-emerald-600">Registrar Paquete en Sistema</button></div></div>
+                        <div id="step3" class="form-section">
+                            <div class="mt-8">
+                                <button type="submit" class="w-full bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg shadow-emerald-500/20 hover:bg-emerald-600">Registrar Paquete en Sistema</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
+
                 <div class="lg:col-span-1 space-y-8">
-                    <div class="bg-white p-4 md:p-6 rounded-lg border-2 border-red-500 shadow-sm">
+                    <div class="bg-white p-6 rounded-lg border-2 border-red-500 shadow-sm">
                         <h2 class="text-xl font-bold text-red-700 mb-4">Gestión de Casos Especiales</h2>
-                        <div id="casos-especiales-container" class="overflow-y-auto max-h-96 space-y-3">
-                            <p id="casos-especiales-placeholder" class="text-center p-4 text-slate-500">Cargando...</p>
+                        <div id="casos-especiales-lista" class="space-y-3 overflow-y-auto max-h-96 pr-2">
+                            <p class="text-center p-4 text-slate-500">Cargando...</p>
                         </div>
                     </div>
                     <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
                         <h2 class="text-xl font-bold text-slate-800 mb-4">Paquetes Pendientes de Carga</h2>
                         <div class="overflow-y-auto max-h-96">
-                            <table class="w-full text-sm"><thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0"><tr><th class="px-4 py-2 text-left">Tracking</th><th class="px-4 py-2 text-left">Casillero</th></tr></thead><tbody id="tabla-pendientes"><tr><td colspan="2" class="text-center p-4 text-slate-500">Cargando...</td></tr></tbody></table>
+                            <table class="w-full text-sm">
+                                <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left">Tracking</th>
+                                        <th class="px-4 py-2 text-left">Casillero</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-pendientes">
+                                    <tr><td colspan="2" class="text-center p-4 text-slate-500">Cargando...</td></tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+                    
                     <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
                         <h2 class="text-xl font-bold text-slate-800 mb-4">Paquetes Mal Identificados</h2>
                         <div class="overflow-y-auto max-h-96">
-                            <table class="w-full text-sm"><thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0"><tr><th class="px-4 py-2 text-left">Tracking</th><th class="px-4 py-2 text-left">Fecha</th></tr></thead><tbody id="tabla-mal-identificados"><tr><td colspan="2" class="text-center p-4 text-slate-500">Aún no hay registros.</td></tr></tbody></table>
+                            <table class="w-full text-sm">
+                                <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left">Tracking</th>
+                                        <th class="px-4 py-2 text-left">Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-mal-identificados">
+                                    <tr><td colspan="2" class="text-center p-4 text-slate-500">Aún no hay registros.</td></tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -129,11 +191,68 @@
         </main>
     </div>
 
-    <div id="ocr-scanner-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50"><div class="bg-white w-full max-w-lg rounded-lg shadow-xl p-6 relative"><button id="close-ocr-btn" class="absolute top-2 right-2 text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button><h2 class="text-xl font-bold text-slate-800 mb-4">Escanear Etiqueta con Cámara</h2><div class="relative"><video id="video-feed" autoplay playsinline></video><div id="ocr-guide-box" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10/12 h-12 border-2 border-dashed border-white rounded-lg pointer-events-none"></div></div><p id="ocr-status" class="text-sm text-slate-500 mt-2 text-center h-5">Iniciando cámara...</p><button id="capture-ocr-btn" class="w-full mt-4 bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg disabled:opacity-50" disabled>Capturar Imagen</button></div></div>
-    <div id="barcode-scanner-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50"><div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6 relative"><button id="close-barcode-btn" class="absolute top-2 right-2 text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button><h2 class="text-xl font-bold text-slate-800 mb-4">Escanear Código de Barras</h2><div id="barcode-reader" class="w-full"></div><p class="text-xs text-slate-500 mt-4 text-center">Apunte la cámara al código de barras o QR.</p></div></div>
-    <div id="manual-paquete-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40"><div class="bg-white w-full max-w-2xl rounded-lg shadow-xl p-6 modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold text-slate-800">Agregar Paquete Manualmente</h2><button class="close-modal text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button></div><form id="form-manual"><div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4"><div><label for="manual-tracking1" class="block text-sm font-medium">Tracking Principal</label><input id="manual-tracking1" type="text" class="w-full p-1.5 border rounded-md text-sm" required></div><div><label for="manual-peso" class="block text-sm font-medium">Peso (lbs)</label><input id="manual-peso" type="number" step="0.01" class="w-full p-1.5 border rounded-md text-sm"></div><div class="md:col-span-2"><hr></div><div class="relative"><label for="manual-casillero" class="block text-sm font-medium">Buscar Cliente (Casillero/Nombre)</label><input id="manual-casillero" type="text" class="w-full p-1.5 border rounded-md text-sm" autocomplete="off"><div id="manual-cliente-suggestions" class="autocomplete-suggestions hidden"></div></div><div><label class="block text-sm font-medium">Cliente Encontrado</label><input id="manual-cliente-info" type="text" class="w-full p-1.5 border rounded-md text-sm bg-slate-100" readonly></div></div><div class="flex justify-end gap-4 pt-4 mt-4 border-t"><button type="button" class="close-modal bg-slate-100 text-slate-700 font-semibold py-2 px-4 rounded-md hover:bg-slate-200">Cancelar</button><button type="submit" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-md hover:bg-blue-700">Guardar Paquete</button></div></form></div></div>
-    <div id="procesar-paquete-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50"><div class="bg-white w-full max-w-lg rounded-lg shadow-xl p-6"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold text-slate-800">Procesar Paquete Sin Cliente</h2><button id="close-procesar-modal" class="text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button></div><p class="text-sm mb-4">Asignar un cliente al tracking: <strong id="procesar-tracking-info"></strong></p><div class="space-y-4"><div class="relative"><label for="procesar-casillero-search" class="block text-sm font-medium">Buscar Cliente (Casillero/Nombre)</label><input id="procesar-casillero-search" type="text" class="w-full p-2 border rounded-md" autocomplete="off"><div id="procesar-cliente-suggestions" class="autocomplete-suggestions hidden"></div></div><div><label class="block text-sm font-medium">Cliente Encontrado</label><input id="procesar-cliente-info" type="text" class="w-full p-2 border rounded-md bg-slate-100" readonly placeholder="Ningún cliente seleccionado."></div></div><div class="flex justify-end gap-4 pt-4 mt-4 border-t"><button type="button" id="cancel-procesar-btn" class="bg-slate-100 text-slate-700 font-semibold py-2 px-4 rounded-md hover:bg-slate-200">Cancelar</button><button type="button" id="confirmar-procesar-btn" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-md hover:bg-blue-700 disabled:bg-slate-400" disabled>Asignar Cliente y Procesar</button></div></div></div>
-    <div id="custom-alert" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50"><div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6 text-center"><p id="custom-alert-message" class="text-slate-700 mb-4">Mensaje.</p><button id="custom-alert-close" class="bg-emerald-500 text-white font-semibold py-2 px-6 rounded-md hover:bg-emerald-600">Entendido</button></div></div>
+    <div id="ocr-scanner-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white w-full max-w-lg rounded-lg shadow-xl p-6 relative">
+            <button id="close-ocr-btn" class="absolute top-2 right-2 text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Escanear Etiqueta con Cámara</h2>
+            <div class="relative"><video id="video-feed" autoplay playsinline></video><div id="ocr-guide-box" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10/12 h-12 border-2 border-dashed border-white rounded-lg pointer-events-none"></div></div>
+            <p id="ocr-status" class="text-sm text-slate-500 mt-2 text-center h-5">Iniciando cámara...</p>
+            <button id="capture-ocr-btn" class="w-full mt-4 bg-indigo-500 text-white font-bold py-3 px-4 rounded-lg disabled:opacity-50" disabled>Capturar Imagen</button>
+        </div>
+    </div>
+    <div id="barcode-scanner-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6 relative">
+            <button id="close-barcode-btn" class="absolute top-2 right-2 text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Escanear Código de Barras</h2>
+            <div id="barcode-reader" class="w-full"></div>
+            <p class="text-xs text-slate-500 mt-4 text-center">Apunte la cámara al código de barras o QR.</p>
+        </div>
+    </div>
+
+    <div id="manual-paquete-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
+        <div class="bg-white w-full max-w-2xl rounded-lg shadow-xl p-6 modal-content">
+            <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold text-slate-800">Agregar Paquete Manualmente</h2><button class="close-modal text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button></div>
+            <form id="form-manual"><div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4"><div><label for="manual-tracking1" class="block text-sm font-medium">Tracking Principal</label><input id="manual-tracking1" type="text" class="w-full p-1.5 border rounded-md text-sm" required></div><div><label for="manual-peso" class="block text-sm font-medium">Peso (lbs)</label><input id="manual-peso" type="number" step="0.01" class="w-full p-1.5 border rounded-md text-sm"></div><div class="md:col-span-2"><hr></div>
+            <div class="relative">
+                <label for="manual-casillero" class="block text-sm font-medium">Buscar Cliente (Casillero/Nombre)</label>
+                <input id="manual-casillero" type="text" class="w-full p-1.5 border rounded-md text-sm" autocomplete="off">
+                <div id="manual-cliente-suggestions" class="autocomplete-suggestions hidden"></div>
+            </div>
+            <div><label class="block text-sm font-medium">Cliente Encontrado</label><input id="manual-cliente-info" type="text" class="w-full p-1.5 border rounded-md text-sm bg-slate-100" readonly></div></div><div class="flex justify-end gap-4 pt-4 mt-4 border-t"><button type="button" class="close-modal bg-slate-100 text-slate-700 font-semibold py-2 px-4 rounded-md hover:bg-slate-200">Cancelar</button><button type="submit" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-md hover:bg-blue-700">Guardar Paquete</button></div></form>
+        </div>
+    </div>
+    
+    <div id="procesar-paquete-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white w-full max-w-lg rounded-lg shadow-xl p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-slate-800">Procesar Paquete Sin Cliente</h2>
+                <button id="close-procesar-modal" class="text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button>
+            </div>
+            <p class="text-sm mb-4">Asignar un cliente al tracking: <strong id="procesar-tracking-info"></strong></p>
+            <div class="space-y-4">
+                 <div class="relative">
+                    <label for="procesar-casillero-search" class="block text-sm font-medium">Buscar Cliente (Casillero/Nombre)</label>
+                    <input id="procesar-casillero-search" type="text" class="w-full p-2 border rounded-md" autocomplete="off">
+                    <div id="procesar-cliente-suggestions" class="autocomplete-suggestions hidden"></div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Cliente Encontrado</label>
+                    <input id="procesar-cliente-info" type="text" class="w-full p-2 border rounded-md bg-slate-100" readonly placeholder="Ningún cliente seleccionado.">
+                </div>
+            </div>
+            <div class="flex justify-end gap-4 pt-4 mt-4 border-t">
+                <button type="button" id="cancel-procesar-btn" class="bg-slate-100 text-slate-700 font-semibold py-2 px-4 rounded-md hover:bg-slate-200">Cancelar</button>
+                <button type="button" id="confirmar-procesar-btn" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-md hover:bg-blue-700 disabled:bg-slate-400" disabled>Asignar Cliente y Procesar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="custom-alert" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white w-full max-w-md rounded-lg shadow-xl p-6 text-center">
+            <p id="custom-alert-message" class="text-slate-700 mb-4">Mensaje.</p>
+            <button id="custom-alert-close" class="bg-emerald-500 text-white font-semibold py-2 px-6 rounded-md hover:bg-emerald-600">Entendido</button>
+        </div>
+    </div>
 
     <script type="module" src="app.js"></script>
     <script type="module">
@@ -165,13 +284,16 @@
                 const manualClienteInfoInput = document.getElementById('manual-cliente-info');
                 const manualClienteSuggestionsContainer = document.getElementById('manual-cliente-suggestions');
                 const casosEspecialesBtn = document.getElementById('casos-especiales-btn');
-                const casosEspecialesContainerEl = document.getElementById('casos-especiales-container');
+                const casosEspecialesContainer = document.getElementById('casos-especiales-container');
                 const malIdentificadoInput = document.getElementById('mal-identificado-input');
                 const tablaMalIdentificadosBody = document.getElementById('tabla-mal-identificados');
                 const filtrosTrackingInput = document.getElementById('filtros-tracking-input');
                 const filtrosFotoInput = document.getElementById('filtros-foto');
                 const guardarFiltroBtn = document.getElementById('guardar-filtro-btn');
-                const casosEspecialesContainer = document.getElementById('casos-especiales-container');
+                
+                // Apunta al nuevo contenedor para las tarjetas
+                const casosEspecialesLista = document.getElementById('casos-especiales-lista');
+                
                 const procesarModal = document.getElementById('procesar-paquete-modal');
                 const closeProcesarModalBtn = document.getElementById('close-procesar-modal');
                 const cancelProcesarBtn = document.getElementById('cancel-procesar-btn');
@@ -199,7 +321,7 @@
                     step2.classList.remove('visible');
                     step3.classList.remove('visible');
                     infoPaqueteDiv.classList.add('hidden');
-                    casosEspecialesContainerEl.classList.add('hidden');
+                    casosEspecialesContainer.classList.add('hidden');
                     paqueteCargadoActual = null;
                     clienteSeleccionado = null;
                     paqueteVieneDeMalIdentificado = false;
@@ -208,13 +330,13 @@
 
                 async function cargarPaquetesPendientes() {
                     const { data, error } = await sb.from('paquetes_cargados').select('tracking, cliente_box').eq('cargados', false);
-                    if (error) { tablaPendientesBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-red-500">Error.</td></tr>`; return; }
+                    if (error) { tablaPendientesBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`; return; }
                     if (!data || data.length === 0) { tablaPendientesBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-slate-500">¡No hay paquetes pendientes!</td></tr>`; return; }
                     tablaPendientesBody.innerHTML = data.map(p => `<tr class="border-b hover:bg-slate-50"><td class="px-4 py-2 font-medium">${p.tracking}</td><td class="px-4 py-2">${p.cliente_box || 'N/A'}</td></tr>`).join('');
                 }
                 async function cargarPaquetesMalIdentificados() {
                     const { data, error } = await sb.from('paquetes_mal_identificados').select('*').order('created_at', { ascending: false }).limit(20);
-                    if (error) { tablaMalIdentificadosBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-red-500">Error.</td></tr>`; return; }
+                    if (error) { tablaMalIdentificadosBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-red-500">Error al cargar.</td></tr>`; return; }
                     if (!data.length) { tablaMalIdentificadosBody.innerHTML = `<tr><td colspan="2" class="text-center p-4 text-slate-500">No hay registros.</td></tr>`; return; }
                     tablaMalIdentificadosBody.innerHTML = data.map(p => `<tr class="border-b"><td class="px-4 py-2">${p.tracking}</td><td class="px-4 py-2">${fmtDate(p.created_at)}</td></tr>`).join('');
                 }
@@ -225,48 +347,47 @@
                     if (data) { data.forEach(a => { anaquelSelect.innerHTML += `<option value="${a.nombre}">${a.nombre}</option>`; }); }
                 }
 
+                // INICIO: FUNCIÓN JS MODIFICADA
                 async function cargarCasosEspeciales() {
                     const { data, error } = await sb.from('paquetes')
                         .select('id, tracking, status, sucursal_recibido')
-                        .in('status', ['reportado', 'reportado en transito', 'sin procesar'])
+                        .in('status', ['Reportado', 'Reportado en transito', 'Sin procesar'])
                         .order('created_at', { ascending: false });
 
                     if (error) {
-                        casosEspecialesContainer.innerHTML = `<p class="text-center p-4 text-red-500">Error al cargar casos especiales.</p>`;
+                        casosEspecialesLista.innerHTML = `<p class="text-center p-4 text-red-500">Error al cargar.</p>`;
                         return;
                     }
                     if (!data || data.length === 0) {
-                        casosEspecialesContainer.innerHTML = `<p class="text-center p-4 text-slate-500">No hay casos especiales pendientes.</p>`;
+                        casosEspecialesLista.innerHTML = `<p class="text-center p-4 text-slate-500">No hay casos especiales pendientes.</p>`;
                         return;
                     }
-                    
-                    casosEspecialesContainer.innerHTML = data.map(p => {
-                        let statusClass = '';
-                        let statusText = p.status.charAt(0).toUpperCase() + p.status.slice(1);
-                        
-                        if (p.status === 'reportado') statusClass = 'bg-red-100 text-red-800';
-                        if (p.status === 'reportado en transito') statusClass = 'bg-amber-100 text-amber-800';
-                        if (p.status === 'sin procesar') statusClass = 'bg-indigo-100 text-indigo-800';
 
-                        const botonProcesar = p.status === 'sin procesar' ? 
-                            `<button data-id="${p.id}" data-tracking="${p.tracking}" class="procesar-btn bg-blue-500 text-white text-xs font-semibold py-1 px-3 rounded-md hover:bg-blue-600">Procesar</button>` : '';
+                    casosEspecialesLista.innerHTML = data.map(p => {
+                        let statusClass = '';
+                        if (p.status === 'Reportado') statusClass = 'bg-red-100 text-red-800';
+                        if (p.status === 'Reportado en transito') statusClass = 'bg-amber-100 text-amber-800';
+                        if (p.status === 'Sin procesar') statusClass = 'bg-indigo-100 text-indigo-800';
+
+                        const botonProcesar = p.status === 'Sin procesar' ? 
+                            `<button data-id="${p.id}" data-tracking="${p.tracking}" class="procesar-btn mt-3 w-full bg-blue-500 text-white font-semibold py-2 px-3 rounded-md hover:bg-blue-600 text-sm">Procesar Paquete</button>` :
+                            '';
 
                         return `
-                        <div class="p-3 border rounded-lg bg-slate-50">
-                            <div class="flex justify-between items-start">
-                                <div class="flex-1">
-                                    <p class="font-bold text-slate-800 break-all">${p.tracking}</p>
-                                    <p class="text-xs text-slate-500">${p.sucursal_recibido || 'Ubicación no definida'}</p>
+                            <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-800">${p.tracking}</p>
+                                        <p class="text-xs text-slate-500">${p.sucursal_recibido || 'Sin ubicación'}</p>
+                                    </div>
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${p.status}</span>
                                 </div>
-                                <div class="ml-2">${botonProcesar}</div>
+                                ${botonProcesar}
                             </div>
-                            <div class="mt-2">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${statusText}</span>
-                            </div>
-                        </div>
                         `;
                     }).join('');
                 }
+                // FIN: FUNCIÓN JS MODIFICADA
 
                 async function buscarPaqueteCargado(tracking) {
                     if (!tracking) { resetFormularioPrincipal(); return; }
@@ -301,12 +422,13 @@
                         step3.classList.add('visible');
                     } else {
                         resetFormularioPrincipal();
-                        showAlert('Tracking no encontrado o ya fue registrado.');
+                        showAlert('Tracking no encontrado en la carga de paquetes pendientes.');
                     }
                 }
 
                 async function buscarCliente(terminoBusqueda, target) {
                     if (!terminoBusqueda) return;
+                    
                     const isNumeric = !isNaN(terminoBusqueda);
                     let query = sb.from('clientes').select('nombre, box, sucursal');
                     if (isNumeric) {
@@ -315,7 +437,9 @@
                         query = query.ilike('nombre', `%${terminoBusqueda}%`);
                     }
                     const { data, error } = await query.limit(1).maybeSingle();
+                    
                     if (error) { showAlert("Error buscando cliente."); return; }
+
                     if (target === 'main') {
                         clienteSeleccionado = data;
                         actualizarInfoClienteUI();
@@ -342,6 +466,7 @@
                 async function handleAutocomplete(inputElement, containerElement, callback) {
                     const termino = inputElement.value.trim();
                     if (termino.length < 2) { containerElement.classList.add('hidden'); return; }
+                    
                     let query = sb.from('clientes').select('nombre, box');
                     if(!isNaN(termino)) {
                         query = query.like('box::text', `${termino}%`);
@@ -349,13 +474,16 @@
                         query = query.ilike('nombre', `%${termino}%`);
                     }
                     const { data, error } = await query.limit(5);
+
                     if (error || !data || data.length === 0) { containerElement.classList.add('hidden'); return; }
+
                     containerElement.innerHTML = data.map(cliente => 
                         `<div class="suggestion-item" data-box="${cliente.box}">
                             ${cliente.nombre} <span class="text-slate-500 text-xs">(${cliente.box})</span>
                         </div>`
                     ).join('');
                     containerElement.classList.remove('hidden');
+
                     containerElement.querySelectorAll('.suggestion-item').forEach(item => {
                         item.addEventListener('click', () => {
                             callback(item.dataset.box);
@@ -401,11 +529,14 @@
                 formRecibir.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     if (!paqueteCargadoActual) {
-                        showAlert("Primero debe escanear y cargar un tracking válido."); return;
+                        showAlert("Primero debe escanear y cargar un tracking válido."); 
+                        return;
                     }
                     if (!clienteSeleccionado) {
-                        showAlert("Debe asignar un cliente válido al paquete."); return;
+                        showAlert("Debe asignar un cliente válido al paquete."); 
+                        return;
                     }
+                    
                     const now = new Date().toISOString();
                     const payload = {
                         tracking: paqueteCargadoActual.tracking, peso: paqueteCargadoActual.peso || null, valor: paqueteCargadoActual.valor || null,
@@ -415,12 +546,14 @@
                         fecha_recibido: now, fecha_sucursal: anaquelSelect.value ? now : null
                     };
                     const { error } = await sb.rpc('crear_paquete_admin', { paquete_data: payload });
-                    if (error) { showAlert(`Error al registrar: ${error.message}`); return; }
+                    if (error) { showAlert(`Error al registrar el paquete: ${error.message}`); return; }
+                    
                     if (paqueteVieneDeMalIdentificado) {
                         await sb.from('paquetes_mal_identificados').delete().eq('tracking', paqueteCargadoActual.tracking);
                     }
+                    
                     await sb.from('paquetes_cargados').update({ cargados: true }).eq('tracking', paqueteCargadoActual.tracking);
-                    showAlert(`Paquete ${paqueteCargadoActual.tracking} registrado a ${clienteSeleccionado.nombre} ✅`);
+                    showAlert(`Paquete ${paqueteCargadoActual.tracking} registrado y asignado a ${clienteSeleccionado.nombre} ✅`);
                     resetFormularioPrincipal();
                     await Promise.all([cargarPaquetesPendientes(), cargarPaquetesMalIdentificados(), cargarCasosEspeciales()]);
                 });
@@ -428,12 +561,14 @@
                 formManual.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     const tracking1 = document.getElementById('manual-tracking1').value.trim();
+                    
                     if (!tracking1) {
                         showAlert("El campo Tracking Principal es obligatorio."); return;
                     }
                     if (!clienteManualSeleccionado) {
                         showAlert("Debe asignar un cliente válido."); return;
                     }
+
                     const now = new Date().toISOString();
                     const payload = {
                         tracking: tracking1, peso: parseFloat(document.getElementById('manual-peso').value) || null,
@@ -442,6 +577,7 @@
                     };
                     const { error } = await sb.rpc('crear_paquete_admin', { paquete_data: payload });
                     if (error) { showAlert(`Error al crear el paquete: ${error.message}`); return; }
+                    
                     showAlert(`Paquete ${tracking1} creado y asignado a ${clienteManualSeleccionado.nombre} ✅`);
                     manualModal.classList.add('hidden');
                     formManual.reset();
@@ -463,18 +599,22 @@
 
                 async function handleConfirmarProceso() {
                     if (!paqueteParaProcesarId || !clienteParaProcesar) {
-                        showAlert("Error: No hay un paquete o cliente válido seleccionado."); return;
+                        showAlert("Error: No hay un paquete o cliente válido seleccionado.");
+                        return;
                     }
+                    
                     confirmarProcesarBtn.disabled = true;
                     confirmarProcesarBtn.textContent = 'Procesando...';
+
                     const { error } = await sb.from('paquetes')
                         .update({
                             cliente_nombre: clienteParaProcesar.nombre,
                             cliente_box: clienteParaProcesar.box,
                             sucursal: clienteParaProcesar.sucursal,
-                            status: 'reportado en transito'
+                            status: 'Reportado en transito'
                         })
                         .eq('id', paqueteParaProcesarId);
+
                     if (error) {
                         showAlert(`Error al procesar el paquete: ${error.message}`);
                     } else {
@@ -482,6 +622,7 @@
                         closeProcesarModal();
                         await cargarCasosEspeciales();
                     }
+                    
                     confirmarProcesarBtn.disabled = false;
                     confirmarProcesarBtn.textContent = 'Asignar Cliente y Procesar';
                 }
@@ -497,6 +638,7 @@
                     const barcodeScannerModal = document.getElementById('barcode-scanner-modal');
                     const openBarcodeBtn = document.getElementById('scan-tracking-barcode-btn');
                     const closeBarcodeBtn = document.getElementById('close-barcode-btn');
+
                     const startOcrCamera = async (targetInputId) => {
                         currentOcrTargetInput = document.getElementById(targetInputId);
                         ocrScannerModal.classList.remove('hidden');
@@ -505,9 +647,17 @@
                             videoFeed.srcObject = ocrStream;
                             ocrStatus.textContent = 'Apunte a la etiqueta y presione "Capturar".';
                             captureBtn.disabled = false;
-                        } catch (err) { showAlert("No se pudo acceder a la cámara."); stopOcrCamera(); }
+                        } catch (err) {
+                            showAlert("No se pudo acceder a la cámara. Asegúrate de dar los permisos.");
+                            stopOcrCamera();
+                        }
                     };
-                    const stopOcrCamera = () => { if (ocrStream) ocrStream.getTracks().forEach(track => track.stop()); ocrScannerModal.classList.add('hidden'); };
+
+                    const stopOcrCamera = () => {
+                        if (ocrStream) ocrStream.getTracks().forEach(track => track.stop());
+                        ocrScannerModal.classList.add('hidden');
+                    };
+
                     const captureAndProcessImage = async () => {
                         ocrStatus.textContent = 'Procesando imagen...';
                         captureBtn.disabled = true;
@@ -521,32 +671,50 @@
                         const cropY = (guideRect.top - videoRect.top) * scaleY;
                         const cropWidth = guideRect.width * scaleX;
                         const cropHeight = guideRect.height * scaleY;
-                        canvas.width = cropWidth; canvas.height = cropHeight;
+                        canvas.width = cropWidth;
+                        canvas.height = cropHeight;
                         const context = canvas.getContext('2d');
                         context.drawImage(videoFeed, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
-                        if (!ocrWorker || ocrWorker.terminated) { ocrWorker = await Tesseract.createWorker('eng'); }
+                        
+                        if (!ocrWorker || ocrWorker.terminated) {
+                             ocrWorker = await Tesseract.createWorker('eng');
+                        }
                         const { data: { text } } = await ocrWorker.recognize(canvas.toDataURL('image/jpeg'));
+                        
                         parseOcrText(text);
                         stopOcrCamera();
                     };
+                    
                     const parseOcrText = (text) => {
                         const words = text.split(/[\s\n]+/).filter(w => w.length > 5);
                         const bestGuess = words.sort((a, b) => b.length - a.length)[0] || "";
                         currentOcrTargetInput.value = bestGuess.replace(/[^a-zA-Z0-9-]/g, '');
                         currentOcrTargetInput.dispatchEvent(new Event('change'));
                     };
+
                     const onBarcodeScanSuccess = (decodedText, decodedResult) => {
                         trackingInput.value = decodedText;
                         stopBarcodeScanner();
                         trackingInput.dispatchEvent(new Event('change'));
                     };
+
                     const startBarcodeScanner = () => {
                         barcodeScannerModal.classList.remove('hidden');
                         html5QrcodeScanner = new Html5Qrcode("barcode-reader");
                         html5QrcodeScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, onBarcodeScanSuccess)
-                            .catch(err => { showAlert("No se pudo iniciar el escáner de código de barras."); stopBarcodeScanner(); });
+                            .catch(err => {
+                                showAlert("No se pudo iniciar el escáner de código de barras.");
+                                stopBarcodeScanner();
+                            });
                     };
-                    const stopBarcodeScanner = () => { if (html5QrcodeScanner && html5QrcodeScanner.isScanning) { html5QrcodeScanner.stop().catch(err => console.error(err)); } barcodeScannerModal.classList.add('hidden'); };
+
+                    const stopBarcodeScanner = () => {
+                        if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
+                            html5QrcodeScanner.stop().catch(err => console.error("Error al detener el escáner.", err));
+                        }
+                        barcodeScannerModal.classList.add('hidden');
+                    };
+
                     openOcrBtns.forEach(btn => btn.addEventListener('click', () => startOcrCamera(btn.dataset.target)));
                     closeOcrBtn.addEventListener('click', stopOcrCamera);
                     captureBtn.addEventListener('click', captureAndProcessImage);
@@ -565,7 +733,7 @@
                     }
                 }
 
-                casosEspecialesBtn.addEventListener('click', () => casosEspecialesContainerEl.classList.toggle('hidden'));
+                casosEspecialesBtn.addEventListener('click', () => casosEspecialesContainer.classList.toggle('hidden'));
                 trackingInput.addEventListener('change', (e) => buscarPaqueteCargado(e.target.value.trim()));
                 casilleroSearchInput.addEventListener('input', () => handleAutocomplete(casilleroSearchInput, clienteSuggestionsContainer, (box) => {
                     casilleroSearchInput.value = box;
@@ -583,12 +751,17 @@
                     manualCasilleroInput.value = box;
                     buscarCliente(box, 'manual');
                 }));
-                casosEspecialesContainer.addEventListener('click', (e) => {
+
+                // El listener ahora apunta al nuevo contenedor
+                casosEspecialesLista.addEventListener('click', (e) => {
                     const boton = e.target.closest('.procesar-btn');
                     if (boton) {
-                        openProcesarModal(boton.dataset.id, boton.dataset.tracking);
+                        const id = boton.dataset.id;
+                        const tracking = boton.dataset.tracking;
+                        openProcesarModal(id, tracking);
                     }
                 });
+                
                 closeProcesarModalBtn.addEventListener('click', closeProcesarModal);
                 cancelProcesarBtn.addEventListener('click', closeProcesarModal);
                 procesarCasilleroInput.addEventListener('input', () => handleAutocomplete(procesarCasilleroInput, procesarClienteSuggestionsContainer, (box) => {
@@ -596,9 +769,11 @@
                     buscarCliente(box, 'procesar');
                 }));
                 confirmarProcesarBtn.addEventListener('click', handleConfirmarProceso);
+                
                 casilleroSearchInput.addEventListener('keydown', (e) => handleEnterSearch(e, 'main'));
                 manualCasilleroInput.addEventListener('keydown', (e) => handleEnterSearch(e, 'manual'));
                 procesarCasilleroInput.addEventListener('keydown', (e) => handleEnterSearch(e, 'procesar'));
+                
                 document.addEventListener('click', (e) => {
                     if (!casilleroSearchInput.contains(e.target)) clienteSuggestionsContainer.classList.add('hidden');
                     if (!manualCasilleroInput.contains(e.target)) manualClienteSuggestionsContainer.classList.add('hidden');
