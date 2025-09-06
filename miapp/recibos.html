@@ -140,6 +140,7 @@
         appContainer.addEventListener('click', async (e) => {
             const viewButton = e.target.closest('.view-receipt-btn');
             if (viewButton) {
+                document.body.style.overflow = 'hidden'; // Bloquear scroll del body
                 const facturaId = viewButton.dataset.facturaId;
                 facturaModalContent.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto border-slate-700 border-t-blue-500"></div></div>`;
                 facturaModal.classList.remove('hidden');
@@ -151,7 +152,9 @@
         });
 
         // Botón para cerrar el modal
-        document.getElementById('close-factura-modal-btn').addEventListener('click', () => {
+        document.getElementById('close-factura-modal-btn').addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevenir bubbling
+            document.body.style.overflow = 'auto'; // Restaurar scroll del body
             facturaModal.classList.add('hidden');
         });
         
@@ -175,4 +178,7 @@
     </script>
 </body>
 </html>
+
+
+
 
