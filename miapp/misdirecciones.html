@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Direcciones - PSC App</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="config.js"></script>
+
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; border-radius: 50%;}
+        @keyframes spin{ to{transform:rotate(360deg)} }
+    </style>
+</head>
+<body class="max-w-md mx-auto min-h-screen">
+    
+    <header class="p-6 flex items-center space-x-4">
+        <a href="index.html" class="text-slate-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a>
+        <h1 class="text-xl font-bold text-white">Mis Direcciones</h1>
+    </header>
+
+    <main id="direcciones-content" class="px-6 pb-24 space-y-6">
+        <div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>
+    </main>
+
+    <script type="module">
+        const { createClient } = supabase;
+        const supabaseClient = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+        
+        // --- Auth Check ---
+        const checkAuth = async () => {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                window.location.href = 'index.html';
+            } else {
+                initializeDireccionesPage();
+            }
+        };
+
+        // --- Content Loading ---
+        const initializeDireccionesPage = async () => {
+            const container = document.getElementById('direcciones-content');
+            container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
+            const { data: userInfo, error } = await supabaseClient.rpc('get_direcciones_casillero');
+            
+            if (error || !userInfo) {
+                container.innerHTML = `<p class="text-red-500 text-center">No se pudo cargar tu información.</p>`;
+                return;
+            }
+            
+            const { nombre, box, codigo_sucursal } = userInfo;
+            const nombreLinea1 = `${codigo_sucursal || 'PSC'}${box || ''} ${nombre || ''}`;
+            
+            const renderAddressCard = (addr) => {
+                let copyIdCounter = Math.random().toString(36).substring(7);
+                return `<section><h2 class="text-base font-semibold text-white mb-3">${addr.titulo}</h2>${addr.nota ? `<p class="text-xs text-yellow-500 bg-yellow-500/10 p-2 rounded-md mb-3">${addr.nota}</p>` : ''}<div class="bg-slate-800 border border-slate-700 rounded-xl divide-y divide-slate-700">${addr.datos.map((item, index) => { const uniqueId = `copy-${copyIdCounter}-${index}`; return `<div class="px-3 py-2 flex justify-between items-center"><div><p class="text-xs text-slate-400">${item.label}:</p><p class="text-sm font-mono text-white" id="${uniqueId}">${item.value}</p></div><button class="copy-btn p-2 rounded-lg hover:bg-slate-700" data-target="${uniqueId}"><i data-lucide="copy" class="h-4 w-4 text-slate-400"></i></button></div>`; }).join('')}</div></section>`;
+            };
+            
+            container.innerHTML = `${renderAddressCard({ titulo: 'Bodega Principal (Aéreo)', datos: [ { label: 'Nombre', value: nombreLinea1 }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })} ${renderAddressCard({ titulo: 'Dirección Marítima', datos: [ { label: 'Nombre', value: `OCEAN ${nombreLinea1}` }, { label: 'Dirección', value: '2610 NW 89 TH CT, DORAL, FL 33172-1615' }] })}`;
+            
+            container.querySelectorAll('.copy-btn').forEach(btn => btn.addEventListener('click', () => { 
+                const textToCopy = document.getElementById(btn.dataset.target).innerText;
+                navigator.clipboard.writeText(textToCopy).then(() => { 
+                    btn.innerHTML = '<i data-lucide="check" class="h-4 w-4 text-green-500"></i>'; 
+                    setTimeout(() => { 
+                        btn.innerHTML = '<i data-lucide="copy" class="h-4 w-4 text-slate-400"></i>'; 
+                        lucide.createIcons(); 
+                    }, 2000); 
+                    lucide.createIcons(); 
+                }); 
+            }));
+            
+            lucide.createIcons();
+        };
+
+        // --- Init ---
+        checkAuth();
+        lucide.createIcons();
+    </script>
+</body>
+</html>
