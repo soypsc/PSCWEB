@@ -372,7 +372,8 @@
                 const { error } = await sb.rpc('consumir_libras_paquete', {
                     p_cliente_id: clienteActual.id,
                     p_libras_a_consumir: librasAConsumir,
-                    p_descripcion: `Consumo en SGL1 por ${librasAConsumir.toFixed(2)} lbs.`
+                    p_descripcion: `Consumo en SGL1 por ${librasAConsumir.toFixed(2)} lbs.`,
+                    p_sucursal: sucursal
                 });
                 if (error) throw error;
 
