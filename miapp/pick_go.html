@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Retiros Pick & Go - PSC App</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
+    <script src="config.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; border-radius: 50%;}
+        @keyframes spin{ to{transform:rotate(360deg)} }
+    </style>
+</head>
+<body>
+    <div class="max-w-md mx-auto min-h-screen">
+        <header class="p-6 flex items-center space-x-4">
+            <a href="index.html" class="text-slate-400 hover:text-white transition">
+                <i data-lucide="arrow-left" class="h-6 w-6"></i>
+            </a>
+            <h1 class="text-xl font-bold text-white">Mis Retiros Pick & Go</h1>
+        </header>
+
+        <main class="px-6 pb-24 space-y-6">
+            <div id="loading-container" class="text-center p-8">
+                <div class="spinner w-8 h-8 mx-auto"></div>
+                <p class="mt-4 text-slate-400">Cargando historial...</p>
+            </div>
+            <div id="retiros-list" class="hidden space-y-4"></div>
+        </main>
+    </div>
+    
+    <!-- QR Code Modal -->
+    <div id="qr-modal-historial" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl text-center p-6">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Código QR de Retiro</h2>
+            <div id="qrcode-historial" class="flex justify-center items-center"></div>
+            <p id="retiro-id-historial" class="font-mono text-xs text-slate-500 mt-4"></p>
+            <button id="close-qr-modal-historial-btn" class="mt-6 w-full bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-md hover:bg-slate-300">Cerrar</button>
+        </div>
+    </div>
+
+    <script type="module">
+        const { createClient } = supabase;
+        const supabaseClient = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
+        const loadingContainer = document.getElementById('loading-container');
+        const retirosList = document.getElementById('retiros-list');
+        const qrModal = document.getElementById('qr-modal-historial');
+
+        async function loadRetiros() {
+            const { data, error } = await supabaseClient.rpc('get_mis_retiros');
+            
+            loadingContainer.classList.add('hidden');
+            retirosList.classList.remove('hidden');
+
+            if (error) {
+                retirosList.innerHTML = `<p class="text-red-500 text-center">Error al cargar el historial.</p>`;
+                console.error(error);
+                return;
+            }
+            if (!data || data.length === 0) {
+                retirosList.innerHTML = `<div class="text-center p-8"><i data-lucide="inbox" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes retiros de Pick & Go.</p></div>`;
+                lucide.createIcons();
+                return;
+            }
+
+            retirosList.innerHTML = data.map(retiro => {
+                 const statusInfo = {
+                    'pagado': { text: 'Pagado', class: 'bg-blue-500/20 text-blue-300' },
+                    'listo_para_retiro': { text: 'Listo para Retiro', class: 'bg-yellow-500/20 text-yellow-300' },
+                    'entregado': { text: 'Entregado', class: 'bg-green-500/20 text-green-300' },
+                }[retiro.estado] || { text: retiro.estado, class: 'bg-slate-700' };
+
+                return `
+                <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-white font-mono">$${retiro.monto.toFixed(2)}</p>
+                            <p class="text-xs text-slate-400">${new Date(retiro.fecha).toLocaleString('es-PA')}</p>
+                        </div>
+                        <span class="text-xs font-bold px-2 py-1 rounded-full ${statusInfo.class}">${statusInfo.text}</span>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-slate-700">
+                        <p class="text-xs font-semibold text-slate-300 mb-1">Paquetes:</p>
+                        <div class="text-xs text-slate-400 font-mono">
+                            ${retiro.paquetes.map(p => `<div>- ${p.tracking}</div>`).join('')}
+                        </div>
+                        <button class="show-qr-btn w-full mt-3 bg-slate-700 text-white font-semibold text-xs py-1.5 rounded-md hover:bg-slate-600" data-id="${retiro.retiro_id}">
+                            Ver Código QR
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+             lucide.createIcons();
+        }
+
+        function showQrModal(retiroId) {
+            const qrCodeEl = document.getElementById('qrcode-historial');
+            qrCodeEl.innerHTML = '';
+            const typeNumber = 4;
+            const errorCorrectionLevel = 'L';
+            const qr = qrcode(typeNumber, errorCorrectionLevel);
+            qr.addData(retiroId);
+            qr.make();
+            qrCodeEl.innerHTML = qr.createImgTag(6, 8);
+            document.getElementById('retiro-id-historial').textContent = `ID de Retiro: ${retiroId}`;
+            qrModal.classList.remove('hidden');
+        }
+
+        retirosList.addEventListener('click', (e) => {
+            const qrButton = e.target.closest('.show-qr-btn');
+            if(qrButton) {
+                showQrModal(qrButton.dataset.id);
+            }
+        });
+
+        document.getElementById('close-qr-modal-historial-btn').addEventListener('click', () => {
+            qrModal.classList.add('hidden');
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRetiros();
+        });
+    </script>
+</body>
+</html>
+
