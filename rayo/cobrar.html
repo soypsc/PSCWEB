@@ -22,12 +22,154 @@
 
     <script type="module">
         import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+        const supabase = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
+        (async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return; }
+            const { data: perfil, error } = await supabase.from('perfiles').select('rol').eq('id', session.user.id).single();
+            if (error || !perfil) { await supabase.auth.signOut(); window.location.href = 'login.html?error=unauthorized'; }
+        })();
+    </script>
+
+    <div class="relative min-h-screen md:flex">
+        <div id="menu-container"></div>
+        <main class="flex-1 p-8">
+            <h1 class="text-3xl font-bold text-slate-900 flex items-center mb-6"><span class="code">[OP-05]</span>Terminal de Entrega</h1>
+            
+            <div class="bg-white p-6 rounded-lg border shadow-sm">
+                <div class="flex flex-wrap gap-4 items-center mb-6">
+                    <div class="relative flex-grow max-w-xl">
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Buscar Cliente por Casillero o Nombre</label>
+                        <input type="text" id="search-cliente" class="w-full text-lg p-2 border-2 border-slate-300 rounded-lg" placeholder="Inicia aquí...">
+                    </div>
+                    <div class="pt-6">
+                        <button id="btn-cargar-suspendida" class="w-full bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-md hover:bg-slate-300">Cargar Venta</button>
+                    </div>
+                </div>
+
+                <div id="terminal-content" class="hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
+                            <div id="verification-panel" class="hidden mb-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800">
+                                <h3 class="font-bold">Verificación Requerida</h3>
+                                <p class="text-sm">Escanee todos los paquetes de la lista para desbloquear la venta:</p>
+                                <ul id="verification-list" class="list-disc list-inside mt-2 text-sm font-mono"></ul>
+                            </div>
+                            <h2 class="text-xl font-bold text-slate-800 mb-2">Paquetes Pendientes de <span id="cliente-nombre-titulo"></span></h2>
+                            <p class="mb-4 text-sm text-slate-500">Escanee cada paquete para agregarlo al carrito.</p>
+                            <div id="pendientes-list" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div>
+                        </div>
+
+                        <div class="bg-slate-50 rounded-lg p-6">
+                            <h2 class="text-xl font-bold text-slate-800 mb-4">🛒 Carrito de Entrega</h2>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-slate-600 mb-1">Escanear Paquete</label>
+                                <input type="text" id="scan-input" class="w-full text-base p-2 border-2 border-slate-400 rounded-lg" placeholder="Esperando escaneo...">
+                            </div>
+                            <div id="carrito-items" class="space-y-3 mb-4"></div>
+                            
+                            <div class="space-y-3 mt-4 pt-4 border-t">
+                                <h3 class="text-lg font-semibold text-slate-700">Saldos del Cliente</h3>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="flex items-center gap-2 text-slate-600">
+                                        <i data-lucide="scale" class="h-4 w-4"></i>
+                                        Saldo de Libras:
+                                    </span>
+                                    <span id="saldo-libras-display" class="font-bold">0.00 lbs</span>
+                                    <button id="btn-aplicar-libras" class="bg-indigo-500 text-white text-xs px-3 py-1 rounded-md disabled:bg-slate-400" disabled>Usar</button>
+                                </div>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="flex items-center gap-2 text-slate-600">
+                                        <i data-lucide="zap" class="h-4 w-4"></i>
+                                        Saldo de Rayitos:
+                                    </span>
+                                    <span id="saldo-rayitos-display" class="font-bold">0</span>
+                                    <button id="btn-aplicar-rayitos" class="bg-amber-500 text-white text-xs px-3 py-1 rounded-md disabled:bg-slate-400" disabled>Usar</button>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2 border-t pt-4 mb-4">
+                                <label class="block text-sm font-medium text-slate-600">Código de Descuento</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="cupon-code-input" class="w-full p-2 border border-slate-300 rounded-md uppercase" placeholder="Ej: VERANO25">
+                                    <button id="btn-aplicar-cupon" class="bg-slate-700 text-white font-semibold px-4 rounded-md hover:bg-slate-800">Aplicar</button>
+                                </div>
+                                <p id="cupon-message" class="text-sm h-4"></p>
+                            </div>
+                            <div class="space-y-3 border-t pt-4">
+                                <div class="flex justify-between items-center text-sm"><span class="text-slate-600">Subtotal:</span><span id="subtotal-carrito" class="font-medium">$0.00</span></div>
+                                <div class="flex justify-between items-center text-sm"><span class="text-slate-600">Descuentos:</span><span id="descuentos-carrito" class="font-medium text-red-500">-$0.00</span></div>
+                                <div class="flex justify-between font-bold text-3xl text-emerald-600 mt-2"><span>TOTAL:</span><span id="total-carrito">$0.00</span></div>
+                                <button id="btn-descuento-general" class="w-full text-sm py-2 bg-amber-100 text-amber-800 font-semibold rounded-md hover:bg-amber-200">Aplicar Descuento General (%)</button>
+                            </div>
+                            
+                            <div id="pago-modulo" class="mt-6 border-t pt-6">
+                                <h3 class="text-lg font-semibold text-slate-700 mb-4">Registrar Pago</h3>
+                                
+                                <div class="mb-4">
+                                    <label for="sucursal-pago" class="block text-sm font-medium text-slate-600 mb-1">Sucursal del Pago</label>
+                                    <select id="sucursal-pago" required class="w-full p-2 border border-slate-300 rounded-md bg-white">
+                                        <option value="">Cargando sucursales...</option>
+                                    </select>
+                                </div>
+
+                                <div id="credit-panel" class="hidden mb-4 p-3 bg-blue-100 text-blue-800 rounded-lg">
+                                    <div class="flex justify-between items-center">
+                                        <p>Saldo a favor: <span id="credit-balance" class="font-bold"></span></p>
+                                        <button id="btn-apply-credit" class="font-semibold hover:underline text-sm bg-blue-200 px-3 py-1 rounded-md">Aplicar Saldo</button>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between font-medium text-xl text-red-600 mb-4"><span>Restante:</span><span id="pago-restante">$0.00</span></div>
+                                <div id="payment-methods-container" class="grid grid-cols-2 gap-2 mb-4"></div>
+                                <div id="pagos-realizados-list" class="text-sm space-y-1 mb-4"></div>
+                            </div>
+                            
+                            <div class="mt-6 border-t pt-6 flex gap-2">
+                                <button id="btn-suspender-venta" class="w-full bg-orange-500 text-white font-semibold py-3 rounded-lg hover:bg-orange-600 disabled:bg-slate-400" disabled>Suspender Venta</button>
+                                <button id="btn-completar-venta" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-emerald-700 disabled:bg-slate-400" disabled>Completar Venta</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="edit-peso-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
+        <div class="bg-white w-full max-w-lg rounded-lg shadow-xl p-6">
+            <div class="flex justify-between items-center mb-6"><h2 class="text-xl font-bold text-slate-800">Ajustar Peso del Paquete</h2><button id="close-edit-modal" class="text-slate-400 hover:text-slate-600 text-3xl font-bold">&times;</button></div>
+            <form id="form-edit-peso" class="space-y-4">
+                <div><label class="block text-sm font-medium">Tracking</label><p id="edit-peso-tracking" class="mt-1 p-2 bg-slate-100 rounded-md font-mono text-slate-700"></p></div>
+                <div><label for="edit-peso-nuevo" class="block text-sm font-medium">Nuevo Peso (lbs)</label><input id="edit-peso-nuevo" type="number" step="0.01" required class="w-full mt-1 p-2 border border-slate-300 rounded-md"></div>
+                <div><label for="edit-peso-nota" class="block text-sm font-medium">Justificación (Obligatorio)</label><textarea id="edit-peso-nota" required rows="3" class="w-full mt-1 p-2 border border-slate-300 rounded-md"></textarea></div>
+                <div><label for="edit-peso-foto" class="block text-sm font-medium">Foto en la Pesa (JPG Obligatorio)</label><input id="edit-peso-foto" type="file" accept="image/jpeg" required class="w-full mt-1 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"></div>
+                <p id="edit-peso-message" class="text-sm text-center h-5"></p>
+                <div class="flex justify-end gap-4 pt-4 border-t"><button type="button" id="cancel-edit-modal" class="bg-slate-100 text-slate-700 font-semibold py-2 px-4 rounded-md hover:bg-slate-200">Cancelar</button><button type="submit" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-md hover:bg-blue-700">Guardar Ajuste</button></div>
+            </form>
+        </div>
+    </div>
+    <div id="load-suspended-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-40">
+        <div class="bg-white w-full max-w-2xl rounded-lg shadow-xl p-6">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Cargar Venta Suspendida</h2>
+            <div id="suspended-sales-list" class="max-h-96 overflow-y-auto"></div>
+            <button id="close-load-suspended-modal" class="mt-4 w-full bg-slate-200 text-slate-700 font-semibold py-2 rounded-md">Cerrar</button>
+        </div>
+    </div>
+    
+    <script type="module" src="app.js"></script>
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
         const sb = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
 
         let clienteActual=null, paquetesPendientes=[], carrito=[], pagos=[], paqueteParaEditar=null;
         let descuentoGeneralPorcentaje=0, cuponAplicado=null;
         let ventaSuspendidaActual=null, modoVerificacion=false;
         
+        // --- INICIO DE CAMBIOS ---
+        let currentUserId = null; // Variable global para guardar el ID del usuario logueado
+        // --- FIN DE CAMBIOS ---
+
         // --- DOM Elements ---
         const searchClienteInput = document.getElementById('search-cliente');
         const terminalContent = document.getElementById('terminal-content');
@@ -62,6 +204,19 @@
         const btnAplicarLibras = document.getElementById('btn-aplicar-libras');
         const btnAplicarRayitos = document.getElementById('btn-aplicar-rayitos');
         const CONVERSION_RAYITOS = 100; // 100 rayitos = $1
+
+        // --- INICIO DE CAMBIOS ---
+        // Función para obtener y guardar el ID del usuario actual
+        async function getCurrentUserId() {
+            const { data: { user } } = await sb.auth.getUser();
+            if (user) {
+                currentUserId = user.id;
+            } else {
+                console.error("No se pudo obtener el usuario. Los pagos no podrán ser atribuidos.");
+                alert("Error de sesión. Por favor, recargue la página.");
+            }
+        }
+        // --- FIN DE CAMBIOS ---
 
         async function cargarSucursales() {
             const { data, error } = await sb.from('sucursales').select('sucursal').order('sucursal');
@@ -116,10 +271,7 @@
         }
 
         function renderPagos() {
-            pagosRealizadosList.innerHTML = pagos.map(p => {
-                const recibidoPor = p.recibido_por_nombre || 'N/A';
-                return `<div class="flex justify-between bg-emerald-100 p-1 rounded-md"><span>${p.metodo} (${p.sucursal}) - por ${recibidoPor}:</span><span class="font-medium">$${p.monto.toFixed(2)}</span></div>`
-            }).join('');
+            pagosRealizadosList.innerHTML = pagos.map(p => `<div class="flex justify-between bg-emerald-100 p-1 rounded-md"><span>${p.metodo} (${p.sucursal}):</span><span class="font-medium">$${p.monto.toFixed(2)}</span></div>`).join('');
         }
 
         function renderVerificationList() {
@@ -338,7 +490,9 @@
                 });
                 if (error) throw error;
                 clienteActual.saldo_a_favor = nuevoSaldo;
-                pagos.push({ metodo: 'Saldo a Favor', monto: montoAAplicar, sucursal: sucursalPagoSelect.value });
+                // --- INICIO DE CAMBIOS ---
+                pagos.push({ metodo: 'Saldo a Favor', monto: montoAAplicar, sucursal: sucursalPagoSelect.value, recibido_por: currentUserId });
+                // --- FIN DE CAMBIOS ---
                 renderPagos();
                 calcularTotal();
                 creditBalanceSpan.textContent = `$${nuevoSaldo.toFixed(2)}`;
@@ -354,6 +508,8 @@
         }
         
         async function handleAplicarLibras() {
+            console.log('Botón de libras presionado');
+            if (!clienteActual || (clienteActual.saldo_libras || 0) <= 0) return;
             const sucursal = sucursalPagoSelect.value;
             if (!sucursal) { alert("Seleccione una sucursal."); return; }
 
@@ -371,19 +527,17 @@
             }
 
             try {
-                // Lógica de la base de datos para consumir las libras
                 const { error } = await sb.rpc('consumir_libras_paquete', {
                     p_cliente_id: clienteActual.id,
                     p_libras_a_consumir: librasAConsumir,
-                    p_descripcion: `Consumo en SGL1 por ${librasAConsumir.toFixed(2)} lbs.`,
-                    p_sucursal: sucursal
+                    p_descripcion: `Consumo en SGL1 por ${librasAConsumir.toFixed(2)} lbs.`
                 });
                 if (error) throw error;
 
-                // Aplicar el descuento al total del carrito
-                pagos.push({ metodo: 'Saldo de Libras', monto: costoLibras, sucursal: sucursal });
+                // --- INICIO DE CAMBIOS ---
+                pagos.push({ metodo: 'Saldo de Libras', monto: costoLibras, sucursal: sucursal, recibido_por: currentUserId });
+                // --- FIN DE CAMBIOS ---
                 clienteActual.saldo_libras -= librasAConsumir;
-                // CORRECCIÓN: Redondear el resultado para evitar errores de precisión
                 clienteActual.saldo_libras = Math.round(clienteActual.saldo_libras * 100) / 100;
                 saldoLibrasDisplay.textContent = `${clienteActual.saldo_libras.toFixed(2)} lbs`;
                 btnAplicarLibras.disabled = true;
@@ -413,16 +567,15 @@
             }
             
             try {
-                // Lógica de la base de datos para canjear los rayitos
                 const { error } = await sb.rpc('canjear_rayitos', {
                     p_cliente_id: clienteActual.id,
-                    p_rayitos_a_canajear: rayitosACanajear,
+                    p_rayitos_a_canjear: rayitosACanajear,
                     p_descripcion: `Canje por ${rayitosACanajear} rayitos en SGL1`
                 });
                 if (error) throw error;
-
-                // Aplicar el descuento al total del carrito
-                pagos.push({ metodo: 'Rayitos', monto: montoDescuento, sucursal: sucursal });
+                // --- INICIO DE CAMBIOS ---
+                pagos.push({ metodo: 'Rayitos', monto: montoDescuento, sucursal: sucursal, recibido_por: currentUserId });
+                // --- FIN DE CAMBIOS ---
                 clienteActual.saldo_rayitos = 0;
                 saldoRayitosDisplay.textContent = '0';
                 btnAplicarRayitos.disabled = true;
@@ -435,7 +588,6 @@
             }
         }
         
-
         function calcularTotal() {
             let subtotal=0, descuentoTotalItems=0;
             carrito.forEach(p => {
@@ -468,7 +620,6 @@
             btnCompletarVenta.disabled = true;
             
             const montoTotalFinal = parseFloat(totalCarritoSpan.textContent.replace('$', ''));
-            const { data: { user } } = await sb.auth.getUser();
 
             try {
                 const { data: facturaId, error: ventaError } = await sb.rpc('finalizar_venta', {
@@ -479,7 +630,7 @@
                     p_cupon_codigo: cuponAplicado ? cuponAplicado.codigo : null,
                     p_venta_suspendida_id: ventaSuspendidaActual ? ventaSuspendidaActual.id : null,
                     p_carrito: carrito.map(p=>({id:p.id, tracking:p.tracking, costo_flete:(p.costo_flete||0)+(p.costo_impuestos||0), descuento_porcentaje:p.descuento_porcentaje||0})),
-                    p_pagos: pagos.map(p => ({...p, recibido_por: user.id}))
+                    p_pagos: pagos
                 });
                 if (ventaError) throw ventaError;
 
@@ -516,7 +667,7 @@
                 return `<tr><td>${p.tracking}</td><td>${(p.peso || 0).toFixed(2)} lbs</td><td>$${costoOriginal.toFixed(2)}</td></tr>`;
             }).join('');
             const desgloseItems = `<table width="100%"><thead><tr><th>Tracking</th><th>Peso</th><th>Costo</th></tr></thead><tbody>${itemsHTML}</tbody></table>`;
-            const pagosHTML = pagos.map(p => `<div>${p.metodo} (${p.sucursal}) - por ${p.recibido_por_nombre}: $${p.monto.toFixed(2)}</div>`).join('');
+            const pagosHTML = pagos.map(p => `<div>${p.metodo} (${p.sucursal}): $${p.monto.toFixed(2)}</div>`).join('');
             html = html.replace(/{{fecha_factura}}/g, new Date().toLocaleDateString('es-PA'));
             html = html.replace(/{{numero_factura}}/g, facturaId.substring(0, 8).toUpperCase());
             html = html.replace(/{{nombre_cliente}}/g, clienteActual.nombre);
@@ -542,7 +693,9 @@
             const montoStr = prompt(`Ingrese el monto a pagar con ${metodo}:`, restante.toFixed(2));
             const monto = parseFloat(montoStr);
             if (!isNaN(monto) && monto > 0 && monto <= restante + 0.001) {
-                pagos.push({ metodo, monto, sucursal });
+                // --- INICIO DE CAMBIOS ---
+                pagos.push({ metodo, monto, sucursal, recibido_por: currentUserId });
+                // --- FIN DE CAMBIOS ---
                 renderPagos();
                 calcularTotal();
             } else { alert("Monto inválido."); }
@@ -629,7 +782,7 @@
         }
         
         function resetTerminal(limpiarBuscador = false) {
-            clienteActual=null; paquetesPendientes=[], carrito=[], pagos=[], paqueteParaEditar=null;
+            clienteActual=null; paquetesPendientes=[]; carrito=[]; pagos=[]; paqueteParaEditar=null;
             descuentoGeneralPorcentaje=0; cuponAplicado=null; ventaSuspendidaActual=null; modoVerificacion=false;
             terminalContent.classList.add('hidden');
             verificationPanel.classList.add('hidden');
@@ -648,7 +801,8 @@
             scanInput.classList.add(className);
             setTimeout(() => scanInput.classList.remove(className), 500);
         }
-        document.addEventListener('DOMContentLoaded', () => {
+
+        document.addEventListener('DOMContentLoaded', async () => { // --- CAMBIO: Se hizo async
             searchClienteInput.addEventListener('change', (e) => buscarCliente(e.target.value.trim()));
             scanInput.addEventListener('change', handleScan);
             btnCompletarVenta.addEventListener('click', completarVenta);
@@ -681,14 +835,18 @@
             document.getElementById('cancel-edit-modal').addEventListener('click', () => editPesoModal.classList.add('hidden'));
             btnApplyCredit.addEventListener('click', handleApplyCredit);
             
-            // --- CÓDIGO FALTANTE ESTABA AQUÍ ---
             btnAplicarLibras.addEventListener('click', handleAplicarLibras);
             btnAplicarRayitos.addEventListener('click', handleAplicarRayitos);
-            // ------------------------------------
 
             lucide.createIcons();
+            
+            // --- INICIO DE CAMBIOS ---
+            await getCurrentUserId(); // Se llama a la función para obtener el ID del usuario
+            // --- FIN DE CAMBIOS ---
             
             cargarSucursales();
             configurarSucursalPorDefecto();
         });
-    </script></body></html>
+    </script>
+</body>
+</html>
