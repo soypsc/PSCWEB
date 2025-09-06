@@ -1,0 +1,47 @@
+{
+  "name": "PSC App - Tu Casillero",
+  "short_name": "PSC App",
+  "description": "Aplicación de Clientes para PSC. Gestiona tus paquetes y casillero.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#202d4c",
+  "theme_color": "#202d4c",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "https://static.wixstatic.com/media/f7f5e1_bd90ae68234f4ee9975e3140c4bb47ef~mv2.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "prefer_related_applications": false
+}
+
