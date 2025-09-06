@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Recibos - PSC App</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="config.js"></script>
+
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        .spinner { border-color: #4b5563; border-top-color: #60a5fa; animation: spin 1s linear infinite; border-radius: 50%;}
+        @keyframes spin{ to{transform:rotate(360deg)} }
+    </style>
+</head>
+<body>
+    <div id="app-container" class="max-w-md mx-auto min-h-screen">
+        <header class="p-6 flex items-center space-x-4">
+            <a href="index.html" class="text-slate-400"><i data-lucide="arrow-left" class="h-6 w-6"></i></a>
+            <h1 class="text-xl font-bold text-white">Mis Recibos</h1>
+        </header>
+        <main class="px-6 pb-24 space-y-6">
+            <div id="facturas-list-container" class="space-y-4">
+                <div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para ver el detalle de la factura -->
+    <div id="factura-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-2xl shadow-xl max-h-[90vh] flex flex-col">
+            <header class="p-4 flex items-center justify-between border-b border-slate-700">
+                <h2 class="text-lg font-semibold text-white">Detalle de Recibo</h2>
+                <div class="flex items-center gap-4">
+                    <button id="print-factura-btn" class="text-slate-400 hover:text-white" title="Imprimir"><i data-lucide="printer"></i></button>
+                    <button id="close-factura-modal-btn" class="text-slate-400 hover:text-white" title="Cerrar"><i data-lucide="x"></i></button>
+                </div>
+            </header>
+            <main id="factura-modal-content" class="p-6 overflow-y-auto"></main>
+        </div>
+    </div>
+
+    <script type="module">
+        // --- Inicialización de Supabase ---
+        const { createClient } = supabase;
+        const supabaseClient = createClient(window.PSC_CONFIG.supabaseUrl, window.PSC_CONFIG.supabaseAnonKey);
+
+        // --- Función para formatear fechas ---
+        const formatDate = (dateStr) => dateStr 
+            ? new Date(dateStr).toLocaleDateString('es-PA', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) 
+            : 'N/A';
+
+        // --- Lógica para cargar las facturas ---
+        const loadFacturas = async (user) => { 
+            const container = document.getElementById('facturas-list-container');
+            container.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto"></div></div>`;
+
+            // 1. Obtener el perfil del cliente para saber su número de casillero (box)
+            const { data: profile, error: profileError } = await supabaseClient.from('clientes').select('box').eq('user_id', user.id).single();
+            
+            if (profileError || !profile) {
+                container.innerHTML = `<p class="text-red-500 text-center">No se pudo encontrar tu casillero.</p>`;
+                return;
+            }
+
+            // 2. Usar el número de casillero para buscar todas las facturas asociadas
+            const { data: facturas, error: facturasError } = await supabaseClient.from('facturas')
+                .select('id, created_at, monto_total, html_recibo')
+                .eq('cliente_box', profile.box)
+                .order('created_at', { ascending: false });
+
+            if (facturasError) {
+                container.innerHTML = `<p class="text-red-500 text-center">Error al cargar facturas.</p>`;
+                return;
+            }
+
+            // 3. Mostrar un mensaje si no hay facturas
+            if (!facturas.length) {
+                container.innerHTML = `<div class="text-center p-8"><i data-lucide="receipt" class="h-16 w-16 text-slate-600 mx-auto"></i><p class="mt-4 text-slate-400">No tienes recibos.</p></div>`;
+                lucide.createIcons();
+                return;
+            }
+
+            // 4. Generar el HTML para cada factura y mostrarlo en la página
+            container.innerHTML = facturas.map(f => `
+                <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="font-bold text-lg font-mono text-white">$${(f.monto_total || 0).toFixed(2)}</p>
+                            <p class="text-xs text-slate-400">Recibo #${f.id.substring(0, 8).toUpperCase()}</p>
+                            <p class="text-xs text-slate-500 mt-1">${formatDate(f.created_at)}</p>
+                        </div>
+                        ${f.html_recibo ? `<button data-factura-id="${f.id}" class="view-receipt-btn bg-blue-600 text-white font-semibold text-xs px-3 py-1.5 rounded-md hover:bg-blue-700">Ver Recibo</button>` : ''}
+                    </div>
+                </div>`
+            ).join('');
+            lucide.createIcons();
+        };
+
+        // --- Lógica de inicialización de la página ---
+        async function initializePage() {
+            // Obtener la sesión actual para verificar si el usuario está logueado
+            const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+
+            if (sessionError || !session) {
+                // Si no hay sesión, redirigir a la página de inicio de sesión
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Si hay sesión, cargar las facturas del usuario
+            await loadFacturas(session.user);
+            
+            // Mantenerse escuchando por si el usuario cierra sesión en otra pestaña
+            supabaseClient.auth.onAuthStateChange((_event, session) => {
+                if (!session) {
+                    window.location.href = 'index.html';
+                }
+            });
+        }
+        
+        // --- Lógica del Modal de Facturas ---
+        const facturaModal = document.getElementById('factura-modal');
+        const facturaModalContent = document.getElementById('factura-modal-content');
+        const appContainer = document.getElementById('app-container');
+
+        // Escuchar clics en el contenedor principal para abrir el modal
+        appContainer.addEventListener('click', async (e) => {
+            const viewButton = e.target.closest('.view-receipt-btn');
+            if (viewButton) {
+                const facturaId = viewButton.dataset.facturaId;
+                facturaModalContent.innerHTML = `<div class="text-center p-8"><div class="spinner w-8 h-8 mx-auto border-slate-700 border-t-blue-500"></div></div>`;
+                facturaModal.classList.remove('hidden');
+                
+                const { data } = await supabaseClient.from('facturas').select('html_recibo').eq('id', facturaId).single();
+                
+                facturaModalContent.innerHTML = data?.html_recibo || '<p class="text-slate-700">No se encontró el contenido del recibo.</p>';
+            }
+        });
+
+        // Botón para cerrar el modal
+        document.getElementById('close-factura-modal-btn').addEventListener('click', () => {
+            facturaModal.classList.add('hidden');
+        });
+        
+        // Botón para imprimir el contenido del modal
+        document.getElementById('print-factura-btn').addEventListener('click', () => {
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>Recibo PSC</title>');
+            printWindow.document.write('<style>body{font-family:sans-serif;}</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(facturaModalContent.innerHTML);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        });
+
+        // --- Punto de entrada: Ejecutar al cargar el DOM ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initializePage();
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
+
